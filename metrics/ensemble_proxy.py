@@ -76,7 +76,7 @@ class EnsembleProxy:
     @staticmethod
     def compute_sign_corrected_product(ed_scores, jacobian_scores):
         """
-        ED × inverted-Jacobian product for multiplicative combination.
+        ED * inverted-Jacobian product for multiplicative combination.
 
         Both normalized to [0,1] with common polarity before multiplication.
         Emphasizes agreement: only high if both ED is high AND Jacobian is low.
