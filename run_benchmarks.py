@@ -2,6 +2,7 @@ import torch
 import json
 import os
 import logging
+import concurrent.futures
 
 # Suppress verbose external library logging BEFORE imports that use them
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
@@ -61,6 +62,10 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     try:
         wrapper = HookedModelWrapper(model_name, load_in_8bit=True)
         ablation_tool = LayerAblation(wrapper)
+        
+        # Enable mixed precision for faster computation
+        torch.set_float32_matmul_precision('medium')
+        logger.info("Mixed precision enabled for faster tensor operations")
     except Exception as e:
         logger.error(f"Failed to load model {model_name}: {e}")
         raise
@@ -82,12 +87,27 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     logger.info("Step 2: Mapping Ground Truth Sensitivity via Layer-wise Ablation...")
     ground_truth = ablation_tool.map_layer_sensitivity(num_samples=n_ablation)
 
-    # 3. Compute Proxy Triad
-    logger.info("Step 3: Computing Mechanistic Proxies (ED, Jacobian, nAUDC, Fisher)...")
-    ed_scores = EffectiveDimension.compute_all_layers(wrapper, num_samples=n_ed)
-    jacobian_scores = LogitJacobian.compute_all_layers(wrapper, num_samples=n_jacobian)
-    drift_scores = PropagationDrift.compute_all_layers(wrapper, num_samples=n_naudc)
-    fisher_scores = FisherInformation.compute_all_layers(wrapper, num_samples=n_fisher)
+    # 3. Compute Proxy Triad (in parallel for speed)
+    logger.info("Step 3: Computing Mechanistic Proxies (ED, Jacobian, nAUDC, Fisher) in parallel...")
+    import time
+    start_time = time.time()
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        # Submit all metric computations as parallel tasks
+        futures = {
+            'ed': executor.submit(EffectiveDimension.compute_all_layers, wrapper, num_samples=n_ed),
+            'jacobian': executor.submit(LogitJacobian.compute_all_layers, wrapper, num_samples=n_jacobian),
+            'drift': executor.submit(PropagationDrift.compute_all_layers, wrapper, num_samples=n_naudc),
+            'fisher': executor.submit(FisherInformation.compute_all_layers, wrapper, num_samples=n_fisher),
+        }
+        # Gather results as they complete
+        ed_scores = futures['ed'].result()
+        jacobian_scores = futures['jacobian'].result()
+        drift_scores = futures['drift'].result()
+        fisher_scores = futures['fisher'].result()
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Metrics computed in parallel ({elapsed:.2f}s)")
     
     # 3b. Compute Ensemble Proxies (sign-corrected: all metrics aligned to higher=more important)
     logger.info("Step 3b: Computing Sign-Corrected Ensemble Proxies...")
