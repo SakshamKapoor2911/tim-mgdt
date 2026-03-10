@@ -1,7 +1,10 @@
 import torch
 import torch.nn.functional as F
 import numpy as np
+import logging
 from utils.dataset_manager import load_calibration_data
+
+logger = logging.getLogger(__name__)
 
 
 class LayerAblation:
@@ -12,8 +15,15 @@ class LayerAblation:
         self.device = wrapper.device
 
     def map_layer_sensitivity(self, num_samples=50):
-        """Compute ground truth sensitivity: skip each layer and measure ΔCE."""
-        print("\n[Ground Truth] Starting layer-skip ablation (ΔCE / ΔPPL)...")
+        """Compute ground truth sensitivity: skip each layer and measure ΔCE.
+        
+        Args:
+            num_samples: Number of calibration samples to use (int)
+            
+        Returns:
+            dict: Layer sensitivity scores indexed as 'layer_X' for X in [0, n_layers)
+        """
+        logger.info("Starting layer-skip ablation (ΔCE / ΔPPL)...")
 
         model = self.wrapper.model
         texts = load_calibration_data(num_samples=num_samples)
@@ -22,16 +32,16 @@ class LayerAblation:
         # Tokenize all texts once
         all_tokens = []
         for text in texts:
-            tokens = model.to_tokens(text)
+            tokens = model.to_tokens(text).to(self.device)  # Ensure tokens on correct device
             if tokens.shape[1] >= 2:
                 all_tokens.append(tokens)
 
-        print(f"  Using {len(all_tokens)} valid texts ({sum(t.shape[1] for t in all_tokens)} total tokens)")
+        logger.info(f"Using {len(all_tokens)} valid texts ({sum(t.shape[1] for t in all_tokens)} total tokens)")
 
         # Baseline cross-entropy (no ablation)
-        print("  Computing baseline cross-entropy...")
+        logger.info("Computing baseline cross-entropy...")
         baseline_ce = self._compute_cross_entropy(model, all_tokens)
-        print(f"  Baseline CE: {baseline_ce:.4f} (PPL={np.exp(baseline_ce):.2f})\n")
+        logger.info(f"Baseline CE: {baseline_ce:.4f} (PPL={np.exp(baseline_ce):.2f})")
 
         sensitivities = {}
         for layer_idx in range(n_layers):
@@ -40,7 +50,7 @@ class LayerAblation:
             sensitivities[f"layer_{layer_idx}"] = float(delta)
 
             if layer_idx % max(1, n_layers // 4) == 0:
-                print(f"  Layer {layer_idx}: ΔCE = {delta:+.4f} (ablated PPL={np.exp(ablated_ce):.2f})")
+                logger.info(f"Layer {layer_idx}: ΔCE = {delta:+.4f} (ablated PPL={np.exp(ablated_ce):.2f})")
 
             torch.cuda.empty_cache()
 
