@@ -1,6 +1,7 @@
 import torch
 import json
 import os
+import logging
 from models.model_wrapper import HookedModelWrapper
 from metrics.geometric_ed import EffectiveDimension
 from metrics.causal_jacobian import LogitJacobian
@@ -10,20 +11,54 @@ from metrics.ensemble_proxy import EnsembleProxy
 from interventions.ablation import LayerAblation
 from scipy.stats import spearmanr
 
+# Setup logging for reproducibility
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('benchmark_run.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
 def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
-    print(f"--- Starting Pipeline for {model_name} ({num_samples} samples) ---")
+    """
+    Run full attribution metrics pipeline: ablation → proxies → correlation analysis.
+    
+    Args:
+        model_name: HuggingFace model identifier (str)
+        num_samples: Number of calibration samples (int, >= 10)
+    
+    Raises:
+        ValueError: If inputs are invalid
+        Exception: If model loading fails
+    """
+    # Input validation
+    if not isinstance(num_samples, int) or num_samples < 10:
+        raise ValueError(f"num_samples must be int >= 10, got {num_samples}")
+    if not isinstance(model_name, str):
+        raise ValueError(f"model_name must be str, got {type(model_name)}")
+    
+    # Ensure output directory exists
+    os.makedirs("experiments", exist_ok=True)
+    
+    logger.info(f"Starting Pipeline for {model_name} ({num_samples} samples)")
     
     # 1. Initialize Model & Tools
-    # Note: Use load_in_8bit=True to fit in 16GB VRAM GPUs (A10G, T4, etc.)
-    print("Step 1: Initializing Hooked Model Wrapper...")
-    wrapper = HookedModelWrapper(model_name, load_in_8bit=True)
-    ablation_tool = LayerAblation(wrapper)
+    logger.info("Step 1: Initializing Hooked Model Wrapper...")
+    try:
+        wrapper = HookedModelWrapper(model_name, load_in_8bit=True)
+        ablation_tool = LayerAblation(wrapper)
+    except Exception as e:
+        logger.error(f"Failed to load model {model_name}: {e}")
+        raise
     
     results = {}
     
     # Get the actual number of layers in the model
     n_layers = wrapper.model.cfg.n_layers
-    print(f"Model has {n_layers} layers")
+    logger.info(f"Model has {n_layers} layers")
 
     # Sample counts: scale proportionally
     n_ablation = num_samples
@@ -33,25 +68,25 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     n_fisher = num_samples
 
     # 2. Get Ground Truth (Delta PPL)
-    print("Step 2: Mapping Ground Truth Sensitivity via Layer-wise Ablation...")
+    logger.info("Step 2: Mapping Ground Truth Sensitivity via Layer-wise Ablation...")
     ground_truth = ablation_tool.map_layer_sensitivity(num_samples=n_ablation)
 
     # 3. Compute Proxy Triad
-    print("Step 3: Computing Mechanistic Proxies (ED, Jacobian, nAUDC, Fisher)...")
+    logger.info("Step 3: Computing Mechanistic Proxies (ED, Jacobian, nAUDC, Fisher)...")
     ed_scores = EffectiveDimension.compute_all_layers(wrapper, num_samples=n_ed)
     jacobian_scores = LogitJacobian.compute_all_layers(wrapper, num_samples=n_jacobian)
     drift_scores = PropagationDrift.compute_all_layers(wrapper, num_samples=n_naudc)
     fisher_scores = FisherInformation.compute_all_layers(wrapper, num_samples=n_fisher)
     
     # 3b. Compute Ensemble Proxies (sign-corrected: all metrics aligned to higher=more important)
-    print("\nStep 3b: Computing Sign-Corrected Ensemble Proxies...")
+    logger.info("Step 3b: Computing Sign-Corrected Ensemble Proxies...")
     ensemble_mean = EnsembleProxy.compute_sign_corrected_mean(ed_scores, jacobian_scores, drift_scores)
     ensemble_product = EnsembleProxy.compute_sign_corrected_product(ed_scores, jacobian_scores)
     ensemble_weighted = EnsembleProxy.compute_weighted_sum(ed_scores, jacobian_scores, drift_scores)
-    print("  \u2713 Ensemble proxies computed (3-way mean, ED\u00d7Jac product, weighted sum)")
+    logger.info("Ensemble proxies computed (3-way mean, ED×Jac product, weighted sum)")
 
     # 4. Statistical Correlation Analysis (with sign correction for interpretation)
-    print("\nStep 4: Performing Spearman Correlation Analysis...")
+    logger.info("Step 4: Performing Spearman Correlation Analysis...")
     gt_list = [ground_truth[f"layer_{i}"] for i in range(n_layers)]
     
     # Raw metrics with inverse polarity noted
@@ -90,7 +125,7 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
         raw_correlations[name] = float(rho_raw)
         sign_corrected_correlations[name] = float(rho_report)
         
-        print(f"Result for {label}: Spearman Rho = {rho_report:.4f} (p = {p_val_report:.4f})")
+        logger.info(f"Result for {label}: Spearman Rho = {rho_report:.4f} (p = {p_val_report:.4f})")
 
     # 5. Save Results to JSON for review
     output_path = f"experiments/sensitivity_results_{num_samples}samples.json"
@@ -132,9 +167,9 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     with open(output_path, "w") as f:
         json.dump(all_results, f, indent=4)
     
-    print(f"\n--- Pipeline Complete. Results saved to {output_path} ---")
-    print(f"Total metrics tested: {len(results)}")
-    print(f"Samples used: ablation={n_ablation}, ED={n_ed}, Jacobian={n_jacobian}, nAUDC={n_naudc}, Fisher={n_fisher}")
+    logger.info(f"Pipeline Complete. Results saved to {output_path}")
+    logger.info(f"Total metrics tested: {len(results)}")
+    logger.info(f"Samples used: ablation={n_ablation}, ED={n_ed}, Jacobian={n_jacobian}, nAUDC={n_naudc}, Fisher={n_fisher}")
 
 if __name__ == "__main__":
     # --- CONFIGURATION ---
