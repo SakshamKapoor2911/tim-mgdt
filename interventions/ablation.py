@@ -23,7 +23,7 @@ class LayerAblation:
         Returns:
             dict: Layer sensitivity scores indexed as 'layer_X' for X in [0, n_layers)
         """
-        logger.info("Starting layer-skip ablation (ΔCE / ΔPPL)...")
+        logger.info("Starting layer-skip ablation (DeltaCE / DeltaPPL)...")
 
         model = self.wrapper.model
         texts = load_calibration_data(num_samples=num_samples)
@@ -50,7 +50,7 @@ class LayerAblation:
             sensitivities[f"layer_{layer_idx}"] = float(delta)
 
             if layer_idx % max(1, n_layers // 4) == 0:
-                logger.info(f"Layer {layer_idx}: ΔCE = {delta:+.4f} (ablated PPL={np.exp(ablated_ce):.2f})")
+                logger.info(f"Layer {layer_idx}: DeltaCE = {delta:+.4f} (ablated PPL={np.exp(ablated_ce):.2f})")
 
             torch.cuda.empty_cache()
 

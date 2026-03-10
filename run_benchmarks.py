@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     """
-    Run full attribution metrics pipeline: ablation → proxies → correlation analysis.
+    Run full attribution metrics pipeline: ablation -> proxies -> correlation analysis.
     
     Args:
         model_name: HuggingFace model identifier (str)
@@ -83,7 +83,7 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     ensemble_mean = EnsembleProxy.compute_sign_corrected_mean(ed_scores, jacobian_scores, drift_scores)
     ensemble_product = EnsembleProxy.compute_sign_corrected_product(ed_scores, jacobian_scores)
     ensemble_weighted = EnsembleProxy.compute_weighted_sum(ed_scores, jacobian_scores, drift_scores)
-    logger.info("Ensemble proxies computed (3-way mean, ED×Jac product, weighted sum)")
+    logger.info("Ensemble proxies computed (3-way mean, ED*Jac product, weighted sum)")
 
     # 4. Statistical Correlation Analysis (with sign correction for interpretation)
     logger.info("Step 4: Performing Spearman Correlation Analysis...")
@@ -96,7 +96,7 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
         ("Propagation (nAUDC)", drift_scores, True),   # Inverted polarity
         ("Fisher Information", fisher_scores, False),
         ("Ensemble (ED+invJac+invnAUDC)", ensemble_mean, False),
-        ("Ensemble (ED×invJac)", ensemble_product, False),
+        ("Ensemble (ED*invJac)", ensemble_product, False),
         ("Ensemble (Weighted Sum)", ensemble_weighted, False),
     ]
     
