@@ -27,9 +27,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Suppress remaining external library HTTP/URL logging
-logging.getLogger('urllib3').setLevel(logging.WARNING)
-logging.getLogger('huggingface_hub').setLevel(logging.CRITICAL)
+# Disable external library loggers that aren't critical for operation
+logging.getLogger('urllib3').disabled = True
+logging.getLogger('huggingface_hub').disabled = True
+logging.getLogger('huggingface_hub.utils._headers').disabled = True
+logging.getLogger('charset_normalizer').disabled = True
 
 def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     """
