@@ -2,6 +2,11 @@ import torch
 import json
 import os
 import logging
+
+# Suppress verbose external library logging BEFORE imports that use them
+os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
 from models.model_wrapper import HookedModelWrapper
 from metrics.geometric_ed import EffectiveDimension
 from metrics.causal_jacobian import LogitJacobian
@@ -22,10 +27,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Suppress verbose logging from external libraries
-logging.getLogger('transformers').setLevel(logging.WARNING)
-logging.getLogger('huggingface_hub').setLevel(logging.WARNING)
+# Suppress remaining external library HTTP/URL logging
 logging.getLogger('urllib3').setLevel(logging.WARNING)
+logging.getLogger('huggingface_hub').setLevel(logging.CRITICAL)
 
 def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     """
