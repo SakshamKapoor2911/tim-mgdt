@@ -33,7 +33,8 @@ class LogitJacobian:
 
             def make_hook(idx):
                 def hook_fn(value, hook):
-                    value.retain_grad()
+                    if value.requires_grad:
+                        value.retain_grad()
                     captured[idx] = value
                     return value  # pass through unchanged
                 return hook_fn

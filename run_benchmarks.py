@@ -2,7 +2,6 @@ import torch
 import json
 import os
 import logging
-import concurrent.futures
 
 # Suppress verbose external library logging BEFORE imports that use them
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
@@ -83,27 +82,29 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     logger.info("Step 2: Mapping Ground Truth Sensitivity via Layer-wise Ablation...")
     ground_truth = ablation_tool.map_layer_sensitivity(num_samples=n_ablation)
 
-    # 3. Compute Proxy Triad (in parallel for speed)
-    logger.info("Step 3: Computing Mechanistic Proxies (ED, Jacobian, nAUDC, Fisher) in parallel...")
+    # 3. Compute Proxy metrics sequentially for model/hook safety
+    logger.info("Step 3: Computing Mechanistic Proxies sequentially (ED, Jacobian, Fisher, nAUDC)...")
     import time
     start_time = time.time()
-    
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-        # Submit all metric computations as parallel tasks
-        futures = {
-            'ed': executor.submit(EffectiveDimension.compute_all_layers, wrapper, num_samples=n_ed),
-            'jacobian': executor.submit(LogitJacobian.compute_all_layers, wrapper, num_samples=n_jacobian),
-            'drift': executor.submit(PropagationDrift.compute_all_layers, wrapper, num_samples=n_naudc),
-            'fisher': executor.submit(FisherInformation.compute_all_layers, wrapper, num_samples=n_fisher),
-        }
-        # Gather results as they complete
-        ed_scores = futures['ed'].result()
-        jacobian_scores = futures['jacobian'].result()
-        drift_scores = futures['drift'].result()
-        fisher_scores = futures['fisher'].result()
-    
+
+    start_ed = time.time()
+    ed_scores = EffectiveDimension.compute_all_layers(wrapper, num_samples=n_ed)
+    logger.info(f"ED computed ({time.time() - start_ed:.2f}s)")
+
+    start_jacobian = time.time()
+    jacobian_scores = LogitJacobian.compute_all_layers(wrapper, num_samples=n_jacobian)
+    logger.info(f"Jacobian computed ({time.time() - start_jacobian:.2f}s)")
+
+    start_fisher = time.time()
+    fisher_scores = FisherInformation.compute_all_layers(wrapper, num_samples=n_fisher)
+    logger.info(f"Fisher computed ({time.time() - start_fisher:.2f}s)")
+
+    start_naudc = time.time()
+    drift_scores = PropagationDrift.compute_all_layers(wrapper, num_samples=n_naudc)
+    logger.info(f"nAUDC computed ({time.time() - start_naudc:.2f}s)")
+
     elapsed = time.time() - start_time
-    logger.info(f"Metrics computed in parallel ({elapsed:.2f}s)")
+    logger.info(f"All metrics computed sequentially ({elapsed:.2f}s)")
     
     # 3b. Compute Ensemble Proxies (sign-corrected: all metrics aligned to higher=more important)
     logger.info("Step 3b: Computing Sign-Corrected Ensemble Proxies...")
