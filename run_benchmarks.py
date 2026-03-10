@@ -62,10 +62,6 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     try:
         wrapper = HookedModelWrapper(model_name, load_in_8bit=True)
         ablation_tool = LayerAblation(wrapper)
-        
-        # Enable mixed precision for faster computation
-        torch.set_float32_matmul_precision('medium')
-        logger.info("Mixed precision enabled for faster tensor operations")
     except Exception as e:
         logger.error(f"Failed to load model {model_name}: {e}")
         raise
