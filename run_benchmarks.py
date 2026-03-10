@@ -50,28 +50,47 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     ensemble_weighted = EnsembleProxy.compute_weighted_sum(ed_scores, jacobian_scores, drift_scores)
     print("  \u2713 Ensemble proxies computed (3-way mean, ED\u00d7Jac product, weighted sum)")
 
-    # 4. Statistical Correlation Analysis
+    # 4. Statistical Correlation Analysis (with sign correction for interpretation)
     print("\nStep 4: Performing Spearman Correlation Analysis...")
     gt_list = [ground_truth[f"layer_{i}"] for i in range(n_layers)]
     
+    # Raw metrics with inverse polarity noted
     metrics_to_test = [
-        ("Geometric (ED)", ed_scores),
-        ("Causal (Jacobian)", jacobian_scores), 
-        ("Propagation (nAUDC)", drift_scores),
-        ("Fisher Information", fisher_scores),
-        ("Ensemble (3-way Mean)", ensemble_mean),
-        ("Ensemble (ED\u00d7invJac)", ensemble_product),
-        ("Ensemble (Weighted Sum)", ensemble_weighted),
+        ("Geometric (ED)", ed_scores, False),
+        ("Causal (Jacobian)", jacobian_scores, True),  # Inverted polarity
+        ("Propagation (nAUDC)", drift_scores, True),   # Inverted polarity
+        ("Fisher Information", fisher_scores, False),
+        ("Ensemble (ED+invJac+invnAUDC)", ensemble_mean, False),
+        ("Ensemble (ED×invJac)", ensemble_product, False),
+        ("Ensemble (Weighted Sum)", ensemble_weighted, False),
     ]
     
-    for name, scores in metrics_to_test:
+    # Keep track of both raw and sign-corrected correlations
+    raw_correlations = {}
+    sign_corrected_correlations = {}
+    
+    for name, scores, is_inverted in metrics_to_test:
         score_list = [scores[f"layer_{i}"] for i in range(n_layers)]
-        rho, p_val = spearmanr(score_list, gt_list)
+        rho_raw, p_val_raw = spearmanr(score_list, gt_list)
+        
+        # For research: report absolute rho with correction note
+        rho_report = abs(rho_raw) if is_inverted else rho_raw
+        p_val_report = p_val_raw
+        
+        if is_inverted:
+            label = f"{name} [sign-corrected]"
+        else:
+            label = name
+            
         results[name] = {
-            "spearman_rho": float(rho), 
-            "p_value": float(p_val)
+            "spearman_rho": float(rho_report), 
+            "p_value": float(p_val_report),
+            "is_sign_corrected": is_inverted
         }
-        print(f"Result for {name}: Spearman Rho = {rho:.4f} (p = {p_val:.4f})")
+        raw_correlations[name] = float(rho_raw)
+        sign_corrected_correlations[name] = float(rho_report)
+        
+        print(f"Result for {label}: Spearman Rho = {rho_report:.4f} (p = {p_val_report:.4f})")
 
     # 5. Save Results to JSON for review
     output_path = f"experiments/sensitivity_results_{num_samples}samples.json"
@@ -83,14 +102,18 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
         "causal_jacobian": jacobian_scores,
         "propagation_naudc": drift_scores,
         "fisher_information": fisher_scores,
-        "ensemble_3way_mean": ensemble_mean,
-        "ensemble_ed_x_inv_jacobian": ensemble_product,
-        "ensemble_weighted_sum": ensemble_weighted,
+        "ensemble_mean": ensemble_mean,
+        "ensemble_product": ensemble_product,
+        "ensemble_weighted": ensemble_weighted,
     }
     
     all_results = {
         "correlations": results,
         "raw_scores": raw_scores,
+        "correlation_metadata": {
+            "raw_correlations": raw_correlations,
+            "sign_corrected_correlations": sign_corrected_correlations,
+        },
         "config": {
             "model": model_name,
             "n_layers": n_layers,
@@ -101,7 +124,8 @@ def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
                 "jacobian": n_jacobian,
                 "naudc": n_naudc,
                 "fisher": n_fisher,
-            }
+            },
+            "notes": "Correlations for Jacobian and nAUDC are sign-corrected (inverted polarity). Report as abs(rho) for clarity."
         }
     }
     
