@@ -22,6 +22,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Suppress verbose logging from external libraries
+logging.getLogger('transformers').setLevel(logging.WARNING)
+logging.getLogger('huggingface_hub').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+
 def run_pipeline(model_name="mistralai/Mistral-7B-v0.1", num_samples=50):
     """
     Run full attribution metrics pipeline: ablation -> proxies -> correlation analysis.
