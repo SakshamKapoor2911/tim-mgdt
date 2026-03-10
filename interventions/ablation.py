@@ -80,13 +80,19 @@ class LayerAblation:
                 return captured_pre['act']
 
             with torch.no_grad():
-                logits = model.run_with_hooks(
-                    tokens,
-                    fwd_hooks=[
-                        (f"blocks.{layer_idx}.hook_resid_pre", capture_pre),
-                        (f"blocks.{layer_idx}.hook_resid_post", replace_post),
-                    ]
-                )
+                # Use try-finally to ensure hooks are cleaned up properly
+                try:
+                    logits = model.run_with_hooks(
+                        tokens,
+                        fwd_hooks=[
+                            (f"blocks.{layer_idx}.hook_resid_pre", capture_pre),
+                            (f"blocks.{layer_idx}.hook_resid_post", replace_post),
+                        ],
+                        reset_hooks_end=True
+                    )
+                finally:
+                    # Explicitly clear all hooks to prevent accumulation
+                    model.reset_hooks()
 
             shift_logits = logits[:, :-1, :].reshape(-1, logits.shape[-1])
             shift_labels = tokens[:, 1:].reshape(-1)
