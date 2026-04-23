@@ -5,17 +5,19 @@ to avoid model loading compatibility issues.
 import torch
 import json
 import os
-from metrics.geometric_ed import EffectiveDimension
-from metrics.causal_jacobian import LogitJacobian
-from metrics.propagation_naudc import PropagationDrift
-from interventions.ablation import LayerAblation
+import time
+from code.metrics.geometric_ed import EffectiveDimension
+from code.metrics.causal_jacobian import LogitJacobian
+from code.metrics.propagation_naudc import PropagationDrift
+from code.interventions.ablation import LayerAblation
 from scipy.stats import spearmanr
+
 
 
 class MockModel:
     """Mock model configuration for testing."""
     def __init__(self, n_layers=12):
-        self.cfg = type('Config', (), {'n_layers': n_layers})()
+        self.cfg = type('Config', (), {'n_layers': n_layers, 'd_model': 768})()
     
     def eval(self):
         """No-op for compatibility."""
@@ -32,6 +34,24 @@ class MockModel:
         logits = torch.randn(batch_size, seq_len, vocab_size)
         return logits
     
+    def to_tokens(self, text, **kwargs):
+        """Mock tokenizer."""
+        return torch.randint(0, 50257, (1, 16))
+    
+    def run_with_hooks(self, tokens, fwd_hooks=None, **kwargs):
+        """Mock run with hooks."""
+        return self.__call__(tokens)
+    
+    def run_with_cache(self, tokens, **kwargs):
+        """Mock run with cache."""
+        logits = self.__call__(tokens)
+        cache = MockCache(n_layers=self.cfg.n_layers)
+        return logits, cache
+    
+    def reset_hooks(self):
+        """Mock reset hooks."""
+        pass
+
     def parameters(self):
         """Mock parameters for iteration."""
         return []
@@ -143,14 +163,30 @@ def run_demo_pipeline():
         print(f"  Interpretation: {results[name]['interpretation']}\n")
 
     # 5. Save Results to JSON
-    output_path = "experiments/sensitivity_results.json"
-    os.makedirs("experiments", exist_ok=True)
+    from code.utils.manifest import create_manifest, save_manifest, update_manifest_status
+    
+    run_id = f"demo_{int(time.time())}"
+    output_dir = f"experiments/phase2/mock/demo/{run_id}"
+    
+    manifest = create_manifest(
+        phase="2",
+        model_family="mock",
+        model_id="mock-6layer",
+        dataset="demo",
+        sample_count=1,
+        seed=42
+    )
+    save_manifest(manifest, output_dir)
+    
+    output_path = os.path.join(output_dir, "metrics.json")
     with open(output_path, "w") as f:
         json.dump(results, f, indent=4)
     
+    update_manifest_status(output_dir, "completed", end_time=True)
+    
     print("="*70)
     print(f"✓ Pipeline Complete!")
-    print(f"✓ Results saved to: {output_path}\n")
+    print(f"✓ Results saved to: {output_dir}\n")
     
     # Display summary
     print("SUMMARY:")  

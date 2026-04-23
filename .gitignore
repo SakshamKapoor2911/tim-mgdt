@@ -61,3 +61,17 @@ temp/
 # Azure
 .azure/
 .env.local
+
+# Documentation and Personal Files
+*.md
+archive/
+Plan.md
+proposal.md
+proposal.pdf
+proposal.tex
+references.bib
+TIM-MGDT-GEMINI-CHAT.md
+TIM-MGDT-GEMINI-CHAT.pdf
+PHASE_STATUS_LEDGER.md
+REMOTE_SETUP_GUIDE.md
+PHASE_INDEX.md
