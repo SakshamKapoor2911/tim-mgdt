@@ -1,0 +1,23 @@
+{
+    "phase": "2",
+    "model_family": "mock",
+    "model_id": "mock-6layer",
+    "dataset": "demo",
+    "sample_count": 1,
+    "seed": 42,
+    "hardware": {
+        "os": "Windows",
+        "node": "LAPTOP-BQGPG62T",
+        "release": "11",
+        "machine": "AMD64",
+        "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel"
+    },
+    "precision": "fp32",
+    "commit_hash": "40ee474f8fb1b808f0b985f64bca13bbbb52b354",
+    "start_time": "2026-04-23 19:09:36",
+    "start_timestamp": 1776985776.8931644,
+    "status": "completed",
+    "end_time": "2026-04-23 19:09:36",
+    "end_timestamp": 1776985776.903257,
+    "duration_sec": 0.010092496871948242
+}

@@ -1,0 +1,61 @@
+{
+  "validation": {
+    "validation_name": "Phase 6: Optimal Scaling Validation",
+    "sample_size": 321,
+    "baseline_ppl": 51.4266357421875,
+    "baseline_tokens": 36583,
+    "baseline_loss": 144142.73788452148,
+    "scale_tests": {
+      "0.90": {
+        "scale_factor": 0.9,
+        "ppl": 51.524017333984375,
+        "ppl_delta": 0.097381591796875,
+        "ppl_change_pct": 0.1893602223662254,
+        "tokens": 36583
+      },
+      "0.92": {
+        "scale_factor": 0.92,
+        "ppl": 51.42869567871094,
+        "ppl_delta": 0.0020599365234375,
+        "ppl_change_pct": 0.004005582892422505,
+        "tokens": 36583
+      },
+      "0.95": {
+        "scale_factor": 0.95,
+        "ppl": 51.356048583984375,
+        "ppl_delta": -0.070587158203125,
+        "ppl_change_pct": -0.13725797378034452,
+        "tokens": 36583
+      },
+      "0.98": {
+        "scale_factor": 0.98,
+        "ppl": 51.369041442871094,
+        "ppl_delta": -0.05759429931640625,
+        "ppl_change_pct": -0.11199313057369442,
+        "tokens": 36583
+      },
+      "1.00": {
+        "scale_factor": 1.0,
+        "ppl": 51.4266357421875,
+        "ppl_delta": 0.0,
+        "ppl_change_pct": 0.0,
+        "tokens": 36583
+      }
+    },
+    "optimal_scale": 0.98,
+    "optimal_ppl": 51.369041442871094,
+    "optimal_ppl_change_pct": -0.11199313057369442
+  },
+  "comparison": {
+    "phase5_50_samples": {
+      "baseline_ppl": 52.3,
+      "scale_0_98_ppl": 52.81,
+      "ppl_change_pct": 0.98
+    },
+    "phase6_500_samples": {
+      "baseline_ppl": 51.4266357421875,
+      "scale_0_98_ppl": 51.369041442871094,
+      "ppl_change_pct": -0.11199313057369442
+    }
+  }
+}

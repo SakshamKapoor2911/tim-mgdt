@@ -1,0 +1,17 @@
+{
+    "Geometric (ED)": {
+        "spearman_rho": 0.41403933560541256,
+        "p_value": 0.4144300825009163,
+        "interpretation": "Moderate"
+    },
+    "Causal (Jacobian)": {
+        "spearman_rho": NaN,
+        "p_value": NaN,
+        "interpretation": "Weak"
+    },
+    "Propagation (nAUDC)": {
+        "spearman_rho": NaN,
+        "p_value": NaN,
+        "interpretation": "Weak"
+    }
+}

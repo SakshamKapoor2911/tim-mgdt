@@ -1,0 +1,31 @@
+================================================================================
+PHASE 5.1 RECOVERY STRATEGIES: COMPARATIVE RESULTS
+================================================================================
+
+[SINGLE_LAYER]
+  Baseline PPL:  52.30
+  Pruned PPL:    65.30
+  PPL Increase:  24.87%
+  Compression:   8.3%
+  Result:        [FAIL] - PPL too high, try next strategy
+
+[HEAD_WISE]
+  Baseline PPL:  52.30
+  Pruned PPL:    404.43
+  PPL Increase:  673.36%
+  Compression:   25.0%
+  Result:        [FAIL] - PPL too high, try next strategy
+
+[RESIDUAL_RESCALING]
+  Baseline PPL:  52.30
+  Pruned PPL:    104.78
+  PPL Increase:  100.37%
+  Compression:   25.0%
+  Result:        [FAIL] - PPL too high, try next strategy
+
+================================================================================
+RECOMMENDATION
+================================================================================
+1. Single-layer test: Quick validation of mechanism
+2. Head-wise pruning: Highest win probability (80%)
+3. Rescaling: Diagnostic tool, not production-grade

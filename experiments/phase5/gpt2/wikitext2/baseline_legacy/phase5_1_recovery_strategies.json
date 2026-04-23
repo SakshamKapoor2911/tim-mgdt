@@ -1,0 +1,34 @@
+[
+  {
+    "strategy": "single_layer",
+    "layer_removed": [
+      10
+    ],
+    "baseline_ppl": 52.29556655883789,
+    "pruned_ppl": 65.2999496459961,
+    "ppl_increase_pct": 24.86708519072441,
+    "compression_pct": 8.333333333333332
+  },
+  {
+    "strategy": "head_wise",
+    "heads_removed_per_layer": 3,
+    "total_heads_removed": 36,
+    "baseline_ppl": 52.29556655883789,
+    "pruned_ppl": 404.4309387207031,
+    "ppl_increase_pct": 673.3560707592235,
+    "compression_pct": 25.0
+  },
+  {
+    "strategy": "residual_rescaling",
+    "scale_factor": 1.05,
+    "layers_scaled": [
+      10,
+      1,
+      9
+    ],
+    "baseline_ppl": 52.29556655883789,
+    "pruned_ppl": 104.78376770019531,
+    "ppl_increase_pct": 100.36835738705076,
+    "compression_pct": 25.0
+  }
+]

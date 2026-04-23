@@ -1,0 +1,11 @@
+{
+    "phase": "6",
+    "model_family": "gpt2",
+    "model_id": "gpt2",
+    "dataset": "wikitext2",
+    "sample_count": 500,
+    "seed": 42,
+    "status": "completed",
+    "legacy": true,
+    "description": "Integration validation of the complete pipeline on GPT-2"
+}
