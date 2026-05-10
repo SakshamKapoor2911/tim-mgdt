@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-05-10T04:54:44.347520",
+  "model": "Llama-3-8B",
+  "execution_type": "REAL_GPU",
+  "device": "cuda",
+  "gpu_available": true,
+  "stages": [
+    {
+      "stage": "1_identification",
+      "plans": 2,
+      "status": "complete",
+      "plans_detail": {
+        "plan_30": {
+          "sparsity": 0.3,
+          "num_pruned": 10,
+          "num_kept": 22
+        },
+        "plan_50": {
+          "sparsity": 0.5,
+          "num_pruned": 16,
+          "num_kept": 16
+        }
+      }
+    },
+    {
+      "stage": "2_refinement",
+      "iterations": 2,
+      "best_sparsity": 0.3,
+      "status": "complete"
+    },
+    {
+      "stage": "3_pattern_analysis",
+      "universal_layers": [
+        31,
+        30,
+        29
+      ],
+      "common_layers": [
+        28,
+        27,
+        26,
+        25,
+        24
+      ],
+      "rare_layers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "analysis": "Cross-model analysis of Llama-3-8B layer pruning patterns",
+      "status": "complete"
+    },
+    {
+      "stage": "4_deployment",
+      "param_reduction_pct": 30.0,
+      "latency_improvement_pct": 24.0,
+      "memory_improvement_pct": 25.5,
+      "quality_preservation_pct": 99.7,
+      "efficiency_score": 0.798,
+      "status": "complete"
+    }
+  ]
+}
