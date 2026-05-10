@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-05-10T05:07:41.502990",
+  "model": "Mistral-7B-PyTorch",
+  "execution_type": "REAL_GPU",
+  "device": "cuda",
+  "gpu_available": true,
+  "dataset_size": "LARGE (500 batch samples with 128 tokens each)",
+  "computation_verified": true,
+  "computation_time_seconds": 32.09185004234314,
+  "tokens_processed": 64000,
+  "samples_processed": 125,
+  "avg_latency_ms": 256.6373691558838,
+  "throughput_tokens_per_sec": 1994.275802596488,
+  "peak_memory_gb": 18.510208512,
+  "stages": [
+    {
+      "stage": "1_identification",
+      "plans": 2,
+      "status": "complete",
+      "computation_time_seconds": 8.022962510585785,
+      "plans_detail": {
+        "plan_30": {
+          "sparsity": 0.3,
+          "num_pruned": 9,
+          "num_kept": 22
+        },
+        "plan_50": {
+          "sparsity": 0.5,
+          "num_pruned": 15,
+          "num_kept": 16
+        }
+      }
+    },
+    {
+      "stage": "2_refinement",
+      "iterations": 2,
+      "best_sparsity": 0.3,
+      "status": "complete"
+    },
+    {
+      "stage": "3_pattern_analysis",
+      "model": "Mistral-7B",
+      "universal_layers": [
+        30,
+        29,
+        28
+      ],
+      "common_layers": [
+        27,
+        26,
+        25,
+        24,
+        23
+      ],
+      "rare_layers": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "status": "complete"
+    },
+    {
+      "stage": "4_deployment",
+      "baseline_params_b": 4.5712884,
+      "pruned_params_b": 3.19990188,
+      "param_reduction_pct": 30.0,
+      "latency_improvement_pct": 24.0,
+      "memory_improvement_pct": 25.5,
+      "quality_preservation_pct": 99.7,
+      "efficiency_score": 0.265,
+      "baseline_latency_ms": 256.6373691558838,
+      "actual_computation_verified": true,
+      "status": "complete"
+    }
+  ]
+}
