@@ -12,7 +12,10 @@ from code.metrics.propagation_naudc import PropagationDrift
 from code.interventions.ablation import LayerAblation
 from scipy.stats import spearmanr
 
-
+# Add test function for pytest
+def test_mock_model():
+    model = MockModel(n_layers=6)
+    assert model.cfg.n_layers == 6
 
 class MockModel:
     """Mock model configuration for testing."""
