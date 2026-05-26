@@ -13,9 +13,15 @@ from pathlib import Path
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datetime import datetime
 import sys
+from pathlib import Path
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent / "code"))
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from tests._repo_paths import REPO_ROOT, setup_repo_paths
+
+setup_repo_paths()
 
 from phases.phase10.utils import get_device, get_model_n_layers
 
@@ -458,7 +464,7 @@ def main():
     print(f"  Status: PRODUCTION READY ✓")
     
     # Save results locally
-    output_dir = Path(__file__).parent / "experiments" / "phase10"
+    output_dir = REPO_ROOT / "experiments" / "phase10"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir / "mistral7b_real_results.json"
