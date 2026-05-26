@@ -32,6 +32,7 @@ def get_model_n_layers(model_name: str) -> int:
         'gpt2-xl': 48,
         'mistral-7b': 32,
         'llama-2-7b': 32,
+        'llama-2-13b': 40,
         'llama-3-8b': 32,
         'llama-3-70b': 80,
     }
