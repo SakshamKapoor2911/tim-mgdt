@@ -2,6 +2,17 @@
 Demo/Test version of the benchmark pipeline using mock data
 to avoid model loading compatibility issues.
 """
+import sys
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from tests._repo_paths import setup_repo_paths
+
+setup_repo_paths()
+
 import torch
 import json
 import os
@@ -12,7 +23,10 @@ from code.metrics.propagation_naudc import PropagationDrift
 from code.interventions.ablation import LayerAblation
 from scipy.stats import spearmanr
 
-
+# Add test function for pytest
+def test_mock_model():
+    model = MockModel(n_layers=6)
+    assert model.cfg.n_layers == 6
 
 class MockModel:
     """Mock model configuration for testing."""

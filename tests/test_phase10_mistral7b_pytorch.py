@@ -11,8 +11,16 @@ import time
 from pathlib import Path
 from datetime import datetime
 import sys
+from pathlib import Path
 
-sys.path.insert(0, str(Path('.') / 'code'))
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from tests._repo_paths import setup_repo_paths
+
+setup_repo_paths()
+
 from phases.phase10.utils import get_device
 
 class SimpleLLM(nn.Module):
