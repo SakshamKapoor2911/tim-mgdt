@@ -156,7 +156,7 @@ def compute_perplexity(
     from datasets import load_dataset
 
     # Load Wikitext-2 test set
-    dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
+    dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="test")
     text = "\n\n".join([s for s in dataset["text"] if s.strip()])
 
     # Tokenize the entire test set
