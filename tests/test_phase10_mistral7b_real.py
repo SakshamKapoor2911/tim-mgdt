@@ -37,17 +37,7 @@ def measure_model_metrics_with_verification(model, tokenizer, device, num_sample
     print(f"  • Starting measurement with COMPUTATION VERIFICATION...")
     
     if model is None or tokenizer is None:
-        print("  • Model or Tokenizer is None. Returning realistic mock metrics.")
-        return 42.0, 14.8, 25.2, {
-            "samples_processed": num_samples,
-            "tokens_processed": num_samples * 8,
-            "total_computation_time_seconds": 1.2,
-            "avg_latency_ms": 42.0,
-            "throughput_tokens_per_sec": (num_samples * 8) / 1.2,
-            "peak_memory_gb": 14.8,
-            "memory_growth_gb": 0.1,
-            "actual_gpu_computation": False
-        }
+        raise ValueError("Model or Tokenizer is None. Cannot run real GPU evaluation.")
     
     # LARGE dataset for inference
     sample_texts = [
@@ -133,6 +123,9 @@ def analyze_layer_importance_detailed(model, tokenizer, device, num_analysis_sam
     """
     print(f"\n  • Analyzing layer importance through LARGE dataset ({num_analysis_samples} samples)...")
     
+    if model is None or tokenizer is None:
+        raise ValueError("Model or Tokenizer is None. Cannot perform layer importance analysis.")
+        
     layer_importance = {}
     
     # LARGE dataset for robust importance analysis
@@ -401,13 +394,9 @@ def main():
         print(f"✓ Mistral-7B loaded successfully")
         num_params = sum(p.numel() for p in model.parameters())
         print(f"✓ Model size: {num_params/1e9:.2f}B parameters")
-        actual_model_name = "Mistral-7B"
     except Exception as e:
         print(f"✗ Mistral-7B failed to load: {type(e).__name__}: {e}")
-        print(f"   Falling back to synthetic evaluation for debugging to avoid blockages...")
-        model = None
-        tokenizer = None
-        actual_model_name = "Mistral-7B (Synthetic)"
+        raise e
     
     # Run real pipeline
     print(f"\n" + "="*70)

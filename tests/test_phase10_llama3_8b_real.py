@@ -33,17 +33,7 @@ def measure_model_metrics(model, tokenizer, device, num_samples=500):
     print(f"\n  • Measuring real inference metrics on GPU ({num_samples} samples)...")
     
     if model is None or tokenizer is None:
-        print("  • Model or Tokenizer is None. Returning realistic mock metrics.")
-        return 48.5, 15.4, 25.1, {
-            "samples_processed": num_samples,
-            "tokens_processed": num_samples * 8,
-            "total_computation_time_seconds": 1.4,
-            "avg_latency_ms": 48.5,
-            "throughput_tokens_per_sec": (num_samples * 8) / 1.4,
-            "peak_memory_gb": 15.4,
-            "memory_growth_gb": 0.1,
-            "actual_gpu_computation": False
-        }
+        raise ValueError("Model or Tokenizer is None. Cannot run real GPU evaluation.")
     
     # Sample text for inference
     sample_texts = [
@@ -114,6 +104,9 @@ def analyze_layer_importance(model, tokenizer, device):
     """
     print(f"\n  • Analyzing real layer importance through attention weights...")
     
+    if model is None or tokenizer is None:
+        raise ValueError("Model or Tokenizer is None. Cannot perform layer importance analysis.")
+        
     layer_importance = {}
     
     try:
@@ -345,10 +338,8 @@ def main():
         num_params = sum(p.numel() for p in model.parameters())
         print(f"✓ Model size: {num_params/1e9:.2f}B parameters")
     except Exception as e:
-        print(f"⚠ Real model loading note: {type(e).__name__}")
-        print(f"  (Using synthetic analysis based on actual model structure)")
-        model = None
-        tokenizer = None
+        print(f"✗ Llama-3-8B failed to load: {type(e).__name__}: {e}")
+        raise e
     
     # Run real pipeline
     print(f"\n" + "="*70)
