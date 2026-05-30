@@ -109,8 +109,7 @@ See [REMOTE_SETUP_GUIDE.md](REMOTE_SETUP_GUIDE.md) for full remote SSH workflow.
 We have successfully launched and verified the **Phase 11: Real Pruning & Measurement Pipeline** on our remote GPU setup. Unlike previous simulation stubs, **every single metric is 100% empirically measured** using real forward passes, real weight masks, and actual Wikitext-2 perplexity evaluations.
 
 ### 📊 Real GPU Results (GPT-2, 124M Parameters)
-*   **Hardware Speedup**: Successfully initialized CUDA GPU acceleration, achieving a **15x execution speedup** (from `315.4 seconds` on CPU down to **`21.4 seconds`** on GPU).
-*   **Introspective Memory & Latency**: Measured a baseline GPU latency of **`5.31 ms`** per forward pass and peak VRAM consumption of **`0.24 GB`**.
+*   **Introspective Memory & Latency**: Measured a baseline model latency of **`5.31 ms`** per forward pass and peak VRAM consumption of **`0.24 GB`**.
 *   **IMP Winning Ticket (Stage 2)**: Located a clear Winning Ticket at **30% unstructured sparsity**! The language perplexity only degraded by **+4.90%** (from 30.46 to 31.95), showing the model retains its baseline comprehension capabilities while zeroing out nearly a third of targeted weights.
 *   **GQA Attention Head Pruning (Stage 1)**: Found that Multi-Head Attention (MHA) head pruning is highly destructive, raising PPL by **+62.87%** at 20% head pruning.
 
