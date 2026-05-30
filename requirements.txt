@@ -7,3 +7,4 @@ accelerate>=0.24.0
 matplotlib
 seaborn
 tqdm
+datasets>=2.14.0
