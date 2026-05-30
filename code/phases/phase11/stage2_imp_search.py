@@ -112,6 +112,7 @@ def run_stage2(
               f"{elapsed:.1f}s | {status}")
 
         # Restore original weights for next step (fresh pruning each time)
+        remove_global_pruning(model)
         model.load_state_dict(original_state)
 
     # --- Select winning ticket ---

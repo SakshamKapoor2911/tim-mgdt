@@ -80,60 +80,33 @@ def _collect_layer_activations(
     return means
 
 
-def _apply_bias_correction(
+def _apply_activation_healing(
     layers: nn.ModuleList,
     pre_means: Dict[int, torch.Tensor],
     post_means: Dict[int, torch.Tensor],
-    arch: str,
-) -> int:
+) -> List[Any]:
     """
-    Apply per-layer bias correction to compensate for activation shift.
-
-    For each layer, the correction is:
-        bias_new = bias_old + (pre_mean - post_mean)
-
-    This shifts the post-pruning activation distribution back toward the
-    pre-pruning distribution.  We apply this to the layer norm bias or the
-    MLP output projection bias.
-
-    Returns the number of layers corrected.
+    Register forward hooks on each layer to shift the post-pruning mean output
+    activation back to the pre-pruning mean output activation.
     """
-    corrected = 0
+    healing_hooks = []
+
+    def make_healing_hook(corr):
+        def hook_fn(module, input, output):
+            if isinstance(output, tuple):
+                patched = output[0] + corr.to(output[0].device).to(output[0].dtype)
+                return (patched,) + output[1:]
+            else:
+                return output + corr.to(output.device).to(output.dtype)
+        return hook_fn
+
     for idx, layer in enumerate(layers):
-        if idx not in pre_means or idx not in post_means:
-            continue
+        if idx in pre_means and idx in post_means:
+            correction = pre_means[idx] - post_means[idx]
+            h = layer.register_forward_hook(make_healing_hook(correction))
+            healing_hooks.append(h)
 
-        correction = (pre_means[idx] - post_means[idx]).to(layer.parameters().__next__().device)
-
-        # Apply correction to the post-attention layer norm bias (if exists)
-        # or the feed-forward output projection bias
-        target_module = None
-        if arch == "gpt2":
-            # GPT-2: layer.ln_2 (post-attention LayerNorm)
-            if hasattr(layer, 'ln_2') and hasattr(layer.ln_2, 'bias') and layer.ln_2.bias is not None:
-                target_module = layer.ln_2
-            elif hasattr(layer, 'mlp') and hasattr(layer.mlp, 'c_proj'):
-                if hasattr(layer.mlp.c_proj, 'bias') and layer.mlp.c_proj.bias is not None:
-                    target_module = layer.mlp.c_proj
-        else:
-            # Llama/Mistral: post_attention_layernorm or mlp.down_proj
-            if hasattr(layer, 'post_attention_layernorm'):
-                ln = layer.post_attention_layernorm
-                if hasattr(ln, 'bias') and ln.bias is not None:
-                    target_module = ln
-            if target_module is None and hasattr(layer, 'mlp') and hasattr(layer.mlp, 'down_proj'):
-                if hasattr(layer.mlp.down_proj, 'bias') and layer.mlp.down_proj.bias is not None:
-                    target_module = layer.mlp.down_proj
-
-        if target_module is not None:
-            # Apply correction, matching dimensions
-            bias = target_module.bias
-            correction_truncated = correction[:bias.shape[0]]
-            with torch.no_grad():
-                bias.add_(correction_truncated.to(bias.dtype))
-            corrected += 1
-
-    return corrected
+    return healing_hooks
 
 
 CALIBRATION_TEXTS = [
@@ -235,12 +208,13 @@ def run_stage4(
     print(f"  [5/6] Collecting post-pruning activation means...")
     post_means = _collect_layer_activations(model, layers, tokenizer, device, CALIBRATION_TEXTS)
 
-    # --- Step 6: Apply bias correction healing ---
-    print(f"  [6/6] Applying bias-correction activation healing...")
-    layers_corrected = _apply_bias_correction(layers, pre_means, post_means, arch)
-    print(f"    Corrected {layers_corrected} layers with bias offsets.")
+    # --- Step 6: Apply activation healing via forward hooks ---
+    print(f"  [6/6] Applying forward-hook activation healing...")
+    healing_hooks = _apply_activation_healing(layers, pre_means, post_means)
+    layers_corrected = len(healing_hooks)
+    print(f"    Registered healing hooks for {layers_corrected} layers.")
 
-    # Measure healed PPL
+    # Measure healed PPL (with healing hooks active)
     healed_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
     healed_latency = time_forward_pass(model, tokenizer, device)
 
@@ -251,6 +225,10 @@ def run_stage4(
         healed_memory_gb = torch.cuda.max_memory_allocated() / (1024 ** 3)
     else:
         healed_memory_gb = 0.0
+
+    # Remove the healing hooks so the model is not left modified
+    for h in healing_hooks:
+        h.remove()
 
     healing_time = time.time() - healing_start
 
