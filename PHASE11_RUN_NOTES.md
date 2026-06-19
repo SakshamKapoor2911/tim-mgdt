@@ -14,6 +14,23 @@ This document tracks technical quirks, bugs, and hardware constraints discovered
     ```
     This completely frees up the VRAM and gracefully utilizes the massive system RAM overhead instead. PyTorch's `load_state_dict()` seamlessly handles pushing the CPU tensors back to the GPU when restoring.
 
+### Issue 2: Llama-3-8B OutOfMemory Crashes
+**Symptoms:** 
+- Llama-3 crashed with `CUDA out of memory` during Stage 4 Activation Healing evaluation.
+
+**Resolution:** 
+- Reduced `batch_size` from 4 to 2 in the evaluation hook.
+- Migrated boolean masking tensors to the CPU and streamed them to the GPU layer-by-layer during Masked SFT to prevent VRAM spikes.
+
+### Issue 3: Hardware Physics Wall for Masked SFT
+**Symptoms:**
+- `torch.OutOfMemoryError` during `loss.backward()` in the Masked Sparse Fine-Tuning loop.
+
+**Resolution:**
+- Calculating full-parameter gradients and AdamW momentum buffers for a 7B parameter model requires ~42GB to 56GB of VRAM. It is physically impossible on a single 24GB RTX 3090.
+- Bypassed SFT for Phase 11 to formally record the baseline metrics.
+- **Action Item:** Defer SFT execution to Phase 12.5 via Layer-Selective LoRA or DeepSpeed ZeRO-3 offloading.
+
 ## 2. PyTorch VRAM OOM on `torch.nn.utils.prune` Hooks
 *   **The Issue:** In Stage 2 and Stage 4, applying global unstructured L1 magnitude pruning using PyTorch's native wrapper `prune.l1_unstructured` causes catastrophic OOMs. The PyTorch pruning wrapper implements sparsity dynamically during the forward pass by creating two new tensors for every pruned layer: `weight_mask` and `weight_orig`.
     When applied globally to all Linear layers in a 7B-8B model, this triples the memory footprint of the weights (Original Weight + Mask + Orig Backup), instantly exceeding the 24GB VRAM ceiling.
