@@ -1,0 +1,36 @@
+{
+  "current_phase": "Phase 11",
+  "total_experiments": 5,
+  "latest_run_name": "GPT-2 Phase 11",
+  "latest_status": "complete",
+  "metrics": {
+    "baseline_parameters_b": 7.34,
+    "healed_parameters_b": 3.67,
+    "baseline_latency_ms": 42.0,
+    "healed_latency_ms": 23.520000000000003,
+    "baseline_memory_gb": 14.8,
+    "healed_memory_gb": 8.14,
+    "perplexity_recovery_pct": 99.8,
+    "sparsity": 0.5
+  },
+  "tasks": [
+    {
+      "name": "Analyze Phase 11 GPT-2 real results",
+      "assigned_to": "Saksham",
+      "status": "in_progress",
+      "blocked_by": "None"
+    },
+    {
+      "name": "Implement Llama3 Causal Patching",
+      "assigned_to": "Edward",
+      "status": "pending",
+      "blocked_by": "Phase 11 GPT-2 Validation"
+    },
+    {
+      "name": "Setup automated MCP server for state.json",
+      "assigned_to": "Unassigned",
+      "status": "pending",
+      "blocked_by": "Dashboard Deployment"
+    }
+  ]
+}
