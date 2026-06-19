@@ -11,7 +11,7 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 15 complete</b>. We have moved beyond theoretical pruning into <b>True Hardware Compression</b> (Layer Dropping). By dropping 4 contiguous layers, we achieve a guaranteed 15.5% latency reduction. We then utilize our novel <b>Boundary-Focused Surgical LoRA</b> to heal the resulting activation discontinuities, dramatically outperforming global healing strategies."
+      "<b>Phase 15 complete</b>. While layer dropping is an established compression method, we discovered that it induces a highly localized representation shift rather than global damage. We introduce <b>Incision Boundary Healing</b>, a routing strategy that targets only the immediate boundaries of the dropped block, recovering up to 4x more perplexity than global baselines."
     ]
   ],
   "RESEARCH_Q": [
@@ -109,6 +109,7 @@
     ["Phase Status Ledger", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md"]
   ],
   "LITERATURE": [
+    ["The Unreasonable Ineffectiveness of the Deeper Layers", "Gromov et al., 2024", "Demonstrates depth pruning and QLoRA healing. <b>Our diff</b>: We prove that healing should be restricted to the 'incision boundary' rather than applied uniformly across surviving layers."],
     ["All Circuits Lead to Rome", "Chen et al., 2026", "Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: We systematically prune these pathways and surgically recover them."],
     ["SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use ground-truth perplexity ablation rather than expensive 2nd-order Hessians."],
     ["SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling surgical LoRA recovery."]

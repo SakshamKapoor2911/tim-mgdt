@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T15:11:31.580565+00:00Z",
+  "generated_at": "2026-06-19T15:14:33.552191+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
   "current_phase": "Phase 15",
@@ -53,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 15 complete. We have moved beyond theoretical pruning into True Hardware Compression (Layer Dropping). By dropping 4 contiguous layers, we achieve a guaranteed 15.5% latency reduction. We then utilize our novel Boundary-Focused Surgical LoRA to heal the resulting activation discontinuities, dramatically outperforming global healing strategies."
+      "body": "Phase 15 complete. While layer dropping is an established compression method, we discovered that it induces a highly localized representation shift rather than global damage. We introduce Incision Boundary Healing, a routing strategy that targets only the immediate boundaries of the dropped block, recovering up to 4x more perplexity than global baselines."
     }
   ],
   "decisions": [

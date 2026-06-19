@@ -1,8 +1,10 @@
-# Phase 15: Oracle-Guided Layer Dropping & Activation Healing
+# Phase 15: Incision Boundary Healing for Depth-Pruned LLMs
 
-To achieve true hardware compression (latency and memory reduction) instead of purely theoretical parameters, we implement **Phase 15: Oracle-Guided Layer Dropping**. 
+Recent literature (e.g., *The Unreasonable Ineffectiveness of the Deeper Layers* by Gromov et al., *ShortGPT*, and *LaCo*) has established that LLMs can be structurally compressed by deleting contiguous blocks of redundant layers (Depth Pruning). 
 
-By deleting a block of contiguous layers with the absolute lowest sensitivity scores (as determined by the causal $\Delta$CE bathtub curves), we physically shrink the model by **12.5%** (dropping 4 layers).
+While dropping these layers achieves true hardware compression (e.g., deleting a 4-layer block physically shrinks the depth by **12.5%**), the standard practice of applying global PEFT (like QLoRA) to all surviving layers is severely sub-optimal. 
+
+Our **Phase 15** experiments empirically prove a new mechanistic reality: **layer dropping creates a highly localized semantic gap, not global network degradation.** We introduce **Incision Boundary Healing**—a precision LoRA routing strategy that targets only the immediate boundaries of the dropped block, outperforming established global recovery baselines.
 
 ---
 
