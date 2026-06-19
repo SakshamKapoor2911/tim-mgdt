@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "timestamp": "2026-06-18T21:01:53.499193"
+  },
+  "results": {
+    "\"transformer pruning\"": [
+      {
+        "title": "Entropy Meets Importance: A Unified Head Importance-Entropy Score for Stable and Efficient Transformer Pruning",
+        "published_date": "2025-10-10",
+        "authors": [
+          "Minsik Choi",
+          "Hyegang Son",
+          "Changhoon Kim",
+          "Young Geun Kim"
+        ],
+        "summary": "Transformer-based models have achieved remarkable performance in NLP tasks. However, their structural characteristics-multiple layers and attention heads-introduce efficiency challenges in inference and deployment. To address these challenges, various pruning methods have recently been proposed. Notably, gradient-based methods using Head Importance Scores (HIS) have gained traction for interpretability, efficiency, and ability to identify redundant heads. However, HIS alone has limitations as it captures only the gradient-driven contribution, overlooking the diversity of attention patterns. To overcome these limitations, we introduce a novel pruning criterion, HIES (Head Importance-Entropy Score), which integrates head importance scores with attention entropy, providing complementary evidence on per-head contribution. Empirically, HIES-based pruning yields up to 15.2% improvement in model quality and 2.04x improvement in stability over HIS-only methods, enabling substantial model compression without sacrificing either accuracy or stability. Code will be released upon publication.",
+        "url": "http://arxiv.org/abs/2510.13832v2"
+      },
+      {
+        "title": "UnIT: Scalable Unstructured Inference-Time Pruning for MAC-efficient Neural Inference on MCUs",
+        "published_date": "2025-07-10",
+        "authors": [
+          "Ashe Neth",
+          "Sawinder kaur",
+          "Mohammad Nur Hossain Khan",
+          "Subrata Biswas",
+          "Asif Salekin",
+          "Bashima Islam"
+        ],
+        "summary": "Existing pruning methods are typically applied during training or compile time and often rely on structured sparsity. While compatible with low-power microcontrollers (MCUs), structured pruning underutilizes the opportunity for fine-grained efficiency on devices without SIMD support or parallel compute. To address these limitations, we introduce UnIT (Unstructured Inference-Time pruning), a lightweight method that dynamically identifies and skips unnecessary multiply-accumulate (MAC) operations during inference, guided by input-specific activation patterns. Unlike structured pruning, UnIT embraces irregular sparsity and does not require retraining or hardware specialization. It transforms pruning decisions into lightweight comparisons, replacing multiplications with threshold checks and approximated divisions. UnIT further optimizes compute by reusing threshold computations across multiple connections and applying layer- and group-specific pruning sensitivity. We present three fast, hardware-friendly division approximations tailored to the capabilities of common embedded platforms. Demonstrated on the MSP430 microcontroller, UnIT achieves 11.02% to 82.03% MAC reduction, 27.30% to 84.19% faster inference, and 27.33% to 84.38% lower energy consumption compared to training-time pruned models, while maintaining accuracy with 0.48-7%. Under domain shift, UnIT matches or exceeds the accuracy of retrained models while requiring significantly fewer MACs. These results establish unstructured inference-time pruning as a viable and practical solution for efficient, retraining-free deployment of deep neural networks on MCUs.",
+        "url": "http://arxiv.org/abs/2507.07885v1"
+      },
+      {
+        "title": "MDP: Multidimensional Vision Model Pruning with Latency Constraint",
+        "published_date": "2025-04-02",
+        "authors": [
+          "Xinglong Sun",
+          "Barath Lakshmanan",
+          "Maying Shen",
+          "Shiyi Lan",
+          "Jingde Chen",
+          "Jose M. Alvarez"
+        ],
+        "summary": "Current structural pruning methods face two significant limitations: (i) they often limit pruning to finer-grained levels like channels, making aggressive parameter reduction challenging, and (ii) they focus heavily on parameter and FLOP reduction, with existing latency-aware methods frequently relying on simplistic, suboptimal linear models that fail to generalize well to transformers, where multiple interacting dimensions impact latency. In this paper, we address both limitations by introducing Multi-Dimensional Pruning (MDP), a novel paradigm that jointly optimizes across a variety of pruning granularities-including channels, query, key, heads, embeddings, and blocks. MDP employs an advanced latency modeling technique to accurately capture latency variations across all prunable dimensions, achieving an optimal balance between latency and accuracy. By reformulating pruning as a Mixed-Integer Nonlinear Program (MINLP), MDP efficiently identifies the optimal pruned structure across all prunable dimensions while respecting latency constraints. This versatile framework supports both CNNs and transformers. Extensive experiments demonstrate that MDP significantly outperforms previous methods, especially at high pruning ratios. On ImageNet, MDP achieves a 28% speed increase with a +1.4 Top-1 accuracy improvement over prior work like HALP for ResNet50 pruning. Against the latest transformer pruning method, Isomorphic, MDP delivers an additional 37% acceleration with a +0.7 Top-1 accuracy improvement.",
+        "url": "http://arxiv.org/abs/2504.02168v1"
+      }
+    ],
+    "\"mechanistic interpretability\"": [
+      {
+        "title": "Critical Percolation as a Synthetic Data Model for Interpretability",
+        "published_date": "2026-06-18",
+        "authors": [
+          "Aryeh Brill",
+          "Tom Ingebretsen Carlson"
+        ],
+        "summary": "Neural networks learn features that reflect the hierarchical, multi-scale structure of natural data. Synthetic datasets used to evaluate interpretability methods typically lack this structure, limiting their value as realistic toy models. To close this gap, we introduce a family of synthetic datasets consisting of hierarchical functions defined on critical mean-field percolation clusters embedded in a high-dimensional data space. The percolation data consists of sparse, low-dimensional fractal clusters with a power-law size distribution. Latent variables modeling a taxonomic hierarchy generate each data point's target value. The data model is analytically tractable with known critical exponents that fix its properties without requiring hyperparameter tuning. We leverage a mapping between percolation clusters, random trees, and additive coalescence to propose an almost linear-time algorithm to jointly sample a random tree and its hierarchical latent decomposition, enabling data generation at arbitrary scale. Using probing experiments, we find that the model's ground-truth latent variables can be linearly decoded from neural network activations. Together, sparsity, self-similarity, power-law statistics, and analytical tractability make critical percolation a principled testbed for interpretability research.",
+        "url": "http://arxiv.org/abs/2606.20347v1"
+      },
+      {
+        "title": "Multimodal Concept Bottleneck Models",
+        "published_date": "2026-06-18",
+        "authors": [
+          "Tongqing Shi",
+          "Ge Yan",
+          "Tuomas Oikarinen",
+          "Tsui-Wei Weng"
+        ],
+        "summary": "Concept Bottleneck Models (CBMs) enhance the interpretability of deep learning networks by aligning the features extracted from images with natural concepts. However, existing CBMs are constrained in their ability to generalize beyond a fixed set of predefined classes and the risk of non-concept information leakage, where predictive signals outside the intended concepts are inadvertently exploited. In this paper, we propose Multimodal Concept Bottleneck Model (MM-CBM) to address these issues and extend CBMs into CLIP. MM-CBM utilizes dual Concept Bottleneck Layers (CBLs) to align both the image and text embeddings into interpretable features. This allows us to perform new vision tasks like zero-shot classification or image retrieval in an interpretable way. Compared to existing methods, MM-CBM achieves up to 51.26% accuracy improvement on average across four standard benchmarks. Our method maintains high accuracy, staying within ~5% of black-box performance while offering greater interpretability.",
+        "url": "http://arxiv.org/abs/2606.19882v1"
+      },
+      {
+        "title": "Who Wins the Conflict? Mechanistic Interpretability of Text Bias in Audio LLMs",
+        "published_date": "2026-06-17",
+        "authors": [
+          "Hyebin Cho",
+          "Suho Yoo",
+          "Jaehyuk Jang",
+          "Changick Kim",
+          "Joon Son Chung"
+        ],
+        "summary": "While Audio Large Language Models (Audio LLMs) excel at multimodal understanding, they suffer from text dominance, a bias where models blindly favor text over acoustic evidence, causing hallucinations. However, the internal mechanisms underlying how these models behave when audio and textual inputs contradict each other remain unexplored. In this work, we present the first mechanistic analysis of this phenomenon by tracing the propagation of internal representations across layers. Our investigation reveals three key findings: (i) text dominance is systematically and empirically across models; (ii) while text and audio rely on functionally distinct pathways, they ultimately converge into a shared semantic space in late layers; and (iii) the text pathway does not erase audio information, but rather actively suppresses intact audio representations. Building on these insights, we leverage back-patching, a training-free intervention that routes late-layer audio activations back into earlier layers. This amplifies the audio representations, enabling them to overcome textual suppression. Our evaluation shows that back-patching consistently reduces text dominance, paving the way for mechanistic multimodal alignment under conflict.",
+        "url": "http://arxiv.org/abs/2606.18924v1"
+      }
+    ],
+    "\"lottery ticket hypothesis\"": [],
+    "\"activation patching\"": []
+  }
+}
