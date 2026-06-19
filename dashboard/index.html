@@ -108,7 +108,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 00:54 UTC</span>
+    <span class="nav-meta">2026-06-19 00:57 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -269,6 +269,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Paper / Authors</th><th>Context & Our Differentiation</th></tr>
+<tr><td class='task-who'>All Circuits Lead to Rome<br><span class='task-track'>Chen et al., 2026</span></td><td class='task-action'>Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: This theoretical redundancy explains the physical 'elasticity' we exploit; we systematically prune these redundant pathways and use activation healing to force the model onto the remaining circuits.</td></tr>
+<tr><td class='task-who'>The Lottery Ticket Hypothesis<br><span class='task-track'>Frankle & Carbin, 2019</span></td><td class='task-action'>Dense networks contain sparse subnetworks that can match original accuracy if trained from scratch. <b>Our diff</b>: We find winning tickets <i>post-pretraining</i> in massive LLMs using gradient dynamics, entirely avoiding the retraining phase.</td></tr>
 <tr><td class='task-who'>SparseGPT<br><span class='task-track'>Frantar et al., 2023</span></td><td class='task-action'>One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians.</td></tr>
 <tr><td class='task-who'>Wanda<br><span class='task-track'>Sun et al., 2023</span></td><td class='task-action'>Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets.</td></tr>
 <tr><td class='task-who'>SliceGPT<br><span class='task-track'>Ashkboos et al., 2024</span></td><td class='task-action'>Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing.</td></tr>
