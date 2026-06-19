@@ -100,7 +100,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#results">Results</a>
+    <a href="#results">Phase 11 Results</a>
+    <a href="#phase14">Phase 14 Results</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -108,7 +109,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 09:11 UTC</span>
+    <span class="nav-meta">2026-06-19 09:52 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -122,7 +123,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="hero-chips">
       <span class="chip chip-green">Phase 11 complete</span>
       <span class="chip chip-blue">7/8 runs done</span>
-      <span class="chip chip-yellow">32 experiment files</span>
+      <span class="chip chip-yellow">34 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -172,6 +173,114 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   </div>
 </div>
 </div></div>
+  <div style="margin-top: 32px;">
+    <div class="section-label" id="phase14">Phase 14 Surgical Recovery Results</div>
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div class="rc-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3>Mistral 7B (MHA)</h3>
+              <div class="rc-meta">Live C4 Held-Out Perplexity recovery validation</div>
+            </div>
+            <div class="nav-meta" style="text-align:right;">
+              Oracle Compute: <b>3.76 minutes</b>
+            </div>
+          </div>
+          <table class="task-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Allocation Method</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Targeted</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Sparse C4 PPL (20%)</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Recovered C4 PPL</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Δ Recovery vs Dense</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Time (Wall-Clock)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+        <tr>
+          <td class="task-who">Dense Baseline</td>
+          <td>N/A (All Layers Intact)</td>
+          <td class="task-action">—</td>
+          <td class="task-action"><b>7.994</b></td>
+          <td class="task-action">0.00%</td>
+          <td class="task-action">—</td>
+        </tr>
+        
+              
+            <tr>
+              <td class="task-who">Uniform Random (All Layers)</td>
+              <td><code>All 32 Layers</code></td>
+              <td class="task-action">8.156</td>
+              <td class="task-action"><b>11.578</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+44.82%</span></td>
+              <td class="task-action">12.4 min</td>
+            </tr>
+            
+              
+            <tr>
+              <td class="task-who">Ends-Only Heuristic</td>
+              <td><code>[0, 1, 2, 29, 30, 31]</code></td>
+              <td class="task-action">8.156</td>
+              <td class="task-action"><b>11.203</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+40.13%</span></td>
+              <td class="task-action">10.6 min</td>
+            </tr>
+            
+              
+            <tr>
+              <td class="task-who">Surgical Random (ΔCE)</td>
+              <td><code>[0, 1, 2, 29, 30, 31]</code></td>
+              <td class="task-action">8.156</td>
+              <td class="task-action"><b>11.379</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+42.33%</span></td>
+              <td class="task-action">10.6 min</td>
+            </tr>
+            
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div class="rc-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3>Llama 3 8B (GQA)</h3>
+              <div class="rc-meta">Live C4 Held-Out Perplexity recovery validation</div>
+            </div>
+            <div class="nav-meta" style="text-align:right;">
+              Oracle Compute: <b>3.81 minutes</b>
+            </div>
+          </div>
+          <table class="task-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Allocation Method</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Targeted</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Sparse C4 PPL (20%)</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Recovered C4 PPL</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Δ Recovery vs Dense</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Time (Wall-Clock)</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+        <tr>
+          <td class="task-who">Dense Baseline</td>
+          <td>N/A (All Layers Intact)</td>
+          <td class="task-action">—</td>
+          <td class="task-action"><b>9.440</b></td>
+          <td class="task-action">0.00%</td>
+          <td class="task-action">—</td>
+        </tr>
+        
+              <tr><td class="task-who">Uniform Random (All Layers)</td><td><code>All 32 Layers</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
+              <tr><td class="task-who">Ends-Only Heuristic</td><td><code>[0, 1, 2, 29, 30, 31]</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
+              <tr><td class="task-who">Surgical Random (ΔCE)</td><td><code>[0, 1, 2, 3, 30, 31]</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+  </div>
   
 <div class="section-label">Experiment runs</div>
 <div class="card" style="padding:0;overflow:hidden">

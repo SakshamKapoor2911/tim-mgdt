@@ -95,6 +95,20 @@ def gather_experiment_data():
         key = os.path.basename(f).replace(".json", "")
         results[f"phase10_{key}"] = _load(f)
 
+    # Phase 14 ablation results
+    phase14_results = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase14_final", "*_ablation_results.json")):
+        model_name = os.path.basename(f).replace("_ablation_results.json", "")
+        phase14_results[model_name] = _load(f)
+    results["phase14_results"] = phase14_results
+
+    # Phase 14 sensitivity maps (oracle cost, etc)
+    phase14_maps = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase14_final", "*_sensitivity_map.json")):
+        model_name = os.path.basename(f).replace("_sensitivity_map.json", "")
+        phase14_maps[model_name] = _load(f)
+    results["phase14_maps"] = phase14_maps
+
     # Count total experiments
     all_json = glob.glob(os.path.join(EXPERIMENTS, "**", "*.json"), recursive=True)
     results["_total_experiments"] = len(all_json)
@@ -183,6 +197,136 @@ def _overview_cards():
 
 def _research_callout():
     return f"""<div class="callout"><h3>{RESEARCH_Q[0]}</h3><p>{RESEARCH_Q[1]}</p></div>"""
+
+
+def _phase14_html(results, maps):
+    import math
+    # We want to display results for Mistral-7B-v0.1 and Meta-Llama-3-8B.
+    models = [
+        ("Mistral-7B-v0.1", "Mistral 7B (MHA)"),
+        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
+    ]
+    
+    html = '<div class="section-label" id="phase14">Phase 14 Surgical Recovery Results</div>'
+    
+    for key, display_name in models:
+        model_results = results.get(key, {})
+        model_map = maps.get(key, {})
+        
+        oracle_cost = "Pending..."
+        if model_map and "oracle_compute_time_min" in model_map:
+            oracle_cost = f"<b>{model_map['oracle_compute_time_min']:.2f} minutes</b>"
+            
+        # Get sensitivities to list surgical targeted layers
+        sens = model_map.get("sensitivities", {})
+        if sens:
+            sorted_layers = sorted(sens.items(), key=lambda x: x[1], reverse=True)
+            top_6 = [int(layer.split("_")[1]) for layer, score in sorted_layers[:6]]
+            surgical_layers_str = str(sorted(top_6))
+        else:
+            surgical_layers_str = "Pending sensitivity map..."
+
+        # Helper to extract metric row
+        def get_row(mode_name, layers_targeted, run_key):
+            run = model_results.get(run_key)
+            if not run:
+                return f"""<tr><td class="task-who">{mode_name}</td><td><code>{layers_targeted}</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>"""
+            
+            baseline = run.get("baseline_c4_ppl")
+            pruned = run.get("pruned_c4_ppl")
+            recovered = run.get("recovered_c4_ppl")
+            delta = run.get("c4_delta_pct")
+            time_s = run.get("recovery_time_s")
+            
+            pruned_str = f"{pruned:.3f}" if pruned is not None else "—"
+            recovered_str = f"{recovered:.3f}" if recovered is not None else "—"
+            
+            if delta is not None:
+                delta_str = f"{delta:+.2f}%"
+                if delta > 15.0:
+                    delta_str = f"<span style='color:var(--red); font-weight:600;'>{delta_str}</span>"
+                elif delta < 5.0:
+                    delta_str = f"<span style='color:var(--green); font-weight:600;'>{delta_str}</span>"
+                else:
+                    delta_str = f"<span style='color:var(--yellow); font-weight:600;'>{delta_str}</span>"
+            else:
+                delta_str = "—"
+                
+            time_str = f"{time_s/60:.1f} min" if time_s is not None else "—"
+            
+            return f"""
+            <tr>
+              <td class="task-who">{mode_name}</td>
+              <td><code>{layers_targeted}</code></td>
+              <td class="task-action">{pruned_str}</td>
+              <td class="task-action"><b>{recovered_str}</b></td>
+              <td class="task-action">{delta_str}</td>
+              <td class="task-action">{time_str}</td>
+            </tr>
+            """
+        
+        # Dense baseline row
+        dense_ppl = "—"
+        if model_map and "baseline_loss" in model_map:
+            try:
+                dense_ppl = f"{math.exp(model_map['baseline_loss']):.3f}"
+            except Exception:
+                pass
+        else:
+            for r_key in ["uniform_20pct", "ends_only_20pct", "surgical_20pct"]:
+                if r_key in model_results:
+                    val = model_results[r_key].get("baseline_c4_ppl")
+                    if val is not None:
+                        dense_ppl = f"{val:.3f}"
+                        break
+        
+        dense_row = f"""
+        <tr>
+          <td class="task-who">Dense Baseline</td>
+          <td>N/A (All Layers Intact)</td>
+          <td class="task-action">—</td>
+          <td class="task-action"><b>{dense_ppl}</b></td>
+          <td class="task-action">0.00%</td>
+          <td class="task-action">—</td>
+        </tr>
+        """
+        
+        uniform_row = get_row("Uniform Random (All Layers)", "All 32 Layers", "uniform_20pct")
+        ends_only_row = get_row("Ends-Only Heuristic", "[0, 1, 2, 29, 30, 31]", "ends_only_20pct")
+        surgical_row = get_row("Surgical Random (ΔCE)", surgical_layers_str, "surgical_20pct")
+        
+        html += f"""
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div class="rc-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3>{display_name}</h3>
+              <div class="rc-meta">Live C4 Held-Out Perplexity recovery validation</div>
+            </div>
+            <div class="nav-meta" style="text-align:right;">
+              Oracle Compute: {oracle_cost}
+            </div>
+          </div>
+          <table class="task-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Allocation Method</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Targeted</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Sparse C4 PPL (20%)</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Recovered C4 PPL</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Δ Recovery vs Dense</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Time (Wall-Clock)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dense_row}
+              {uniform_row}
+              {ends_only_row}
+              {surgical_row}
+            </tbody>
+          </table>
+        </div>
+        """
+    return html
 
 
 def _runs_html():
@@ -441,7 +585,8 @@ def build_html(experiments, metrics):
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#results">Results</a>
+    <a href="#results">Phase 11 Results</a>
+    <a href="#phase14">Phase 14 Results</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -477,6 +622,9 @@ def build_html(experiments, metrics):
   <div style="margin-top:16px">{_research_callout()}</div>
 
   <div id="results">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
+  <div style="margin-top: 32px;">
+    {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
+  </div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>
   <div id="tasks">{_tasks_html()}</div>
