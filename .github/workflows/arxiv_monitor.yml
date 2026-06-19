@@ -1,0 +1,35 @@
+name: ArXiv Daily Monitor
+
+on:
+  schedule:
+    # Run once every 24 hours at 08:00 UTC (morning time, so the inbox is ready for review)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Allow running manually from the Actions tab
+
+jobs:
+  arxiv_monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # Need this permission to create GitHub issues
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run ArXiv Monitor Script
+        run: |
+          python scripts/arxiv_monitor.py > arxiv_output.md
+
+      - name: Create Daily Literature Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # The agent-native script outputs clean Markdown. We just pass it to the 'gh issue create' command!
+          gh issue create \
+            --title "Daily ArXiv Monitor: $(date +'%Y-%m-%d')" \
+            --body-file arxiv_output.md \
+            --label "literature-review"
