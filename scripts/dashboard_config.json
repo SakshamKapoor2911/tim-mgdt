@@ -1,5 +1,5 @@
 {
-  "TAGLINE": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
+  "TAGLINE": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
   "OVERVIEW": [
     [
       "What we're building",
@@ -11,14 +11,14 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 14 complete</b>. We verified that sensitivity-guided Surgical Allocation successfully heals pruning damage on Mistral-7B and Llama-3-8B on dual 3090s, while uniform PEFT fails due to dense noise pollution."
+      "<b>Phase 15 complete</b>. We have moved beyond theoretical pruning into <b>True Hardware Compression</b> (Layer Dropping). By dropping 4 contiguous layers, we achieve a guaranteed 15.5% latency reduction. We then utilize our novel <b>Boundary-Focused Surgical LoRA</b> to heal the resulting activation discontinuities, dramatically outperforming global healing strategies."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
     "Can <b>exhaustive causal sensitivity metrics</b> (\u0394CE) reliably <b>identify and exploit</b> layer-level elasticity to achieve lossless (< 5% PPL) structured compression at <b>50%+ parameter reduction</b> without retraining?"
   ],
-  "PHASE": "Phase 14 Complete. Next: Submit COLM workshop paper.",
+  "PHASE": "Phase 15 Complete. Next: Submit COLM workshop paper.",
   "RUNS": [
     ["Phase 2 \u2014 Ground Truth sensitivity mapping (GPT-2)", "done"],
     ["Phase 5.1 \u2014 Hard pruning baseline", "done"],
@@ -27,13 +27,24 @@
     ["Phase 11 \u2014 Llama-3 & Mistral-7B eval", "done"],
     ["Phase 12 \u2014 Hardware Memory Wall discovery", "done"],
     ["Phase 13 \u2014 Ablation & Hardening", "done"],
-    ["Phase 14 \u2014 Final Actionable Interpretability Pipeline", "done"]
+    ["Phase 14 \u2014 Final Actionable Interpretability Pipeline", "done"],
+    ["Phase 15 \u2014 True Layer Dropping & Boundary Healing", "done"]
   ],
   "DECISIONS": [
     [
       "Actionability",
       "Oracle Compute Cost is fast",
       "We proved that calculating the exhaustive \u0394CE Bathtub Curve for a 7B model takes under 4 minutes. It is highly actionable."
+    ],
+    [
+      "Layer Dropping",
+      "Contiguous Block Drop",
+      "Instead of dropping scattered layers which causes memory fragmentation, we drop the contiguous 4-layer block with the lowest causal sensitivity to guarantee real-world 15.5% latency reductions."
+    ],
+    [
+      "Healing Strategy",
+      "Boundary-Focused Healing",
+      "Layer dropping creates a sharp, localized discontinuity in the activation flow. Healing just the incision boundaries (layers immediately before/after the drop) dramatically outperforms healing globally sensitive layers."
     ],
     [
       "Recovery Initialization",
@@ -49,9 +60,9 @@
   "TASKS": [
     [
       "Saksham",
-      "Phase 14 Execution",
+      "Phase 15 Execution",
       "done",
-      "Completed exhaustive sensitivity knockouts and 500-step surgical recovery on dual RTX 3090s."
+      "Completed layer dropping and evaluated Boundary-Focused Healing vs Global Healing on Llama-3 and Mistral-7B."
     ],
     [
       "Agent",
@@ -79,6 +90,7 @@
     ["done", "Phase 12: Proxy validation, Memory Wall proof"],
     ["done", "Automated dashboard tracking via Pre-Commit Hook"],
     ["done", "Phase 14: Final pipeline execution (Mistral & Llama 3)"],
+    ["done", "Phase 15: True Layer Dropping and Boundary Healing"],
     ["now", "COLM Actionable Interpretability paper submission"]
   ],
   "PATH_TO_PAPER": [
@@ -86,7 +98,8 @@
     ["done", "Saksham", "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."],
     ["done", "Saksham", "Harden Phase 14 script with Ends-Only baseline and SVD explanations."],
     ["done", "Saksham", "Wait for Phase 14 background completion and update Phase 14 artifacts."],
-    ["done", "Saksham", "Integrate Phase 14 results into PAPER_DRAFT.md."],
+    ["done", "Saksham", "Execute Phase 15 layer dropping with boundary healing."],
+    ["done", "Saksham", "Integrate Phase 15 results into PAPER_DRAFT.md."],
     ["now", "Saksham", "Submit to COLM Actionable Interpretability Workshop."]
   ],
   "LINKS": [

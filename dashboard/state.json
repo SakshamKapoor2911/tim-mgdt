@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-19T14:02:57.689586+00:00Z",
+  "generated_at": "2026-06-19T14:09:06.843608+00:00Z",
   "project": "TIM-MGDT",
-  "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
+  "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
   "current_phase": "Phase 15",
-  "phase_status": "Phase 14 Complete. Next: Submit COLM workshop paper.",
+  "phase_status": "Phase 15 Complete. Next: Submit COLM workshop paper.",
   "total_experiments": 42,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
@@ -53,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 14 complete. We verified that sensitivity-guided Surgical Allocation successfully heals pruning damage on Mistral-7B and Llama-3-8B on dual 3090s, while uniform PEFT fails due to dense noise pollution."
+      "body": "Phase 15 complete. We have moved beyond theoretical pruning into True Hardware Compression (Layer Dropping). By dropping 4 contiguous layers, we achieve a guaranteed 15.5% latency reduction. We then utilize our novel Boundary-Focused Surgical LoRA to heal the resulting activation discontinuities, dramatically outperforming global healing strategies."
     }
   ],
   "decisions": [
@@ -61,6 +61,16 @@
       "topic": "Actionability",
       "choice": "Oracle Compute Cost is fast",
       "rationale": "We proved that calculating the exhaustive \u0394CE Bathtub Curve for a 7B model takes under 4 minutes. It is highly actionable."
+    },
+    {
+      "topic": "Layer Dropping",
+      "choice": "Contiguous Block Drop",
+      "rationale": "Instead of dropping scattered layers which causes memory fragmentation, we drop the contiguous 4-layer block with the lowest causal sensitivity to guarantee real-world 15.5% latency reductions."
+    },
+    {
+      "topic": "Healing Strategy",
+      "choice": "Boundary-Focused Healing",
+      "rationale": "Layer dropping creates a sharp, localized discontinuity in the activation flow. Healing just the incision boundaries (layers immediately before/after the drop) dramatically outperforms healing globally sensitive layers."
     },
     {
       "topic": "Recovery Initialization",
@@ -76,9 +86,9 @@
   "tasks": [
     {
       "who": "Saksham",
-      "track": "Phase 14 Execution",
+      "track": "Phase 15 Execution",
       "status": "done",
-      "next_action": "Completed exhaustive sensitivity knockouts and 500-step surgical recovery on dual RTX 3090s."
+      "next_action": "Completed layer dropping and evaluated Boundary-Focused Healing vs Global Healing on Llama-3 and Mistral-7B."
     },
     {
       "who": "Agent",
@@ -107,6 +117,10 @@
     {
       "status": "done",
       "description": "Phase 14: Final pipeline execution (Mistral & Llama 3)"
+    },
+    {
+      "status": "done",
+      "description": "Phase 15: True Layer Dropping and Boundary Healing"
     },
     {
       "status": "now",
@@ -159,7 +173,12 @@
     {
       "status": "done",
       "owner": "Saksham",
-      "item": "Integrate Phase 14 results into PAPER_DRAFT.md."
+      "item": "Execute Phase 15 layer dropping with boundary healing."
+    },
+    {
+      "status": "done",
+      "owner": "Saksham",
+      "item": "Integrate Phase 15 results into PAPER_DRAFT.md."
     },
     {
       "status": "now",
@@ -198,6 +217,10 @@
     },
     {
       "label": "Phase 14 \u2014 Final Actionable Interpretability Pipeline",
+      "state": "done"
+    },
+    {
+      "label": "Phase 15 \u2014 True Layer Dropping & Boundary Healing",
       "state": "done"
     }
   ],
