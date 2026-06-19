@@ -52,19 +52,43 @@ def drop_layers_with_mapping(model, drop_indices):
     model.config.num_hidden_layers = len(new_layers)
     return model, old_to_new_map
 
-def build_surgical_lora_config(map_file, old_to_new_map, rank):
+def build_surgical_lora_config(map_file, old_to_new_map, rank, healing_mode="boundary"):
     with open(map_file, "r") as f:
         data = json.load(f)
     sens = data["sensitivities"]
     
-    sorted_layers = sorted(sens.items(), key=lambda x: x[1], reverse=True)
-    top_layers = [layer for layer, score in sorted_layers[:6]]
-    
     target_modules = []
-    for layer_name in top_layers:
-        old_idx = int(layer_name.split("_")[1])
+    if healing_mode == "global":
+        sorted_layers = sorted(sens.items(), key=lambda x: x[1], reverse=True)
+        top_layers = [layer for layer, score in sorted_layers[:6]]
+        target_layer_indices = []
+        for layer_name in top_layers:
+            old_idx = int(layer_name.split("_")[1])
+            target_layer_indices.append(old_idx)
+    else:
+        # Find which indices were dropped (they are missing from old_to_new_map)
+        max_old_idx = max(old_to_new_map.keys())
+        dropped_indices = [i for i in range(max_old_idx + 1) if i not in old_to_new_map]
+        if not dropped_indices:
+            raise ValueError("No dropped layers detected in old_to_new_map!")
+        d_start = min(dropped_indices)
+        d_end = max(dropped_indices)
+        
+        target_layer_indices = []
+        # Left boundary (up to 2 layers preceding the dropped block)
+        for offset in [1, 2]:
+            idx = d_start - offset
+            if idx in old_to_new_map:
+                target_layer_indices.append(idx)
+        # Right boundary (up to 2 layers succeeding the dropped block)
+        for offset in [1, 2]:
+            idx = d_end + offset
+            if idx in old_to_new_map:
+                target_layer_indices.append(idx)
+                
+    for old_idx in target_layer_indices:
         if old_idx not in old_to_new_map:
-            raise ValueError(f"High sensitivity layer {old_idx} was incorrectly dropped!")
+            raise ValueError(f"Target layer {old_idx} was incorrectly dropped!")
             
         new_idx = old_to_new_map[old_idx]
         target_modules.extend([
@@ -124,6 +148,7 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--warmup_ratio", type=float, default=0.10)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--healing_mode", type=str, choices=["global", "boundary"], default="boundary")
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -149,8 +174,8 @@ def main():
     
     model, old_to_new_map = drop_layers_with_mapping(model, drop_indices)
     
-    print("Attaching Surgical LoRA for healing...")
-    lora_config = build_surgical_lora_config(map_file, old_to_new_map, args.rank)
+    print(f"Attaching Surgical LoRA for healing (Mode: {args.healing_mode})...")
+    lora_config = build_surgical_lora_config(map_file, old_to_new_map, args.rank, args.healing_mode)
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
     
@@ -177,6 +202,7 @@ def main():
         "drop_indices": drop_indices,
         "train_samples": args.train_samples,
         "rank": args.rank,
+        "healing_mode": args.healing_mode,
         "recovery_time_s": recovery_time,
         "baseline_c4_ppl": prev_results.get("baseline_c4_ppl"),
         "dropped_c4_ppl": prev_results.get("dropped_c4_ppl"),
@@ -184,7 +210,8 @@ def main():
         "loss_curve": losses
     }
     
-    out_file = os.path.join(out_dir, f"{model_short}_drop{args.n_drop}_healed.json")
+    suffix = "boundary_healed" if args.healing_mode == "boundary" else "healed"
+    out_file = os.path.join(out_dir, f"{model_short}_drop{args.n_drop}_{suffix}.json")
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nSaved healed evaluation to {out_file}")

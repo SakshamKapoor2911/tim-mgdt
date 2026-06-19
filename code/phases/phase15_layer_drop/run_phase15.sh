@@ -30,12 +30,13 @@ for MODEL in "${MODELS[@]}"; do
         --n_drop $N_DROP \
         --eval_samples $EVAL_SAMPLES
         
-    # 2. Heal with Surgical LoRA
+    # 2. Heal with Surgical LoRA (Boundary-Focused)
     $VENV/bin/python -m code.phases.phase15_layer_drop.2_heal_dropped_layers \
         --model "$MODEL" \
         --n_drop $N_DROP \
         --eval_samples $EVAL_SAMPLES \
-        --train_samples 500
+        --train_samples 500 \
+        --healing_mode boundary
 done
 
 echo ""
