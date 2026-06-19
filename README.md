@@ -74,5 +74,13 @@ The entire multi-architecture ablation pipeline is fully automated and designed 
 python scratch/extract.py
 ```
 
+## 🛠️ Reproducibility (Minimal Proof of Concept)
+
+For workshop reviewers, we provide a standalone, highly readable (< 100 lines) reproducible script that drops layers, routes a boundary LoRA, and executes a training loop on a snippet of the C4 dataset. 
+
+```bash
+python runners/reproduce_ablation.py
+```
+
 ---
 *Created for COLM 2026 (Double-Blind Review)*
