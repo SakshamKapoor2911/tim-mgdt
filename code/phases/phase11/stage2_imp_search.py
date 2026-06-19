@@ -27,6 +27,7 @@ def run_stage2(
     stage1_results: Dict[str, Any] = None,
     ppl_max_samples: int = 128,
     ppl_threshold_pct: float = 5.0,
+    batch_size: int = 4,
 ) -> Dict[str, Any]:
     """
     Stage 2: Iterative Magnitude Pruning (IMP) Search (REAL)
@@ -65,7 +66,7 @@ def run_stage2(
     
     if baseline_ppl is None:
         print("  [1/2] Measuring baseline perplexity...")
-        baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+        baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
 
     # --- IMP sweep ---
     print(f"  [2/2] Running IMP sweep across 5 sparsity levels...")
@@ -73,7 +74,7 @@ def run_stage2(
     search_history = []
 
     # Save original state for restoration between steps
-    original_state = {k: v.clone() for k, v in model.state_dict().items()}
+    original_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
     for i, target_sparsity in enumerate(prune_steps, 1):
         step_start = time.time()
@@ -86,7 +87,7 @@ def run_stage2(
         actual_sparsity = 1.0 - (nonzero / total_params)
 
         # Measure real perplexity
-        pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+        pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
         ppl_increase_pct = ((pruned_ppl - baseline_ppl) / baseline_ppl) * 100
 
         elapsed = time.time() - step_start

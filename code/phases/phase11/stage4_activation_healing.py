@@ -41,8 +41,8 @@ def _collect_layer_activations(
     calibration_texts: List[str],
 ) -> Dict[int, torch.Tensor]:
     """
-    Run calibration texts through the model and collect mean activation
-    vectors at each transformer layer output.
+    Run concatenated calibration texts through the model and collect 
+    mean activation vectors at each transformer layer output.
     """
     layer_sums = {}
     layer_counts = {}
@@ -65,9 +65,10 @@ def _collect_layer_activations(
 
     model.eval()
     with torch.no_grad():
-        for text in calibration_texts:
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
-            model(**inputs)
+        # Concatenate into one single continuous string to avoid padding artifacts
+        text = "\n\n".join(calibration_texts)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
+        model(**inputs)
 
     for h in hooks:
         h.remove()
@@ -80,17 +81,63 @@ def _collect_layer_activations(
     return means
 
 
-def _apply_activation_healing(
+def _sequential_activation_healing_calibration(
+    model: nn.Module,
     layers: nn.ModuleList,
+    tokenizer: Any,
+    device: str,
     pre_means: Dict[int, torch.Tensor],
-    post_means: Dict[int, torch.Tensor],
+    calibration_texts: List[str],
 ) -> List[Any]:
     """
-    Register forward hooks on each layer to shift the post-pruning mean output
-    activation back to the pre-pruning mean output activation.
+    Perform a single forward pass over the pruned model.
+    Dynamically intercept each layer's output, calculate the mean, compute the 
+    correction relative to `pre_means`, apply it to the hidden states dynamically, 
+    and return static inference hooks that lock in this correction for future passes.
     """
-    healing_hooks = []
+    class SequentialCalibrationHook:
+        def __init__(self, pre_mean):
+            self.pre_mean = pre_mean
+            self.correction = None
 
+        def __call__(self, module, input, output):
+            hidden = output[0] if isinstance(output, tuple) else output
+            # We assume the entire calibration set is passed in a single batch (no padding)
+            post_mean = hidden.detach().float().mean(dim=(0, 1))
+            
+            # Calculate the true sequential correction
+            self.correction = self.pre_mean.to(hidden.device) - post_mean.to(hidden.device)
+            self.correction = self.correction.to(hidden.dtype)
+            
+            # Dynamically apply the correction for the rest of the forward pass
+            patched = hidden + self.correction
+            if isinstance(output, tuple):
+                return (patched,) + output[1:]
+            else:
+                return patched
+
+    # Register dynamic calibration hooks
+    dynamic_hooks = []
+    hook_objs = {}
+    for idx, layer in enumerate(layers):
+        if idx in pre_means:
+            hook_obj = SequentialCalibrationHook(pre_means[idx])
+            h = layer.register_forward_hook(hook_obj)
+            dynamic_hooks.append(h)
+            hook_objs[idx] = hook_obj
+
+    model.eval()
+    with torch.no_grad():
+        text = "\n\n".join(calibration_texts)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
+        model(**inputs)
+
+    # Remove dynamic calibration hooks
+    for h in dynamic_hooks:
+        h.remove()
+
+    # Now create the lightweight static inference hooks
+    healing_hooks = []
     def make_healing_hook(corr):
         def hook_fn(module, input, output):
             if isinstance(output, tuple):
@@ -101,10 +148,9 @@ def _apply_activation_healing(
         return hook_fn
 
     for idx, layer in enumerate(layers):
-        if idx in pre_means and idx in post_means:
-            correction = pre_means[idx] - post_means[idx]
-            h = layer.register_forward_hook(make_healing_hook(correction))
-            healing_hooks.append(h)
+        if idx in hook_objs and hook_objs[idx].correction is not None:
+            static_h = layer.register_forward_hook(make_healing_hook(hook_objs[idx].correction))
+            healing_hooks.append(static_h)
 
     return healing_hooks
 
@@ -127,6 +173,7 @@ def run_stage4(
     device: str = "cpu",
     target_sparsity: float = 0.30,
     ppl_max_samples: int = 128,
+    batch_size: int = 4,
 ) -> Dict[str, Any]:
     """
     Stage 4: Activation Healing + Measured Deployment Metrics (REAL)
@@ -161,7 +208,7 @@ def run_stage4(
 
     # --- Step 1: Baseline metrics ---
     print(f"  [1/6] Measuring baseline (unpruned) metrics...")
-    baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+    baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
     baseline_latency = time_forward_pass(model, tokenizer, device)
 
     if device == "cuda":
@@ -184,7 +231,7 @@ def run_stage4(
     print(f"    Collected means for {len(pre_means)} layers.")
 
     # Save state for potential restoration
-    original_state = {k: v.clone() for k, v in model.state_dict().items()}
+    original_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
     # --- Step 3: Apply pruning ---
     print(f"  [3/6] Applying {int(target_sparsity*100)}% global L1 magnitude pruning...")
@@ -199,23 +246,19 @@ def run_stage4(
 
     # --- Step 4: Pruned metrics (before healing) ---
     print(f"  [4/6] Measuring pruned model metrics (BEFORE healing)...")
-    pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+    pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
     pruned_latency = time_forward_pass(model, tokenizer, device)
     print(f"    Pruned PPL: {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)")
     print(f"    Pruned latency: {pruned_latency:.2f}ms")
 
-    # --- Step 5: Post-pruning activation means ---
-    print(f"  [5/6] Collecting post-pruning activation means...")
-    post_means = _collect_layer_activations(model, layers, tokenizer, device, CALIBRATION_TEXTS)
-
-    # --- Step 6: Apply activation healing via forward hooks ---
-    print(f"  [6/6] Applying forward-hook activation healing...")
-    healing_hooks = _apply_activation_healing(layers, pre_means, post_means)
+    # --- Step 5 & 6: Sequential Activation Healing ---
+    print(f"  [5/6] Applying sequential forward-hook activation healing...")
+    healing_hooks = _sequential_activation_healing_calibration(model, layers, tokenizer, device, pre_means, CALIBRATION_TEXTS)
     layers_corrected = len(healing_hooks)
-    print(f"    Registered healing hooks for {layers_corrected} layers.")
+    print(f"    Registered static healing hooks for {layers_corrected} layers.")
 
     # Measure healed PPL (with healing hooks active)
-    healed_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+    healed_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
     healed_latency = time_forward_pass(model, tokenizer, device)
 
     if device == "cuda":

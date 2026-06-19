@@ -163,6 +163,7 @@ def run_stage1(
     device: str,
     model_name: str = "unknown",
     ppl_max_samples: int = 128,
+    batch_size: int = 4,
 ) -> Dict[str, Any]:
     """
     Stage 1: Structured GQA-Aware Attention Head Pruning (REAL)
@@ -205,14 +206,14 @@ def run_stage1(
 
     # --- Baseline perplexity ---
     print("  [2/3] Measuring baseline perplexity (no pruning)...")
-    baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+    baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
 
     # --- Prune and measure ---
     print("  [3/3] Applying structured head masks and measuring perplexity...")
     prune_plans = {}
 
     # Save original state dict for restoration
-    original_state = {k: v.clone() for k, v in model.state_dict().items()}
+    original_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
     for sparsity in [0.20, 0.40]:
         num_to_prune = int(total_heads * sparsity)
@@ -225,7 +226,7 @@ def run_stage1(
             _apply_head_mask_llama(model, cfg, heads_to_prune)
 
         # Measure perplexity with pruned heads
-        pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples)
+        pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
         ppl_increase_pct = ((pruned_ppl - baseline_ppl) / baseline_ppl) * 100
 
         prune_plans[f"gqa_prune_{int(sparsity*100)}"] = {
