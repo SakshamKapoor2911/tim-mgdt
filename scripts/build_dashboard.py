@@ -109,6 +109,13 @@ def gather_experiment_data():
         phase14_maps[model_name] = _load(f)
     results["phase14_maps"] = phase14_maps
 
+    # Phase 15 layer drop results
+    phase15_results = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase15_layer_drop", "*.json")):
+        key = os.path.basename(f).replace(".json", "")
+        phase15_results[key] = _load(f)
+    results["phase15_results"] = phase15_results
+
     # Count total experiments
     all_json = glob.glob(os.path.join(EXPERIMENTS, "**", "*.json"), recursive=True)
     results["_total_experiments"] = len(all_json)
@@ -326,6 +333,80 @@ def _phase14_html(results, maps):
           </table>
         </div>
         """
+    return html
+
+
+def _phase15_html(phase15_results):
+    models = [
+        ("Mistral-7B-v0.1", "Mistral 7B (MHA)"),
+        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
+    ]
+    
+    html = '<div class="section-label" id="phase15">Phase 15 Oracle-Guided Layer Dropping & Boundary Healing</div>'
+    
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To achieve true hardware compression, we drop the contiguous 4-layer block with the lowest causal sensitivity, reducing depth by 12.5% and yielding a <b>~15.5% reduction in inference latency</b>. We then compare standard (Global Sensitivity-based) healing with our localized <b>Boundary-Focused Surgical LoRA</b>.
+      </p>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Model</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Global) PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    """
+    
+    for key, display_name in models:
+        eval_data = phase15_results.get(f"{key}_drop4_eval", {})
+        healed_data = phase15_results.get(f"{key}_drop4_healed", {})
+        boundary_data = phase15_results.get(f"{key}_drop4_boundary_healed", {})
+        
+        drop_indices = eval_data.get("drop_indices", healed_data.get("drop_indices", []))
+        drop_indices_str = str(drop_indices) if drop_indices else "—"
+        
+        base_lat = eval_data.get("baseline_latency_ms", 0.0)
+        drop_lat = eval_data.get("dropped_latency_ms", 0.0)
+        lat_saved = eval_data.get("latency_reduction_pct", 0.0)
+        
+        lat_saved_str = f"-{lat_saved:.2f}% ({base_lat:.1f}ms → {drop_lat:.1f}ms)" if lat_saved else "—"
+        
+        base_ppl = eval_data.get("baseline_c4_ppl", healed_data.get("baseline_c4_ppl"))
+        base_ppl_str = f"{base_ppl:.3f}" if base_ppl else "—"
+        
+        drop_ppl = eval_data.get("dropped_c4_ppl", healed_data.get("dropped_c4_ppl"))
+        drop_ppl_str = f"{drop_ppl:.3f}" if drop_ppl else "—"
+        
+        healed_ppl = healed_data.get("healed_c4_ppl")
+        healed_ppl_str = f"{healed_ppl:.3f}" if healed_ppl else "—"
+        
+        boundary_ppl = boundary_data.get("healed_c4_ppl")
+        boundary_ppl_str = f"{boundary_ppl:.3f}" if boundary_ppl else "<i>Pending...</i>"
+        
+        html += f"""
+        <tr>
+          <td class="task-who">{display_name}</td>
+          <td style="text-align:center;"><code>{drop_indices_str}</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">{lat_saved_str}</td>
+          <td style="text-align:center;">{base_ppl_str}</td>
+          <td style="text-align:center; color:var(--red);">{drop_ppl_str}</td>
+          <td style="text-align:center;">{healed_ppl_str}</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">{boundary_ppl_str}</td>
+        </tr>
+        """
+        
+    html += """
+        </tbody>
+      </table>
+    </div>
+    """
     return html
 
 
@@ -587,6 +668,7 @@ def build_html(experiments, metrics):
     <a href="#overview">Overview</a>
     <a href="#results">Phase 11 Results</a>
     <a href="#phase14">Phase 14 Results</a>
+    <a href="#phase15">Phase 15 Results</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -624,6 +706,9 @@ def build_html(experiments, metrics):
   <div id="results">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
   <div style="margin-top: 32px;">
     {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
+  </div>
+  <div style="margin-top: 32px;">
+    {_phase15_html(experiments.get("phase15_results", {}))}
   </div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>

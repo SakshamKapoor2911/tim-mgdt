@@ -1,0 +1,16 @@
+{
+  "model": "meta-llama/Meta-Llama-3-8B",
+  "n_drop": 4,
+  "drop_indices": [
+    8,
+    9,
+    10,
+    11
+  ],
+  "eval_samples": 128,
+  "baseline_latency_ms": 32.605444081127644,
+  "dropped_latency_ms": 27.44005899876356,
+  "latency_reduction_pct": 15.842093944531976,
+  "baseline_c4_ppl": 8.990227699279785,
+  "dropped_c4_ppl": 14.953484535217285
+}
