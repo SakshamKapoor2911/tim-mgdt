@@ -100,10 +100,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#phase15">Phase 15 Results</a>
+    <a href="#phase15">Phase 15 (Results)</a>
     <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase14">Phase 14 Results</a>
-    <a href="#results">Legacy (Phase 11)</a>
+    <a href="#phase17">Phase 17 (Mechanistic)</a>
+    <a href="#phase14">Phase 14 (Legacy)</a>
+    <a href="#results">Phase 11 (Legacy)</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -111,7 +112,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 19:22 UTC</span>
+    <span class="nav-meta">2026-06-19 19:26 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -182,6 +183,16 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td style="text-align:center; color:var(--red);">14.953</td>
           <td style="text-align:center;">13.697</td>
           <td style="text-align:center; font-weight:600; color:var(--blue);">11.976</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Gemma 2 2B (SWA)</td>
+          <td style="text-align:center;"><code>[8, 9, 10, 11]</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-16.25% (26.0ms → 21.8ms)</td>
+          <td style="text-align:center;">63.889</td>
+          <td style="text-align:center; color:var(--red);">103.681</td>
+          <td style="text-align:center;">—</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);"><i>Pending...</i></td>
         </tr>
         
         </tbody>
@@ -258,10 +269,25 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         </tbody>
       </table>
     </div>
+    <div class="section-label" id="phase17">Phase 17: Mechanistic Interpretability</div>
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token. LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted.
+      </p>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--accent); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">Attention Sink Spike (Layer 18)</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          The massive spike in sink attention exactly at the right boundary layer (Layer 18) mathematically confirms that the structural discontinuity is severely corrupting the incoming residual stream. The model "notices" the incision, causing boundary layers to dump their attention mass into the sink.
+        </p>
+      </div>
+      <div style="text-align: center;">
+        <img src="figures/attention_heatmap.png" alt="Mechanistic Disruption: Attention Mass Directed to Sink Token" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
+    </div>
     
   </div>
   <div style="margin-top: 32px;">
-    <div class="section-label" id="phase14">Phase 14 Surgical Recovery Results</div>
+    <div class="section-label" id="phase14">Legacy Explorations — Phase 14 Surgical Recovery</div><details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;"><summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 14 Surgical (ΔCE) Results</summary><div style="margin-top: 16px;">
         <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
           <div class="rc-head" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
@@ -393,7 +419,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
             </tbody>
           </table>
         </div>
-        
+        </div></details>
   </div>
   <div id="results" style="margin-top: 32px;">
 <div class="section-label">Legacy Results — Phase 11 (GPT2)</div>
