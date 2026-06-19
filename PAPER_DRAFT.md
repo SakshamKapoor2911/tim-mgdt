@@ -57,5 +57,22 @@ We log the exact wall-clock pre-computation time required to map the complete 32
 
 This proves that the diagnostic overhead is negligible. By offering an under-4-minute pre-flight check on commodity consumer hardware (dual RTX 3090s), our interpretability pipeline is highly actionable and easily integrated into standard production workflows.
 
+### Ablation 4: Oracle-Guided Layer Dropping (Physical Compression & KV-Cache Reduction)
+While pruning parameters reduces computation theoretically, it does not reduce memory or latency in commodity deployment frameworks without custom sparse kernels. To achieve true hardware-level acceleration, we evaluate **Oracle-Guided Layer Dropping** (dropping contiguous layers with the absolute lowest sensitivity). 
+
+We dropped a block of 4 contiguous layers (representing a **12.5% physical depth reduction**) and compared two healing recovery configurations:
+1. **Global Surgical Healing**: Allocating LoRA capacity to the top-6 globally most sensitive layers (`[0, 1, 3, 29, 30, 31]`).
+2. **Boundary-Focused Surgical Healing (Local Incision Healing)**: Allocating LoRA capacity strictly to the layers immediately adjacent to the dropped layer boundary (e.g. `[9, 10, 15, 16]` for Mistral, and `[6, 7, 12, 13]` for Llama-3).
+
+| Model | Baseline PPL | Dropped (12.5%) | Global Healed (Run 1) | Boundary Healed (Run 2) | Latency Reduction |
+|-------|--------------|-----------------|-----------------------|-------------------------|-------------------|
+| **Mistral-7B** | 7.855 | 9.930 | 9.730 | **9.223** | **-15.18%** (33.1ms → 28.1ms) |
+| **Llama-3-8B** | 8.990 | 14.953 | 13.697 | **12.463** | **-15.84%** (32.6ms → 27.4ms) |
+
+#### Incision Boundary Localized Recovery Efficacy
+The boundary-focused surgical healing configuration consistently outperformed the globally targeted configuration on both architectures. For Mistral-7B, boundary-focused healing recovered **`0.707` PPL** (over 3.5x the `0.200` PPL of the global configuration). For Llama-3-8B, it recovered **`2.490` PPL** (double the `1.257` PPL of the global configuration).
+
+This confirms a critical mechanistic insight: **layer dropping creates a highly localized discontinuity in activation flows**. Fine-tuning early representation layers or final generation layers fails to align this discontinuity, whereas adapting the layers immediately surrounding the incision site directly corrects the representation drift at the exact spot where the structure was broken.
+
 ## 5. Conclusion
 We introduce an actionable interpretability framework that shifts the paradigm of LLM recovery from Retraining to Diagnostics. By establishing the 3.8-minute causal sensitivity oracle, we demonstrate that pruning damage is localized and varies asymmetrically across model families. Surgically allocating low-rank capacity to these precise damage zones resolves the "Dense Noise Pollution" failure mode of uniform PEFT, enabling recovery on consumer-grade hardware. This effectively bypasses the Hardware Memory Wall and provides a scalable path for democratized model compression.
