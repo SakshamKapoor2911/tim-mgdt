@@ -157,6 +157,13 @@ LINKS = [
     ("Remote Setup Guide", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/REMOTE_SETUP_GUIDE.md"),
     ("Phase Status Ledger", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE_STATUS_LEDGER.md"),
 ]
+
+LITERATURE = [
+    ("SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians."),
+    ("Wanda", "Sun et al., 2023", "Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets."),
+    ("SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing."),
+    ("ShortGPT", "Men et al., 2024", "Removes entire blocks based on block-level redundancy. <b>Our diff</b>: We do fine-grained structured/unstructured pruning, rather than taking out whole transformer blocks."),
+]
 # ------------------------------------------------------------------------------
 
 
@@ -192,10 +199,21 @@ def gather_experiment_data():
     """Scan experiments/ for JSON results, focused on latest phases."""
     results = {}
 
-    # Phase 11 (latest)
-    p11_complete = _load(os.path.join(EXPERIMENTS, "phase11", "gpt2_phase11_complete_results.json"))
-    p11_basic = _load(os.path.join(EXPERIMENTS, "phase11", "gpt2_phase11_results.json"))
-    results["phase11"] = p11_complete or p11_basic
+    # Dynamically find the newest complete Phase 11 run (GPT-2, Llama, or Mistral)
+    phase11_files = glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_complete_results.json"))
+    if phase11_files:
+        latest_file = max(phase11_files, key=os.path.getmtime)
+        results["phase11"] = _load(latest_file)
+        # Extract model name for the UI (e.g., gpt2, mistral7b, llama3)
+        basename = os.path.basename(latest_file)
+        results["_latest_model_name"] = basename.split("_")[0].upper()
+    else:
+        # Fallback to basic results if no complete run exists
+        basic_files = glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_results.json"))
+        if basic_files:
+            latest_file = max(basic_files, key=os.path.getmtime)
+            results["phase11"] = _load(latest_file)
+            results["_latest_model_name"] = os.path.basename(latest_file).split("_")[0].upper()
 
     # Phase 10
     for f in glob.glob(os.path.join(EXPERIMENTS, "phase10", "*.json")):
@@ -258,9 +276,9 @@ def build_state_json(experiments, metrics):
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
-            "name": "GPT-2 Phase 11 (Real GPU)",
+            "name": f"{experiments.get('_latest_model_name', 'GPT-2')} Phase 11 (Real GPU)",
             "status": "complete" if experiments.get("phase11") else "pending",
-            "model": "gpt2",
+            "model": experiments.get("_latest_model_name", "gpt2").lower(),
             "device": experiments.get("phase11", {}).get("device", "unknown") if experiments.get("phase11") else "unknown",
         },
         "metrics": metrics,
@@ -316,7 +334,7 @@ def _decisions_html():
 </table></div>"""
 
 
-def _metrics_html(metrics):
+def _metrics_html(metrics, model_name="GPT-2"):
     if not metrics:
         return "<div class='card'><p class='muted'>No metrics available yet.</p></div>"
 
@@ -326,11 +344,11 @@ def _metrics_html(metrics):
         return f"-{100*(1 - opt/base):.1f}%"
 
     return f"""
-<div class="section-label">Performance vs Efficiency — GPT-2 Phase 11</div>
+<div class="section-label">Performance vs Efficiency — Phase 11 ({model_name})</div>
 <div class="g2">
 <div class="result-card primary">
   <div class="rc-head"><h3>Deployment Metrics</h3>
-  <div class="rc-meta">GPT-2 124M · Real GPU measurement</div></div>
+  <div class="rc-meta">{model_name} · Real GPU measurement</div></div>
   <table class="cond-table">
     <tr><td>Parameters</td><td class="val">{metrics['baseline_params_b']:.2f}B → {metrics['healed_params_b']:.2f}B</td></tr>
     <tr><td>Latency</td><td class="val">{metrics['baseline_latency_ms']:.1f}ms → {metrics['healed_latency_ms']:.1f}ms</td></tr>
@@ -411,6 +429,19 @@ def _path_to_paper():
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
+{rows}
+</table></div>"""
+
+
+def _literature_html():
+    rows = ""
+    for paper, authors, notes in LITERATURE:
+        rows += f"<tr><td class='task-who'>{paper}<br><span class='task-track'>{authors}</span></td><td class='task-action'>{notes}</td></tr>\n"
+    return f"""
+<div class="section-label">Literature & Related Work</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table class="task-table">
+<tr><th>Paper / Authors</th><th>Context & Our Differentiation</th></tr>
 {rows}
 </table></div>"""
 
@@ -537,6 +568,7 @@ def build_html(experiments, metrics):
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
     <a href="#path">Path to Paper</a>
+    <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
     <span class="nav-meta">{now}</span>
@@ -566,7 +598,7 @@ def build_html(experiments, metrics):
   </div>
   <div style="margin-top:16px">{_research_callout()}</div>
 
-  <div id="results">{_metrics_html(metrics)}</div>
+  <div id="results">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>
   <div id="tasks">{_tasks_html()}</div>
@@ -574,6 +606,7 @@ def build_html(experiments, metrics):
   {_bulletproofing_html()}
   <div id="milestones">{_milestones_html()}</div>
   <div id="path">{_path_to_paper()}</div>
+  <div id="literature">{_literature_html()}</div>
   {_links_html()}
 </div>
 </body>
