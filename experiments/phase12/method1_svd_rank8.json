@@ -1,0 +1,8 @@
+{
+  "method": "method1_svd",
+  "rank": 8,
+  "recovery_time": 1384.6764640808105,
+  "baseline_ppl": 5.668982028961182,
+  "recovered_ppl": 5.790073394775391,
+  "ppl_increase_pct": 2.1360336863935783
+}
