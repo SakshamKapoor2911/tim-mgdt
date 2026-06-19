@@ -11,6 +11,32 @@ This repository contains the code, experiments, and LaTeX source for our COLM 20
 
 We introduce **Incision Boundary Healing**, a targeted LoRA routing strategy that restricts trainable parameters exclusively to the boundary layers immediately adjacent to the dropped block.
 
+```mermaid
+graph TD
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef dropped fill:#ffcccc,stroke:#cc0000,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef healed fill:#ccffcc,stroke:#009900,stroke-width:3px;
+    classDef normal fill:#f0f0f0,stroke:#666,stroke-width:1px;
+
+    L6[Layer 6: Normal]:::normal --> L7
+    L7[Layer 7: Boundary Healed + LoRA]:::healed --> L8
+    L8[Layer 8: DROPPED]:::dropped -.-> L9
+    L9[Layer 9: DROPPED]:::dropped -.-> L10
+    L10[Layer 10: DROPPED]:::dropped -.-> L11
+    L11[Layer 11: DROPPED]:::dropped -.-> L12
+    L12[Layer 12: Boundary Healed + LoRA]:::healed --> L13
+    L13[Layer 13: Normal]:::normal
+    
+    subgraph "Incision Boundary Healing (t=1)"
+    L7
+    L8
+    L9
+    L10
+    L11
+    L12
+    end
+```
+
 ### 🏆 Key Discoveries
 1. **The Bathtub Curve of Layer Sensitivity**: Pruning damage is asymmetrical. Early and late layers are highly sensitive, while middle layers are elastic.
 2. **Surgical PEFT Allocation**: Targeting capacity only where the model's structural integrity has been compromised prevents "Dense Noise Pollution".

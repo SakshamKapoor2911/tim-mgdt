@@ -169,6 +169,13 @@ By comparing these curves, we prove that Incision Boundary Healing is highly sen
 \label{tab:multi_model_thickness}
 \end{table}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{figures/thickness_ablation_multimodel.png}
+\caption{Cross-Architecture Boundary Thickness ($t$) vs. Healed PPL. Mistral-7B and Meta-Llama-3-8B exhibit a tightly localized semantic gap, establishing a hard recovery plateau at $t=2$. Conversely, Gemma-2-2B exhibits a monotonic decay curve, demonstrating that its interleaved Sliding Window Attention expands the radius of the structural damage.}
+\label{fig:thickness_multimodel}
+\end{figure}
+
 \section{Conclusion}
 We introduce an actionable interpretability framework that shifts the paradigm of LLM recovery from Retraining to Diagnostics. By establishing the 3.8-minute causal sensitivity oracle, we demonstrate that pruning damage is localized and varies asymmetrically across model families. Surgically allocating low-rank capacity to these precise damage zones resolves the "Dense Noise Pollution" failure mode of uniform PEFT.
 
