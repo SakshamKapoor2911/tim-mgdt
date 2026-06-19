@@ -8,7 +8,6 @@ on:
     paths:
       - 'experiments/**/*.json'
       - 'scripts/build_dashboard.py'
-      - 'dashboard/template.html'
   workflow_dispatch:
 
 permissions:

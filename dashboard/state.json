@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-06-19T00:46:34.414371+00:00Z",
+  "generated_at": "2026-06-19T00:54:38.913932+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
   "current_phase": "Phase 11",
   "phase_status": "Phase 11 complete (GPT-2 real GPU validation). Winning Ticket found at 30% sparsity. Next: Llama-3-8B and Mistral-7B on dual 3090 remote server.",
   "total_experiments": 21,
   "latest_run": {
-    "name": "GPT-2 Phase 11 (Real GPU)",
+    "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
     "model": "gpt2",
     "device": "cpu"
