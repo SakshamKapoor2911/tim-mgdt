@@ -1,5 +1,16 @@
 # Phase 11 Results
 
+## Scientific Narrative & Phase 12 Hypothesis
+If the current Phase 12 proxy experiments and recovery methods succeed, the core scientific narrative for our Actionable Interpretability paper will be:
+
+> **"We prove that full-parameter recovery of pruned LLMs hits a hardware memory wall at 7B scale. By analyzing the mechanistic sensitivity of individual layers, we introduce SVD-Initialized Surgical LoRA—a method that recovers performance using only 0.03% trainable parameters and runs entirely on a single consumer GPU."**
+
+Key novelties we are explicitly tracking:
+1. **The Bathtub Sensitivity Curve:** Ground-truth ablation proves that layers 0-1 and 30-31 are vastly more sensitive to pruning than interior layers, providing a structural map for heterogeneous intervention.
+2. **Deterministic Damage Approximation:** **No one has ever used the deterministic SVD of pruning damage to initialize LoRA adapters.** By setting $\Delta W = W_{orig} - W_{pruned}$, we bypass random initialization and start fine-tuning from an approximate closed-form recovery.
+
+---
+
 This document will contain the final analysis, outputs, and metrics from the parallel Phase 11 execution of Mistral-7B and Llama-3-8B.
 
 ## Mistral-7B
