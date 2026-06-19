@@ -82,5 +82,7 @@ For workshop reviewers, we provide a standalone, highly readable (< 100 lines) r
 python runners/reproduce_ablation.py
 ```
 
+> 🔍 **See the mechanistic evidence:** Run `python code/phases/phase17_mechanistic/attention_heatmap.py` to regenerate the Attention Sink Heatmap and visually verify the boundary disruption.
+
 ---
 *Created for COLM 2026 (Double-Blind Review)*
