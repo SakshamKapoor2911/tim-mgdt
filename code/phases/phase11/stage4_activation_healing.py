@@ -33,126 +33,54 @@ from code.phases.phase11.utils import (
 )
 
 
-def _collect_layer_activations(
+def _sparse_finetuning_healing(
     model: nn.Module,
-    layers: nn.ModuleList,
     tokenizer: Any,
     device: str,
     calibration_texts: List[str],
-) -> Dict[int, torch.Tensor]:
+    steps: int = 10,
+    lr: float = 2e-5,
+) -> None:
     """
-    Run concatenated calibration texts through the model and collect 
-    mean activation vectors at each transformer layer output.
+    Perform Masked Sparse Fine-Tuning.
+    Extracts the binary sparsity mask from the current model weights,
+    runs a short gradient-based optimization on calibration data,
+    and forcefully re-applies the mask after every optimizer step
+    to ensure 0.0 weights stay exactly 0.0.
     """
-    layer_sums = {}
-    layer_counts = {}
-    hooks = []
+    import torch.optim as optim
 
-    def make_hook(idx):
-        def hook_fn(module, input, output):
-            hidden = output[0] if isinstance(output, tuple) else output
-            # Accumulate mean across batch and sequence dimensions
-            mean_act = hidden.detach().float().mean(dim=(0, 1))
-            if idx not in layer_sums:
-                layer_sums[idx] = torch.zeros_like(mean_act)
-                layer_counts[idx] = 0
-            layer_sums[idx] += mean_act
-            layer_counts[idx] += 1
-        return hook_fn
+    # 1. Extract exact sparsity masks
+    masks = {}
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            masks[name] = (param != 0).float()
 
-    for i, layer in enumerate(layers):
-        hooks.append(layer.register_forward_hook(make_hook(i)))
+    # Enable gradients for healing
+    for param in model.parameters():
+        param.requires_grad = True
+
+    model.train()
+    optimizer = optim.AdamW(model.parameters(), lr=lr)
+
+    text = "\n\n".join(calibration_texts)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
+
+    print(f"      [SFT] Starting {steps} steps of sparse fine-tuning...")
+    for step in range(steps):
+        optimizer.zero_grad()
+        outputs = model(**inputs, labels=inputs["input_ids"])
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
+
+        # 3. Enforce Strict Sparsity
+        with torch.no_grad():
+            for name, param in model.named_parameters():
+                if name in masks:
+                    param.mul_(masks[name])
 
     model.eval()
-    with torch.no_grad():
-        # Concatenate into one single continuous string to avoid padding artifacts
-        text = "\n\n".join(calibration_texts)
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
-        model(**inputs)
-
-    for h in hooks:
-        h.remove()
-
-    # Compute means
-    means = {}
-    for idx in layer_sums:
-        means[idx] = layer_sums[idx] / layer_counts[idx]
-
-    return means
-
-
-def _sequential_activation_healing_calibration(
-    model: nn.Module,
-    layers: nn.ModuleList,
-    tokenizer: Any,
-    device: str,
-    pre_means: Dict[int, torch.Tensor],
-    calibration_texts: List[str],
-) -> List[Any]:
-    """
-    Perform a single forward pass over the pruned model.
-    Dynamically intercept each layer's output, calculate the mean, compute the 
-    correction relative to `pre_means`, apply it to the hidden states dynamically, 
-    and return static inference hooks that lock in this correction for future passes.
-    """
-    class SequentialCalibrationHook:
-        def __init__(self, pre_mean):
-            self.pre_mean = pre_mean
-            self.correction = None
-
-        def __call__(self, module, input, output):
-            hidden = output[0] if isinstance(output, tuple) else output
-            # We assume the entire calibration set is passed in a single batch (no padding)
-            post_mean = hidden.detach().float().mean(dim=(0, 1))
-            
-            # Calculate the true sequential correction
-            self.correction = self.pre_mean.to(hidden.device) - post_mean.to(hidden.device)
-            self.correction = self.correction.to(hidden.dtype)
-            
-            # Dynamically apply the correction for the rest of the forward pass
-            patched = hidden + self.correction
-            if isinstance(output, tuple):
-                return (patched,) + output[1:]
-            else:
-                return patched
-
-    # Register dynamic calibration hooks
-    dynamic_hooks = []
-    hook_objs = {}
-    for idx, layer in enumerate(layers):
-        if idx in pre_means:
-            hook_obj = SequentialCalibrationHook(pre_means[idx])
-            h = layer.register_forward_hook(hook_obj)
-            dynamic_hooks.append(h)
-            hook_objs[idx] = hook_obj
-
-    model.eval()
-    with torch.no_grad():
-        text = "\n\n".join(calibration_texts)
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=2048).to(device)
-        model(**inputs)
-
-    # Remove dynamic calibration hooks
-    for h in dynamic_hooks:
-        h.remove()
-
-    # Now create the lightweight static inference hooks
-    healing_hooks = []
-    def make_healing_hook(corr):
-        def hook_fn(module, input, output):
-            if isinstance(output, tuple):
-                patched = output[0] + corr.to(output[0].device).to(output[0].dtype)
-                return (patched,) + output[1:]
-            else:
-                return output + corr.to(output.device).to(output.dtype)
-        return hook_fn
-
-    for idx, layer in enumerate(layers):
-        if idx in hook_objs and hook_objs[idx].correction is not None:
-            static_h = layer.register_forward_hook(make_healing_hook(hook_objs[idx].correction))
-            healing_hooks.append(static_h)
-
-    return healing_hooks
 
 
 CALIBRATION_TEXTS = [
@@ -225,10 +153,8 @@ def run_stage4(
     print(f"    Baseline latency: {baseline_latency:.2f}ms")
     print(f"    Baseline memory: {baseline_memory_gb:.2f}GB")
 
-    # --- Step 2: Pre-pruning activation means ---
-    print(f"  [2/6] Collecting pre-pruning activation means on calibration data...")
-    pre_means = _collect_layer_activations(model, layers, tokenizer, device, CALIBRATION_TEXTS)
-    print(f"    Collected means for {len(pre_means)} layers.")
+    # --- Step 2: (Deleted) Activation Means Collection ---
+    # We skip pre_means collection as SFT does not use activation mean-shifts
 
     # Save state for potential restoration
     original_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
@@ -251,11 +177,10 @@ def run_stage4(
     print(f"    Pruned PPL: {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)")
     print(f"    Pruned latency: {pruned_latency:.2f}ms")
 
-    # --- Step 5 & 6: Sequential Activation Healing ---
-    print(f"  [5/6] Applying sequential forward-hook activation healing...")
-    healing_hooks = _sequential_activation_healing_calibration(model, layers, tokenizer, device, pre_means, CALIBRATION_TEXTS)
-    layers_corrected = len(healing_hooks)
-    print(f"    Registered static healing hooks for {layers_corrected} layers.")
+    # --- Step 5 & 6: Sparse Fine-Tuning (SFT) Healing ---
+    print(f"  [5/6] Applying Masked Sparse Fine-Tuning to recover weights...")
+    _sparse_finetuning_healing(model, tokenizer, device, CALIBRATION_TEXTS, steps=10, lr=2e-5)
+    print(f"    Sparse Fine-Tuning completed. Sparsity locked.")
 
     # Measure healed PPL (with healing hooks active)
     healed_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
@@ -269,9 +194,7 @@ def run_stage4(
     else:
         healed_memory_gb = 0.0
 
-    # Remove the healing hooks so the model is not left modified
-    for h in healing_hooks:
-        h.remove()
+    # Healing hooks are removed, model weights are directly updated via SGD
 
     healing_time = time.time() - healing_start
 

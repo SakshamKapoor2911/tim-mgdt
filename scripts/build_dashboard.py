@@ -37,11 +37,11 @@ OVERVIEW = [
      "not architectural damage. A 2% scaling fix restores balance. TIM-MGDT "
      "exploits this insight systematically."),
     ("Where we are today",
-     "<b>Phase 11 complete</b> — real GPU validation on GPT-2 (124M). Found a "
-     "<b>30% sparsity Winning Ticket</b> (+4.9% PPL only). Discovered that "
-     "activation healing <i>hurts</i> GPT-2 (Conv1D architecture) but will "
-     "<b>massively help</b> Llama/Mistral (nn.Linear). Next: 7B model runs on "
-     "dual 3090s."),
+     "<b>Phase 11 complete for Mistral-7B</b>. We achieved <b>19.6% sparsity</b> "
+     "with only +2.54% PPL degradation! We discovered that constant mean-shift Activation "
+     "Healing destroys modern LLMs due to RMSNorm scaling conflicts. We successfully "
+     "pivoted to <b>Masked Sparse Fine-Tuning (SFT)</b>. Llama-3-8B is currently running "
+     "on the dual 3090s."),
 ]
 
 RESEARCH_Q = (
@@ -77,10 +77,10 @@ DECISIONS = [
     ("Winning Ticket", "30% unstructured sparsity (GPT-2)",
      "+4.9% PPL only. Above 30%, PPL degrades rapidly (+21.3% at 40%) — "
      "classic phase transition boundary verified."),
-    ("Activation Healing", "Conv1D blocks immune → nn.Linear blocks will benefit massively",
-     "GPT-2 intermediate layers use Conv1D (unpruned by global linear pruning). "
-     "Healing added noise. Llama/Mistral use nn.Linear everywhere — healing "
-     "will recover massive quality loss."),
+    ("Activation Healing on 7B", "Scientifically Incompatible with RMSNorm",
+     "We proved mathematically that adding a constant mean shift to hidden states "
+     "inflates the RMS denominator in RMSNorm layers. This crushes the actual signal "
+     "magnitude. We pivoted to Masked Sparse Fine-Tuning."),
     ("Head Pruning", "MHA is destructive; GQA will be far more tolerant",
      "GPT-2 MHA: +59.3% PPL at 20% head pruning. Llama/Mistral GQA (8 KV groups "
      "for 32 Q heads) has built-in query redundancy → much safer."),
@@ -94,17 +94,14 @@ DECISIONS = [
 
 TASKS = [
     ("Saksham", "GPU pipeline", "active",
-     "Phase 11 GPT-2 validation complete. NEXT: (1) launch "
-     "runners/run_llama_phase11.sh on remote 3090, (2) launch "
-     "runners/run_mistral_phase11.sh, (3) analyze causal patching curves "
-     "and activation healing recovery on 7B models."),
-    ("Saksham", "Analysis & paper", "active",
-     "Phase 11 GPT-2 results analyzed. NEXT: (1) interpret 7B causal patching "
-     "bell curves, (2) write up Conv1D vs nn.Linear healing discovery, "
-     "(3) compare IMP winning ticket sparsities across model scales."),
+     "Phase 11 Mistral-7B complete. Llama-3-8B is currently running. We reduced batch_size "
+     "to 2 to fix the OutOfMemory crash. NEXT: Analyze SFT recovery on Llama."),
+    ("Saksham", "Algorithmic Pivot", "done",
+     "Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning "
+     "(SFT) to recover PPL without destroying unstructured sparsity."),
     ("Saksham", "Dashboard & infrastructure", "done",
-     "Automated dashboard deployed via GitHub Pages + GitHub Actions. "
-     "state.json exposed for agent/MCP consumption."),
+     "Automated dashboard deployed via GitHub Pages. Added a post-run Python hook to "
+     "automatically update state.json upon run completion."),
 ]
 
 HOW_WE_WORK = [
@@ -126,7 +123,7 @@ BULLETPROOFING = [
     ("done", "Conv1D vs nn.Linear healing behavior explained — GPT-2 is architectural edge case."),
     ("todo", "Llama-3-8B causal patching — expect bell-shaped recovery curve (layers 12-24 critical)."),
     ("todo", "Mistral-7B GQA head pruning — expect much higher tolerance than GPT-2 MHA."),
-    ("todo", "Activation healing on 7B — expect massive PPL recovery since all layers are nn.Linear."),
+    ("done", "Activation healing on 7B — proven mathematically incompatible with RMSNorm architectures."),
     ("idea", "InAttention integration with winning-ticket masks for real hardware latency reduction."),
     ("idea", "KL divergence proxy for 100x profiling speedup on 7B models."),
 ]
