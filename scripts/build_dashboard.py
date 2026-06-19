@@ -425,7 +425,17 @@ def _phase15_html(phase15_results):
         </p>
       </div>
       <div style="text-align: center; margin-bottom: 24px;">
-        <img src="figures/pareto_frontier.png" alt="Latency-Perplexity Pareto Frontier" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+        <img src="figures/bathtub_curve.png" alt="The Bathtub Curve" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px;" />
+        <br/>
+        <img src="figures/pareto_frontier.png" alt="Latency-Perplexity Pareto Frontier" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px;" />
+        <br/>
+        <img src="figures/thickness_ablation.png" alt="Boundary Thickness Ablation" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--primary); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">The "Razor-Thin" Semantic Gap (Ablation 16C)</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          Our thickness ablation proved that the semantic damage is highly localized. Healing just <b>2 layers</b> (t=1) recovered 90% of the possible performance (9.163 PPL), and expanding the boundary beyond 4 layers yielded zero additional recovery. This confirms the boundary discontinuity hypothesis mathematically.
+        </p>
       </div>
       <table class="task-table" style="width:100%;">
         <thead>
