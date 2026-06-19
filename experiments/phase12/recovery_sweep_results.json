@@ -1,0 +1,30 @@
+{
+  "Method 1: SVD Recovery (Rank 8)": {
+    "method": "method1_svd",
+    "rank": 8,
+    "recovery_time": 1384.6764640808105,
+    "baseline_ppl": 5.668982028961182,
+    "recovered_ppl": 5.790073394775391,
+    "ppl_increase_pct": 2.1360336863935783
+  },
+  "Method 2: Sensitivity LoRA (Rank 16)": {
+    "method": "method2_lora",
+    "rank": 16,
+    "train_samples": 100,
+    "recovery_time": 134.8086609840393,
+    "baseline_ppl": 5.668982028961182,
+    "pruned_ppl": 5.806779861450195,
+    "recovered_ppl": 5.572683334350586,
+    "ppl_increase_pct": -1.6986946530899845
+  },
+  "Method 3: SVD-Init LoRA (Rank 16)": {
+    "method": "method3_svd_lora",
+    "rank": 16,
+    "train_samples": 100,
+    "recovery_time": 237.72861194610596,
+    "baseline_ppl": 5.668982028961182,
+    "init_ppl": 5.791155815124512,
+    "recovered_ppl": 5.564480304718018,
+    "ppl_increase_pct": -1.8433948759988148
+  }
+}

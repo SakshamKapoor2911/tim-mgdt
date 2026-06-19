@@ -1,0 +1,10 @@
+{
+  "method": "method2_lora",
+  "rank": 16,
+  "train_samples": 100,
+  "recovery_time": 134.8086609840393,
+  "baseline_ppl": 5.668982028961182,
+  "pruned_ppl": 5.806779861450195,
+  "recovered_ppl": 5.572683334350586,
+  "ppl_increase_pct": -1.6986946530899845
+}
