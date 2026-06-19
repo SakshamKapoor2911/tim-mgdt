@@ -15,7 +15,7 @@ import json
 import argparse
 import torch
 import torch.nn as nn
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, get_linear_schedule_with_warmup
 from peft import LoraConfig, get_peft_model
 from datasets import load_dataset
 from tqdm import tqdm
@@ -83,7 +83,7 @@ def build_lora_config(sensitivities, rank, mode="surgical"):
     )
     return config
 
-def train_lora_with_logging(model, tokenizer, device, samples=500, lr=2e-4):
+def train_lora_with_logging(model, tokenizer, device, samples=500, lr=1e-5, warmup_ratio=0.10):
     """Train LoRA and return per-step loss curve. Increased to 500 steps."""
     dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="train")
     text = "\n\n".join([s for s in dataset["text"] if s.strip()])
@@ -95,6 +95,10 @@ def train_lora_with_logging(model, tokenizer, device, samples=500, lr=2e-4):
     chunks = [input_ids[i*seq_len:(i+1)*seq_len] for i in range(num_chunks)]
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+    
+    warmup_steps = int(warmup_ratio * len(chunks))
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=len(chunks))
+    
     model.train()
     losses = []
 
@@ -105,11 +109,12 @@ def train_lora_with_logging(model, tokenizer, device, samples=500, lr=2e-4):
         losses.append(loss.item())
         loss.backward()
         optimizer.step()
+        scheduler.step()
         optimizer.zero_grad()
 
     return losses
 
-def run_ablation(model_name, map_file, sparsity, rank, train_samples, eval_samples, mode, lr, device):
+def run_ablation(model_name, map_file, sparsity, rank, train_samples, eval_samples, mode, lr, device, warmup_ratio):
     print(f"\n{'='*60}")
     print(f"  mode={mode}, sparsity={sparsity}, rank={rank}, lr={lr}")
     print(f"{'='*60}")
@@ -137,7 +142,7 @@ def run_ablation(model_name, map_file, sparsity, rank, train_samples, eval_sampl
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
     
-    losses = train_lora_with_logging(model, tokenizer, device, samples=train_samples, lr=lr)
+    losses = train_lora_with_logging(model, tokenizer, device, samples=train_samples, lr=lr, warmup_ratio=warmup_ratio)
     recovery_time = time.time() - start_time
 
     # Evaluate recovered PPL
@@ -177,8 +182,15 @@ def main():
     parser.add_argument("--eval_samples", type=int, default=30)
     parser.add_argument("--train_samples", type=int, default=500)
     parser.add_argument("--rank", type=int, default=16)
-    parser.add_argument("--lr", type=float, default=2e-4)
+    parser.add_argument("--lr", type=float, default=1e-5)
+    parser.add_argument("--warmup_ratio", type=float, default=0.10)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+
+    # Set random seed for reproducibility
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
 
     device = get_device()
     out_dir = "experiments/phase14_final"
@@ -207,21 +219,21 @@ def main():
     run_and_save("uniform_20pct", dict(
         model_name=args.model, map_file=map_file, sparsity=0.20, rank=args.rank, 
         train_samples=args.train_samples, eval_samples=args.eval_samples, 
-        mode="uniform", lr=args.lr, device=device
+        mode="uniform", lr=args.lr, device=device, warmup_ratio=args.warmup_ratio
     ))
 
     # Control 2: Ends-Only Heuristic
     run_and_save("ends_only_20pct", dict(
         model_name=args.model, map_file=map_file, sparsity=0.20, rank=args.rank, 
         train_samples=args.train_samples, eval_samples=args.eval_samples, 
-        mode="ends-only", lr=args.lr, device=device
+        mode="ends-only", lr=args.lr, device=device, warmup_ratio=args.warmup_ratio
     ))
 
     # Actual Method: Surgical Delta CE Allocation
     run_and_save("surgical_20pct", dict(
         model_name=args.model, map_file=map_file, sparsity=0.20, rank=args.rank, 
         train_samples=args.train_samples, eval_samples=args.eval_samples, 
-        mode="surgical", lr=args.lr, device=device
+        mode="surgical", lr=args.lr, device=device, warmup_ratio=args.warmup_ratio
     ))
 
 if __name__ == "__main__":
