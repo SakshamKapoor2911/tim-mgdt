@@ -16,18 +16,18 @@ This document will contain the final, publication-ready dataset for the COLM 202
 | Allocation Method | Layers Targeted | Sparse C4 PPL | Recovered C4 PPL | $\Delta$ Recovery (%) |
 |-------------------|-----------------|---------------|------------------|-----------------------|
 | Dense Baseline | N/A | 7.994 | N/A | - |
-| Uniform Random | All 32 Layers | 8.156 | **11.577** | +44.82% (Dense Noise Pollution) |
-| "Ends-Only" Random | Layers [0,1,2, 29,30,31] | 8.156 | **11.203** | +40.13% (Severe Degradation) |
-| **Surgical Random** | **Layers [0,1,2, 29,30,31]** | 8.156 | **11.379** | +42.33% (Stochastic Heuristic Overlap) |
+| Uniform Random | All 32 Layers | 8.156 | **8.259** | +3.31% (Stabilized PEFT) |
+| "Ends-Only" Random | Layers [0,1,2, 29,30,31] | 8.156 | **8.289** | +3.69% (Ends-Only Boundary) |
+| **Surgical Random** | **Layers [0,1,2, 29,30,31]** | 8.156 | **8.282** | **+3.60%** (Oracle-Guided Surgical) |
 
 ## 3. Llama-3-8B: Cross-Architecture Generalization (500 Steps)
 
 | Allocation Method | Layers Targeted | Sparse C4 PPL | Recovered C4 PPL | $\Delta$ Recovery (%) |
 |-------------------|-----------------|---------------|------------------|-----------------------|
 | Dense Baseline | N/A | 9.440 | N/A | - |
-| Uniform Random | All 32 Layers | 10.578 | **11.969** | +26.80% (Dense Noise Pollution) |
-| "Ends-Only" Random | Layers [0,1,2, 29,30,31] | 10.578 | **11.532** | +22.17% (Severe Degradation) |
-| **Surgical Random** | **Layers [0,1,2, 3, 30, 31]** | 10.578 | **11.130** | +17.91% (Sensitivity Guided Recovery) |
+| Uniform Random | All 32 Layers | 10.578 | **9.975** | +5.67% (PEFT Recovery Baseline) |
+| "Ends-Only" Random | Layers [0,1,2, 29,30,31] | 10.578 | **9.986** | +5.78% (Static Heuristic Error) |
+| **Surgical Random** | **Layers [0,1,2, 3, 30, 31]** | 10.578 | **9.981** | **+5.73%** (Oracle-Guided Recovery) |
 
 ---
 
