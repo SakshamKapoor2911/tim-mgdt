@@ -66,8 +66,10 @@ RUNS = [
     ("Phase 6 — 500-sample validation (-0.11% PPL improvement)", "done"),
     ("Phase 10 — Lottery ticket pipeline (GPU metrics recorded)", "done"),
     ("Phase 11 — Real pruning & measurement (GPT-2, 15x GPU speedup)", "done"),
-    ("Phase 11 — Llama-3-8B real evaluation (dual 3090)", "queued"),
-    ("Phase 11 — Mistral-7B real evaluation (dual 3090)", "queued"),
+    ("Phase 11 — Llama-3-8B real evaluation (dual 3090)", "done"),
+    ("Phase 11 — Mistral-7B real evaluation (dual 3090)", "done"),
+    ("Phase 12 — Hardware Memory Wall & Proxy Validation", "done"),
+    ("Phase 12.5 — SVD-Initialized Surgical LoRA Sweep", "active"),
 ]
 
 DECISIONS = [
@@ -87,15 +89,13 @@ DECISIONS = [
     ("Eval metric", "Perplexity on WikiText-2 (PPL)",
      "Standard LM evaluation. Spearman ρ > 0.7 for proxy-to-ground-truth "
      "correlation. P-value < 0.05 for statistical significance."),
-    ("Compute", "Apple Silicon (quick runs) → 2×3090 (48 GB, full runs)",
-     "Two-phase compute strategy. Remote SSH to dual 3090 for 7B models. "
-     "See REMOTE_SETUP_GUIDE.md."),
+    ("Compute", "2×3090 (48 GB VRAM total)",
+     "We exclusively use a dual RTX 3090 setup. We do not use Apple MLX or external A100s, enforcing the constraint for our Hardware Memory Wall thesis."),
 ]
 
 TASKS = [
-    ("Saksham", "GPU pipeline", "active",
-     "Phase 11 Mistral-7B complete. Llama-3-8B is currently running. We reduced batch_size "
-     "to 2 to fix the OutOfMemory crash. NEXT: Analyze SFT recovery on Llama."),
+    ("Saksham", "Phase 12.5 Recovery", "active",
+     "Phase 11 and 12 are complete. We proved full-parameter SFT hits a memory wall. Currently running Phase 12.5 SVD-Initialized LoRA recovery sweep."),
     ("Saksham", "Algorithmic Pivot", "done",
      "Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning "
      "(SFT) to recover PPL without destroying unstructured sparsity."),
@@ -106,8 +106,7 @@ TASKS = [
 
 HOW_WE_WORK = [
     ("Cadence", "Solo project · ~10+ hrs/week · structured sprints"),
-    ("Compute", "Two-phase: <b>Apple Silicon</b> (M-series, quick) → "
-     "<b>2×3090 (48 GB VRAM)</b> via SSH for 7B models"),
+    ("Compute", "<b>2×3090 (48 GB VRAM total)</b> exclusively. No Apple MLX or external A100s."),
     ("Code", "<b>GitHub only</b> — single repo "
      "<code>SakshamKapoor2911/tim-mgdt</code>, frequent commits, "
      "no Colab sprawl"),
@@ -133,7 +132,8 @@ MILESTONES = [
     ("done", "Phase 10: lottery ticket pipeline built, GPU metrics recorded"),
     ("done", "Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery"),
     ("done", "Automated dashboard + CI/CD deployment on GitHub Pages"),
-    ("now", "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"),
+    ("done", "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"),
+    ("now", "Phase 12 & 12.5: Proxy validation, Memory Wall proof, and SVD LoRA Recovery"),
     ("then", "Phases 7-9: alternative corpora, downstream tasks, paper"),
 ]
 
@@ -141,8 +141,9 @@ PATH_TO_PAPER = [
     ("done", "Saksham", "Phases 2-6 complete; elasticity discovery validated on GPT-2."),
     ("done", "Saksham", "Phase 11 GPT-2 real pruning — all 4 stages verified on GPU."),
     ("done", "Saksham", "Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions."),
-    ("now", "Saksham", "Launch 7B runs: runners/run_llama_phase11.sh and runners/run_mistral_phase11.sh on remote 3090."),
-    ("now", "Saksham", "Design 7B analysis framework — causal patching curves, healing recovery rates."),
+    ("done", "Saksham", "Execute 7B runs on remote 3090s and confirm Phase 11 baseline."),
+    ("done", "Saksham", "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."),
+    ("now", "Saksham", "Execute Phase 12.5 SVD-Initialized Surgical LoRA sweep."),
     ("next", "Saksham", "InAttention integration with winning-ticket masks for real latency benchmarks."),
     ("next", "Saksham", "Phase 7 alternative corpora evaluation; begin paper draft."),
     ("then", "Saksham", "Submit — workshop or conference. Quality over timeline."),
