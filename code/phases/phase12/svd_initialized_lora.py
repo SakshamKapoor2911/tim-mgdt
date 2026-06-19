@@ -67,7 +67,8 @@ def build_svd_lora(model, sensitivities, target_sparsity=0.20, rank=16):
         
         # Get the pruned weight
         # Find the module in the PEFT wrapped model
-        peft_module = dict(model.named_modules())[name]
+        peft_module_name = "base_model.model." + name
+        peft_module = dict(model.named_modules())[peft_module_name]
         w_pruned = peft_module.base_layer.weight.data.float()
         
         # Compute delta W
