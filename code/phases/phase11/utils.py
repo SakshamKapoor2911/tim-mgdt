@@ -181,19 +181,25 @@ def compute_perplexity(
     total_loss = 0.0
     total_count = 0
 
-    print(f"    [PPL] Evaluating {num_chunks} chunks of {seq_len} tokens on {device}...")
+    print(f"    [PPL] Evaluating {num_chunks} chunks of {seq_len} tokens on {device} (batch_size={batch_size})...")
 
     with torch.no_grad():
-        for i in tqdm(range(num_chunks), desc="    [PPL] chunks", leave=False):
-            start = i * seq_len
-            end = start + seq_len
-            chunk = input_ids[start:end].unsqueeze(0).to(device)
-            labels = chunk.clone()
+        for i in tqdm(range(0, num_chunks, batch_size), desc="    [PPL] batches", leave=False):
+            batch_chunks = []
+            for j in range(i, min(i + batch_size, num_chunks)):
+                start = j * seq_len
+                end = start + seq_len
+                batch_chunks.append(input_ids[start:end])
+                
+            chunk_tensor = torch.stack(batch_chunks).to(device)
+            labels = chunk_tensor.clone()
 
-            outputs = model(input_ids=chunk, labels=labels)
+            outputs = model(input_ids=chunk_tensor, labels=labels)
             loss = outputs.loss
-            total_loss += loss.item() * seq_len
-            total_count += seq_len
+            
+            batch_tokens = chunk_tensor.numel()
+            total_loss += loss.item() * batch_tokens
+            total_count += batch_tokens
 
     avg_loss = total_loss / total_count
     ppl = torch.exp(torch.tensor(avg_loss)).item()
@@ -208,36 +214,32 @@ def compute_perplexity(
 
 def apply_global_pruning(model: nn.Module, sparsity: float) -> int:
     """
-    Apply global unstructured L1 magnitude pruning to all Linear layers.
-
-    Uses torch.nn.utils.prune so masks are tracked and can be cleanly removed.
-    Returns the number of modules pruned.
+    Apply uniform unstructured L1 magnitude pruning to all Linear layers manually.
+    
+    This avoids torch.nn.utils.prune, which duplicates weights and causes CUDA OOM 
+    by creating weight_orig and weight_mask tensors for every single layer.
     """
     modules_pruned = 0
-    for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            prune.l1_unstructured(module, name='weight', amount=sparsity)
-            modules_pruned += 1
+    with torch.no_grad():
+        for name, module in model.named_modules():
+            if isinstance(module, nn.Linear):
+                w = module.weight.data
+                nparams_toprune = int(w.numel() * sparsity)
+                if nparams_toprune == 0:
+                    continue
+                # Memory efficient layer-wise thresholding
+                threshold = torch.kthvalue(w.abs().view(-1), nparams_toprune).values.item()
+                w.mul_(w.abs() >= threshold)
+                modules_pruned += 1
     return modules_pruned
 
 
 def remove_global_pruning(model: nn.Module) -> int:
     """
-    Remove pruning reparameterization from all Linear layers, making the
-    current masked weights permanent.
-
-    Call this AFTER you've finished measuring, to restore normal weight buffers.
-    Returns the number of modules restored.
+    No-op. Since we apply masks directly to weight.data without PyTorch's hooks,
+    there are no reparameterizations to remove. State is fully restored via load_state_dict.
     """
-    modules_restored = 0
-    for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            try:
-                prune.remove(module, 'weight')
-                modules_restored += 1
-            except ValueError:
-                pass  # Module was not pruned
-    return modules_restored
+    return 0
 
 
 def count_nonzero_params(model: nn.Module) -> int:
