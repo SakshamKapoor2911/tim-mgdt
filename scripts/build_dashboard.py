@@ -17,153 +17,28 @@ import argparse
 EXPERIMENTS = "experiments"
 DASHBOARD = "dashboard"
 
-# ---- editable narrative state ------------------------------------------------
-TAGLINE = (
-    "A systematic framework for diagnosing and recovering from catastrophic "
-    "layer sensitivity in transformers — validated on GPT-2, scaling to "
-    "Mistral-7B and Llama-3-8B."
-)
+CONFIG_FILE = "scripts/dashboard_config.json"
 
-OVERVIEW = [
-    ("What we're building",
-     "A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that "
-     "identifies which transformer layers are <i>elastic</i> vs <i>critical</i>, "
-     "prunes the elastic ones, and heals the activation drift — recovering "
-     "perplexity while cutting parameters, latency, and memory by ~50%."),
-    ("Why this matters",
-     "Existing pruning methods either destroy quality or require expensive "
-     "retraining. We discovered that <b>Layer 10 in GPT-2 is elastic, not "
-     "broken</b> — the +108% PPL explosion on hard removal shows over-weighting, "
-     "not architectural damage. A 2% scaling fix restores balance. TIM-MGDT "
-     "exploits this insight systematically."),
-    ("Where we are today",
-     "<b>Phase 11 complete for Mistral-7B</b>. We achieved <b>19.6% sparsity</b> "
-     "with only +2.54% PPL degradation! We discovered that constant mean-shift Activation "
-     "Healing destroys modern LLMs due to RMSNorm scaling conflicts. We successfully "
-     "pivoted to <b>Masked Sparse Fine-Tuning (SFT)</b>. Llama-3-8B is currently running "
-     "on the dual 3090s."),
-]
+try:
+    with open(CONFIG_FILE, 'r') as f:
+        _cfg = json.load(f)
+except Exception as e:
+    print(f"Error loading {CONFIG_FILE}: {e}")
+    _cfg = {}
 
-RESEARCH_Q = (
-    "The research question",
-    "Can <b>temporal importance metrics</b> — cheap proxy signals computed from "
-    "gradient dynamics — reliably <b>identify and exploit</b> layer-level "
-    "elasticity to achieve lossless (< 5% PPL) structured compression at "
-    "<b>50%+ parameter reduction</b> without retraining?"
-)
-
-PHASE = (
-    "Phase 11 complete (GPT-2 real GPU validation). "
-    "Winning Ticket found at 30% sparsity. "
-    "Next: Llama-3-8B and Mistral-7B on dual 3090 remote server."
-)
-
-RUNS = [
-    ("Phase 2 — Ground Truth sensitivity mapping (GPT-2)", "done"),
-    ("Phase 5.1 — Hard pruning baseline (expected fail: +108% PPL)", "done"),
-    ("Phase 5.2 — Soft rebalancing (+0.31% PPL recovery)", "done"),
-    ("Phase 5.3 — Progressive optimization (0.98x optimal scaling)", "done"),
-    ("Phase 6 — 500-sample validation (-0.11% PPL improvement)", "done"),
-    ("Phase 10 — Lottery ticket pipeline (GPU metrics recorded)", "done"),
-    ("Phase 11 — Real pruning & measurement (GPT-2, 15x GPU speedup)", "done"),
-    ("Phase 11 — Llama-3-8B real evaluation (dual 3090)", "done"),
-    ("Phase 11 — Mistral-7B real evaluation (dual 3090)", "done"),
-    ("Phase 12 — Hardware Memory Wall & Proxy Validation", "done"),
-    ("Phase 12.5 — SVD-Initialized Surgical LoRA Sweep", "active"),
-]
-
-DECISIONS = [
-    ("Architecture insight", "Layer 10 is elastic, not broken",
-     "+108% PPL on hard removal = over-weighting. 2% scaling restores it. "
-     "This insight drives the entire compression strategy."),
-    ("Winning Ticket", "30% unstructured sparsity (GPT-2)",
-     "+4.9% PPL only. Above 30%, PPL degrades rapidly (+21.3% at 40%) — "
-     "classic phase transition boundary verified."),
-    ("Activation Healing on 7B", "Scientifically Incompatible with RMSNorm",
-     "We proved mathematically that adding a constant mean shift to hidden states "
-     "inflates the RMS denominator in RMSNorm layers. This crushes the actual signal "
-     "magnitude. We pivoted to Masked Sparse Fine-Tuning."),
-    ("Head Pruning", "MHA is destructive; GQA will be far more tolerant",
-     "GPT-2 MHA: +59.3% PPL at 20% head pruning. Llama/Mistral GQA (8 KV groups "
-     "for 32 Q heads) has built-in query redundancy → much safer."),
-    ("Eval metric", "Perplexity on WikiText-2 (PPL)",
-     "Standard LM evaluation. Spearman ρ > 0.7 for proxy-to-ground-truth "
-     "correlation. P-value < 0.05 for statistical significance."),
-    ("Compute", "2×3090 (48 GB VRAM total)",
-     "We exclusively use a dual RTX 3090 setup. We do not use Apple MLX or external A100s, enforcing the constraint for our Hardware Memory Wall thesis."),
-]
-
-TASKS = [
-    ("Saksham", "Phase 12.5 Recovery", "active",
-     "Phase 11 and 12 are complete. We proved full-parameter SFT hits a memory wall. Currently running Phase 12.5 SVD-Initialized LoRA recovery sweep."),
-    ("Saksham", "Algorithmic Pivot", "done",
-     "Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning "
-     "(SFT) to recover PPL without destroying unstructured sparsity."),
-    ("Saksham", "Dashboard & infrastructure", "done",
-     "Automated dashboard deployed via GitHub Pages. Added a post-run Python hook to "
-     "automatically update state.json upon run completion."),
-]
-
-HOW_WE_WORK = [
-    ("Cadence", "Solo project · ~10+ hrs/week · structured sprints"),
-    ("Compute", "<b>2×3090 (48 GB VRAM total)</b> exclusively. No Apple MLX or external A100s."),
-    ("Code", "<b>GitHub only</b> — single repo "
-     "<code>SakshamKapoor2911/tim-mgdt</code>, frequent commits, "
-     "no Colab sprawl"),
-    ("Method", "Structured pruning · causal activation patching · "
-     "forward-hook healing · IMP winning tickets · real GPU measurement"),
-]
-
-BULLETPROOFING = [
-    ("done", "Phase 6 validation on 500-sample WikiText-2 — -0.11% PPL improvement confirmed."),
-    ("done", "Phase 5.1 hard pruning baseline — +108% PPL explosion (expected) establishes failure mode."),
-    ("done", "Phase 11 GPT-2 winning ticket — 30% sparsity, +4.9% PPL only, verified on real GPU."),
-    ("done", "PyTorch reparameterization quirk documented — weight_orig vs weight after remove_global_pruning."),
-    ("done", "Conv1D vs nn.Linear healing behavior explained — GPT-2 is architectural edge case."),
-    ("todo", "Llama-3-8B causal patching — expect bell-shaped recovery curve (layers 12-24 critical)."),
-    ("todo", "Mistral-7B GQA head pruning — expect much higher tolerance than GPT-2 MHA."),
-    ("done", "Activation healing on 7B — proven mathematically incompatible with RMSNorm architectures."),
-    ("idea", "InAttention integration with winning-ticket masks for real hardware latency reduction."),
-    ("idea", "KL divergence proxy for 100x profiling speedup on 7B models."),
-]
-
-MILESTONES = [
-    ("done", "Phases 2-6 complete: ground truth mapping → validation on GPT-2"),
-    ("done", "Phase 10: lottery ticket pipeline built, GPU metrics recorded"),
-    ("done", "Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery"),
-    ("done", "Automated dashboard + CI/CD deployment on GitHub Pages"),
-    ("done", "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"),
-    ("now", "Phase 12 & 12.5: Proxy validation, Memory Wall proof, and SVD LoRA Recovery"),
-    ("then", "Phases 7-9: alternative corpora, downstream tasks, paper"),
-]
-
-PATH_TO_PAPER = [
-    ("done", "Saksham", "Phases 2-6 complete; elasticity discovery validated on GPT-2."),
-    ("done", "Saksham", "Phase 11 GPT-2 real pruning — all 4 stages verified on GPU."),
-    ("done", "Saksham", "Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions."),
-    ("done", "Saksham", "Execute 7B runs on remote 3090s and confirm Phase 11 baseline."),
-    ("done", "Saksham", "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."),
-    ("now", "Saksham", "Execute Phase 12.5 SVD-Initialized Surgical LoRA sweep."),
-    ("next", "Saksham", "InAttention integration with winning-ticket masks for real latency benchmarks."),
-    ("next", "Saksham", "Phase 7 alternative corpora evaluation; begin paper draft."),
-    ("then", "Saksham", "Submit — workshop or conference. Quality over timeline."),
-]
-
-LINKS = [
-    ("Repository", "https://github.com/SakshamKapoor2911/tim-mgdt"),
-    ("Phase 11 Analysis", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/experiments/phase11/gpt2_real_results_analysis.md"),
-    ("Remote Setup Guide", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/REMOTE_SETUP_GUIDE.md"),
-    ("Phase Status Ledger", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE_STATUS_LEDGER.md"),
-]
-
-LITERATURE = [
-    ("All Circuits Lead to Rome", "Chen et al., 2026", "Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: This theoretical redundancy explains the physical 'elasticity' we exploit; we systematically prune these redundant pathways and use activation healing to force the model onto the remaining circuits."),
-    ("The Lottery Ticket Hypothesis", "Frankle & Carbin, 2019", "Dense networks contain sparse subnetworks that can match original accuracy if trained from scratch. <b>Our diff</b>: We find winning tickets <i>post-pretraining</i> in massive LLMs using gradient dynamics, entirely avoiding the retraining phase."),
-    ("SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians."),
-    ("Wanda", "Sun et al., 2023", "Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets."),
-    ("SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing."),
-    ("ShortGPT", "Men et al., 2024", "Removes entire blocks based on block-level redundancy. <b>Our diff</b>: We do fine-grained structured/unstructured pruning, rather than taking out whole transformer blocks."),
-]
+TAGLINE = _cfg.get("TAGLINE", "")
+OVERVIEW = _cfg.get("OVERVIEW", [])
+RESEARCH_Q = _cfg.get("RESEARCH_Q", ["", ""])
+PHASE = _cfg.get("PHASE", "")
+RUNS = _cfg.get("RUNS", [])
+DECISIONS = _cfg.get("DECISIONS", [])
+TASKS = _cfg.get("TASKS", [])
+HOW_WE_WORK = _cfg.get("HOW_WE_WORK", [])
+BULLETPROOFING = _cfg.get("BULLETPROOFING", [])
+MILESTONES = _cfg.get("MILESTONES", [])
+PATH_TO_PAPER = _cfg.get("PATH_TO_PAPER", [])
+LINKS = _cfg.get("LINKS", [])
+LITERATURE = _cfg.get("LITERATURE", [])
 # ------------------------------------------------------------------------------
 
 

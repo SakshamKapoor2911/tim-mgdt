@@ -108,7 +108,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 07:56 UTC</span>
+    <span class="nav-meta">2026-06-19 09:11 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -121,8 +121,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <p class="hero-sub">A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers — validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.</p>
     <div class="hero-chips">
       <span class="chip chip-green">Phase 11 complete</span>
-      <span class="chip chip-blue">10/11 runs done</span>
-      <span class="chip chip-yellow">31 experiment files</span>
+      <span class="chip chip-blue">7/8 runs done</span>
+      <span class="chip chip-yellow">32 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -133,10 +133,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers are <i>elastic</i> vs <i>critical</i>, prunes the elastic ones, and heals the activation drift — recovering perplexity while cutting parameters, latency, and memory by ~50%.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Existing pruning methods either destroy quality or require expensive retraining. We discovered that <b>Layer 10 in GPT-2 is elastic, not broken</b> — the +108% PPL explosion on hard removal shows over-weighting, not architectural damage. A 2% scaling fix restores balance. TIM-MGDT exploits this insight systematically.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 11 complete for Mistral-7B</b>. We achieved <b>19.6% sparsity</b> with only +2.54% PPL degradation! We discovered that constant mean-shift Activation Healing destroys modern LLMs due to RMSNorm scaling conflicts. We successfully pivoted to <b>Masked Sparse Fine-Tuning (SFT)</b>. Llama-3-8B is currently running on the dual 3090s.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 14 active</b>. We dropped flawed proxy metrics in favor of Ground Truth Delta CE (The Bathtub Curve). We are running <b>Sensitivity-Guided Surgical Allocation</b> via Randomly Initialized LoRA. Llama-3-8B and Mistral-7B are currently running on the dual 3090s.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>temporal importance metrics</b> — cheap proxy signals computed from gradient dynamics — reliably <b>identify and exploit</b> layer-level elasticity to achieve lossless (< 5% PPL) structured compression at <b>50%+ parameter reduction</b> without retraining?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>exhaustive causal sensitivity metrics</b> (ΔCE) reliably <b>identify and exploit</b> layer-level elasticity to achieve lossless (< 5% PPL) structured compression at <b>50%+ parameter reduction</b> without retraining?</p></div></div>
 
   <div id="results">
 <div class="section-label">Performance vs Efficiency — Phase 11 (GPT2)</div>
@@ -178,16 +178,13 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="data-table">
 <tr><th>Run</th><th>Status</th></tr>
 <tr><td>Phase 2 — Ground Truth sensitivity mapping (GPT-2)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 5.1 — Hard pruning baseline (expected fail: +108% PPL)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 5.2 — Soft rebalancing (+0.31% PPL recovery)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 5.3 — Progressive optimization (0.98x optimal scaling)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 6 — 500-sample validation (-0.11% PPL improvement)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 10 — Lottery ticket pipeline (GPU metrics recorded)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 11 — Real pruning & measurement (GPT-2, 15x GPU speedup)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 11 — Llama-3-8B real evaluation (dual 3090)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 11 — Mistral-7B real evaluation (dual 3090)</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 12 — Hardware Memory Wall & Proxy Validation</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 12.5 — SVD-Initialized Surgical LoRA Sweep</td><td><span class='pill p-active'>active</span></td></tr>
+<tr><td>Phase 5.1 — Hard pruning baseline</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 10 — Lottery ticket pipeline built</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 11 — Real pruning & measurement (GPT-2)</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 11 — Llama-3 & Mistral-7B eval</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 12 — Hardware Memory Wall discovery</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 13 — Ablation & Hardening</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 14 — Final Actionable Interpretability Pipeline</td><td><span class='pill p-active'>active</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -195,18 +192,12 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Topic</th><th>Decision</th><th>Rationale</th></tr>
-<tr><td class="task-who">Architecture insight</td><td><b>Layer 10 is elastic, not broken</b></td>
-<td class="task-action">+108% PPL on hard removal = over-weighting. 2% scaling restores it. This insight drives the entire compression strategy.</td></tr>
-<tr><td class="task-who">Winning Ticket</td><td><b>30% unstructured sparsity (GPT-2)</b></td>
-<td class="task-action">+4.9% PPL only. Above 30%, PPL degrades rapidly (+21.3% at 40%) — classic phase transition boundary verified.</td></tr>
-<tr><td class="task-who">Activation Healing on 7B</td><td><b>Scientifically Incompatible with RMSNorm</b></td>
-<td class="task-action">We proved mathematically that adding a constant mean shift to hidden states inflates the RMS denominator in RMSNorm layers. This crushes the actual signal magnitude. We pivoted to Masked Sparse Fine-Tuning.</td></tr>
-<tr><td class="task-who">Head Pruning</td><td><b>MHA is destructive; GQA will be far more tolerant</b></td>
-<td class="task-action">GPT-2 MHA: +59.3% PPL at 20% head pruning. Llama/Mistral GQA (8 KV groups for 32 Q heads) has built-in query redundancy → much safer.</td></tr>
-<tr><td class="task-who">Eval metric</td><td><b>Perplexity on WikiText-2 (PPL)</b></td>
-<td class="task-action">Standard LM evaluation. Spearman ρ > 0.7 for proxy-to-ground-truth correlation. P-value < 0.05 for statistical significance.</td></tr>
-<tr><td class="task-who">Compute</td><td><b>2×3090 (48 GB VRAM total)</b></td>
-<td class="task-action">We exclusively use a dual RTX 3090 setup. We do not use Apple MLX or external A100s, enforcing the constraint for our Hardware Memory Wall thesis.</td></tr>
+<tr><td class="task-who">Actionability</td><td><b>Oracle Compute Cost is fast</b></td>
+<td class="task-action">We proved that calculating the exhaustive ΔCE Bathtub Curve for a 7B model takes under 4 minutes. It is highly actionable.</td></tr>
+<tr><td class="task-who">Recovery Initialization</td><td><b>Random Init > SVD Init</b></td>
+<td class="task-action">SVD forces dense noise into sparse structures, polluting undamaged weights. Random Init allows the optimizer to find a new sparse-compatible manifold.</td></tr>
+<tr><td class="task-who">Metric</td><td><b>C4 Held-Out Perplexity</b></td>
+<td class="task-action">To preempt data contamination claims (Wikitext-2), we use C4 evaluation exclusively.</td></tr>
 
 </table></div></div>
   <div id="tasks">
@@ -214,58 +205,47 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
-<tr><td class="task-who">Saksham<br><span class="task-track">Phase 12.5 Recovery</span></td>
-<td><span class='pill p-active'>active</span></td><td class="task-action">Phase 11 and 12 are complete. We proved full-parameter SFT hits a memory wall. Currently running Phase 12.5 SVD-Initialized LoRA recovery sweep.</td></tr>
-<tr><td class="task-who">Saksham<br><span class="task-track">Algorithmic Pivot</span></td>
-<td><span class='pill p-done'>done</span></td><td class="task-action">Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning (SFT) to recover PPL without destroying unstructured sparsity.</td></tr>
-<tr><td class="task-who">Saksham<br><span class="task-track">Dashboard & infrastructure</span></td>
-<td><span class='pill p-done'>done</span></td><td class="task-action">Automated dashboard deployed via GitHub Pages. Added a post-run Python hook to automatically update state.json upon run completion.</td></tr>
+<tr><td class="task-who">Saksham<br><span class="task-track">Phase 14 Execution</span></td>
+<td><span class='pill p-active'>active</span></td><td class="task-action">Models are currently running exhaustive sensitivity knockouts and 500-step surgical recovery ablations on dual RTX 3090s.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Dashboard Automation</span></td>
+<td><span class='pill p-done'>done</span></td><td class="task-action">Extracted hardcoded state to dashboard_config.json and installed Git pre-commit hook.</td></tr>
 
 </table></div></div>
   <div class="section-label">How we work</div><div class="g2"><div class='card'><div class='card-title'>Cadence</div><p>Solo project · ~10+ hrs/week · structured sprints</p></div>
 <div class='card'><div class='card-title'>Compute</div><p><b>2×3090 (48 GB VRAM total)</b> exclusively. No Apple MLX or external A100s.</p></div>
-<div class='card'><div class='card-title'>Code</div><p><b>GitHub only</b> — single repo <code>SakshamKapoor2911/tim-mgdt</code>, frequent commits, no Colab sprawl</p></div>
-<div class='card'><div class='card-title'>Method</div><p>Structured pruning · causal activation patching · forward-hook healing · IMP winning tickets · real GPU measurement</p></div>
+<div class='card'><div class='card-title'>Code</div><p><b>GitHub only</b> — single repo <code>SakshamKapoor2911/tim-mgdt</code>, frequent commits.</p></div>
+<div class='card'><div class='card-title'>Method</div><p>Actionable Interpretability · Surgical LoRA · Delta CE Sensitivity</p></div>
 </div>
   
 <div class="section-label">Bulletproofing checklist</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="data-table">
 <tr><th>Status</th><th>Item</th></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Phase 6 validation on 500-sample WikiText-2 — -0.11% PPL improvement confirmed.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Phase 5.1 hard pruning baseline — +108% PPL explosion (expected) establishes failure mode.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Phase 11 GPT-2 winning ticket — 30% sparsity, +4.9% PPL only, verified on real GPU.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>PyTorch reparameterization quirk documented — weight_orig vs weight after remove_global_pruning.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Conv1D vs nn.Linear healing behavior explained — GPT-2 is architectural edge case.</td></tr>
-<tr><td><span class='pill p-todo'>todo</span></td><td>Llama-3-8B causal patching — expect bell-shaped recovery curve (layers 12-24 critical).</td></tr>
-<tr><td><span class='pill p-todo'>todo</span></td><td>Mistral-7B GQA head pruning — expect much higher tolerance than GPT-2 MHA.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Activation healing on 7B — proven mathematically incompatible with RMSNorm architectures.</td></tr>
-<tr><td><span class='pill p-idea'>idea</span></td><td>InAttention integration with winning-ticket masks for real hardware latency reduction.</td></tr>
-<tr><td><span class='pill p-idea'>idea</span></td><td>KL divergence proxy for 100x profiling speedup on 7B models.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>Ends-Only baseline implemented to prove exact mapping beats naive heuristics.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>Oracle Compute Cost actively logged in JSON to preempt 'too slow' claims.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>SVD Failure Mechanistic explanation fully documented in narrative.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>C4 evaluation adopted to resolve Wikitext-2 contamination.</td></tr>
+<tr><td><span class='pill p-active'>active</span></td><td>Cross-Architecture validation running natively on Llama-3-8B and Mistral-7B.</td></tr>
 
 </table></div>
   <div id="milestones"><div class="section-label">Milestones</div><div class="milestones"><div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phases 2-6 complete: ground truth mapping → validation on GPT-2</div></div>
-<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 10: lottery ticket pipeline built, GPU metrics recorded</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery</div></div>
-<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Automated dashboard + CI/CD deployment on GitHub Pages</div></div>
-<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s</div></div>
-<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 12 & 12.5: Proxy validation, Memory Wall proof, and SVD LoRA Recovery</div></div>
-<div class="mile"><div><span class='pill p-then'>then</span></div><div style="font-size:13px;color:var(--ink2)">Phases 7-9: alternative corpora, downstream tasks, paper</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 12: Proxy validation, Memory Wall proof</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Automated dashboard tracking via Pre-Commit Hook</div></div>
+<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 14: Final pipeline execution (Mistral & Llama 3)</div></div>
+<div class="mile"><div><span class='pill p-then'>then</span></div><div style="font-size:13px;color:var(--ink2)">COLM Actionable Interpretability paper submission</div></div>
 </div></div>
   <div id="path">
 <div class="section-label">Path to paper</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Phases 2-6 complete; elasticity discovery validated on GPT-2.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Phase 11 GPT-2 real pruning — all 4 stages verified on GPU.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Execute 7B runs on remote 3090s and confirm Phase 11 baseline.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Extract proxy NaN correlations confirming the 7B Hardware Memory Wall.</td></tr>
-<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Saksham</td><td class='task-action'>Execute Phase 12.5 SVD-Initialized Surgical LoRA sweep.</td></tr>
-<tr><td><span class='pill p-next'>next</span></td><td class='task-who'>Saksham</td><td class='task-action'>InAttention integration with winning-ticket masks for real latency benchmarks.</td></tr>
-<tr><td><span class='pill p-next'>next</span></td><td class='task-who'>Saksham</td><td class='task-action'>Phase 7 alternative corpora evaluation; begin paper draft.</td></tr>
-<tr><td><span class='pill p-then'>then</span></td><td class='task-who'>Saksham</td><td class='task-action'>Submit — workshop or conference. Quality over timeline.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Saksham</td><td class='task-action'>Harden Phase 14 script with Ends-Only baseline and SVD explanations.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Saksham</td><td class='task-action'>Wait for Phase 14 background completion and update Phase 14 artifacts.</td></tr>
+<tr><td><span class='pill p-next'>next</span></td><td class='task-who'>Saksham</td><td class='task-action'>Integrate Phase 14 results into PAPER_DRAFT.md.</td></tr>
+<tr><td><span class='pill p-then'>then</span></td><td class='task-who'>Saksham</td><td class='task-action'>Submit to COLM Actionable Interpretability Workshop.</td></tr>
 
 </table></div></div>
   <div id="literature">
@@ -273,18 +253,15 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Paper / Authors</th><th>Context & Our Differentiation</th></tr>
-<tr><td class='task-who'>All Circuits Lead to Rome<br><span class='task-track'>Chen et al., 2026</span></td><td class='task-action'>Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: This theoretical redundancy explains the physical 'elasticity' we exploit; we systematically prune these redundant pathways and use activation healing to force the model onto the remaining circuits.</td></tr>
-<tr><td class='task-who'>The Lottery Ticket Hypothesis<br><span class='task-track'>Frankle & Carbin, 2019</span></td><td class='task-action'>Dense networks contain sparse subnetworks that can match original accuracy if trained from scratch. <b>Our diff</b>: We find winning tickets <i>post-pretraining</i> in massive LLMs using gradient dynamics, entirely avoiding the retraining phase.</td></tr>
-<tr><td class='task-who'>SparseGPT<br><span class='task-track'>Frantar et al., 2023</span></td><td class='task-action'>One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians.</td></tr>
-<tr><td class='task-who'>Wanda<br><span class='task-track'>Sun et al., 2023</span></td><td class='task-action'>Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets.</td></tr>
-<tr><td class='task-who'>SliceGPT<br><span class='task-track'>Ashkboos et al., 2024</span></td><td class='task-action'>Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing.</td></tr>
-<tr><td class='task-who'>ShortGPT<br><span class='task-track'>Men et al., 2024</span></td><td class='task-action'>Removes entire blocks based on block-level redundancy. <b>Our diff</b>: We do fine-grained structured/unstructured pruning, rather than taking out whole transformer blocks.</td></tr>
+<tr><td class='task-who'>All Circuits Lead to Rome<br><span class='task-track'>Chen et al., 2026</span></td><td class='task-action'>Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: We systematically prune these pathways and surgically recover them.</td></tr>
+<tr><td class='task-who'>SparseGPT<br><span class='task-track'>Frantar et al., 2023</span></td><td class='task-action'>One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use ground-truth perplexity ablation rather than expensive 2nd-order Hessians.</td></tr>
+<tr><td class='task-who'>SliceGPT<br><span class='task-track'>Ashkboos et al., 2024</span></td><td class='task-action'>Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling surgical LoRA recovery.</td></tr>
 
 </table></div></div>
   <div class="section-label">Links</div><div style="display:flex;flex-wrap:wrap;gap:8px"><a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">Repository</a>
-<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/experiments/phase11/gpt2_real_results_analysis.md" target="_blank">Phase 11 Analysis</a>
-<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/REMOTE_SETUP_GUIDE.md" target="_blank">Remote Setup Guide</a>
-<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE_STATUS_LEDGER.md" target="_blank">Phase Status Ledger</a>
+<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PAPER_DRAFT.md" target="_blank">Paper Draft</a>
+<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE14_WALKTHROUGH.md" target="_blank">Phase 14 Walkthrough</a>
+<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md" target="_blank">Phase Status Ledger</a>
 </div>
 </div>
 </body>
