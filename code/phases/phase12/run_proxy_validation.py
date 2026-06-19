@@ -4,7 +4,7 @@ import argparse
 import scipy.stats as stats
 import logging
 from datetime import datetime
-from code.models.registry import get_model
+from code.models.model_wrapper import HookedModelWrapper
 from code.metrics.geometric_ed import EffectiveDimension
 from code.metrics.causal_jacobian import LogitJacobian
 from code.metrics.propagation_naudc import PropagationDrift
@@ -15,16 +15,16 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Phase 12A: Proxy Triad Validation on 7B Models")
-    parser.add_argument("--model", type=str, default="mistral-7b", help="Model key (e.g. mistral-7b, llama-3-8b)")
+    parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-v0.1", help="HF model name")
     parser.add_argument("--samples", type=int, default=30, help="Number of calibration samples")
     parser.add_argument("--out", type=str, default="experiments/phase12", help="Output directory")
     args = parser.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
-    out_file = os.path.join(args.out, f"{args.model}_proxy_validation.json")
+    out_file = os.path.join(args.out, "proxy_validation.json")
 
     logger.info(f"Loading {args.model}...")
-    wrapper = get_model(args.model)
+    wrapper = HookedModelWrapper(model_name=args.model, load_in_8bit=False, load_in_4bit=True)
     
     n_layers = wrapper.model.cfg.n_layers
     results = {
