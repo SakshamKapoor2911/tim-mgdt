@@ -102,6 +102,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#overview">Overview</a>
     <a href="#results">Phase 11 Results</a>
     <a href="#phase14">Phase 14 Results</a>
+    <a href="#phase15">Phase 15 Results</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -109,7 +110,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 13:14 UTC</span>
+    <span class="nav-meta">2026-06-19 13:34 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -123,7 +124,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="hero-chips">
       <span class="chip chip-green">Phase 14 complete</span>
       <span class="chip chip-blue">8/8 runs done</span>
-      <span class="chip chip-yellow">37 experiment files</span>
+      <span class="chip chip-yellow">40 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -307,6 +308,51 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           </table>
         </div>
         
+  </div>
+  <div style="margin-top: 32px;">
+    <div class="section-label" id="phase15">Phase 15 Oracle-Guided Layer Dropping & Boundary Healing</div>
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To achieve true hardware compression, we drop the contiguous 4-layer block with the lowest causal sensitivity, reducing depth by 12.5% and yielding a <b>~15.5% reduction in inference latency</b>. We then compare standard (Global Sensitivity-based) healing with our localized <b>Boundary-Focused Surgical LoRA</b>.
+      </p>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Model</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Global) PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    
+        <tr>
+          <td class="task-who">Mistral 7B (MHA)</td>
+          <td style="text-align:center;"><code>[11, 12, 13, 14]</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-15.18% (33.1ms → 28.1ms)</td>
+          <td style="text-align:center;">7.855</td>
+          <td style="text-align:center; color:var(--red);">9.930</td>
+          <td style="text-align:center;">9.730</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);"><i>Pending...</i></td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Llama 3 8B (GQA)</td>
+          <td style="text-align:center;"><code>[8, 9, 10, 11]</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-15.84% (32.6ms → 27.4ms)</td>
+          <td style="text-align:center;">8.990</td>
+          <td style="text-align:center; color:var(--red);">14.953</td>
+          <td style="text-align:center;">13.697</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);"><i>Pending...</i></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+    
   </div>
   
 <div class="section-label">Experiment runs</div>
