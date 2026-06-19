@@ -126,7 +126,7 @@ To fully establish the boundaries of Incision Boundary Healing, we swept the con
 \end{tabular}
 \end{table}
 
-While the 8-layer drop exhibits a mathematically staggering recovery—reducing a broken 20.82 PPL down to 11.52—the absolute perplexity at this compression level significantly degrades complex reasoning. We formally designate the \textbf{4-layer drop (-15.62\% latency, 9.07 PPL)} as the ``knee'' of the Pareto frontier. This represents the optimal operational baseline, balancing meaningful physical compression with highly retained language modeling capabilities.
+While the 8-layer drop exhibits a mathematically staggering recovery—reducing a broken 20.82 PPL down to 11.52—the absolute perplexity at this compression level represents a severe degradation in core language modeling capabilities. We formally designate the \textbf{4-layer drop (-15.62\% latency, 9.07 PPL)} as the ``knee'' of the Pareto frontier. This represents the optimal operational baseline, balancing meaningful physical compression with highly retained language modeling capabilities.
 
 \subsection{Ablation: The Locality of the Semantic Gap}
 \label{sec:boundary_thickness}
@@ -181,5 +181,11 @@ We introduce an actionable interpretability framework that shifts the paradigm o
 
 \bibliography{colm2026_conference}
 \bibliographystyle{colm2026_conference}
+
+\appendix
+\section{Appendix: Reproducibility and Training Details}
+To ensure strict reproducibility across all evaluated architectures, the Incision Boundary Healing interventions utilize a uniform hyperparameter configuration. Healing is performed via Low-Rank Adaptation (LoRA) with a rank of $r=16$ and an alpha of $\alpha=32$. Parameter updates are restricted exclusively to the attention projections (\texttt{q\_proj}, \texttt{v\_proj}) and MLP projections (\texttt{gate\_proj}, \texttt{up\_proj}, \texttt{down\_proj}) within the targeted boundary layers. 
+
+The models are fine-tuned for exactly 1,000 steps using a batch size of 1 on the C4 (Colossal Clean Crawled Corpus) training split. We utilize the AdamW optimizer with a base learning rate of $1 \times 10^{-5}$ and a linear learning rate scheduler with a 10\% warmup ratio. Evaluation perplexities are computed on a strictly held-out subset of the C4 validation corpus consisting of over 112,000 tokens to rigorously prevent data contamination.
 
 \end{document}
