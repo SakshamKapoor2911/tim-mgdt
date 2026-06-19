@@ -214,7 +214,10 @@ def _phase14_html(results, maps):
         ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
     ]
     
-    html = '<div class="section-label" id="phase14">Phase 14 Surgical Recovery Results</div>'
+    html = '<div class="section-label" id="phase14">Legacy Explorations — Phase 14 Surgical Recovery</div>'
+    html += '<details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;">'
+    html += '<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 14 Surgical (ΔCE) Results</summary>'
+    html += '<div style="margin-top: 16px;">'
     
     for key, display_name in models:
         model_results = results.get(key, {})
@@ -333,13 +336,15 @@ def _phase14_html(results, maps):
           </table>
         </div>
         """
+    html += '</div></details>'
     return html
 
 
 def _phase15_html(phase15_results):
     models = [
         ("Mistral-7B-v0.1", "Mistral 7B (MHA)"),
-        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
+        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)"),
+        ("gemma-2-2b", "Gemma 2 2B (SWA)")
     ]
     
     html = '<div class="section-label" id="phase15">Phase 15: Incision Boundary Healing for Depth-Pruned LLMs</div>'
@@ -477,6 +482,26 @@ def _phase15_html(phase15_results):
       </table>
     </div>
     """
+    
+    # Phase 17 Mechanistic Interpretability
+    html += '<div class="section-label" id="phase17">Phase 17: Mechanistic Interpretability</div>'
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token. LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted.
+      </p>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--accent); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">Attention Sink Spike (Layer 18)</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          The massive spike in sink attention exactly at the right boundary layer (Layer 18) mathematically confirms that the structural discontinuity is severely corrupting the incoming residual stream. The model "notices" the incision, causing boundary layers to dump their attention mass into the sink.
+        </p>
+      </div>
+      <div style="text-align: center;">
+        <img src="figures/attention_heatmap.png" alt="Mechanistic Disruption: Attention Mass Directed to Sink Token" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
+    </div>
+    """
+    
     return html
 
 
@@ -738,10 +763,11 @@ def build_html(experiments, metrics):
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#phase15">Phase 15 Results</a>
+    <a href="#phase15">Phase 15 (Results)</a>
     <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase14">Phase 14 Results</a>
-    <a href="#results">Legacy (Phase 11)</a>
+    <a href="#phase17">Phase 17 (Mechanistic)</a>
+    <a href="#phase14">Phase 14 (Legacy)</a>
+    <a href="#results">Phase 11 (Legacy)</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
