@@ -19,9 +19,12 @@ Our first experiment targets the **top 6 globally most sensitive layers** of the
 | **Physical Latency Reduction** | **-15.18%** | **-15.84%** |
 | **Baseline C4 Perplexity** | 7.855 | 8.990 |
 | **Dropped C4 Perplexity** | 9.930 | 14.953 |
-| **Healed C4 Perplexity (Run 1)** | **9.730** | **13.697** |
-| **PPL Recovered (Run 1)** | `+0.200` | `+1.257` |
-| **Remaining PPL Gap (vs. Baseline)**| `+1.875` | `+4.706` |
+| **Healed C4 Perplexity (Run 1 - Global)** | **9.730** | **13.697** |
+| **PPL Recovered (Run 1 - Global)** | `+0.200` | `+1.257` |
+| **Remaining PPL Gap (Run 1 - Global)**| `+1.875` | `+4.706` |
+| **Healed C4 Perplexity (Run 2 - Boundary)** | **9.223** | *Running...* |
+| **PPL Recovered (Run 2 - Boundary)** | `+0.707` | *Running...* |
+| **Remaining PPL Gap (Run 2 - Boundary)** | `+1.368` | *Running...* |
 
 ---
 
