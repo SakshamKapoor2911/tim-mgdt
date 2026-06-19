@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-19T10:24:51.106724+00:00Z",
+  "generated_at": "2026-06-19T10:31:47.670596+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
-  "current_phase": "Phase 11",
-  "phase_status": "Phase 14 Active (Cross-Architecture Surgical LoRA Validation). Next: Write COLM submission.",
+  "current_phase": "Phase 14",
+  "phase_status": "Phase 14 Complete. Next: Submit COLM workshop paper.",
   "total_experiments": 35,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
@@ -53,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 14 active. We dropped flawed proxy metrics in favor of Ground Truth Delta CE (The Bathtub Curve). We are running Sensitivity-Guided Surgical Allocation via Randomly Initialized LoRA. Llama-3-8B and Mistral-7B are currently running on the dual 3090s."
+      "body": "Phase 14 complete. We verified that sensitivity-guided Surgical Allocation successfully heals pruning damage on Mistral-7B and Llama-3-8B on dual 3090s, while uniform PEFT fails due to dense noise pollution."
     }
   ],
   "decisions": [
@@ -77,8 +77,8 @@
     {
       "who": "Saksham",
       "track": "Phase 14 Execution",
-      "status": "active",
-      "next_action": "Models are currently running exhaustive sensitivity knockouts and 500-step surgical recovery ablations on dual RTX 3090s."
+      "status": "done",
+      "next_action": "Completed exhaustive sensitivity knockouts and 500-step surgical recovery on dual RTX 3090s."
     },
     {
       "who": "Agent",
@@ -105,11 +105,11 @@
       "description": "Automated dashboard tracking via Pre-Commit Hook"
     },
     {
-      "status": "now",
+      "status": "done",
       "description": "Phase 14: Final pipeline execution (Mistral & Llama 3)"
     },
     {
-      "status": "then",
+      "status": "now",
       "description": "COLM Actionable Interpretability paper submission"
     }
   ],
@@ -131,7 +131,7 @@
       "item": "C4 evaluation adopted to resolve Wikitext-2 contamination."
     },
     {
-      "status": "active",
+      "status": "done",
       "item": "Cross-Architecture validation running natively on Llama-3-8B and Mistral-7B."
     }
   ],
@@ -152,17 +152,17 @@
       "item": "Harden Phase 14 script with Ends-Only baseline and SVD explanations."
     },
     {
-      "status": "now",
+      "status": "done",
       "owner": "Saksham",
       "item": "Wait for Phase 14 background completion and update Phase 14 artifacts."
     },
     {
-      "status": "next",
+      "status": "done",
       "owner": "Saksham",
       "item": "Integrate Phase 14 results into PAPER_DRAFT.md."
     },
     {
-      "status": "then",
+      "status": "now",
       "owner": "Saksham",
       "item": "Submit to COLM Actionable Interpretability Workshop."
     }
@@ -198,7 +198,7 @@
     },
     {
       "label": "Phase 14 \u2014 Final Actionable Interpretability Pipeline",
-      "state": "active"
+      "state": "done"
     }
   ],
   "links": {

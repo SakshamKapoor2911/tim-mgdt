@@ -164,7 +164,7 @@ def build_state_json(experiments, metrics):
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z",
         "project": "TIM-MGDT",
         "tagline": TAGLINE,
-        "current_phase": "Phase 11",
+        "current_phase": "Phase 14",
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
@@ -606,7 +606,7 @@ def build_html(experiments, metrics):
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">{TAGLINE}</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 11 complete</span>
+      <span class="chip chip-green">Phase 14 complete</span>
       <span class="chip chip-blue">{done_count}/{len(RUNS)} runs done</span>
       <span class="chip chip-yellow">{total} experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
