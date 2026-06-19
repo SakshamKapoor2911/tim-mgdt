@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-06-19T00:57:23.385446+00:00Z",
+  "generated_at": "2026-06-19T07:56:59.744479+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
-  "current_phase": "Phase 11.5",
-  "phase_status": "Phase 11 complete for Mistral-7B (19.6% sparsity). Llama-3-8B crashed. Discovery: RMSNorm prevents activation healing. Next: Debug Llama and implement Weight-Weight healing.",
-  "total_experiments": 21,
+  "current_phase": "Phase 11",
+  "phase_status": "Phase 11 complete (GPT-2 real GPU validation). Winning Ticket found at 30% sparsity. Next: Llama-3-8B and Mistral-7B on dual 3090 remote server.",
+  "total_experiments": 31,
   "latest_run": {
-    "name": "Mistral-7B Phase 11 (Parallel Run)",
+    "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
-    "model": "mistral-7b",
-    "device": "cuda"
+    "model": "gpt2",
+    "device": "cpu"
   },
   "metrics": {
     "winning_sparsity": 0.5,
@@ -50,7 +50,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 11 complete for Mistral-7B. We successfully achieved 19.6% sparsity via Iterative Magnitude Pruning with only +2.54% PPL degradation! However, we discovered that constant mean-shift Activation Healing destroys modern LLMs due to RMSNorm scaling conflicts. Next: Fix Llama-3-8B crash and pivot to LoRA or Weight-Weight healing."
+      "body": "Phase 11 complete for Mistral-7B. We achieved 19.6% sparsity with only +2.54% PPL degradation! We discovered that constant mean-shift Activation Healing destroys modern LLMs due to RMSNorm scaling conflicts. We successfully pivoted to Masked Sparse Fine-Tuning (SFT). Llama-3-8B is currently running on the dual 3090s."
     }
   ],
   "decisions": [
@@ -67,7 +67,7 @@
     {
       "topic": "Activation Healing on 7B",
       "choice": "Scientifically Incompatible with RMSNorm",
-      "rationale": "We proved mathematically that adding a constant mean shift to hidden states inflates the RMS denominator in RMSNorm layers. This crushes the actual signal magnitude and irreparably degrades PPL. We must pivot away from activation shifts."
+      "rationale": "We proved mathematically that adding a constant mean shift to hidden states inflates the RMS denominator in RMSNorm layers. This crushes the actual signal magnitude. We pivoted to Masked Sparse Fine-Tuning."
     },
     {
       "topic": "Head Pruning",
@@ -81,28 +81,28 @@
     },
     {
       "topic": "Compute",
-      "choice": "Apple Silicon (quick runs) \u2192 2\u00d73090 (48 GB, full runs)",
-      "rationale": "Two-phase compute strategy. Remote SSH to dual 3090 for 7B models. See REMOTE_SETUP_GUIDE.md."
+      "choice": "2\u00d73090 (48 GB VRAM total)",
+      "rationale": "We exclusively use a dual RTX 3090 setup. We do not use Apple MLX or external A100s, enforcing the constraint for our Hardware Memory Wall thesis."
     }
   ],
   "tasks": [
     {
       "who": "Saksham",
-      "track": "Debugging & Fixes",
+      "track": "Phase 12.5 Recovery",
       "status": "active",
-      "next_action": "Llama-3-8B failed with exit code 1 midway through the parallel pipeline. TASK: Check 'experiments/phase11/llama_run.log' to diagnose the crash (likely an OOM or tensor shape mismatch) and patch the pipeline."
+      "next_action": "Phase 11 and 12 are complete. We proved full-parameter SFT hits a memory wall. Currently running Phase 12.5 SVD-Initialized LoRA recovery sweep."
     },
     {
       "who": "Saksham",
       "track": "Algorithmic Pivot",
-      "status": "active",
-      "next_action": "Activation Healing failed due to RMSNorm. TASK: Design a new Stage 4 that uses Weight-Weight healing (like SparseGPT) or a lightweight LoRA fine-tuning pass to recover the last 2.5% PPL on Mistral-7B."
+      "status": "done",
+      "next_action": "Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning (SFT) to recover PPL without destroying unstructured sparsity."
     },
     {
       "who": "Saksham",
-      "track": "Dashboard Automation",
-      "status": "active",
-      "next_action": "The dashboard state.json did not update automatically after the pipeline finished. TASK: Write a post-run hook in 'run_full_pipeline.py' to automatically dump results into 'dashboard/state.json'."
+      "track": "Dashboard & infrastructure",
+      "status": "done",
+      "next_action": "Automated dashboard deployed via GitHub Pages. Added a post-run Python hook to automatically update state.json upon run completion."
     }
   ],
   "milestones": [
@@ -123,8 +123,12 @@
       "description": "Automated dashboard + CI/CD deployment on GitHub Pages"
     },
     {
-      "status": "now",
+      "status": "done",
       "description": "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"
+    },
+    {
+      "status": "now",
+      "description": "Phase 12 & 12.5: Proxy validation, Memory Wall proof, and SVD LoRA Recovery"
     },
     {
       "status": "then",
@@ -190,14 +194,19 @@
       "item": "Phase 11 analysis written \u2014 Conv1D/nn.Linear discovery, translation predictions."
     },
     {
-      "status": "now",
+      "status": "done",
       "owner": "Saksham",
-      "item": "Launch 7B runs: runners/run_llama_phase11.sh and runners/run_mistral_phase11.sh on remote 3090."
+      "item": "Execute 7B runs on remote 3090s and confirm Phase 11 baseline."
+    },
+    {
+      "status": "done",
+      "owner": "Saksham",
+      "item": "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."
     },
     {
       "status": "now",
       "owner": "Saksham",
-      "item": "Design 7B analysis framework \u2014 causal patching curves, healing recovery rates."
+      "item": "Execute Phase 12.5 SVD-Initialized Surgical LoRA sweep."
     },
     {
       "status": "next",
@@ -246,11 +255,19 @@
     },
     {
       "label": "Phase 11 \u2014 Llama-3-8B real evaluation (dual 3090)",
-      "state": "failed"
+      "state": "done"
     },
     {
       "label": "Phase 11 \u2014 Mistral-7B real evaluation (dual 3090)",
       "state": "done"
+    },
+    {
+      "label": "Phase 12 \u2014 Hardware Memory Wall & Proxy Validation",
+      "state": "done"
+    },
+    {
+      "label": "Phase 12.5 \u2014 SVD-Initialized Surgical LoRA Sweep",
+      "state": "active"
     }
   ],
   "links": {
