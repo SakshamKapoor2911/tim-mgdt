@@ -1,0 +1,250 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "n_layers": 32,
+  "samples": 30,
+  "timestamp": "2026-06-19T00:48:25.330720",
+  "metrics": {
+    "layer_0": {
+      "ground_truth_delta_ce": 5.947422917625403,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.45878625922055255,
+      "ensemble_score": 0.0
+    },
+    "layer_1": {
+      "ground_truth_delta_ce": 2.860173147722043,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15484616965055464,
+      "ensemble_score": 0.0
+    },
+    "layer_2": {
+      "ground_truth_delta_ce": 0.10268781638288083,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15645606829517192,
+      "ensemble_score": 0.0
+    },
+    "layer_3": {
+      "ground_truth_delta_ce": 0.0770608030372757,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15712844449139776,
+      "ensemble_score": 0.0
+    },
+    "layer_4": {
+      "ground_truth_delta_ce": 0.06889956281638288,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.1576720073635195,
+      "ensemble_score": 0.0
+    },
+    "layer_5": {
+      "ground_truth_delta_ce": 0.05990422227335479,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.1572078851935191,
+      "ensemble_score": 0.0
+    },
+    "layer_6": {
+      "ground_truth_delta_ce": 0.05448976069949385,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.1556142032941182,
+      "ensemble_score": 0.0
+    },
+    "layer_7": {
+      "ground_truth_delta_ce": 0.05874654855039152,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15422202878528168,
+      "ensemble_score": 0.0
+    },
+    "layer_8": {
+      "ground_truth_delta_ce": 0.03530545329038226,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15339690092681113,
+      "ensemble_score": 0.0
+    },
+    "layer_9": {
+      "ground_truth_delta_ce": 0.029423607915324723,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.15117868862368847,
+      "ensemble_score": 0.0
+    },
+    "layer_10": {
+      "ground_truth_delta_ce": 0.03311953520478639,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.14780248583309236,
+      "ensemble_score": 0.0
+    },
+    "layer_11": {
+      "ground_truth_delta_ce": 0.05677634606534765,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.14389042089382806,
+      "ensemble_score": 0.0
+    },
+    "layer_12": {
+      "ground_truth_delta_ce": 0.04186320754716988,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.13714034787395546,
+      "ensemble_score": 0.0
+    },
+    "layer_13": {
+      "ground_truth_delta_ce": 0.044523699953980866,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.13313988259545076,
+      "ensemble_score": 0.0
+    },
+    "layer_14": {
+      "ground_truth_delta_ce": 0.03522635757017989,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.12179446606075063,
+      "ensemble_score": 0.0
+    },
+    "layer_15": {
+      "ground_truth_delta_ce": 0.04539375287620828,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.11035981724659602,
+      "ensemble_score": 0.0
+    },
+    "layer_16": {
+      "ground_truth_delta_ce": 0.047630004601932896,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.09961227258046468,
+      "ensemble_score": 0.0
+    },
+    "layer_17": {
+      "ground_truth_delta_ce": 0.055582719742291786,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.09059522904100871,
+      "ensemble_score": 0.0
+    },
+    "layer_18": {
+      "ground_truth_delta_ce": 0.07939053152324016,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.0813740056294661,
+      "ensemble_score": 0.0
+    },
+    "layer_19": {
+      "ground_truth_delta_ce": 0.08842901518637847,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.07315130117866728,
+      "ensemble_score": 0.0
+    },
+    "layer_20": {
+      "ground_truth_delta_ce": 0.07594627243442265,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.06935784816741944,
+      "ensemble_score": 0.0
+    },
+    "layer_21": {
+      "ground_truth_delta_ce": 0.06093246663598739,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.06638823707898457,
+      "ensemble_score": 0.0
+    },
+    "layer_22": {
+      "ground_truth_delta_ce": 0.07073314542107711,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.06238450518360845,
+      "ensemble_score": 0.0
+    },
+    "layer_23": {
+      "ground_truth_delta_ce": 0.060587321675103833,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.0582143284380436,
+      "ensemble_score": 0.0
+    },
+    "layer_24": {
+      "ground_truth_delta_ce": 0.0592067418315696,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.05409135761715118,
+      "ensemble_score": 0.0
+    },
+    "layer_25": {
+      "ground_truth_delta_ce": 0.032637770363552754,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.05006606545713212,
+      "ensemble_score": 0.0
+    },
+    "layer_26": {
+      "ground_truth_delta_ce": 0.0674542682926833,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.04575510740280152,
+      "ensemble_score": 0.0
+    },
+    "layer_27": {
+      "ground_truth_delta_ce": 0.06449177404509898,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.041056680182615914,
+      "ensemble_score": 0.0
+    },
+    "layer_28": {
+      "ground_truth_delta_ce": 0.07058214450069045,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.03588582078615825,
+      "ensemble_score": 0.0
+    },
+    "layer_29": {
+      "ground_truth_delta_ce": 0.07859957432121512,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.030581374963124592,
+      "ensemble_score": 0.0
+    },
+    "layer_30": {
+      "ground_truth_delta_ce": 0.13968304187758873,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.024378079175949096,
+      "ensemble_score": 0.0
+    },
+    "layer_31": {
+      "ground_truth_delta_ce": 0.21640589047399938,
+      "ed": 1.0,
+      "jacobian": 0.0,
+      "naudc": 0.0,
+      "ensemble_score": 0.0
+    }
+  },
+  "correlations": {
+    "ed_vs_gt": {
+      "rho": NaN,
+      "p_value": NaN
+    },
+    "jacobian_vs_gt": {
+      "rho": NaN,
+      "p_value": NaN
+    },
+    "naudc_vs_gt": {
+      "rho": -0.14186217008797652,
+      "p_value": 0.4386381608883686
+    },
+    "ensemble_vs_gt": {
+      "rho": NaN,
+      "p_value": NaN
+    }
+  }
+}
