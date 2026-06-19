@@ -124,46 +124,11 @@ def get_model_n_layers(model_name: str) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Perplexity measurement  (Wikitext-2)
+# Perplexity measurement  (Wikitext-2 and held-out corpora)
 # ---------------------------------------------------------------------------
 
-def compute_perplexity(
-    model: nn.Module,
-    tokenizer: Any,
-    device: str,
-    max_samples: int = 256,
-    seq_len: int = 2048,
-    batch_size: int = 1,
-) -> float:
-    """
-    Compute perplexity on Wikitext-2 test split.
-
-    This is the standard evaluation used in SparseGPT, Wanda, GPTQ, and
-    virtually all LLM pruning papers.
-
-    Args:
-        model:       A HuggingFace causal LM (already on device).
-        tokenizer:   Matching tokenizer.
-        device:      'cuda' or 'cpu'.
-        max_samples: Maximum number of sequence chunks to evaluate.
-        seq_len:     Sequence length per chunk (2048 is standard for 7B models,
-                     1024 works well for GPT-2).
-        batch_size:  Evaluation batch size (1 is safest for VRAM).
-
-    Returns:
-        Perplexity as a float (e.g. 5.32 for Mistral-7B baseline).
-    """
-    from datasets import load_dataset
-
-    # Load Wikitext-2 test set
-    dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="test")
-    text = "\n\n".join([s for s in dataset["text"] if s.strip()])
-
-    # Tokenize the entire test set
-    encodings = tokenizer(text, return_tensors="pt")
-    input_ids = encodings.input_ids[0]  # shape: (total_tokens,)
-
-    # Adjust seq_len for small models (GPT-2 max position = 1024)
+def _eval_ppl_on_ids(model, input_ids, device, seq_len, max_samples, batch_size, label):
+    """Shared PPL evaluation loop over pre-tokenized input_ids."""
     model_max_len = getattr(model.config, "max_position_embeddings",
                             getattr(model.config, "n_positions", seq_len))
     seq_len = min(seq_len, model_max_len)
@@ -173,7 +138,7 @@ def compute_perplexity(
 
     if num_chunks == 0:
         raise ValueError(
-            f"Wikitext-2 test set too short ({total_tokens} tokens) for "
+            f"{label} too short ({total_tokens} tokens) for "
             f"seq_len={seq_len}. Try a smaller seq_len."
         )
 
@@ -181,10 +146,10 @@ def compute_perplexity(
     total_loss = 0.0
     total_count = 0
 
-    print(f"    [PPL] Evaluating {num_chunks} chunks of {seq_len} tokens on {device} (batch_size={batch_size})...")
+    print(f"    [{label}] Evaluating {num_chunks} chunks of {seq_len} tokens on {device} (batch_size={batch_size})...")
 
     with torch.no_grad():
-        for i in tqdm(range(0, num_chunks, batch_size), desc="    [PPL] batches", leave=False):
+        for i in tqdm(range(0, num_chunks, batch_size), desc=f"    [{label}] batches", leave=False):
             batch_chunks = []
             for j in range(i, min(i + batch_size, num_chunks)):
                 start = j * seq_len
@@ -204,17 +169,77 @@ def compute_perplexity(
     avg_loss = total_loss / total_count
     ppl = torch.exp(torch.tensor(avg_loss)).item()
 
-    print(f"    [PPL] Result: {ppl:.4f}  (avg CE loss: {avg_loss:.4f}, tokens: {total_count})")
+    print(f"    [{label}] Result: {ppl:.4f}  (avg CE loss: {avg_loss:.4f}, tokens: {total_count})")
     return ppl
+
+
+def compute_perplexity(
+    model: nn.Module,
+    tokenizer: Any,
+    device: str,
+    max_samples: int = 256,
+    seq_len: int = 2048,
+    batch_size: int = 1,
+) -> float:
+    """
+    Compute perplexity on Wikitext-2 test split.
+
+    This is the standard evaluation used in SparseGPT, Wanda, GPTQ, and
+    virtually all LLM pruning papers.
+    """
+    from datasets import load_dataset
+
+    dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="test")
+    text = "\n\n".join([s for s in dataset["text"] if s.strip()])
+    encodings = tokenizer(text, return_tensors="pt")
+    input_ids = encodings.input_ids[0]
+
+    return _eval_ppl_on_ids(model, input_ids, device, seq_len, max_samples, batch_size, "PPL")
+
+
+def compute_perplexity_c4(
+    model: nn.Module,
+    tokenizer: Any,
+    device: str,
+    max_samples: int = 128,
+    seq_len: int = 2048,
+    batch_size: int = 1,
+) -> float:
+    """
+    Compute perplexity on C4 validation split (held-out corpus).
+    
+    This provides a generalization check that is distribution-independent
+    from the WikiText-2 training data used for LoRA fine-tuning.
+    """
+    from datasets import load_dataset
+
+    dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
+    # Collect enough text from the streaming dataset
+    texts = []
+    for i, example in enumerate(dataset):
+        if i >= max_samples * 2:  # grab extra to ensure enough tokens
+            break
+        if example["text"].strip():
+            texts.append(example["text"])
+    
+    text = "\n\n".join(texts)
+    encodings = tokenizer(text, return_tensors="pt")
+    input_ids = encodings.input_ids[0]
+
+    return _eval_ppl_on_ids(model, input_ids, device, seq_len, max_samples, batch_size, "C4-PPL")
 
 
 # ---------------------------------------------------------------------------
 # Global magnitude pruning helpers
 # ---------------------------------------------------------------------------
 
-def apply_global_pruning(model: nn.Module, sparsity: float) -> int:
+def apply_layerwise_pruning(model: nn.Module, sparsity: float) -> int:
     """
-    Apply uniform unstructured L1 magnitude pruning to all Linear layers manually.
+    Apply layer-uniform unstructured L1 magnitude pruning to all Linear layers.
+    
+    NOTE: This is *layer-uniform* pruning (each layer independently loses the
+    same fraction of weights), NOT true global pruning (single threshold across
+    all parameters). We use this terminology deliberately — see Phase 13 audit.
     
     This avoids torch.nn.utils.prune, which duplicates weights and causes CUDA OOM 
     by creating weight_orig and weight_mask tensors for every single layer.
@@ -232,6 +257,10 @@ def apply_global_pruning(model: nn.Module, sparsity: float) -> int:
                 w.mul_(w.abs() >= threshold)
                 modules_pruned += 1
     return modules_pruned
+
+
+# Backward-compatible alias
+apply_global_pruning = apply_layerwise_pruning
 
 
 def remove_global_pruning(model: nn.Module) -> int:
