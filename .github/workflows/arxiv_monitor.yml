@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write # Need this permission to create GitHub issues
+      contents: write # Need this to auto-commit JSON
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,8 +29,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          gh label create "literature-review" --force || true
           # The agent-native script outputs clean Markdown. We just pass it to the 'gh issue create' command!
           gh issue create \
             --title "Daily ArXiv Monitor: $(date +'%Y-%m-%d')" \
             --body-file arxiv_output.md \
             --label "literature-review"
+
+      - name: Commit JSON if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/arxiv_latest.json
+          if git diff --cached --quiet; then
+            echo "No JSON changes."
+          else
+            git commit -m "ci: auto-update arxiv JSON [skip ci]"
+            git push
+          fi
