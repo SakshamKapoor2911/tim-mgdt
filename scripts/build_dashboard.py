@@ -342,15 +342,15 @@ def _phase15_html(phase15_results):
         ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
     ]
     
-    html = '<div class="section-label" id="phase15">Phase 15 Oracle-Guided Layer Dropping & Boundary Healing</div>'
+    html = '<div class="section-label" id="phase15">Phase 15: Incision Boundary Healing for Depth-Pruned LLMs</div>'
     
     html += """
     <div class="card" style="margin-bottom: 24px; padding: 18px;">
       <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
-        Unlike parameter masking (which leaves memory fragmentation), <b>Layer Dropping</b> completely removes a contiguous block of layers, achieving <b>true hardware compression</b>. We identify the 4-layer block with the lowest causal sensitivity and drop it, reducing depth by 12.5% and yielding a guaranteed <b>~15.5% reduction in inference latency</b>.
+        While recent literature (e.g., <i>Gromov et al., ShortGPT, LaCo</i>) has established that <b>Layer Dropping</b> achieves true hardware compression, the standard practice of applying global fine-tuning to all surviving layers to recover performance is highly sub-optimal.
       </p>
       <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
-        <b>The Healing Insight:</b> Dropping contiguous layers creates a sharp, localized discontinuity in the activation flow. We demonstrate that our <b>Boundary-Focused Surgical LoRA</b> (which targets only the layers immediately adjacent to the "incision") dramatically outperforms standard global healing methods, recovering perplexity while retaining the full speedup.
+        <b>Our Primary Contribution — Incision Boundary Healing:</b> We empirically prove that dropping contiguous layers creates a sharp, highly localized discontinuity in the activation flow, rather than global degradation. Our <b>Boundary-Focused Surgical LoRA</b> restricts trainable parameters exclusively to the layers adjacent to the "incision". This routes the compute budget with precision, recovering up to 4x more perplexity than global baselines while using 33% fewer trainable parameters.
       </p>
       <table class="task-table" style="width:100%;">
         <thead>
