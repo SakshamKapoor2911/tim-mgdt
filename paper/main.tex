@@ -27,7 +27,7 @@ Recent work has shown that Large Language Models (LLMs) can be structurally comp
 \end{abstract}
 
 \section{Introduction: The Limits of Global Recovery in Depth Pruning}
-The concept of physically deleting entire transformer layers to achieve true hardware compression has gained significant traction. Methods in depth pruning, such as ShortGPT and Layer Collapse (LaCo), have successfully identified and removed redundant structures. Further work, most notably ``The Unreasonable Ineffectiveness of the Deeper Layers'' \citep{gromov2024unreasonable}, demonstrated that dropping contiguous blocks of layers and applying QLoRA fine-tuning provides an effective recovery path. 
+The concept of physically deleting entire transformer layers to achieve true hardware compression has gained significant traction. Methods in depth pruning, such as ShortGPT \citep{men-etal-2025-shortgpt} and Layer Collapse (LaCo) \citep{yang-etal-2024-laco}, have successfully identified and removed redundant structures. Further work, most notably ``The Unreasonable Ineffectiveness of the Deeper Layers'' \citep{gromov2024unreasonable}, demonstrated that dropping contiguous blocks of layers and applying QLoRA fine-tuning \citep{hu2022lora} provides an effective recovery path.  
 
 However, existing recovery methods apply parameter updates \textit{uniformly} across all surviving layers of the model. We argue that this uniform allocation fails to account for the mechanistic reality of the ``incision.''
 
@@ -146,7 +146,7 @@ As shown in Figure \ref{fig:attention_heatmap}, the baseline model (blue) mainta
 
 A core hypothesis of Incision Boundary Healing is that structural depth pruning induces a highly localized discontinuity in the representation manifold, rather than global network degradation. To empirically quantify the "thickness" of this semantic gap, we conducted a hyperparameter ablation on the boundary radius, $t$, defined as the number of layers targeted for LoRA adaptation on either side of the dropped block. 
 
-We evaluated $t \in \{1, 2, 3\}$ across three architecturally distinct model families: Mistral-7B (standard MHA), Meta-Llama-3-8B (GQA), and Gemma-2-2B (interleaved Sliding Window and Global Attention). 
+We evaluated $t \in \{1, 2, 3\}$ across three architecturally distinct model families: Mistral-7B \citep{jiang2023mistral} (standard MHA), Meta-Llama-3-8B \citep{dubey2024llama3} (GQA), and Gemma-2-2B \citep{team2024gemma2} (interleaved Sliding Window and Global Attention). 
 
 As shown in Table \ref{tab:multi_model_thickness}, the underlying attention topology fundamentally dictates the behavior of the semantic gap.
 
