@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIM-MGDT Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+        .header { border-bottom: 1px solid #30363d; padding-bottom: 16px; margin-bottom: 24px; }
+        .pill { padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .pill.complete { background-color: #238636; color: #ffffff; }
+        .pill.running { background-color: #1f6feb; color: #ffffff; }
+        .pill.failed { background-color: #da3633; color: #ffffff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; border-bottom: 1px solid #30363d; text-align: left; }
+        th { font-weight: 600; color: #8b949e; font-size: 12px; text-transform: uppercase; }
+    </style>
+</head>
+<body class="p-8 max-w-5xl mx-auto">
+    <div class="header">
+        <h1 class="text-3xl font-bold text-white mb-2">TIM-MGDT Project Dashboard</h1>
+        <p class="text-gray-400">Automated tracking for scaling and agentification. <a href="state.json" class="text-blue-400 hover:underline">View Machine-Readable State (state.json)</a></p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="card text-center">
+            <h3 class="text-gray-400 text-sm uppercase tracking-wider mb-2">Current Phase</h3>
+            <p class="text-2xl font-bold text-white">Phase 11</p>
+        </div>
+        <div class="card text-center">
+            <h3 class="text-gray-400 text-sm uppercase tracking-wider mb-2">Total Experiments Run</h3>
+            <p class="text-2xl font-bold text-white">5</p>
+        </div>
+        <div class="card text-center">
+            <h3 class="text-gray-400 text-sm uppercase tracking-wider mb-2">Latest Run Status</h3>
+            <span class="pill complete inline-block mt-1">complete</span>
+        </div>
+    </div>
+
+    <div class="card mb-8">
+        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Performance vs. Efficiency (Latest Run: GPT-2 Phase 11)</h2>
+        
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Baseline</th>
+                        <th>Optimized</th>
+                        <th>Improvement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Parameters (B)</td>
+                        <td>7.34</td>
+                        <td>3.67</td>
+                        <td class="text-green-400">-50.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Latency (ms)</td>
+                        <td>42.0</td>
+                        <td>23.5</td>
+                        <td class="text-green-400">-44.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Memory (GB)</td>
+                        <td>14.80</td>
+                        <td>8.14</td>
+                        <td class="text-green-400">-45.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mt-4 p-4 bg-gray-800 rounded">
+                <span class="text-gray-400 mr-2">Perplexity Recovery:</span>
+                <span class="text-white font-bold">99.8%</span>
+                <span class="text-gray-400 ml-4 mr-2">Sparsity Achieved:</span>
+                <span class="text-white font-bold">50.0%</span>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="card">
+        <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">Active Task Board</h2>
+        <div class="overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th>Blocked By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td class="text-white">Analyze Phase 11 GPT-2 real results</td>
+                        <td>Saksham</td>
+                        <td><span class="pill running">in_progress</span></td>
+                        <td class="text-gray-400">None</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="text-white">Implement Llama3 Causal Patching</td>
+                        <td>Edward</td>
+                        <td><span class="pill failed">pending</span></td>
+                        <td class="text-gray-400">Phase 11 GPT-2 Validation</td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="text-white">Setup automated MCP server for state.json</td>
+                        <td>Unassigned</td>
+                        <td><span class="pill failed">pending</span></td>
+                        <td class="text-gray-400">Dashboard Deployment</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
