@@ -52,7 +52,7 @@ def drop_layers_with_mapping(model, drop_indices):
     model.config.num_hidden_layers = len(new_layers)
     return model, old_to_new_map
 
-def build_surgical_lora_config(map_file, old_to_new_map, rank, healing_mode="boundary"):
+def build_surgical_lora_config(map_file, old_to_new_map, rank, healing_mode="boundary", boundary_thickness=2):
     with open(map_file, "r") as f:
         data = json.load(f)
     sens = data["sensitivities"]
@@ -75,13 +75,13 @@ def build_surgical_lora_config(map_file, old_to_new_map, rank, healing_mode="bou
         d_end = max(dropped_indices)
         
         target_layer_indices = []
-        # Left boundary (up to 2 layers preceding the dropped block)
-        for offset in [1, 2]:
+        # Left boundary (up to boundary_thickness layers preceding the dropped block)
+        for offset in range(1, boundary_thickness + 1):
             idx = d_start - offset
             if idx in old_to_new_map:
                 target_layer_indices.append(idx)
-        # Right boundary (up to 2 layers succeeding the dropped block)
-        for offset in [1, 2]:
+        # Right boundary (up to boundary_thickness layers succeeding the dropped block)
+        for offset in range(1, boundary_thickness + 1):
             idx = d_end + offset
             if idx in old_to_new_map:
                 target_layer_indices.append(idx)
@@ -159,6 +159,7 @@ def main():
     parser.add_argument("--eval_interval_samples", type=int, default=16)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--healing_mode", type=str, choices=["global", "boundary"], default="boundary")
+    parser.add_argument("--boundary_thickness", type=int, default=2)
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -184,8 +185,8 @@ def main():
     
     model, old_to_new_map = drop_layers_with_mapping(model, drop_indices)
     
-    print(f"Attaching Surgical LoRA for healing (Mode: {args.healing_mode})...")
-    lora_config = build_surgical_lora_config(map_file, old_to_new_map, args.rank, args.healing_mode)
+    print(f"Attaching Surgical LoRA for healing (Mode: {args.healing_mode}, Thickness: {args.boundary_thickness})...")
+    lora_config = build_surgical_lora_config(map_file, old_to_new_map, args.rank, args.healing_mode, args.boundary_thickness)
     model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
     
@@ -213,6 +214,7 @@ def main():
         "train_samples": args.train_samples,
         "rank": args.rank,
         "healing_mode": args.healing_mode,
+        "boundary_thickness": args.boundary_thickness,
         "recovery_time_s": recovery_time,
         "baseline_c4_ppl": prev_results.get("baseline_c4_ppl"),
         "dropped_c4_ppl": prev_results.get("dropped_c4_ppl"),
@@ -221,7 +223,7 @@ def main():
         "eval_ppls": eval_ppls
     }
     
-    suffix = "boundary_healed" if args.healing_mode == "boundary" else "healed"
+    suffix = f"boundary_healed_t{args.boundary_thickness}" if args.healing_mode == "boundary" else "healed"
     out_file = os.path.join(out_dir, f"{model_short}_drop{args.n_drop}_{suffix}.json")
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
