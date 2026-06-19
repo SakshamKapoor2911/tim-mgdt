@@ -110,7 +110,7 @@ def build_surgical_lora_config(map_file, old_to_new_map, rank, healing_mode="bou
     )
     return config
 
-def train_lora_with_logging(model, tokenizer, device, samples, lr, warmup_ratio):
+def train_lora_with_logging(model, tokenizer, device, samples, lr, warmup_ratio, eval_interval=0, eval_interval_samples=16):
     dataset = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="train")
     text = "\n\n".join([s for s in dataset["text"] if s.strip()])
     encodings = tokenizer(text, return_tensors="pt")
@@ -126,7 +126,8 @@ def train_lora_with_logging(model, tokenizer, device, samples, lr, warmup_ratio)
     
     model.train()
     losses = []
-    for chunk in tqdm(chunks, desc="    Training Healing LoRA"):
+    eval_ppls = {}
+    for i, chunk in enumerate(tqdm(chunks, desc="    Training Healing LoRA")):
         chunk = chunk.unsqueeze(0).to(device)
         outputs = model(input_ids=chunk, labels=chunk)
         loss = outputs.loss
@@ -136,7 +137,14 @@ def train_lora_with_logging(model, tokenizer, device, samples, lr, warmup_ratio)
         scheduler.step()
         optimizer.zero_grad()
         
-    return losses
+        if eval_interval > 0 and (i + 1) % eval_interval == 0:
+            model.eval()
+            with torch.no_grad():
+                ppl = compute_perplexity_c4(model, tokenizer, device, max_samples=eval_interval_samples)
+            eval_ppls[i + 1] = ppl
+            model.train()
+            
+    return losses, eval_ppls
 
 def main():
     parser = argparse.ArgumentParser()
@@ -147,6 +155,8 @@ def main():
     parser.add_argument("--rank", type=int, default=16)
     parser.add_argument("--lr", type=float, default=1e-5)
     parser.add_argument("--warmup_ratio", type=float, default=0.10)
+    parser.add_argument("--eval_interval", type=int, default=0)
+    parser.add_argument("--eval_interval_samples", type=int, default=16)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--healing_mode", type=str, choices=["global", "boundary"], default="boundary")
     args = parser.parse_args()
@@ -180,7 +190,7 @@ def main():
     model.print_trainable_parameters()
     
     start_time = time.time()
-    losses = train_lora_with_logging(model, tokenizer, device, args.train_samples, args.lr, args.warmup_ratio)
+    losses, eval_ppls = train_lora_with_logging(model, tokenizer, device, args.train_samples, args.lr, args.warmup_ratio, args.eval_interval, args.eval_interval_samples)
     recovery_time = time.time() - start_time
     
     print("\nMeasuring HEALED C4 PPL...")
@@ -207,7 +217,8 @@ def main():
         "baseline_c4_ppl": prev_results.get("baseline_c4_ppl"),
         "dropped_c4_ppl": prev_results.get("dropped_c4_ppl"),
         "healed_c4_ppl": healed_c4,
-        "loss_curve": losses
+        "loss_curve": losses,
+        "eval_ppls": eval_ppls
     }
     
     suffix = "boundary_healed" if args.healing_mode == "boundary" else "healed"

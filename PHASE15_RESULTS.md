@@ -22,9 +22,9 @@ Our first experiment targets the **top 6 globally most sensitive layers** of the
 | **Healed C4 Perplexity (Run 1 - Global)** | **9.730** | **13.697** |
 | **PPL Recovered (Run 1 - Global)** | `+0.200` | `+1.257` |
 | **Remaining PPL Gap (Run 1 - Global)**| `+1.875` | `+4.706` |
-| **Healed C4 Perplexity (Run 2 - Boundary)** | **9.223** | **12.463** |
-| **PPL Recovered (Run 2 - Boundary)** | `+0.707` | `+2.490` |
-| **Remaining PPL Gap (Run 2 - Boundary)** | `+1.368` | `+3.473` |
+| **Healed C4 Perplexity (Run 2 - Boundary)** | **9.073** | **11.976** |
+| **PPL Recovered (Run 2 - Boundary)** | `+0.857` | `+2.977` |
+| **Remaining PPL Gap (Run 2 - Boundary)** | `+1.218` | `+2.986` |
 
 ---
 
@@ -34,9 +34,9 @@ Our first experiment targets the **top 6 globally most sensitive layers** of the
 1. **Physical Latency Gains**: A consistent **~15.5% reduction in latency** was achieved on both models. This directly correlates with proportional throughput scaling and KV-cache footprint reductions, proving that layer dropping is a practical path to actual compression.
 2. **Oracle Sensitivity Alignment**: The perplexity degradation directly scales with the oracle's pruning window sensitivity score. Mistral's valley is deeper and less sensitive (`0.1314`), leading to only `9.93` post-drop perplexity. Llama-3's valley is more active (`0.3021`), leading to `14.95` post-drop perplexity. The oracle successfully isolates the safest regions to drop.
 3. **Boundary-Focused Healing Efficacy**: 
-   * For **Mistral-7B**, boundary-focused healing recovered **`0.71` PPL** (compared to only `0.20` with global sensitivity).
-   * For **Llama-3-8B**, boundary-focused healing recovered **`2.49` PPL** (compared to `1.26` with global sensitivity).
-   * In both architectures, boundary-focused healing **doubled to tripled the perplexity recovery** while using **33.3% fewer trainable parameters** (`4.39M` vs `6.59M` parameters).
+   * For **Mistral-7B**, boundary-focused healing recovered **`0.86` PPL** (compared to only `0.20` with global sensitivity).
+   * For **Llama-3-8B**, boundary-focused healing recovered **`2.98` PPL** (compared to `1.26` with global sensitivity).
+   * In both architectures, boundary-focused healing **doubled to quadrupled the perplexity recovery** while using **33.3% fewer targeted layers**.
 
 ---
 
