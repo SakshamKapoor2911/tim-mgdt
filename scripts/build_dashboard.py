@@ -410,6 +410,54 @@ def _phase15_html(phase15_results):
       </table>
     </div>
     """
+    
+    # Phase 16B Pareto Frontier
+    html += '<div class="section-label" id="pareto">Phase 16B: The Latency-Perplexity Pareto Frontier</div>'
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To build a defensible submission for COLM, we swept across multiple compression ratios (n_drop = 2, 4, 6, 8) on Mistral-7B. This establishes the Pareto frontier of true hardware latency reduction vs perplexity recovery using our Incision Boundary Healing. Note the massive recovery at 8 drops: boundary healing brings perplexity down from a completely broken 20.82 back to an operational 11.52.
+      </p>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    """
+    
+    for drop in [2, 4, 6, 8]:
+        eval_data = phase15_results.get(f"Mistral-7B-v0.1_drop{drop}_eval", {})
+        boundary_data = phase15_results.get(f"Mistral-7B-v0.1_drop{drop}_boundary_healed", {})
+        
+        if not eval_data:
+            continue
+            
+        lat_saved = eval_data.get("latency_reduction_pct", 0.0)
+        base_ppl = eval_data.get("baseline_c4_ppl", 0.0)
+        drop_ppl = eval_data.get("dropped_c4_ppl", 0.0)
+        healed_ppl = boundary_data.get("healed_c4_ppl", 0.0)
+        
+        html += f"""
+        <tr>
+          <td style="text-align:center; font-weight:600; color:var(--ink);">{drop} Layers</td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-{lat_saved:.2f}%</td>
+          <td style="text-align:center;">{base_ppl:.3f}</td>
+          <td style="text-align:center; color:var(--red);">{drop_ppl:.3f}</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">{healed_ppl:.3f}</td>
+        </tr>
+        """
+        
+    html += """
+        </tbody>
+      </table>
+    </div>
+    """
     return html
 
 
@@ -672,6 +720,7 @@ def build_html(experiments, metrics):
   <div class="nav-links">
     <a href="#overview">Overview</a>
     <a href="#phase15">Phase 15 Results</a>
+    <a href="#pareto">Pareto Frontier</a>
     <a href="#phase14">Phase 14 Results</a>
     <a href="#results">Legacy (Phase 11)</a>
     <a href="#decisions">Decisions</a>
