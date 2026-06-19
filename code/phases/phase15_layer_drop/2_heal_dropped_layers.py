@@ -185,6 +185,10 @@ def main():
     
     model, old_to_new_map = drop_layers_with_mapping(model, drop_indices)
     
+    model.gradient_checkpointing_enable()
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+    
     print(f"Attaching Surgical LoRA for healing (Mode: {args.healing_mode}, Thickness: {args.boundary_thickness})...")
     lora_config = build_surgical_lora_config(map_file, old_to_new_map, args.rank, args.healing_mode, args.boundary_thickness)
     model = get_peft_model(model, lora_config)
