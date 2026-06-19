@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T00:43:16.123843+00:00Z",
+  "generated_at": "2026-06-19T00:46:34.414371+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
   "current_phase": "Phase 11",
@@ -93,13 +93,13 @@
       "next_action": "Phase 11 GPT-2 validation complete. NEXT: (1) launch runners/run_llama_phase11.sh on remote 3090, (2) launch runners/run_mistral_phase11.sh, (3) analyze causal patching curves and activation healing recovery on 7B models."
     },
     {
-      "who": "Edward",
+      "who": "Saksham",
       "track": "Analysis & paper",
       "status": "active",
       "next_action": "Phase 11 GPT-2 results analyzed. NEXT: (1) interpret 7B causal patching bell curves, (2) write up Conv1D vs nn.Linear healing discovery, (3) compare IMP winning ticket sparsities across model scales."
     },
     {
-      "who": "Team",
+      "who": "Saksham",
       "track": "Dashboard & infrastructure",
       "status": "done",
       "next_action": "Automated dashboard deployed via GitHub Pages + GitHub Actions. state.json exposed for agent/MCP consumption."
@@ -176,7 +176,7 @@
   "path_to_paper": [
     {
       "status": "done",
-      "owner": "Team",
+      "owner": "Saksham",
       "item": "Phases 2-6 complete; elasticity discovery validated on GPT-2."
     },
     {
@@ -186,7 +186,7 @@
     },
     {
       "status": "done",
-      "owner": "Edward",
+      "owner": "Saksham",
       "item": "Phase 11 analysis written \u2014 Conv1D/nn.Linear discovery, translation predictions."
     },
     {
@@ -196,7 +196,7 @@
     },
     {
       "status": "now",
-      "owner": "Edward",
+      "owner": "Saksham",
       "item": "Design 7B analysis framework \u2014 causal patching curves, healing recovery rates."
     },
     {
@@ -206,12 +206,12 @@
     },
     {
       "status": "next",
-      "owner": "Edward",
+      "owner": "Saksham",
       "item": "Phase 7 alternative corpora evaluation; begin paper draft."
     },
     {
       "status": "then",
-      "owner": "Team",
+      "owner": "Saksham",
       "item": "Submit \u2014 workshop or conference. Quality over timeline."
     }
   ],
