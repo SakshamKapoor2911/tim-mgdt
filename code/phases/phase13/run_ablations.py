@@ -242,6 +242,13 @@ def run_ablation(model_name, sparsity, rank, train_samples, eval_samples,
     print(f"  Recovered C4:  {recovered_c4:.4f} ({results['c4_delta_pct']:+.2f}%)")
     print(f"  Time: {recovery_time:.1f}s")
 
+    # Critical fix: Free GPU memory to prevent OOM on subsequent ablations
+    del model
+    del tokenizer
+    import gc
+    gc.collect()
+    torch.cuda.empty_cache()
+
     return results
 
 
@@ -257,29 +264,58 @@ def main():
     device = get_device()
     os.makedirs("experiments/phase13", exist_ok=True)
 
+    results_file = "experiments/phase13/ablation_results.json"
+    curves_file = "experiments/phase13/loss_curves.json"
+
+    # Load existing to resume
     all_results = {}
+    curves = {}
+    if os.path.exists(results_file):
+        with open(results_file, "r") as f:
+            all_results = json.load(f)
+    if os.path.exists(curves_file):
+        with open(curves_file, "r") as f:
+            curves = json.load(f)
+
+    def run_and_save(name, kwargs):
+        if name in all_results:
+            print(f"\nSkipping {name} (already completed)")
+            return
+        
+        r = run_ablation(**kwargs)
+        curves[name] = r.pop("loss_curve")
+        all_results[name] = r
+        
+        # Save incrementally
+        with open(results_file, "w") as f:
+            json.dump(all_results, f, indent=2)
+        with open(curves_file, "w") as f:
+            json.dump(curves, f)
 
     # ─── Ablation 1: Surgical vs Uniform LoRA (at 20% sparsity) ───
     print("\n" + "="*70)
     print("ABLATION 1: Surgical (top-6) vs Uniform (all layers) LoRA")
     print("="*70)
 
-    r1 = run_ablation(args.model, 0.20, args.rank, args.train_samples,
-                      args.eval_samples, "surgical", False, args.lr, device)
-    all_results["surgical_random_20pct"] = r1
+    run_and_save("surgical_random_20pct", dict(
+        model_name=args.model, sparsity=0.20, rank=args.rank, train_samples=args.train_samples,
+        eval_samples=args.eval_samples, mode="surgical", svd_init=False, lr=args.lr, device=device
+    ))
 
-    r2 = run_ablation(args.model, 0.20, args.rank, args.train_samples,
-                      args.eval_samples, "uniform", False, args.lr, device)
-    all_results["uniform_random_20pct"] = r2
+    run_and_save("uniform_random_20pct", dict(
+        model_name=args.model, sparsity=0.20, rank=args.rank, train_samples=args.train_samples,
+        eval_samples=args.eval_samples, mode="uniform", svd_init=False, lr=args.lr, device=device
+    ))
 
     # ─── Ablation 2: Random-init vs SVD-init (fair comparison, same hyperparams) ───
     print("\n" + "="*70)
     print("ABLATION 2: Random-init vs SVD-init (identical hyperparams)")
     print("="*70)
 
-    r3 = run_ablation(args.model, 0.20, args.rank, args.train_samples,
-                      args.eval_samples, "surgical", True, args.lr, device)
-    all_results["surgical_svd_20pct"] = r3
+    run_and_save("surgical_svd_20pct", dict(
+        model_name=args.model, sparsity=0.20, rank=args.rank, train_samples=args.train_samples,
+        eval_samples=args.eval_samples, mode="surgical", svd_init=True, lr=args.lr, device=device
+    ))
 
     # ─── Ablation 3: Sparsity sweep (SVD-init surgical only) ───
     print("\n" + "="*70)
@@ -287,23 +323,11 @@ def main():
     print("="*70)
 
     for sp in [0.10, 0.30, 0.40]:
-        r = run_ablation(args.model, sp, args.rank, args.train_samples,
-                         args.eval_samples, "surgical", True, args.lr, device)
-        all_results[f"surgical_svd_{int(sp*100)}pct"] = r
-
-    # ─── Save all results ───
-    # Strip loss curves for the summary (they're large)
-    summary = {}
-    for k, v in all_results.items():
-        summary[k] = {key: val for key, val in v.items() if key != "loss_curve"}
-
-    with open("experiments/phase13/ablation_results.json", "w") as f:
-        json.dump(summary, f, indent=2)
-
-    # Save loss curves separately
-    curves = {k: v["loss_curve"] for k, v in all_results.items()}
-    with open("experiments/phase13/loss_curves.json", "w") as f:
-        json.dump(curves, f)
+        name = f"surgical_svd_{int(sp*100)}pct"
+        run_and_save(name, dict(
+            model_name=args.model, sparsity=sp, rank=args.rank, train_samples=args.train_samples,
+            eval_samples=args.eval_samples, mode="surgical", svd_init=True, lr=args.lr, device=device
+        ))
 
     # ─── Print summary table ───
     print("\n\n" + "="*90)
@@ -311,7 +335,7 @@ def main():
     print("="*90)
     print(f"{'Experiment':<30} {'WT2 PPL':>10} {'WT2 Δ%':>10} {'C4 PPL':>10} {'C4 Δ%':>10} {'Time':>8}")
     print("-"*90)
-    for name, r in summary.items():
+    for name, r in all_results.items():
         print(f"{name:<30} {r['recovered_wt2_ppl']:>10.4f} {r['wt2_delta_pct']:>+10.2f} "
               f"{r['recovered_c4_ppl']:>10.4f} {r['c4_delta_pct']:>+10.2f} {r['recovery_time_s']:>7.0f}s")
 

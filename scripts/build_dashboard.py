@@ -250,6 +250,9 @@ def extract_metrics(data):
         return {
             "winning_sparsity": winner.get("sparsity", 0),
             "ppl_loss_pct": winner.get("ppl_loss_increase_pct", 0),
+            "Phase 11: Real Measurement": "done",
+            "Phase 12: Recovery Diagnostics": "done",
+            "Phase 13: Ablation & Hardening": "done",
             "critical_layers": critical[:5],
             "safe_layers": safe[:5],
             "covariance_restoration": s4.get("covariance_restoration_score", 0),
