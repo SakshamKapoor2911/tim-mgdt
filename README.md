@@ -13,10 +13,10 @@ We introduce **Incision Boundary Healing**, a targeted LoRA routing strategy tha
 
 ```mermaid
 graph TD
-    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
-    classDef dropped fill:#ffcccc,stroke:#cc0000,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef healed fill:#ccffcc,stroke:#009900,stroke-width:3px;
-    classDef normal fill:#f0f0f0,stroke:#666,stroke-width:1px;
+    classDef default fill:#2D3748,stroke:#A0AEC0,stroke-width:2px,color:#FFFFFF;
+    classDef dropped fill:#742A2A,stroke:#FC8181,stroke-width:2px,stroke-dasharray: 5 5,color:#FED7D7;
+    classDef healed fill:#22543D,stroke:#68D391,stroke-width:3px,color:#C6F6D5;
+    classDef normal fill:#4A5568,stroke:#CBD5E0,stroke-width:1px,color:#E2E8F0;
 
     L6[Layer 6: Normal]:::normal --> L7
     L7[Layer 7: Boundary Healed + LoRA]:::healed --> L8
