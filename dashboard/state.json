@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T18:46:17.145734+00:00Z",
+  "generated_at": "2026-06-19T18:54:11.431091+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
   "current_phase": "Phase 15",
