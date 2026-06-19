@@ -130,7 +130,7 @@ While the 8-layer drop exhibits a mathematically staggering recovery—reducing 
 
 \subsection{Mechanistic Analysis: Attention to the Sink Token}
 
-To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token across all layers. It is well established in literature that LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted. 
+To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token across all layers. It is well established that LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted \citep{xiao2023efficient}. 
 
 As shown in Figure \ref{fig:attention_heatmap}, the baseline model (blue) maintains a low, stable allocation of attention mass to the sink token across its middle layers. However, when layers 14--17 are incised, the post-drop model (red) exhibits a massive, immediate spike in sink attention exactly at the right boundary layer (Layer 18). This mathematically confirms that the structural discontinuity is severely corrupting the incoming residual stream for the adjacent layer. The model "notices" the incision, causing boundary layers to dump their attention mass into the sink. This provides the causal justification for restricting LoRA capacity exclusively to these boundary layers.
 
