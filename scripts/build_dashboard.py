@@ -159,6 +159,8 @@ LINKS = [
 ]
 
 LITERATURE = [
+    ("All Circuits Lead to Rome", "Chen et al., 2026", "Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: This theoretical redundancy explains the physical 'elasticity' we exploit; we systematically prune these redundant pathways and use activation healing to force the model onto the remaining circuits."),
+    ("The Lottery Ticket Hypothesis", "Frankle & Carbin, 2019", "Dense networks contain sparse subnetworks that can match original accuracy if trained from scratch. <b>Our diff</b>: We find winning tickets <i>post-pretraining</i> in massive LLMs using gradient dynamics, entirely avoiding the retraining phase."),
     ("SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians."),
     ("Wanda", "Sun et al., 2023", "Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets."),
     ("SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing."),
