@@ -347,7 +347,10 @@ def _phase15_html(phase15_results):
     html += """
     <div class="card" style="margin-bottom: 24px; padding: 18px;">
       <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
-        To achieve true hardware compression, we drop the contiguous 4-layer block with the lowest causal sensitivity, reducing depth by 12.5% and yielding a <b>~15.5% reduction in inference latency</b>. We then compare standard (Global Sensitivity-based) healing with our localized <b>Boundary-Focused Surgical LoRA</b>.
+        Unlike parameter masking (which leaves memory fragmentation), <b>Layer Dropping</b> completely removes a contiguous block of layers, achieving <b>true hardware compression</b>. We identify the 4-layer block with the lowest causal sensitivity and drop it, reducing depth by 12.5% and yielding a guaranteed <b>~15.5% reduction in inference latency</b>.
+      </p>
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        <b>The Healing Insight:</b> Dropping contiguous layers creates a sharp, localized discontinuity in the activation flow. We demonstrate that our <b>Boundary-Focused Surgical LoRA</b> (which targets only the layers immediately adjacent to the "incision") dramatically outperforms standard global healing methods, recovering perplexity while retaining the full speedup.
       </p>
       <table class="task-table" style="width:100%;">
         <thead>
@@ -447,8 +450,10 @@ def _metrics_html(metrics, model_name="GPT-2"):
         return f"-{100*(1 - opt/base):.1f}%"
 
     return f"""
-<div class="section-label">Performance vs Efficiency — Phase 11 ({model_name})</div>
-<div class="g2">
+<div class="section-label">Legacy Results — Phase 11 ({model_name})</div>
+<details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;">
+<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 11 (GPT-2) Legacy Proof of Concept Metrics</summary>
+<div class="g2" style="margin-top: 16px;">
 <div class="result-card primary">
   <div class="rc-head"><h3>Deployment Metrics</h3>
   <div class="rc-meta">{model_name} · Real GPU measurement</div></div>
@@ -479,7 +484,7 @@ def _metrics_html(metrics, model_name="GPT-2"):
     <b>Safe to prune:</b> {', '.join(metrics['safe_layers'][:5])}
   </div>
 </div>
-</div>"""
+</details>"""
 
 
 def _tasks_html():
