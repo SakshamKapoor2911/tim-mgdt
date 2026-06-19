@@ -171,7 +171,7 @@ def build_state_json(experiments, metrics):
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z",
         "project": "TIM-MGDT",
         "tagline": TAGLINE,
-        "current_phase": "Phase 14",
+        "current_phase": "Phase 15",
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
@@ -666,9 +666,9 @@ def build_html(experiments, metrics):
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#results">Phase 11 Results</a>
-    <a href="#phase14">Phase 14 Results</a>
     <a href="#phase15">Phase 15 Results</a>
+    <a href="#phase14">Phase 14 Results</a>
+    <a href="#results">Legacy (Phase 11)</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -688,7 +688,7 @@ def build_html(experiments, metrics):
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">{TAGLINE}</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 14 complete</span>
+      <span class="chip chip-green">Phase 15 complete</span>
       <span class="chip chip-blue">{done_count}/{len(RUNS)} runs done</span>
       <span class="chip chip-yellow">{total} experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
@@ -703,13 +703,13 @@ def build_html(experiments, metrics):
   </div>
   <div style="margin-top:16px">{_research_callout()}</div>
 
-  <div id="results">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
-  <div style="margin-top: 32px;">
-    {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
-  </div>
   <div style="margin-top: 32px;">
     {_phase15_html(experiments.get("phase15_results", {}))}
   </div>
+  <div style="margin-top: 32px;">
+    {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
+  </div>
+  <div id="results" style="margin-top: 32px;">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>
   <div id="tasks">{_tasks_html()}</div>

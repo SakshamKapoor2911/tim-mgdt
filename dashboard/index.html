@@ -100,9 +100,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#results">Phase 11 Results</a>
-    <a href="#phase14">Phase 14 Results</a>
     <a href="#phase15">Phase 15 Results</a>
+    <a href="#phase14">Phase 14 Results</a>
+    <a href="#results">Legacy (Phase 11)</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -110,7 +110,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 13:57 UTC</span>
+    <span class="nav-meta">2026-06-19 14:02 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -122,7 +122,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers — validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 14 complete</span>
+      <span class="chip chip-green">Phase 15 complete</span>
       <span class="chip chip-blue">8/8 runs done</span>
       <span class="chip chip-yellow">42 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
@@ -140,40 +140,51 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   </div>
   <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>exhaustive causal sensitivity metrics</b> (ΔCE) reliably <b>identify and exploit</b> layer-level elasticity to achieve lossless (< 5% PPL) structured compression at <b>50%+ parameter reduction</b> without retraining?</p></div></div>
 
-  <div id="results">
-<div class="section-label">Performance vs Efficiency — Phase 11 (GPT2)</div>
-<div class="g2">
-<div class="result-card primary">
-  <div class="rc-head"><h3>Deployment Metrics</h3>
-  <div class="rc-meta">GPT2 · Real GPU measurement</div></div>
-  <table class="cond-table">
-    <tr><td>Parameters</td><td class="val">7.34B → 3.67B</td></tr>
-    <tr><td>Latency</td><td class="val">42.0ms → 23.5ms</td></tr>
-    <tr><td>Memory</td><td class="val">14.80GB → 8.14GB</td></tr>
-    <tr class="winner"><td>Perplexity Recovery</td><td class="val">99.8%</td></tr>
-  </table>
-  <div class="metric-row">
-    <div class="metric-cell"><span class="metric-label">Param Reduction</span>
-    <span class="metric-value good">-50.0%</span></div>
-    <div class="metric-cell"><span class="metric-label">Latency Reduction</span>
-    <span class="metric-value good">-44.0%</span></div>
+  <div style="margin-top: 32px;">
+    <div class="section-label" id="phase15">Phase 15 Oracle-Guided Layer Dropping & Boundary Healing</div>
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To achieve true hardware compression, we drop the contiguous 4-layer block with the lowest causal sensitivity, reducing depth by 12.5% and yielding a <b>~15.5% reduction in inference latency</b>. We then compare standard (Global Sensitivity-based) healing with our localized <b>Boundary-Focused Surgical LoRA</b>.
+      </p>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Model</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Global) PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    
+        <tr>
+          <td class="task-who">Mistral 7B (MHA)</td>
+          <td style="text-align:center;"><code>[11, 12, 13, 14]</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-15.62% (33.7ms → 28.4ms)</td>
+          <td style="text-align:center;">7.855</td>
+          <td style="text-align:center; color:var(--red);">9.930</td>
+          <td style="text-align:center;">9.730</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">9.223</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Llama 3 8B (GQA)</td>
+          <td style="text-align:center;"><code>[8, 9, 10, 11]</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-13.43% (32.5ms → 28.1ms)</td>
+          <td style="text-align:center;">8.990</td>
+          <td style="text-align:center; color:var(--red);">14.953</td>
+          <td style="text-align:center;">13.697</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">12.463</td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+    
   </div>
-</div>
-<div class="result-card">
-  <div class="rc-head"><h3>IMP Winning Ticket</h3>
-  <div class="rc-meta">Iterative Magnitude Pruning · Stage 2</div></div>
-  <table class="cond-table">
-    <tr class="winner"><td>Best Sparsity</td><td class="val">50%</td></tr>
-    <tr><td>PPL Loss</td><td class="val">+0.71%</td></tr>
-    <tr><td>Layers Healed</td><td class="val">16</td></tr>
-    <tr><td>Covariance Restoration</td><td class="val">0.994</td></tr>
-  </table>
-  <div class="rc-note">
-    <b>Critical layers:</b> layer_16, layer_15, layer_17, layer_14, layer_18<br>
-    <b>Safe to prune:</b> layer_28, layer_3, layer_2, layer_1, layer_0
-  </div>
-</div>
-</div></div>
   <div style="margin-top: 32px;">
     <div class="section-label" id="phase14">Phase 14 Surgical Recovery Results</div>
         <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
@@ -309,51 +320,40 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         </div>
         
   </div>
-  <div style="margin-top: 32px;">
-    <div class="section-label" id="phase15">Phase 15 Oracle-Guided Layer Dropping & Boundary Healing</div>
-    <div class="card" style="margin-bottom: 24px; padding: 18px;">
-      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
-        To achieve true hardware compression, we drop the contiguous 4-layer block with the lowest causal sensitivity, reducing depth by 12.5% and yielding a <b>~15.5% reduction in inference latency</b>. We then compare standard (Global Sensitivity-based) healing with our localized <b>Boundary-Focused Surgical LoRA</b>.
-      </p>
-      <table class="task-table" style="width:100%;">
-        <thead>
-          <tr>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Model</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline C4 PPL</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped C4 PPL</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Global) PPL</th>
-            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
-          </tr>
-        </thead>
-        <tbody>
-    
-        <tr>
-          <td class="task-who">Mistral 7B (MHA)</td>
-          <td style="text-align:center;"><code>[11, 12, 13, 14]</code></td>
-          <td style="text-align:center; color:var(--green); font-weight:600;">-15.62% (33.7ms → 28.4ms)</td>
-          <td style="text-align:center;">7.855</td>
-          <td style="text-align:center; color:var(--red);">9.930</td>
-          <td style="text-align:center;">9.730</td>
-          <td style="text-align:center; font-weight:600; color:var(--blue);">9.223</td>
-        </tr>
-        
-        <tr>
-          <td class="task-who">Llama 3 8B (GQA)</td>
-          <td style="text-align:center;"><code>[8, 9, 10, 11]</code></td>
-          <td style="text-align:center; color:var(--green); font-weight:600;">-13.43% (32.5ms → 28.1ms)</td>
-          <td style="text-align:center;">8.990</td>
-          <td style="text-align:center; color:var(--red);">14.953</td>
-          <td style="text-align:center;">13.697</td>
-          <td style="text-align:center; font-weight:600; color:var(--blue);">12.463</td>
-        </tr>
-        
-        </tbody>
-      </table>
-    </div>
-    
+  <div id="results" style="margin-top: 32px;">
+<div class="section-label">Performance vs Efficiency — Phase 11 (GPT2)</div>
+<div class="g2">
+<div class="result-card primary">
+  <div class="rc-head"><h3>Deployment Metrics</h3>
+  <div class="rc-meta">GPT2 · Real GPU measurement</div></div>
+  <table class="cond-table">
+    <tr><td>Parameters</td><td class="val">7.34B → 3.67B</td></tr>
+    <tr><td>Latency</td><td class="val">42.0ms → 23.5ms</td></tr>
+    <tr><td>Memory</td><td class="val">14.80GB → 8.14GB</td></tr>
+    <tr class="winner"><td>Perplexity Recovery</td><td class="val">99.8%</td></tr>
+  </table>
+  <div class="metric-row">
+    <div class="metric-cell"><span class="metric-label">Param Reduction</span>
+    <span class="metric-value good">-50.0%</span></div>
+    <div class="metric-cell"><span class="metric-label">Latency Reduction</span>
+    <span class="metric-value good">-44.0%</span></div>
   </div>
+</div>
+<div class="result-card">
+  <div class="rc-head"><h3>IMP Winning Ticket</h3>
+  <div class="rc-meta">Iterative Magnitude Pruning · Stage 2</div></div>
+  <table class="cond-table">
+    <tr class="winner"><td>Best Sparsity</td><td class="val">50%</td></tr>
+    <tr><td>PPL Loss</td><td class="val">+0.71%</td></tr>
+    <tr><td>Layers Healed</td><td class="val">16</td></tr>
+    <tr><td>Covariance Restoration</td><td class="val">0.994</td></tr>
+  </table>
+  <div class="rc-note">
+    <b>Critical layers:</b> layer_16, layer_15, layer_17, layer_14, layer_18<br>
+    <b>Safe to prune:</b> layer_28, layer_3, layer_2, layer_1, layer_0
+  </div>
+</div>
+</div></div>
   
 <div class="section-label">Experiment runs</div>
 <div class="card" style="padding:0;overflow:hidden">
