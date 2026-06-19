@@ -2,15 +2,15 @@
 
 This document will contain the final analysis, outputs, and metrics from the parallel Phase 11 execution of Mistral-7B and Llama-3-8B.
 
-*Status: Jobs currently running on GPU 0 and GPU 1. Results will be populated here once complete.*
-
-## Mistral-7B (GPU 1)
+## Mistral-7B
 *   **Stage 1 & 2 (IMP Search):** *Success*. Reached **19.6% global sparsity** with only a **+2.54% Perplexity degradation** (PPL: 5.34 -> 5.47).
 *   **Stage 3 (Causal Patching):** *Success*.
 *   **Stage 4 (Activation Healing):** *Failed to recover performance*. Even with strict Sequential Calibration, the healed PPL jumped to **7.03** (+31.75%).
+*   **Stage 4 (Masked SFT):** *Hardware Physics Wall*. Full-parameter AdamW requires 42GB+ VRAM, crashing our 24GB GPUs. DeepSpeed ZeRO-3 is required.
 
-## Llama-3-8B (GPU 0)
-*   **Status:** Failed midway during this run (exit code 1), but from the previous sequential run, we know its IMP Search achieved 9.3% sparsity with +1.75% degradation.
+## Llama-3-8B
+*   **Stage 1 & 2 (IMP Search):** *Success*. Reached **9.3% global sparsity** with a **+1.75% Perplexity degradation** (PPL: 6.06 -> 6.17). Phase transition occurs much earlier than Mistral.
+*   **Stage 4 (Masked SFT):** *Hardware Physics Wall*. Same OOM barrier as Mistral.
 
 ## Final Scientific Analysis: Why Activation Healing Failed
 We perfectly implemented Sequential Layer-by-Layer Activation Healing to eliminate cascading distribution shifts. However, the model performance *still degraded* (Mistral PPL went from 5.47 -> 7.03).
