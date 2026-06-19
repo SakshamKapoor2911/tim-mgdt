@@ -111,7 +111,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 15:53 UTC</span>
+    <span class="nav-meta">2026-06-19 16:09 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -190,8 +190,17 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="section-label" id="pareto">Phase 16B: The Latency-Perplexity Pareto Frontier</div>
     <div class="card" style="margin-bottom: 24px; padding: 18px;">
       <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
-        To build a defensible submission for COLM, we swept across multiple compression ratios (n_drop = 2, 4, 6, 8) on Mistral-7B. This establishes the Pareto frontier of true hardware latency reduction vs perplexity recovery using our Incision Boundary Healing. Note the massive recovery at 8 drops: boundary healing brings perplexity down from a completely broken 20.82 back to an operational 11.52.
+        To build a defensible submission for COLM, we swept across multiple compression ratios (n_drop = 2, 4, 6, 8) on Mistral-7B. This establishes the Pareto frontier of true hardware latency reduction vs perplexity recovery using our Incision Boundary Healing. Note the massive relative recovery at 8 drops: boundary healing brings perplexity down from a completely broken 20.82 back to 11.52.
       </p>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--primary); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">The Pareto "Knee" Caveat</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          While recovering 9 points of perplexity is an incredible relative win, an absolute perplexity of 11.517 means the 8-layer compressed model is still heavily degraded compared to the 7.855 baseline and will likely fail complex reasoning tasks. We formally designate the <b>4-layer drop (-15.62% latency at 9.073 PPL)</b> as the optimal operating point (the "knee" of the curve)—the most actionable intersection of physical compression and retained capability.
+        </p>
+      </div>
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="figures/pareto_frontier.png" alt="Latency-Perplexity Pareto Frontier" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
       <table class="task-table" style="width:100%;">
         <thead>
           <tr>

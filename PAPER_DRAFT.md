@@ -69,6 +69,18 @@ We dropped a block of 4 contiguous layers (representing a **12.5% physical depth
 | **Mistral-7B** | 7.855 | 9.930 | 9.730 | **9.073** | **-15.18%** (33.1ms → 28.1ms) |
 | **Llama-3-8B** | 8.990 | 14.953 | 13.697 | **11.976** | **-15.84%** (32.6ms → 27.4ms) |
 
+#### The Latency-Perplexity Pareto Frontier and the Operational "Knee"
+To fully establish the boundaries of Incision Boundary Healing, we swept the contiguous drop size across Mistral-7B (n_drop = 2, 4, 6, 8) and healed the boundaries.
+
+| Layers Dropped | Latency Reduction | Baseline PPL | Dropped PPL | Healed (Boundary) PPL |
+|:--------------:|:-----------------:|:------------:|:-----------:|:---------------------:|
+| 2 (2/32) | -10.36% | 7.855 | 8.733 | **8.378** |
+| 4 (4/32) | -15.62% | 7.855 | 9.930 | **9.073** |
+| 6 (6/32) | -19.79% | 7.855 | 12.734 | **10.866** |
+| 8 (8/32) | -24.57% | 7.855 | 20.822 | **11.517** |
+
+While the 8-layer drop exhibits a mathematically staggering recovery—reducing a broken 20.82 PPL down to 11.52—the absolute perplexity at this compression level significantly degrades complex reasoning. We formally designate the **4-layer drop (-15.62% latency, 9.07 PPL)** as the "knee" of the Pareto frontier. This represents the optimal operational baseline, balancing meaningful physical compression with highly retained language modeling capabilities.
+
 #### Incision Boundary Localized Recovery Efficacy
 The boundary-focused surgical healing configuration consistently outperformed the globally targeted configuration on both architectures. For Mistral-7B, boundary-focused healing recovered **`0.857` PPL** (over 4x the `0.200` PPL of the global configuration). For Llama-3-8B, it recovered **`2.977` PPL** (more than double the `1.257` PPL of the global configuration).
 

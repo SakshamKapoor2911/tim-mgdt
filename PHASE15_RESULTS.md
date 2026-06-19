@@ -42,7 +42,22 @@ Our first experiment targets the **top 6 globally most sensitive layers** of the
 
 ---
 
-## 3. Algorithmic Pivot: Boundary-Focused Surgical LoRA
+## 3. The Latency-Perplexity Pareto Frontier and the Operational "Knee"
+
+To fully establish the boundaries of Incision Boundary Healing, we swept the contiguous drop size across Mistral-7B (n_drop = 2, 4, 6, 8) and healed the boundaries.
+
+| Layers Dropped | Latency Reduction | Baseline PPL | Dropped PPL | Healed (Boundary) PPL |
+|:--------------:|:-----------------:|:------------:|:-----------:|:---------------------:|
+| 2 (2/32) | -10.36% | 7.855 | 8.733 | **8.378** |
+| 4 (4/32) | -15.62% | 7.855 | 9.930 | **9.073** |
+| 6 (6/32) | -19.79% | 7.855 | 12.734 | **10.866** |
+| 8 (8/32) | -24.57% | 7.855 | 20.822 | **11.517** |
+
+While the 8-layer drop exhibits a mathematically staggering recovery—reducing a broken 20.82 PPL down to 11.52—the absolute perplexity at this compression level significantly degrades complex reasoning. We formally designate the **4-layer drop (-15.62% latency, 9.07 PPL)** as the "knee" of the Pareto frontier. This represents the optimal operational baseline, balancing meaningful physical compression with highly retained language modeling capabilities.
+
+---
+
+## 4. Algorithmic Pivot: Boundary-Focused Surgical LoRA
 By updating the healing configurations to target the **incision boundary layers** directly surrounding the drop site:
 * For Mistral (drop 11-14): Target original layers `[9, 10, 15, 16]`.
 * For Llama-3 (drop 8-11): Target original layers `[6, 7, 12, 13]`.
