@@ -48,7 +48,7 @@ Standard low-rank adaptation is typically applied uniformly across all attention
 | Model | Baseline (Dense) C4 PPL | Pruned (20%) C4 PPL | Uniform LoRA (All Layers) | Ends-Only Heuristic | Surgical LoRA (Oracle-Guided) |
 |-------|--------------------------|----------------------|---------------------------|---------------------|-------------------------------|
 | **Mistral-7B** | 7.994 | 8.156 | 11.577 (+44.82%) | 11.203 (+40.13%) | **11.379 (+42.33%)** |
-| **Llama-3-8B** | 9.440 | 225.887 | *Pending...* | *Pending...* | *Pending...* |
+| **Llama-3-8B** | 9.440 | 10.578 | 11.969 (+26.80%) | 11.532 (+22.17%) | **11.130 (+17.91%)** |
 
 #### The "Dense Noise Pollution" Phenomenon
 As demonstrated in the Mistral-7B results, applying LoRA uniformly across all 32 layers causes a catastrophic perplexity explosion post-recovery (jumping to `11.577`, a +44.8% degradation from baseline). This confirms that Low-Rank Adaptation is not a benign intervention. Forcing optimizer gradients to fit random adapters on highly robust, undamaged interior layers (Layers 3–28) actively injects representation noise, destroying the model's intact geometric manifold. Restricting PEFT parameters strictly to the sensitive layers mitigates this noise pollution while using 80% fewer trainable parameters.

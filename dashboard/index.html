@@ -109,7 +109,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-19 09:52 UTC</span>
+    <span class="nav-meta">2026-06-19 10:24 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -123,7 +123,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="hero-chips">
       <span class="chip chip-green">Phase 11 complete</span>
       <span class="chip chip-blue">7/8 runs done</span>
-      <span class="chip chip-yellow">34 experiment files</span>
+      <span class="chip chip-yellow">35 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -273,9 +273,36 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td class="task-action">—</td>
         </tr>
         
-              <tr><td class="task-who">Uniform Random (All Layers)</td><td><code>All 32 Layers</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
-              <tr><td class="task-who">Ends-Only Heuristic</td><td><code>[0, 1, 2, 29, 30, 31]</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
-              <tr><td class="task-who">Surgical Random (ΔCE)</td><td><code>[0, 1, 2, 3, 30, 31]</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>
+              
+            <tr>
+              <td class="task-who">Uniform Random (All Layers)</td>
+              <td><code>All 32 Layers</code></td>
+              <td class="task-action">10.578</td>
+              <td class="task-action"><b>11.969</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+26.80%</span></td>
+              <td class="task-action">13.2 min</td>
+            </tr>
+            
+              
+            <tr>
+              <td class="task-who">Ends-Only Heuristic</td>
+              <td><code>[0, 1, 2, 29, 30, 31]</code></td>
+              <td class="task-action">10.578</td>
+              <td class="task-action"><b>11.532</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+22.17%</span></td>
+              <td class="task-action">11.4 min</td>
+            </tr>
+            
+              
+            <tr>
+              <td class="task-who">Surgical Random (ΔCE)</td>
+              <td><code>[0, 1, 2, 3, 30, 31]</code></td>
+              <td class="task-action">10.578</td>
+              <td class="task-action"><b>11.130</b></td>
+              <td class="task-action"><span style='color:var(--red); font-weight:600;'>+17.91%</span></td>
+              <td class="task-action">11.4 min</td>
+            </tr>
+            
             </tbody>
           </table>
         </div>
