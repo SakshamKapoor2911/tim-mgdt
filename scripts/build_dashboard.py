@@ -98,17 +98,17 @@ TASKS = [
      "runners/run_llama_phase11.sh on remote 3090, (2) launch "
      "runners/run_mistral_phase11.sh, (3) analyze causal patching curves "
      "and activation healing recovery on 7B models."),
-    ("Edward", "Analysis & paper", "active",
+    ("Saksham", "Analysis & paper", "active",
      "Phase 11 GPT-2 results analyzed. NEXT: (1) interpret 7B causal patching "
      "bell curves, (2) write up Conv1D vs nn.Linear healing discovery, "
      "(3) compare IMP winning ticket sparsities across model scales."),
-    ("Team", "Dashboard & infrastructure", "done",
+    ("Saksham", "Dashboard & infrastructure", "done",
      "Automated dashboard deployed via GitHub Pages + GitHub Actions. "
      "state.json exposed for agent/MCP consumption."),
 ]
 
 HOW_WE_WORK = [
-    ("Cadence", "Weekly syncs · ~10 hrs/week each · async between meetings"),
+    ("Cadence", "Solo project · ~10+ hrs/week · structured sprints"),
     ("Compute", "Two-phase: <b>Apple Silicon</b> (M-series, quick) → "
      "<b>2×3090 (48 GB VRAM)</b> via SSH for 7B models"),
     ("Code", "<b>GitHub only</b> — single repo "
@@ -141,14 +141,14 @@ MILESTONES = [
 ]
 
 PATH_TO_PAPER = [
-    ("done", "Team", "Phases 2-6 complete; elasticity discovery validated on GPT-2."),
+    ("done", "Saksham", "Phases 2-6 complete; elasticity discovery validated on GPT-2."),
     ("done", "Saksham", "Phase 11 GPT-2 real pruning — all 4 stages verified on GPU."),
-    ("done", "Edward", "Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions."),
+    ("done", "Saksham", "Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions."),
     ("now", "Saksham", "Launch 7B runs: runners/run_llama_phase11.sh and runners/run_mistral_phase11.sh on remote 3090."),
-    ("now", "Edward", "Design 7B analysis framework — causal patching curves, healing recovery rates."),
+    ("now", "Saksham", "Design 7B analysis framework — causal patching curves, healing recovery rates."),
     ("next", "Saksham", "InAttention integration with winning-ticket masks for real latency benchmarks."),
-    ("next", "Edward", "Phase 7 alternative corpora evaluation; begin paper draft."),
-    ("then", "Team", "Submit — workshop or conference. Quality over timeline."),
+    ("next", "Saksham", "Phase 7 alternative corpora evaluation; begin paper draft."),
+    ("then", "Saksham", "Submit — workshop or conference. Quality over timeline."),
 ]
 
 LINKS = [
