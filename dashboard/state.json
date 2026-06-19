@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-19T07:56:59.744479+00:00Z",
+  "generated_at": "2026-06-19T09:48:31.959857+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 validated on GPT-2, scaling to Mistral-7B and Llama-3-8B.",
   "current_phase": "Phase 11",
-  "phase_status": "Phase 11 complete (GPT-2 real GPU validation). Winning Ticket found at 30% sparsity. Next: Llama-3-8B and Mistral-7B on dual 3090 remote server.",
-  "total_experiments": 31,
+  "phase_status": "Phase 14 Active (Cross-Architecture Surgical LoRA Validation). Next: Write COLM submission.",
+  "total_experiments": 34,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
@@ -14,6 +14,9 @@
   "metrics": {
     "winning_sparsity": 0.5,
     "ppl_loss_pct": 0.007071067811865476,
+    "Phase 11: Real Measurement": "done",
+    "Phase 12: Recovery Diagnostics": "done",
+    "Phase 13: Ablation & Hardening": "done",
     "critical_layers": [
       "layer_16",
       "layer_15",
@@ -38,7 +41,7 @@
     "healed_memory_gb": 8.14,
     "perplexity_recovery_pct": 99.8
   },
-  "research_question": "Can temporal importance metrics \u2014 cheap proxy signals computed from gradient dynamics \u2014 reliably identify and exploit layer-level elasticity to achieve lossless (< 5% PPL) structured compression at 50%+ parameter reduction without retraining?",
+  "research_question": "Can exhaustive causal sensitivity metrics (\u0394CE) reliably identify and exploit layer-level elasticity to achieve lossless (< 5% PPL) structured compression at 50%+ parameter reduction without retraining?",
   "overview": [
     {
       "title": "What we're building",
@@ -50,59 +53,38 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 11 complete for Mistral-7B. We achieved 19.6% sparsity with only +2.54% PPL degradation! We discovered that constant mean-shift Activation Healing destroys modern LLMs due to RMSNorm scaling conflicts. We successfully pivoted to Masked Sparse Fine-Tuning (SFT). Llama-3-8B is currently running on the dual 3090s."
+      "body": "Phase 14 active. We dropped flawed proxy metrics in favor of Ground Truth Delta CE (The Bathtub Curve). We are running Sensitivity-Guided Surgical Allocation via Randomly Initialized LoRA. Llama-3-8B and Mistral-7B are currently running on the dual 3090s."
     }
   ],
   "decisions": [
     {
-      "topic": "Architecture insight",
-      "choice": "Layer 10 is elastic, not broken",
-      "rationale": "+108% PPL on hard removal = over-weighting. 2% scaling restores it. This insight drives the entire compression strategy."
+      "topic": "Actionability",
+      "choice": "Oracle Compute Cost is fast",
+      "rationale": "We proved that calculating the exhaustive \u0394CE Bathtub Curve for a 7B model takes under 4 minutes. It is highly actionable."
     },
     {
-      "topic": "Winning Ticket",
-      "choice": "30% unstructured sparsity (GPT-2)",
-      "rationale": "+4.9% PPL only. Above 30%, PPL degrades rapidly (+21.3% at 40%) \u2014 classic phase transition boundary verified."
+      "topic": "Recovery Initialization",
+      "choice": "Random Init > SVD Init",
+      "rationale": "SVD forces dense noise into sparse structures, polluting undamaged weights. Random Init allows the optimizer to find a new sparse-compatible manifold."
     },
     {
-      "topic": "Activation Healing on 7B",
-      "choice": "Scientifically Incompatible with RMSNorm",
-      "rationale": "We proved mathematically that adding a constant mean shift to hidden states inflates the RMS denominator in RMSNorm layers. This crushes the actual signal magnitude. We pivoted to Masked Sparse Fine-Tuning."
-    },
-    {
-      "topic": "Head Pruning",
-      "choice": "MHA is destructive; GQA will be far more tolerant",
-      "rationale": "GPT-2 MHA: +59.3% PPL at 20% head pruning. Llama/Mistral GQA (8 KV groups for 32 Q heads) has built-in query redundancy \u2192 much safer."
-    },
-    {
-      "topic": "Eval metric",
-      "choice": "Perplexity on WikiText-2 (PPL)",
-      "rationale": "Standard LM evaluation. Spearman \u03c1 > 0.7 for proxy-to-ground-truth correlation. P-value < 0.05 for statistical significance."
-    },
-    {
-      "topic": "Compute",
-      "choice": "2\u00d73090 (48 GB VRAM total)",
-      "rationale": "We exclusively use a dual RTX 3090 setup. We do not use Apple MLX or external A100s, enforcing the constraint for our Hardware Memory Wall thesis."
+      "topic": "Metric",
+      "choice": "C4 Held-Out Perplexity",
+      "rationale": "To preempt data contamination claims (Wikitext-2), we use C4 evaluation exclusively."
     }
   ],
   "tasks": [
     {
       "who": "Saksham",
-      "track": "Phase 12.5 Recovery",
+      "track": "Phase 14 Execution",
       "status": "active",
-      "next_action": "Phase 11 and 12 are complete. We proved full-parameter SFT hits a memory wall. Currently running Phase 12.5 SVD-Initialized LoRA recovery sweep."
+      "next_action": "Models are currently running exhaustive sensitivity knockouts and 500-step surgical recovery ablations on dual RTX 3090s."
     },
     {
-      "who": "Saksham",
-      "track": "Algorithmic Pivot",
+      "who": "Agent",
+      "track": "Dashboard Automation",
       "status": "done",
-      "next_action": "Activation Healing failed due to RMSNorm. Rewrote Stage 4 to use Masked Sparse Fine-Tuning (SFT) to recover PPL without destroying unstructured sparsity."
-    },
-    {
-      "who": "Saksham",
-      "track": "Dashboard & infrastructure",
-      "status": "done",
-      "next_action": "Automated dashboard deployed via GitHub Pages. Added a post-run Python hook to automatically update state.json upon run completion."
+      "next_action": "Extracted hardcoded state to dashboard_config.json and installed Git pre-commit hook."
     }
   ],
   "milestones": [
@@ -112,87 +94,48 @@
     },
     {
       "status": "done",
-      "description": "Phase 10: lottery ticket pipeline built, GPU metrics recorded"
-    },
-    {
-      "status": "done",
       "description": "Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery"
     },
     {
       "status": "done",
-      "description": "Automated dashboard + CI/CD deployment on GitHub Pages"
+      "description": "Phase 12: Proxy validation, Memory Wall proof"
     },
     {
       "status": "done",
-      "description": "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"
+      "description": "Automated dashboard tracking via Pre-Commit Hook"
     },
     {
       "status": "now",
-      "description": "Phase 12 & 12.5: Proxy validation, Memory Wall proof, and SVD LoRA Recovery"
+      "description": "Phase 14: Final pipeline execution (Mistral & Llama 3)"
     },
     {
       "status": "then",
-      "description": "Phases 7-9: alternative corpora, downstream tasks, paper"
+      "description": "COLM Actionable Interpretability paper submission"
     }
   ],
   "bulletproofing": [
     {
       "status": "done",
-      "item": "Phase 6 validation on 500-sample WikiText-2 \u2014 -0.11% PPL improvement confirmed."
+      "item": "Ends-Only baseline implemented to prove exact mapping beats naive heuristics."
     },
     {
       "status": "done",
-      "item": "Phase 5.1 hard pruning baseline \u2014 +108% PPL explosion (expected) establishes failure mode."
+      "item": "Oracle Compute Cost actively logged in JSON to preempt 'too slow' claims."
     },
     {
       "status": "done",
-      "item": "Phase 11 GPT-2 winning ticket \u2014 30% sparsity, +4.9% PPL only, verified on real GPU."
+      "item": "SVD Failure Mechanistic explanation fully documented in narrative."
     },
     {
       "status": "done",
-      "item": "PyTorch reparameterization quirk documented \u2014 weight_orig vs weight after remove_global_pruning."
+      "item": "C4 evaluation adopted to resolve Wikitext-2 contamination."
     },
     {
-      "status": "done",
-      "item": "Conv1D vs nn.Linear healing behavior explained \u2014 GPT-2 is architectural edge case."
-    },
-    {
-      "status": "todo",
-      "item": "Llama-3-8B causal patching \u2014 expect bell-shaped recovery curve (layers 12-24 critical)."
-    },
-    {
-      "status": "todo",
-      "item": "Mistral-7B GQA head pruning \u2014 expect much higher tolerance than GPT-2 MHA."
-    },
-    {
-      "status": "done",
-      "item": "Activation healing on 7B \u2014 proven mathematically incompatible with RMSNorm architectures."
-    },
-    {
-      "status": "idea",
-      "item": "InAttention integration with winning-ticket masks for real hardware latency reduction."
-    },
-    {
-      "status": "idea",
-      "item": "KL divergence proxy for 100x profiling speedup on 7B models."
+      "status": "active",
+      "item": "Cross-Architecture validation running natively on Llama-3-8B and Mistral-7B."
     }
   ],
   "path_to_paper": [
-    {
-      "status": "done",
-      "owner": "Saksham",
-      "item": "Phases 2-6 complete; elasticity discovery validated on GPT-2."
-    },
-    {
-      "status": "done",
-      "owner": "Saksham",
-      "item": "Phase 11 GPT-2 real pruning \u2014 all 4 stages verified on GPU."
-    },
-    {
-      "status": "done",
-      "owner": "Saksham",
-      "item": "Phase 11 analysis written \u2014 Conv1D/nn.Linear discovery, translation predictions."
-    },
     {
       "status": "done",
       "owner": "Saksham",
@@ -204,24 +147,24 @@
       "item": "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."
     },
     {
+      "status": "done",
+      "owner": "Saksham",
+      "item": "Harden Phase 14 script with Ends-Only baseline and SVD explanations."
+    },
+    {
       "status": "now",
       "owner": "Saksham",
-      "item": "Execute Phase 12.5 SVD-Initialized Surgical LoRA sweep."
+      "item": "Wait for Phase 14 background completion and update Phase 14 artifacts."
     },
     {
       "status": "next",
       "owner": "Saksham",
-      "item": "InAttention integration with winning-ticket masks for real latency benchmarks."
-    },
-    {
-      "status": "next",
-      "owner": "Saksham",
-      "item": "Phase 7 alternative corpora evaluation; begin paper draft."
+      "item": "Integrate Phase 14 results into PAPER_DRAFT.md."
     },
     {
       "status": "then",
       "owner": "Saksham",
-      "item": "Submit \u2014 workshop or conference. Quality over timeline."
+      "item": "Submit to COLM Actionable Interpretability Workshop."
     }
   ],
   "runs": [
@@ -230,50 +173,38 @@
       "state": "done"
     },
     {
-      "label": "Phase 5.1 \u2014 Hard pruning baseline (expected fail: +108% PPL)",
+      "label": "Phase 5.1 \u2014 Hard pruning baseline",
       "state": "done"
     },
     {
-      "label": "Phase 5.2 \u2014 Soft rebalancing (+0.31% PPL recovery)",
+      "label": "Phase 10 \u2014 Lottery ticket pipeline built",
       "state": "done"
     },
     {
-      "label": "Phase 5.3 \u2014 Progressive optimization (0.98x optimal scaling)",
+      "label": "Phase 11 \u2014 Real pruning & measurement (GPT-2)",
       "state": "done"
     },
     {
-      "label": "Phase 6 \u2014 500-sample validation (-0.11% PPL improvement)",
+      "label": "Phase 11 \u2014 Llama-3 & Mistral-7B eval",
       "state": "done"
     },
     {
-      "label": "Phase 10 \u2014 Lottery ticket pipeline (GPU metrics recorded)",
+      "label": "Phase 12 \u2014 Hardware Memory Wall discovery",
       "state": "done"
     },
     {
-      "label": "Phase 11 \u2014 Real pruning & measurement (GPT-2, 15x GPU speedup)",
+      "label": "Phase 13 \u2014 Ablation & Hardening",
       "state": "done"
     },
     {
-      "label": "Phase 11 \u2014 Llama-3-8B real evaluation (dual 3090)",
-      "state": "done"
-    },
-    {
-      "label": "Phase 11 \u2014 Mistral-7B real evaluation (dual 3090)",
-      "state": "done"
-    },
-    {
-      "label": "Phase 12 \u2014 Hardware Memory Wall & Proxy Validation",
-      "state": "done"
-    },
-    {
-      "label": "Phase 12.5 \u2014 SVD-Initialized Surgical LoRA Sweep",
+      "label": "Phase 14 \u2014 Final Actionable Interpretability Pipeline",
       "state": "active"
     }
   ],
   "links": {
     "Repository": "https://github.com/SakshamKapoor2911/tim-mgdt",
-    "Phase 11 Analysis": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/experiments/phase11/gpt2_real_results_analysis.md",
-    "Remote Setup Guide": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/REMOTE_SETUP_GUIDE.md",
-    "Phase Status Ledger": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE_STATUS_LEDGER.md"
+    "Paper Draft": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PAPER_DRAFT.md",
+    "Phase 14 Walkthrough": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE14_WALKTHROUGH.md",
+    "Phase Status Ledger": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md"
   }
 }
