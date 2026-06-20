@@ -185,6 +185,12 @@ def main():
     
     model, old_to_new_map = drop_layers_with_mapping(model, drop_indices)
     
+    dropped_dir = os.path.join("checkpoints", f"{model_short}_dropped_unhealed")
+    print(f"Saving physical dropped base model to: {dropped_dir}")
+    os.makedirs(dropped_dir, exist_ok=True)
+    model.save_pretrained(dropped_dir)
+    tokenizer.save_pretrained(dropped_dir)
+    
     model.gradient_checkpointing_enable()
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
@@ -197,6 +203,13 @@ def main():
     start_time = time.time()
     losses, eval_ppls = train_lora_with_logging(model, tokenizer, device, args.train_samples, args.lr, args.warmup_ratio, args.eval_interval, args.eval_interval_samples)
     recovery_time = time.time() - start_time
+    
+    suffix = f"boundary_healed_t{args.boundary_thickness}" if args.healing_mode == "boundary" else "healed"
+    lora_dir = os.path.join("checkpoints", f"{model_short}_{suffix}_lora")
+    print(f"Saving physical LoRA adapters to: {lora_dir}")
+    os.makedirs(lora_dir, exist_ok=True)
+    model.save_pretrained(lora_dir)
+    tokenizer.save_pretrained(lora_dir)
     
     print("\nMeasuring HEALED C4 PPL...")
     model.eval()
