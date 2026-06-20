@@ -1,0 +1,14 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "n_drop": 2,
+  "drop_indices": [
+    11,
+    12
+  ],
+  "eval_samples": 128,
+  "baseline_latency_ms": 33.73563592322171,
+  "dropped_latency_ms": 30.2413230529055,
+  "latency_reduction_pct": 10.35792797346061,
+  "baseline_c4_ppl": 7.8549065589904785,
+  "dropped_c4_ppl": 8.732675552368164
+}

@@ -1,0 +1,20 @@
+{
+  "Mistral-7B-v0.1_sparsity20_samples256": {
+    "model": "mistralai/Mistral-7B-v0.1",
+    "sparsity": 0.2,
+    "eval_samples": 256,
+    "baseline_c4_ppl": 8.16569995880127,
+    "pruned_c4_ppl": 8.371788024902344,
+    "pruned_delta_abs": 0.20608806610107422,
+    "pruned_delta_pct": 2.5238260913437736
+  },
+  "Meta-Llama-3-8B_sparsity20_samples256": {
+    "model": "meta-llama/Meta-Llama-3-8B",
+    "sparsity": 0.2,
+    "eval_samples": 256,
+    "baseline_c4_ppl": 9.117055892944336,
+    "pruned_c4_ppl": 10.41347885131836,
+    "pruned_delta_abs": 1.2964229583740234,
+    "pruned_delta_pct": 14.219754420693215
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "model": "google/gemma-2-2b",
+  "n_drop": 4,
+  "drop_indices": [
+    8,
+    9,
+    10,
+    11
+  ],
+  "eval_samples": 128,
+  "baseline_latency_ms": 25.98010702058673,
+  "dropped_latency_ms": 21.757732960395515,
+  "latency_reduction_pct": 16.25233513028022,
+  "baseline_c4_ppl": 63.88937759399414,
+  "dropped_c4_ppl": 103.68074798583984
+}
