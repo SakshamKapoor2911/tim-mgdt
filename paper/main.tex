@@ -47,6 +47,16 @@ A fundamental challenge of structural width-pruning is maintaining the topologic
 
 To completely circumvent the topological nightmare of misaligned projection dimensions, we enforce a strict symmetric excision constraint: \textbf{GQA Group Saliency}. We calculate the average saliency of the 4 Query heads mapped to a single KV head and prune the entire block synchronously. We then dynamically update the `self\_attn.num\_heads` and `num\_key\_value\_heads` configurations, bypassing standard HuggingFace homogeneity assumptions and preventing tensor shape violations during the forward pass.
 
+\subsection{Residual Stream Impedance Matching}
+To heal the structural damage introduced by subnetwork width pruning without rewriting downstream baseline configurations, we target specifically the exit projection layers of the affected modules: the output projections of attention blocks (\texttt{o\_proj}) and the intermediate-to-hidden projections of MLP blocks (\texttt{down\_proj}). The transformer residual stream acts as an information highway where hidden states cascade sequentially. By restricting LoRA parameter updates exclusively to these exit projection layers, we treat the adaptation phase as a localized \textit{impedance matching} problem. Rather than retraining the model on reasoning tasks, the LoRA adapters learn to re-align the geometrically fractured sub-manifold distributions back into the expected residual stream distribution of the unpruned downstream layers, preventing representation errors from propagating.
+
+\subsection{Hardware-Constrained Optimization (Tile-Aligned Pruning)}
+Unconstrained FIM thresholding yields arbitrary, non-power-of-two matrix dimensions, introducing a significant execution bottleneck under cuBLAS and Triton. To resolve this, we formulate a hardware-constrained optimization problem by introducing a discrete alignment constraint:
+\begin{equation}
+d' = \mathcal{B} \cdot \text{round}\left( \frac{d_{\text{optimal}}}{\mathcal{B}} \right)
+\end{equation}
+where $\mathcal{B} \in \{16, 32, 64\}$ represents the hardware Tensor Core tile size. We ablate three rounding strategies: (1) \texttt{nearest} (L2 variance minimization), (2) \texttt{ceil} (feature conservatism, protecting boundary features), and (3) \texttt{floor} (parameter efficiency optimization, aggressively truncating marginal dimensions). This enables us to resolve the ``Death by 78 Cuts'' memory-thrashing bottleneck during runtime execution.
+
 \section{Experimental Results and Discussion}
 
 To validate the Actionable Interpretability pipeline and Surgical LoRA recovery, we execute a rigorous comparative ablation study on Mistral-7B (MHA) and Meta-Llama-3-8B (GQA) at 20\% unstructured magnitude pruning. 
