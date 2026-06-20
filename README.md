@@ -1,88 +1,67 @@
-# Incision Boundary Healing: Causal Sensitivity Oracles for Surgical LoRA Recovery of Pruned LLMs
+# The Perplexity Trap: Why Boundary Healing Fails Dense Reasoning, and the Case for Mechanistic Subnetwork Pruning
 
-**Status**: COLM 2026 Submission Ready ✓  
-**Evaluated Models**: Mistral-7B, Meta-Llama-3-8B, Gemma-2-2B
+**Status**: Under Development (Pivot Branch)  
+**Evaluated Models**: Meta-Llama-3-8B
 
 ---
 
-## 🎯 Project Overview
+## 🎯 Project Overview & Architectural Pivot
 
-This repository contains the code, experiments, and LaTeX source for our COLM 2026 submission. We demonstrate that structural depth pruning (layer dropping) in Large Language Models induces highly localized representation shifts rather than global network degradation.
+This branch documents a fundamental architectural pivot in our LLM compression thesis. 
 
-We introduce **Incision Boundary Healing**, a targeted LoRA routing strategy that restricts trainable parameters exclusively to the boundary layers immediately adjacent to the dropped block.
+Our earlier experiments successfully demonstrated that **Incision Boundary Healing** (targeting LoRA adapters exclusively to the layers adjacent to a dropped block) could rapidly recover the baseline validation loss and perplexity on generic pre-training distributions (e.g., C4).
 
-```mermaid
-graph TD
-    classDef default fill:#2D3748,stroke:#A0AEC0,stroke-width:2px,color:#FFFFFF;
-    classDef dropped fill:#742A2A,stroke:#FC8181,stroke-width:2px,stroke-dasharray: 5 5,color:#FED7D7;
-    classDef healed fill:#22543D,stroke:#68D391,stroke-width:3px,color:#C6F6D5;
-    classDef normal fill:#4A5568,stroke:#CBD5E0,stroke-width:1px,color:#E2E8F0;
+However, rigorous zero-shot evaluation on downstream logic benchmarks (GSM8K, MMLU, ASDiv) yielded a stark **negative result**:
 
-    L6[Layer 6: Normal]:::normal --> L7
-    L7[Layer 7: Boundary Healed + LoRA]:::healed --> L8
-    L8[Layer 8: DROPPED]:::dropped -.-> L9
-    L9[Layer 9: DROPPED]:::dropped -.-> L10
-    L10[Layer 10: DROPPED]:::dropped -.-> L11
-    L11[Layer 11: DROPPED]:::dropped -.-> L12
-    L12[Layer 12: Boundary Healed + LoRA]:::healed --> L13
-    L13[Layer 13: Normal]:::normal
-    
-    subgraph "Incision Boundary Healing (t=1)"
-    L7
-    L8
-    L9
-    L10
-    L11
-    L12
-    end
-```
+> ⚠️ **The Negative Result:** Recovering a validation loss curve does not equate to recovering a model's cognitive core. Macroscopic depth-pruning (dropping Layers 14-17) resulted in a $0\%$ recovery rate on structured reasoning tasks like GSM8K. Depth is a mandatory prerequisite for logic; width is redundant capacity.
 
-### 🏆 Key Discoveries
-1. **The Bathtub Curve of Layer Sensitivity**: Pruning damage is asymmetrical. Early and late layers are highly sensitive, while middle layers are elastic.
-2. **Surgical PEFT Allocation**: Targeting capacity only where the model's structural integrity has been compromised prevents "Dense Noise Pollution".
-3. **Cross-Architecture Validation**: 
-   - **Global Attention (Mistral/Llama-3)**: Semantic bleed is tightly localized. A hard recovery plateau is reached at a boundary thickness of $t=2$.
-   - **Sliding Window Attention (Gemma-2)**: Interrupted SWA expansion causes wider bleed, resulting in a smooth monotonic decay curve that benefits from wider boundary thickness ($t=3$).
+We have officially pivoted the methodology to document this "Perplexity Trap" and introduce a new compression pipeline based on **Mechanistic Interpretability**.
+
+### 🔬 The New Pipeline: Subnetwork Structural Excision
+
+Instead of dropping entire sequential layers, we perform microscopic surgical excision across the network's width.
+
+1.  **Empirical FIM Calibration:** We analyze the SwiGLU activation sparsity and Attention matrices using an Empirical Fisher Information Matrix (FIM) diagonal approximation over a pristine calibration dataset. This identifies the most globally salient reasoning circuits.
+2.  **PyTorch Tensor Surgery:** We physically slice the Grouped-Query Attention (GQA) blocks (symmetrically pruning query heads to preserve topology) and the MLP intermediate dimensions, dynamically reshaping the `nn.Linear` matrices and bypassing standard HuggingFace configuration homogeneity.
+3.  **Sparse LoRA Healing:** We identify the layers with the highest structural damage and inject highly targeted $r=16$ LoRA adapters, training exclusively on a blended reasoning manifold (GSM8K/MATH) with a strict zero-shot ASDiv quarantine.
 
 ---
 
 ## 📁 Codebase Organization
 
-*   `paper/`: Contains the final `main.tex` and compiled figures for the COLM submission.
-*   `code/phases/phase15_layer_drop/`: Contains the pipeline scripts for dropping layers, measuring baseline/dropped perplexities on C4, and applying boundary healing.
-*   `experiments/phase15_layer_drop/`: Contains the raw JSON outputs and loss curves for all evaluated models.
-*   `scratch/extract.py`: Automated script for extracting LaTeX tables from the JSON results.
-*   `archive/`: Contains legacy experiments on GPT-2 (Phases 1-11).
+*   `paper/`: Contains the LaTeX source documenting the pivot to the Depth-Width Trade-off thesis.
+*   `scratch/saliency_variant_analysis.py`: Evaluates first-order Taylor-expansion saliency mask stability (Spearman $\rho$).
+*   `scratch/fim_variant_analysis.py`: The robust Empirical FIM calibration pipeline.
+*   `scratch/prune_subnetworks.py`: The core PyTorch surgery script that executes asymmetric tensor slicing on GQA and MLP weights.
+*   `scratch/diagnose_pruning_density.py`: Safetensor metadata parser to map the physical pruning distribution.
+*   `scratch/sparse_lora_heal.py`: Custom dynamic loader and PEFT healing configuration.
+*   `scratch/benchmark_pareto.py`: PyTorch native benchmarking script for MAC reduction and TPS (Tokens-Per-Second).
+*   `archive/`: Contains legacy experiments on Layer-Dropping (Boundary Healing) which failed downstream reasoning evaluations.
 
 ---
 
-## 🚀 Quick Start (Reproduce Results)
+## 🚀 Execution Pipeline
 
-The entire multi-architecture ablation pipeline is fully automated and designed to run on a single dual-GPU node (e.g., 2x RTX 3090).
-
-```bash
-# Run Mistral-7B Evaluation
-./code/phases/phase15_layer_drop/run_phase15.sh
-
-# Run Llama-3-8B Evaluation
-./code/phases/phase15_layer_drop/run_phase16c_llama.sh
-
-# Run Gemma-2-2B Evaluation
-./code/phases/phase15_layer_drop/run_gemma_pipeline.sh
-
-# Generate Final LaTeX Tables
-python scratch/extract.py
-```
-
-## 🛠️ Reproducibility (Minimal Proof of Concept)
-
-For workshop reviewers, we provide a standalone, highly readable (< 100 lines) reproducible script that drops layers, routes a boundary LoRA, and executes a training loop on a snippet of the C4 dataset. 
+Our infrastructure is designed for multi-GPU execution (e.g., dual RTX 3090s) with strict memory management.
 
 ```bash
-python runners/reproduce_ablation.py
+# 1. Establish the robust Mechanistic Saliency baseline (FIM)
+python scratch/fim_variant_analysis.py
+
+# 2. Slice the physical tensors based on structural sparsity
+python scratch/prune_subnetworks.py
+
+# 3. Diagnose the 6 most heavily damaged layers for PEFT targeting
+python scratch/diagnose_pruning_density.py
+
+# 4. Execute the targeted Sparse LoRA healing loop (ASDiv Quarantined)
+python scratch/sparse_lora_heal.py
+
+# 5. Extract hardware acceleration metrics (TPS & MACs)
+python scratch/benchmark_pareto.py
 ```
 
-> 🔍 **See the mechanistic evidence:** Run `python code/phases/phase17_mechanistic/attention_heatmap.py` to regenerate the Attention Sink Heatmap and visually verify the boundary disruption.
+> 🔍 **Negative Result Context:** The original Layer-Dropping methodology can still be explored in `code/phases/phase15_layer_drop/`, but its application is strictly limited to shallow semantic modeling, not dense logical reasoning.
 
 ---
 *Created for COLM 2026 (Double-Blind Review)*

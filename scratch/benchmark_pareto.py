@@ -1,6 +1,8 @@
 import torch
 import time
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+from safetensors.torch import load_file
+import glob
 
 def calculate_macs(model):
     total_macs = 0
@@ -71,7 +73,37 @@ def main():
     torch.cuda.empty_cache()
     
     print("\nLoading Pruned Subnetwork...")
-    pruned_model = AutoModelForCausalLM.from_pretrained(pruned_dir, torch_dtype=torch.bfloat16, device_map="cuda:0")
+    config = AutoConfig.from_pretrained(model_id)
+    pruned_model = AutoModelForCausalLM.from_config(config, torch_dtype=torch.bfloat16)
+    
+    st_files = glob.glob(f"{pruned_dir}/*.safetensors")
+    state_dict = {}
+    for st_file in st_files:
+        state_dict.update(load_file(st_file))
+        
+    head_dim = config.hidden_size // config.num_attention_heads
+    
+    for key, tensor in state_dict.items():
+        if "weight" in key and ("proj" in key or "embed" in key or "lm_head" in key):
+            parts = key.split(".")
+            if len(parts) < 2: continue
+            out_f, in_f = tensor.shape if len(tensor.shape) == 2 else (tensor.shape[0], tensor.shape[0])
+            
+            curr = pruned_model
+            for p in parts[:-2]:
+                curr = getattr(curr, p)
+            proj_name = parts[-2]
+            
+            if hasattr(curr, proj_name) and isinstance(getattr(curr, proj_name), torch.nn.Linear):
+                setattr(curr, proj_name, torch.nn.Linear(in_f, out_f, bias=False, dtype=torch.bfloat16))
+                
+                if "q_proj" in key:
+                    curr.num_heads = out_f // head_dim
+                if "k_proj" in key:
+                    curr.num_key_value_heads = out_f // head_dim
+
+    pruned_model.load_state_dict(state_dict, strict=False)
+    pruned_model = pruned_model.to("cuda:0")
     
     print("\n--- Theoretical MAC Calculation ---")
     pruned_macs = calculate_macs(pruned_model)

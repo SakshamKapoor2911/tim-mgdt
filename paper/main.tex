@@ -23,31 +23,29 @@ Paper under double-blind review
 \maketitle
 
 \begin{abstract}
-Recent work has shown that Large Language Models (LLMs) can be structurally compressed via depth pruning (layer dropping), achieving true $O(1)$ latency and memory reductions. However, the standard paradigm of applying uniform parameter-efficient fine-tuning (PEFT) across all remaining layers to recover performance is sub-optimal. We empirically demonstrate that layer dropping induces highly localized representation shifts, creating a precise "semantic gap" rather than global network degradation. We introduce \textbf{Incision Boundary Healing}, a targeted LoRA routing strategy that restricts trainable parameters exclusively to the boundary layers immediately adjacent to the dropped block. Evaluated on Mistral-7B and Llama-3-8B, we prove that boundary-focused healing recovers up to 4x more perplexity than global healing baselines while utilizing 33\% fewer trainable parameters. This mechanism establishes a new, highly efficient paradigm for structural recovery, proving that adapting the exact site of structural damage is vastly superior to uniform network fine-tuning.
+Recent work has shown that Large Language Models (LLMs) can be structurally compressed via depth pruning (layer dropping), achieving true $O(1)$ latency reductions. However, we demonstrate a critical failure mode in this paradigm: the \textbf{Perplexity Trap}. While targeted parameter-efficient fine-tuning (PEFT) at the boundaries of dropped layers can successfully recover validation perplexity and semantic modeling, it completely fails to recover dense zero-shot logical reasoning on structured benchmarks like GSM8K and ASDiv. To resolve this, we pivot from macroscopic depth pruning to microscopic width pruning. We introduce a \textbf{Mechanistic Subnetwork Pruning} pipeline that utilizes an Empirical Fisher Information Matrix (FIM) diagonal approximation to calculate structural saliency across SwiGLU dimensions and Attention matrices. By physically excising parameters symmetrically across Grouped-Query Attention (GQA) blocks to maintain architectural topology, we establish a new standard for precision LLM surgery. We follow this with a highly localized \textbf{Sparse LoRA Healing} phase, restricted strictly to a blended reasoning manifold, preventing data contamination while recovering algorithmic logic pathways.
 \end{abstract}
 
-\section{Introduction: The Limits of Global Recovery in Depth Pruning}
-The concept of physically deleting entire transformer layers to achieve true hardware compression has gained significant traction. Methods in depth pruning, such as ShortGPT \citep{men-etal-2025-shortgpt} and Layer Collapse (LaCo) \citep{yang-etal-2024-laco}, have successfully identified and removed redundant structures. Further work, most notably ``The Unreasonable Ineffectiveness of the Deeper Layers'' \citep{gromov2024unreasonable}, demonstrated that dropping contiguous blocks of layers and applying QLoRA fine-tuning \citep{hu2022lora} provides an effective recovery path.  
+\section{Introduction: The Perplexity Trap in Depth Pruning}
+The concept of physically deleting entire transformer layers to achieve hardware compression has gained significant traction. Methods like ShortGPT \citep{men-etal-2025-shortgpt} have successfully identified redundant structures, demonstrating that dropping contiguous blocks of layers and applying fine-tuning can provide an effective recovery path for validation loss.  
 
-However, existing recovery methods apply parameter updates \textit{uniformly} across all surviving layers of the model. We argue that this uniform allocation fails to account for the mechanistic reality of the ``incision.''
+However, by analyzing the perplexity degradation of models compressed by 12.5\% depth reduction, we uncovered a dangerous empirical mirage: \textbf{The Perplexity Trap}. While we successfully designed \textit{Incision Boundary Healing}—restricting LoRA adapters strictly to the layers preceding and succeeding a dropped block to seamlessly recover Cross-Entropy Loss—rigorous zero-shot evaluation on downstream logic benchmarks (GSM8K, MMLU, ASDiv) yielded a stark negative result. Recovering a validation loss curve does not equate to recovering a model's cognitive core. Depth is a mandatory prerequisite for logic.
 
-By analyzing the perplexity degradation of models compressed by 12.5\% depth reduction (a 4-layer drop), we prove that the resulting representation drift is not a global failure, but a localized discontinuity in the activation flow. We propose \textbf{Incision Boundary Healing}: restricting LoRA adapters strictly to the layers preceding and succeeding the dropped block. This surgical intervention routes the compute budget with laser precision, repairing the exact boundary where the structure was broken.
+To achieve true structural compression without sacrificing algorithmic reasoning, we propose a paradigm shift from macroscopic depth-pruning to microscopic width-pruning, powered by Mechanistic Interpretability.
 
-\section{The Bathtub Curve of Layer Sensitivity}
-We hypothesized that pruning damage is not distributed equally. By systematically measuring the causal perplexity delta ($\Delta$CE) under weight-zeroing ablation across 32 layers, we mapped a distinct \textbf{Bathtub Curve} of layer sensitivity:
-\begin{itemize}
-    \item \textbf{Early layers (Layers 0-2):} Extremely high sensitivity. These layers construct foundational lexical and syntactic representations; disrupting them cascades downstream.
-    \item \textbf{Middle layers (Layers 3-28):} High elasticity. These layers refine features iteratively and exhibit massive structural redundancy, making them robust to weight zeroing.
-    \item \textbf{Late layers (Layers 29-31):} High sensitivity. These final layers project representations back to vocabulary space; damaging them directly corrupts the output distribution.
-\end{itemize}
+\section{Methodology: Mechanistic Subnetwork Pruning}
 
-\subsection{The Systems-Engineering Oracle}
-A common criticism of causal sensitivity mapping is its compute overhead. However, we demonstrate that deriving the complete 32-layer $\Delta$CE map is an exceptionally fast pre-computation step. On a commodity dual RTX 3090 setup (48GB VRAM), this exhaustive knockout mapping takes exactly \textbf{3.75 minutes} per model. This systems-engineering win makes causal mapping a highly actionable diagnostic step with near-zero overhead.
+Rather than dropping entire sequential layers, we perform surgical excision across the network's width. This process requires identifying the most critical semantic pathways and mathematically isolating them from redundant capacity.
 
-\section{Sensitivity-Guided Surgical LoRA}
-Building on the Bathtub Curve, we propose a targeted recovery method. Rather than applying LoRA uniformly to all layers, we allocate capacity \textit{only} to the top-6 most sensitive layers (the ``surgical'' allocation) mapped by the $\Delta$CE oracle. 
+\subsection{Empirical FIM Saliency Calibration}
+Standard first-order Taylor-expansion saliency masks proved highly unstable ($\rho \approx 0.46$) across Multi-Layer Perceptron (MLP) dimensions due to the zero-centered activation distributions inherent to SwiGLU gating mechanisms. Destructive interference caused critical reasoning dimensions to average to zero. 
 
-By targeting capacity only where the model's structural integrity has been compromised, we prevent the optimizer from injecting unnecessary parameter updates (``Dense Noise Pollution'') into the highly robust middle layers.
+To resolve this, we implemented an \textbf{Empirical Fisher Information Matrix (FIM) Diagonal Approximation}. By squaring the gradients inside a \texttt{torch.no\_grad()} block per sample $\left(\frac{\partial \mathcal{L}}{\partial \text{Mask}}\right)^2$, we eliminated sign-cancellation interference. This compounding operation stabilized the Spearman rank-order correlation of MLP dimensions to $\rho \ge 0.85$, proving that the variance was strictly an artifact of activation sparsity, not an underlying instability in the logic circuits.
+
+\subsection{Grouped-Query Attention (GQA) Symmetric Slicing}
+A fundamental challenge of structural width-pruning is maintaining the topological integrity of the matrix projections, particularly under modern Grouped-Query Attention (GQA) constraints. Asymmetric excision of Query heads against Key-Value (KV) heads breaks the fundamental `view()` reshaping operations within PyTorch native execution environments.
+
+To completely circumvent the topological nightmare of misaligned projection dimensions, we enforce a strict symmetric excision constraint: \textbf{GQA Group Saliency}. We calculate the average saliency of the 4 Query heads mapped to a single KV head and prune the entire block synchronously. We then dynamically update the `self\_attn.num\_heads` and `num\_key\_value\_heads` configurations, bypassing standard HuggingFace homogeneity assumptions and preventing tensor shape violations during the forward pass.
 
 \section{Experimental Results and Discussion}
 
