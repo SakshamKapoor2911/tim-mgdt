@@ -1,7 +1,8 @@
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer, DataCollatorForLanguageModeling, AutoConfig
+from safetensors.torch import load_file
+import glob
 from datasets import load_dataset, concatenate_datasets
-from trl import SFTTrainer
 from peft import LoraConfig, get_peft_model
 import os
 
@@ -40,12 +41,45 @@ def load_pristine_healing_dataset(num_samples=500):
 def main():
     model_id = "./checkpoints/Meta-Llama-3-8B_subnetwork_pruned"
     
-    print("Loading Pruned Llama-3-8B...")
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    print("Loading Pruned Llama-3-8B configuration...")
+    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         
-    model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="cuda:0")
+    config = AutoConfig.from_pretrained("meta-llama/Meta-Llama-3-8B")
+    model = AutoModelForCausalLM.from_config(config, torch_dtype=torch.bfloat16)
+    
+    print("Parsing safetensors to dynamically resize nn.Linear modules...")
+    st_files = glob.glob(f"{model_id}/*.safetensors")
+    state_dict = {}
+    for st_file in st_files:
+        state_dict.update(load_file(st_file))
+        
+    head_dim = config.hidden_size // config.num_attention_heads
+        
+    for key, tensor in state_dict.items():
+        if "weight" in key and ("proj" in key or "embed" in key or "lm_head" in key):
+            parts = key.split(".")
+            if len(parts) < 2: continue
+            out_f, in_f = tensor.shape if len(tensor.shape) == 2 else (tensor.shape[0], tensor.shape[0])
+            
+            curr = model
+            for p in parts[:-2]:
+                curr = getattr(curr, p)
+            proj_name = parts[-2]
+            
+            if hasattr(curr, proj_name) and isinstance(getattr(curr, proj_name), torch.nn.Linear):
+                setattr(curr, proj_name, torch.nn.Linear(in_f, out_f, bias=False, dtype=torch.bfloat16))
+                
+                # Update attention attributes
+                if "q_proj" in key:
+                    curr.num_heads = out_f // head_dim
+                if "k_proj" in key:
+                    curr.num_key_value_heads = out_f // head_dim
+
+    print("Loading pruned weights into resized architecture...")
+    model.load_state_dict(state_dict, strict=False)
+    model = model.to("cuda:0")
     
     # 1. Target the 6 most damaged layers identified by the diagnostic script
     damaged_layers = [29, 28, 27, 30, 26, 25]
@@ -94,13 +128,19 @@ def main():
         bf16=True,
     )
     
-    trainer = SFTTrainer(
+    # Tokenize dataset
+    def tokenize_function(examples):
+        return tokenizer(examples["text"], truncation=True, max_length=512)
+        
+    tokenized_dataset = dataset.map(tokenize_function, batched=True, remove_columns=["text"])
+    
+    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    
+    trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=dataset,
-        dataset_text_field="text",
-        max_seq_length=512,
-        peft_config=peft_config
+        train_dataset=tokenized_dataset,
+        data_collator=data_collator,
     )
     
     print("\nInitiating Sparse Structural Healing...")
