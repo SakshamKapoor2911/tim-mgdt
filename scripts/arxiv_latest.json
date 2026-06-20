@@ -1,73 +1,52 @@
 {
   "metadata": {
-    "timestamp": "2026-06-18T21:01:53.499193"
+    "timestamp": "2026-06-20T10:36:58.706978"
   },
   "results": {
-    "\"transformer pruning\"": [
+    "\"transformer pruning\" OR \"LLM pruning\"": [
       {
-        "title": "Entropy Meets Importance: A Unified Head Importance-Entropy Score for Stable and Efficient Transformer Pruning",
-        "published_date": "2025-10-10",
+        "title": "Persona-Pruner: Sculpting Lightweight Models for Role-Playing",
+        "published_date": "2026-06-12",
         "authors": [
-          "Minsik Choi",
-          "Hyegang Son",
-          "Changhoon Kim",
-          "Young Geun Kim"
+          "Jinsu Kim",
+          "Jihoon Tack",
+          "Noah Lee",
+          "Jongheon Jeong"
         ],
-        "summary": "Transformer-based models have achieved remarkable performance in NLP tasks. However, their structural characteristics-multiple layers and attention heads-introduce efficiency challenges in inference and deployment. To address these challenges, various pruning methods have recently been proposed. Notably, gradient-based methods using Head Importance Scores (HIS) have gained traction for interpretability, efficiency, and ability to identify redundant heads. However, HIS alone has limitations as it captures only the gradient-driven contribution, overlooking the diversity of attention patterns. To overcome these limitations, we introduce a novel pruning criterion, HIES (Head Importance-Entropy Score), which integrates head importance scores with attention entropy, providing complementary evidence on per-head contribution. Empirically, HIES-based pruning yields up to 15.2% improvement in model quality and 2.04x improvement in stability over HIS-only methods, enabling substantial model compression without sacrificing either accuracy or stability. Code will be released upon publication.",
-        "url": "http://arxiv.org/abs/2510.13832v2"
+        "summary": "Language Models (LMs) have shown remarkable potential as role-playing chatbots, delivering consistent, stylized interactions when given a specification of a character or user persona. However, applying these capabilities to real-world applications (e.g., ecosystems with numerous NPCs interacting simultaneously) exposes a critical inefficiency due to the excessive computational cost. In this paper, we question the necessity of dedicating a full, generalist model to a single persona, hypothesizing that a specific character identity relies on only a fraction of the model's total capacity. We observe that naively pruning LMs often severely degrades the role-playing performance for a specific persona; it does not distinguish between redundant knowledge and essential character traits. We propose Persona-Pruner, a framework that sculpts a lightweight role-playing model by isolating persona-specific sub-networks from a single description. Our experiments consistently show that Persona-Pruner preserves role-playing performance substantially more effectively than existing state-of-the-art LLM pruning techniques, reducing the performance drop from the dense model by up to 93.8% over the strongest baseline on RoleBench in LLM-as-a-judge score, while still maintaining general LLM capabilities. Code is available at https://github.com/jsu-kim/Persona-Pruner.",
+        "url": "http://arxiv.org/abs/2606.14695v1"
       },
       {
-        "title": "UnIT: Scalable Unstructured Inference-Time Pruning for MAC-efficient Neural Inference on MCUs",
-        "published_date": "2025-07-10",
+        "title": "Small LLMs: Pruning vs. Training from Scratch",
+        "published_date": "2026-06-12",
         "authors": [
-          "Ashe Neth",
-          "Sawinder kaur",
-          "Mohammad Nur Hossain Khan",
-          "Subrata Biswas",
-          "Asif Salekin",
-          "Bashima Islam"
+          "Yufeng Xu",
+          "Taiming Lu",
+          "Kunjun Li",
+          "Jiachen Zhu",
+          "Mingjie Sun",
+          "Zhuang Liu"
         ],
-        "summary": "Existing pruning methods are typically applied during training or compile time and often rely on structured sparsity. While compatible with low-power microcontrollers (MCUs), structured pruning underutilizes the opportunity for fine-grained efficiency on devices without SIMD support or parallel compute. To address these limitations, we introduce UnIT (Unstructured Inference-Time pruning), a lightweight method that dynamically identifies and skips unnecessary multiply-accumulate (MAC) operations during inference, guided by input-specific activation patterns. Unlike structured pruning, UnIT embraces irregular sparsity and does not require retraining or hardware specialization. It transforms pruning decisions into lightweight comparisons, replacing multiplications with threshold checks and approximated divisions. UnIT further optimizes compute by reusing threshold computations across multiple connections and applying layer- and group-specific pruning sensitivity. We present three fast, hardware-friendly division approximations tailored to the capabilities of common embedded platforms. Demonstrated on the MSP430 microcontroller, UnIT achieves 11.02% to 82.03% MAC reduction, 27.30% to 84.19% faster inference, and 27.33% to 84.38% lower energy consumption compared to training-time pruned models, while maintaining accuracy with 0.48-7%. Under domain shift, UnIT matches or exceeds the accuracy of retrained models while requiring significantly fewer MACs. These results establish unstructured inference-time pruning as a viable and practical solution for efficient, retraining-free deployment of deep neural networks on MCUs.",
-        "url": "http://arxiv.org/abs/2507.07885v1"
+        "summary": "Pruning promises a shortcut to strong small language models. In this work, we examine this promise by pruning Llama-3.1-8B at pruning ratios of 0.5--0.8 with six methods spanning depth, width, and sparse granularities, under two controlled token-matched settings. (1) With the same training token budget, pruned initialization consistently outperforms random initialization. This shows that the parent model provides a strong starting point, although the advantage narrows as the training token budget grows and as the pruning ratio rises, nearly vanishing at the highest pruning ratio we study. (2) When training from scratch is instead given the full token budget consumed by the whole pipeline, pruning at finer granularities still retains an advantage, while coarser structured pruning can be matched or surpassed. This suggests that the parent model transfers knowledge that additional training tokens alone cannot fully recover, but only at fine granularity. Taken together, our results yield a clear recommendation: with a large pretrained model in hand and a limited training token budget, pruning is better than training from scratch; when the training budget is not limited, training from scratch can be competitive for coarser pruning, so a large pretrained parent is not always necessary.",
+        "url": "http://arxiv.org/abs/2606.14150v1"
       },
       {
-        "title": "MDP: Multidimensional Vision Model Pruning with Latency Constraint",
-        "published_date": "2025-04-02",
+        "title": "Beyond FLOPs: Benchmarking Real Inference Acceleration of LLM Pruning under a GEMM-Centric Taxonomy",
+        "published_date": "2026-06-08",
         "authors": [
-          "Xinglong Sun",
-          "Barath Lakshmanan",
-          "Maying Shen",
-          "Shiyi Lan",
-          "Jingde Chen",
-          "Jose M. Alvarez"
+          "Haozhe Hu",
+          "Hao Wu",
+          "Anhao Zhao",
+          "Longwei Ding",
+          "Peiran Yin",
+          "Yunpu Ma",
+          "Xiaoyu Shen"
         ],
-        "summary": "Current structural pruning methods face two significant limitations: (i) they often limit pruning to finer-grained levels like channels, making aggressive parameter reduction challenging, and (ii) they focus heavily on parameter and FLOP reduction, with existing latency-aware methods frequently relying on simplistic, suboptimal linear models that fail to generalize well to transformers, where multiple interacting dimensions impact latency. In this paper, we address both limitations by introducing Multi-Dimensional Pruning (MDP), a novel paradigm that jointly optimizes across a variety of pruning granularities-including channels, query, key, heads, embeddings, and blocks. MDP employs an advanced latency modeling technique to accurately capture latency variations across all prunable dimensions, achieving an optimal balance between latency and accuracy. By reformulating pruning as a Mixed-Integer Nonlinear Program (MINLP), MDP efficiently identifies the optimal pruned structure across all prunable dimensions while respecting latency constraints. This versatile framework supports both CNNs and transformers. Extensive experiments demonstrate that MDP significantly outperforms previous methods, especially at high pruning ratios. On ImageNet, MDP achieves a 28% speed increase with a +1.4 Top-1 accuracy improvement over prior work like HALP for ResNet50 pruning. Against the latest transformer pruning method, Isomorphic, MDP delivers an additional 37% acceleration with a +0.7 Top-1 accuracy improvement.",
-        "url": "http://arxiv.org/abs/2504.02168v1"
+        "summary": "Pruning has emerged as a dominant paradigm for accelerating large language model (LLM) inference, spanning a broad spectrum of methods that remove computation across tokens, layers, heads, dimensions, and attention patterns. Despite sharing the same objective, these pruning approaches induce fundamentally different execution behaviors, causing realized speedups to depend heavily on hardware and kernel implementations. Consequently, the practical acceleration benefits of different pruning families remain poorly understood. In this work, we introduce a GEMM-centric taxonomy that reorganizes existing pruning methods according to the logical \\textbf{M}, \\textbf{N}, and \\textbf{K} dimensions of general matrix multiplication (GEMM). Leveraging this abstraction, we build a unified benchmarking framework that enables implementation-consistent comparison across the pruning design space and systematically characterizes the acceleration--quality Pareto frontier. Our results show that static depth pruning remains the strongest Pareto-optimal baseline and stays closest to its theoretical acceleration upper bound in memory-bounded scenarios. During prefill, the frontier transitions from static depth at low quality loss (0\\%--4\\%), to dynamic depth at moderate loss (5\\%--16\\%), and finally to static width pruning at higher loss levels (17\\%--26\\%). These findings establish the first unified view of the practical limits of pruning-based LLM acceleration and provide guidance for future pruning research.\\footnote{Code is available at https://github.com/EIT-NLP/LLM-Pruning/tree/main/PruningInferSim}",
+        "url": "http://arxiv.org/abs/2606.09080v1"
       }
     ],
-    "\"mechanistic interpretability\"": [
-      {
-        "title": "Critical Percolation as a Synthetic Data Model for Interpretability",
-        "published_date": "2026-06-18",
-        "authors": [
-          "Aryeh Brill",
-          "Tom Ingebretsen Carlson"
-        ],
-        "summary": "Neural networks learn features that reflect the hierarchical, multi-scale structure of natural data. Synthetic datasets used to evaluate interpretability methods typically lack this structure, limiting their value as realistic toy models. To close this gap, we introduce a family of synthetic datasets consisting of hierarchical functions defined on critical mean-field percolation clusters embedded in a high-dimensional data space. The percolation data consists of sparse, low-dimensional fractal clusters with a power-law size distribution. Latent variables modeling a taxonomic hierarchy generate each data point's target value. The data model is analytically tractable with known critical exponents that fix its properties without requiring hyperparameter tuning. We leverage a mapping between percolation clusters, random trees, and additive coalescence to propose an almost linear-time algorithm to jointly sample a random tree and its hierarchical latent decomposition, enabling data generation at arbitrary scale. Using probing experiments, we find that the model's ground-truth latent variables can be linearly decoded from neural network activations. Together, sparsity, self-similarity, power-law statistics, and analytical tractability make critical percolation a principled testbed for interpretability research.",
-        "url": "http://arxiv.org/abs/2606.20347v1"
-      },
-      {
-        "title": "Multimodal Concept Bottleneck Models",
-        "published_date": "2026-06-18",
-        "authors": [
-          "Tongqing Shi",
-          "Ge Yan",
-          "Tuomas Oikarinen",
-          "Tsui-Wei Weng"
-        ],
-        "summary": "Concept Bottleneck Models (CBMs) enhance the interpretability of deep learning networks by aligning the features extracted from images with natural concepts. However, existing CBMs are constrained in their ability to generalize beyond a fixed set of predefined classes and the risk of non-concept information leakage, where predictive signals outside the intended concepts are inadvertently exploited. In this paper, we propose Multimodal Concept Bottleneck Model (MM-CBM) to address these issues and extend CBMs into CLIP. MM-CBM utilizes dual Concept Bottleneck Layers (CBLs) to align both the image and text embeddings into interpretable features. This allows us to perform new vision tasks like zero-shot classification or image retrieval in an interpretable way. Compared to existing methods, MM-CBM achieves up to 51.26% accuracy improvement on average across four standard benchmarks. Our method maintains high accuracy, staying within ~5% of black-box performance while offering greater interpretability.",
-        "url": "http://arxiv.org/abs/2606.19882v1"
-      },
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
         "title": "Who Wins the Conflict? Mechanistic Interpretability of Text Bias in Audio LLMs",
         "published_date": "2026-06-17",
@@ -80,9 +59,100 @@
         ],
         "summary": "While Audio Large Language Models (Audio LLMs) excel at multimodal understanding, they suffer from text dominance, a bias where models blindly favor text over acoustic evidence, causing hallucinations. However, the internal mechanisms underlying how these models behave when audio and textual inputs contradict each other remain unexplored. In this work, we present the first mechanistic analysis of this phenomenon by tracing the propagation of internal representations across layers. Our investigation reveals three key findings: (i) text dominance is systematically and empirically across models; (ii) while text and audio rely on functionally distinct pathways, they ultimately converge into a shared semantic space in late layers; and (iii) the text pathway does not erase audio information, but rather actively suppresses intact audio representations. Building on these insights, we leverage back-patching, a training-free intervention that routes late-layer audio activations back into earlier layers. This amplifies the audio representations, enabling them to overcome textual suppression. Our evaluation shows that back-patching consistently reduces text dominance, paving the way for mechanistic multimodal alignment under conflict.",
         "url": "http://arxiv.org/abs/2606.18924v1"
+      },
+      {
+        "title": "Scalable Circuit Learning for Interpreting Large Language Models",
+        "published_date": "2026-06-15",
+        "authors": [
+          "Naiyu Yin",
+          "Dennis Wei",
+          "Tian Gao",
+          "Amit Dhurandhar",
+          "Karthikeyan Natesan Ramamurthy",
+          "Yue Yu"
+        ],
+        "summary": "A prominent research direction in mechanistic interpretability is learning sparse circuits over LLM components to reveal how they jointly produce model behavior. However, raw neurons are polysemantic, making learned circuits hard to interpret. Sparse autoencoder (SAE) features alleviate this, but their high dimensionality makes existing intervention-based circuit learning methods computationally prohibitive. We propose CircuitLasso, a scalable circuit-learning approach based on sparse linear regression. CircuitLasso recovers circuits whose structural accuracy matches that of state-of-the-art intervention-based methods on the benchmark data, at a fraction of the computational cost. For interpretability, CircuitLasso efficiently uncovers relationships among SAE features, showing how human-interpretable semantic features propagate through the model and influence its predictions. Finally, we validate the utility of our learned circuits by leveraging their insights to achieve comparable performance at substantially lower cost on a domain-generalization task.",
+        "url": "http://arxiv.org/abs/2606.16939v1"
+      },
+      {
+        "title": "Demystifying Variance in Circuit Discovery of LLMs",
+        "published_date": "2026-06-15",
+        "authors": [
+          "Frank Zhengqing Wu",
+          "Francesco Tonin",
+          "Volkan Cevher"
+        ],
+        "summary": "Circuit discovery is a key technique in mechanistic interpretability to pinpoint the model components that are crucial for performing a given task. Although the current state-of-the-art method (EAP-IG) performs well on the metric of (un)faithfulness, it suffers from substantial variability. This includes resampling variance, where the circuit changes when we probe with a new batch of data from the same distribution; rephrasing variance, where the discovered circuit shifts when the prompts are rephrased; and sample-wise variance, where a circuit with low population unfaithfulness exhibits large fluctuations in unfaithfulness across individual samples.   This paper studies the roots of these variances. We demonstrate that CEAP, our new circuit discovery method that improves upon EAP-IG with a theoretical guarantee, can substantially lessen resampling variance. We further show that rephrasing variance arises because prompts with different templates tend to activate different circuits in the model. This leads us to argue that it may be challenging to find a comprehensive circuit that explains and controls the model's behavior on a task, which can be expressed in countless templates, suggesting that LLMs may be inherently hard to steer. We show that sparsity, which has been claimed to form more compact and interpretable task circuits, fails to solve this problem. Regarding sample-wise variance, we argue that it is largely benign: extremely poor unfaithfulness scores often stem from how unfaithfulness is defined, rather than from defects in the measured circuits. We show that the magnitude of unfaithfulness is affected by selective contribution scaling, a neural mechanism that accounts for the extremely poor scores sometimes observed.",
+        "url": "http://arxiv.org/abs/2606.16920v1"
       }
     ],
-    "\"lottery ticket hypothesis\"": [],
-    "\"activation patching\"": []
+    "\"lottery ticket hypothesis\" AND \"language models\"": [
+      {
+        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
+        "published_date": "2025-07-23",
+        "authors": [
+          "Andrii Balashov"
+        ],
+        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
+        "url": "http://arxiv.org/abs/2507.17107v2"
+      },
+      {
+        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
+        "published_date": "2024-02-05",
+        "authors": [
+          "Fei Yuan",
+          "Chang Ma",
+          "Shuai Yuan",
+          "Qiushi Sun",
+          "Lei Li"
+        ],
+        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
+        "url": "http://arxiv.org/abs/2402.02801v2"
+      },
+      {
+        "title": "The Emergence of Essential Sparsity in Large Pre-trained Models: The Weights that Matter",
+        "published_date": "2023-06-06",
+        "authors": [
+          "Ajay Jaiswal",
+          "Shiwei Liu",
+          "Tianlong Chen",
+          "Zhangyang Wang"
+        ],
+        "summary": "Large pre-trained transformers are show-stealer in modern-day deep learning, and it becomes crucial to comprehend the parsimonious patterns that exist within them as they grow in scale. With exploding parameter counts, Lottery Ticket Hypothesis (LTH) and its variants, have lost their pragmatism in sparsifying them due to high computation and memory bottleneck of repetitive train-prune-retrain routine of iterative magnitude pruning (IMP) which worsens with increasing model size. This paper comprehensively studies induced sparse patterns across multiple large pre-trained vision and language transformers. We propose the existence of -- essential sparsity defined with a sharp dropping point beyond which the performance declines much faster w.r.t the rise of sparsity level, when we directly remove weights with the smallest magnitudes in one-shot without re-training. We also find essential sparsity to hold valid for N:M sparsity patterns as well as on modern-scale large language models (Vicuna-7B). We also present an intriguing emerging phenomenon of abrupt sparsification during the pre-training of BERT, i.e., BERT suddenly becomes heavily sparse in pre-training after certain iterations. Moreover, our observations also indicate a counter-intuitive finding that BERT trained with a larger amount of pre-training data tends to have a better ability to condense knowledge in comparatively relatively fewer parameters. Lastly, we investigate the effect of the pre-training loss on essential sparsity and discover that self-supervised learning (SSL) objectives trigger stronger emergent sparsification properties than supervised learning (SL). Our codes are available at \\url{https://github.com/VITA-Group/essential_sparsity}.",
+        "url": "http://arxiv.org/abs/2306.03805v2"
+      }
+    ],
+    "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "Vernier: Probing Representational Misalignment Behind Lexical Gaps in Causal Reasoning",
+        "published_date": "2026-06-14",
+        "authors": [
+          "Zhenyu Yu"
+        ],
+        "summary": "Instruction-tuned language models can answer the same causal-reasoning question differently after its English variable names are replaced by type-preserving placeholders, although the structural causal model and the gold answer are unchanged. We ask whether this lexical gap reflects information loss in the placeholder view or a misaligned read-out from a representation that still carries answer-relevant content. Vernier uses a paired-view weight update as an instrument and then inspects the mechanism left after the gap closes. In the working regimes, the evidence favours representational misalignment. A variable-name probe becomes more accurate on the placeholder view, and activation patching on Qwen-7B, Qwen-14B, and Llama-3.1-8B shows that the decision-token representation can transfer answer identity between views. The update that realigns the views is counterfactual augmentation over original and placeholder prompts, while the answer-subspace KL mainly sharpens intermediate answer-belief agreement. Success is bounded by model family, scale, and task. CRASS transfer is reliable across Qwen scales and Llama, e-CARE remains weak, and preliminary non-causal rename tasks show a similar qualitative pattern.",
+        "url": "http://arxiv.org/abs/2606.15733v1"
+      },
+      {
+        "title": "Transformers Learn the Mestre-Nagao Heuristic",
+        "published_date": "2026-06-13",
+        "authors": [
+          "Pranav Venkata Konda"
+        ],
+        "summary": "We train a two-layer transformer encoder to classify rational elliptic curves $E/\\mathbb{Q}$ of conductor $\\leq 10000$ as either rank 0 or rank 1 from the first 128 normalized Frobenius traces. We achieve >99% accuracy on both classes, and accuracy is essentially unchanged on test curves with no isogeny or quadratic-twist relative in the training set. We then apply techniques from mechanistic interpretability such as attention analysis, linear probing, activation patching, logit attribution, and neuron-level circuit analysis to reverse-engineer the algorithm the (centroid in function space) model learned. We find that a sparse circuit of 20 out of 512 layer-1 MLP neurons is sufficient for rank prediction under a linear probe with an AUROC of 0.992 at plateau, implementing a push-pull detector architecture of rank-0 and rank-1 detectors with a one-sided readout. However, we notice that the model has sub-optimal readout problems indicating a mismatch in rank-order between the readout pathway and the discriminative circuit. Critically, the learned input weights of the top discriminating neuron match the Mestre-Nagao sum heuristic weights $\\log(p)/(p\\cdot \\log{B})$ with a Spearman coefficient $r = 0.997$ and Pearson coefficient $r = 0.952$: the model has learnt a result from analytic number theory from the Frobenius trace data alone. We additionally find that all 50 independently trained models concentrate CLS attention on prime positions at 2-50$\\times$ the rate of composite positions. The CLS embedding encodes $\\log{L(E,1)}$ with $R^2 = 0.962\\pm 0.011$ across the 50 models (after controlling for the conductor). Activation patching analysis reveals that attention weights are dissociated from causal information flow. Additionally, the 50 solutions from training are near-identical in function space (with pairwise agreement $>$98.8%) despite large weight space barriers.",
+        "url": "http://arxiv.org/abs/2606.15036v1"
+      },
+      {
+        "title": "Where Computation Lives Inside TabPFN: Causal Localisation of Attention Head Function",
+        "published_date": "2026-06-11",
+        "authors": [
+          "Atharva Gupta",
+          "Dhruv Kumar",
+          "Murari Mandal",
+          "Saurabh Deshpande"
+        ],
+        "summary": "We present the first causal mechanistic analysis of a tabular foundation model, investigating how TabPFN 2.5's feature wise attention heads distribute computation across layers. Using activation patching, ablation, and attention entropy across two synthetic regression datasets, we find clear temporal specialisation: one head's causal necessity dominates that of the others by 2 to 5 times at peak layer, with its dominant layer shifting across tasks of different complexity, while the remaining heads exhibit symmetric late layer profiles. Attention entropy and patching provide convergent evidence for the computationally active layers of the dominant head. We additionally investigate inference time steerability via contrastive activation steering, which fails to transfer across samples. We attribute this result to TabPFN's in context learning mechanism, which encodes task structure through context dependent attention rather than the stable parametric directions that make steering tractable in language models.",
+        "url": "http://arxiv.org/abs/2606.12917v1"
+      }
+    ]
   }
 }
