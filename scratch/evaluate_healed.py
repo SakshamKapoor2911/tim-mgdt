@@ -55,11 +55,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tasks", type=str, default="gsm8k,mmlu,asdiv")
     parser.add_argument("--lora_dir", type=str, default="./checkpoints/Meta-Llama-3-8B_sparse_lora_healed")
+    parser.add_argument("--pruned_dir", type=str, default="./checkpoints/Meta-Llama-3-8B_subnetwork_pruned")
     parser.add_argument("--output_file", type=str, default="./results/Meta-Llama-3-8B_sparse_healed_eval.json")
     args = parser.parse_args()
 
     model_id = "meta-llama/Meta-Llama-3-8B"
-    pruned_dir = "./checkpoints/Meta-Llama-3-8B_subnetwork_pruned"
+    pruned_dir = args.pruned_dir
     
     model = load_pruned_model(model_id, pruned_dir, lora_dir=args.lora_dir)
     tokenizer = AutoTokenizer.from_pretrained(model_id)

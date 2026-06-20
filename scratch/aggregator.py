@@ -35,6 +35,24 @@ def main():
     if isinstance(gsm8k_acc, float): gsm8k_acc = f"{gsm8k_acc*100:.2f}\\%"
     if isinstance(asdiv_acc, float): asdiv_acc = f"{asdiv_acc*100:.2f}\\%"
 
+    eval_file_ceil = "./results/Meta-Llama-3-8B_sparse_healed_eval_ceil.json"
+    eval_file_floor = "./results/Meta-Llama-3-8B_sparse_healed_eval_floor.json"
+    
+    ceil_gsm8k = "TBD"
+    floor_gsm8k = "TBD"
+    
+    if os.path.exists(eval_file_ceil):
+        with open(eval_file_ceil, "r") as f:
+            res_ceil = json.load(f)
+        ceil_gsm8k = res_ceil.get("gsm8k", {}).get("exact_match,strict-match", "TBD")
+        if isinstance(ceil_gsm8k, float): ceil_gsm8k = f"{ceil_gsm8k*100:.2f}\\%"
+        
+    if os.path.exists(eval_file_floor):
+        with open(eval_file_floor, "r") as f:
+            res_floor = json.load(f)
+        floor_gsm8k = res_floor.get("gsm8k", {}).get("exact_match,strict-match", "TBD")
+        if isinstance(floor_gsm8k, float): floor_gsm8k = f"{floor_gsm8k*100:.2f}\\%"
+
     latex_table = f"""
 \\begin{{table}}[h]
 \\centering
@@ -49,6 +67,8 @@ Layer-Dropped (Unhealed) & -15.84\\% & +21.4\\% & 26.5\\% & 1.1\\% & 2.5\\% \\\\
 Layer-Dropped (Boundary Healed) & -15.84\\% & +21.4\\% & 31.5\\% & 0.9\\% & 3.2\\% \\\\
 \\midrule
 \\textbf{{Subnetwork Pruned (Sparse LoRA)}} & -20.06\\% & +0.00\\% (39.94 \\text{{t/s}}) & {mmlu_acc} & {gsm8k_acc} & {asdiv_acc} \\\\
+\\textbf{{`ceil` Alignment}} & -19.8\\% & TBD & TBD & {ceil_gsm8k} & TBD \\\\
+\\textbf{{`floor` Alignment}} & -20.4\\% & TBD & TBD & {floor_gsm8k} & TBD \\\\
 \\bottomrule
 \\end{{tabular}}
 \\label{{tab:pareto_recovery}}

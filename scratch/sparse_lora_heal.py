@@ -39,7 +39,13 @@ def load_pristine_healing_dataset(num_samples=500):
     return concatenate_datasets(datasets).shuffle(seed=42).select(range(min(num_samples, sum(len(d) for d in datasets))))
 
 def main():
-    model_id = "./checkpoints/Meta-Llama-3-8B_subnetwork_pruned"
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_id", type=str, default="./checkpoints/Meta-Llama-3-8B_subnetwork_pruned")
+    parser.add_argument("--output_dir", type=str, default="./checkpoints/sparse_lora_healer")
+    args = parser.parse_args()
+    
+    model_id = args.model_id
     
     print("Loading Pruned Llama-3-8B configuration...")
     tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
@@ -112,7 +118,7 @@ def main():
     dataset = load_pristine_healing_dataset(500)
     
     # 4. Conservative Healing Configuration
-    output_dir = "./checkpoints/sparse_lora_healer"
+    output_dir = args.output_dir
     
     training_args = TrainingArguments(
         output_dir=output_dir,
