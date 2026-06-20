@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-20T17:49:29.733945+00:00",
+  "generated_at": "2026-06-20T17:49:49.571032+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
-  "current_phase": "Phase 16",
-  "phase_status": "Executing continuous boundary ablation (ceil vs floor) for hardware-aligned FIM pruning.",
+  "current_phase": "Phase 15",
+  "phase_status": "Phase 15 Complete. Next: Submit COLM workshop paper.",
   "total_experiments": 59,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
@@ -39,9 +39,7 @@
     "healed_latency_ms": 23.520000000000003,
     "baseline_memory_gb": 14.8,
     "healed_memory_gb": 8.14,
-    "perplexity_recovery_pct": 99.8,
-    "width_mmlu_recovery_pct": 97.9,
-    "width_gsm8k_recovery_pct": 80.3
+    "perplexity_recovery_pct": 99.8
   },
   "research_question": "Can exhaustive causal sensitivity metrics (\u0394CE) reliably identify and exploit layer-level elasticity to achieve lossless (< 5% PPL) structured compression at 50%+ parameter reduction without retraining?",
   "overview": [
@@ -55,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 16 in progress. We pivoted from depth-dropping to hardware-aligned width pruning. We discovered that unaligned FIM mask dimensions cause a 'Death by 78 Cuts' memory-thrashing penalty (0% speedup). By enforcing strict Tile-Aligned Constraints (mod 64) and applying Residual Stream Impedance Matching, we preserved 80.3% of GSM8K CoT reasoning while isolating the topological damage."
+      "body": "Phase 15 complete. While layer dropping is an established compression method, we discovered that it induces a highly localized representation shift rather than global damage. We introduce Incision Boundary Healing, a routing strategy that targets only the immediate boundaries of the dropped block, recovering up to 4x more perplexity than global baselines."
     }
   ],
   "decisions": [
@@ -97,12 +95,6 @@
       "track": "Dashboard Automation",
       "status": "done",
       "next_action": "Extracted hardcoded state to dashboard_config.json and installed Git pre-commit hook."
-    },
-    {
-      "who": "Agent",
-      "track": "Phase 16 Execution",
-      "status": "in_progress",
-      "next_action": "Running automated boundary ablation pipeline (ceil vs floor) on GSM8K to validate the FIM Fat-Tail hypothesis."
     }
   ],
   "milestones": [
@@ -131,11 +123,7 @@
       "description": "Phase 15: True Layer Dropping and Boundary Healing"
     },
     {
-      "status": "done",
-      "description": "Phase 16: Width-based FIM pruning, Tile Alignment, and Impedance Matching"
-    },
-    {
-      "status": "done",
+      "status": "now",
       "description": "COLM Actionable Interpretability paper submission"
     }
   ],
@@ -234,17 +222,12 @@
     {
       "label": "Phase 15 \u2014 True Layer Dropping & Boundary Healing",
       "state": "done"
-    },
-    {
-      "label": "Phase 16 \u2014 Hardware-Aware Subnetwork Pruning & Impedance Matching",
-      "state": "running"
     }
   ],
   "links": {
     "Repository": "https://github.com/SakshamKapoor2911/tim-mgdt",
     "Paper Draft": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PAPER_DRAFT.md",
     "Phase 14 Walkthrough": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE14_WALKTHROUGH.md",
-    "Phase Status Ledger": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md",
-    "Phase 16 Insights": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE16_RESULTS.md"
+    "Phase Status Ledger": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md"
   }
 }
