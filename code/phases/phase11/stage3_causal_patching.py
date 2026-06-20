@@ -57,7 +57,7 @@ def run_stage3(
     num_layers = cfg["num_layers"]
 
     clean_prompt = "The prime minister arrived in London today."
-    corrupted_prompt = "The chef cooked a delicious pasta today."
+    corrupted_prompt = "The famous actor arrived in London today."
     print(f"  Clean prompt:     '{clean_prompt}'")
     print(f"  Corrupted prompt: '{corrupted_prompt}'")
     print(f"  Layers to patch:  {num_layers}")

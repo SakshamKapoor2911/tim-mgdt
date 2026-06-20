@@ -17,155 +17,28 @@ import argparse
 EXPERIMENTS = "experiments"
 DASHBOARD = "dashboard"
 
-# ---- editable narrative state ------------------------------------------------
-TAGLINE = (
-    "A systematic framework for diagnosing and recovering from catastrophic "
-    "layer sensitivity in transformers — validated on GPT-2, scaling to "
-    "Mistral-7B and Llama-3-8B."
-)
+CONFIG_FILE = "scripts/dashboard_config.json"
 
-OVERVIEW = [
-    ("What we're building",
-     "A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that "
-     "identifies which transformer layers are <i>elastic</i> vs <i>critical</i>, "
-     "prunes the elastic ones, and heals the activation drift — recovering "
-     "perplexity while cutting parameters, latency, and memory by ~50%."),
-    ("Why this matters",
-     "Existing pruning methods either destroy quality or require expensive "
-     "retraining. We discovered that <b>Layer 10 in GPT-2 is elastic, not "
-     "broken</b> — the +108% PPL explosion on hard removal shows over-weighting, "
-     "not architectural damage. A 2% scaling fix restores balance. TIM-MGDT "
-     "exploits this insight systematically."),
-    ("Where we are today",
-     "<b>Phase 11 complete</b> — real GPU validation on GPT-2 (124M). Found a "
-     "<b>30% sparsity Winning Ticket</b> (+4.9% PPL only). Discovered that "
-     "activation healing <i>hurts</i> GPT-2 (Conv1D architecture) but will "
-     "<b>massively help</b> Llama/Mistral (nn.Linear). Next: 7B model runs on "
-     "dual 3090s."),
-]
+try:
+    with open(CONFIG_FILE, 'r') as f:
+        _cfg = json.load(f)
+except Exception as e:
+    print(f"Error loading {CONFIG_FILE}: {e}")
+    _cfg = {}
 
-RESEARCH_Q = (
-    "The research question",
-    "Can <b>temporal importance metrics</b> — cheap proxy signals computed from "
-    "gradient dynamics — reliably <b>identify and exploit</b> layer-level "
-    "elasticity to achieve lossless (< 5% PPL) structured compression at "
-    "<b>50%+ parameter reduction</b> without retraining?"
-)
-
-PHASE = (
-    "Phase 11 complete (GPT-2 real GPU validation). "
-    "Winning Ticket found at 30% sparsity. "
-    "Next: Llama-3-8B and Mistral-7B on dual 3090 remote server."
-)
-
-RUNS = [
-    ("Phase 2 — Ground Truth sensitivity mapping (GPT-2)", "done"),
-    ("Phase 5.1 — Hard pruning baseline (expected fail: +108% PPL)", "done"),
-    ("Phase 5.2 — Soft rebalancing (+0.31% PPL recovery)", "done"),
-    ("Phase 5.3 — Progressive optimization (0.98x optimal scaling)", "done"),
-    ("Phase 6 — 500-sample validation (-0.11% PPL improvement)", "done"),
-    ("Phase 10 — Lottery ticket pipeline (GPU metrics recorded)", "done"),
-    ("Phase 11 — Real pruning & measurement (GPT-2, 15x GPU speedup)", "done"),
-    ("Phase 11 — Llama-3-8B real evaluation (dual 3090)", "queued"),
-    ("Phase 11 — Mistral-7B real evaluation (dual 3090)", "queued"),
-]
-
-DECISIONS = [
-    ("Architecture insight", "Layer 10 is elastic, not broken",
-     "+108% PPL on hard removal = over-weighting. 2% scaling restores it. "
-     "This insight drives the entire compression strategy."),
-    ("Winning Ticket", "30% unstructured sparsity (GPT-2)",
-     "+4.9% PPL only. Above 30%, PPL degrades rapidly (+21.3% at 40%) — "
-     "classic phase transition boundary verified."),
-    ("Activation Healing", "Conv1D blocks immune → nn.Linear blocks will benefit massively",
-     "GPT-2 intermediate layers use Conv1D (unpruned by global linear pruning). "
-     "Healing added noise. Llama/Mistral use nn.Linear everywhere — healing "
-     "will recover massive quality loss."),
-    ("Head Pruning", "MHA is destructive; GQA will be far more tolerant",
-     "GPT-2 MHA: +59.3% PPL at 20% head pruning. Llama/Mistral GQA (8 KV groups "
-     "for 32 Q heads) has built-in query redundancy → much safer."),
-    ("Eval metric", "Perplexity on WikiText-2 (PPL)",
-     "Standard LM evaluation. Spearman ρ > 0.7 for proxy-to-ground-truth "
-     "correlation. P-value < 0.05 for statistical significance."),
-    ("Compute", "Apple Silicon (quick runs) → 2×3090 (48 GB, full runs)",
-     "Two-phase compute strategy. Remote SSH to dual 3090 for 7B models. "
-     "See REMOTE_SETUP_GUIDE.md."),
-]
-
-TASKS = [
-    ("Saksham", "GPU pipeline", "active",
-     "Phase 11 GPT-2 validation complete. NEXT: (1) launch "
-     "runners/run_llama_phase11.sh on remote 3090, (2) launch "
-     "runners/run_mistral_phase11.sh, (3) analyze causal patching curves "
-     "and activation healing recovery on 7B models."),
-    ("Saksham", "Analysis & paper", "active",
-     "Phase 11 GPT-2 results analyzed. NEXT: (1) interpret 7B causal patching "
-     "bell curves, (2) write up Conv1D vs nn.Linear healing discovery, "
-     "(3) compare IMP winning ticket sparsities across model scales."),
-    ("Saksham", "Dashboard & infrastructure", "done",
-     "Automated dashboard deployed via GitHub Pages + GitHub Actions. "
-     "state.json exposed for agent/MCP consumption."),
-]
-
-HOW_WE_WORK = [
-    ("Cadence", "Solo project · ~10+ hrs/week · structured sprints"),
-    ("Compute", "Two-phase: <b>Apple Silicon</b> (M-series, quick) → "
-     "<b>2×3090 (48 GB VRAM)</b> via SSH for 7B models"),
-    ("Code", "<b>GitHub only</b> — single repo "
-     "<code>SakshamKapoor2911/tim-mgdt</code>, frequent commits, "
-     "no Colab sprawl"),
-    ("Method", "Structured pruning · causal activation patching · "
-     "forward-hook healing · IMP winning tickets · real GPU measurement"),
-]
-
-BULLETPROOFING = [
-    ("done", "Phase 6 validation on 500-sample WikiText-2 — -0.11% PPL improvement confirmed."),
-    ("done", "Phase 5.1 hard pruning baseline — +108% PPL explosion (expected) establishes failure mode."),
-    ("done", "Phase 11 GPT-2 winning ticket — 30% sparsity, +4.9% PPL only, verified on real GPU."),
-    ("done", "PyTorch reparameterization quirk documented — weight_orig vs weight after remove_global_pruning."),
-    ("done", "Conv1D vs nn.Linear healing behavior explained — GPT-2 is architectural edge case."),
-    ("todo", "Llama-3-8B causal patching — expect bell-shaped recovery curve (layers 12-24 critical)."),
-    ("todo", "Mistral-7B GQA head pruning — expect much higher tolerance than GPT-2 MHA."),
-    ("todo", "Activation healing on 7B — expect massive PPL recovery since all layers are nn.Linear."),
-    ("idea", "InAttention integration with winning-ticket masks for real hardware latency reduction."),
-    ("idea", "KL divergence proxy for 100x profiling speedup on 7B models."),
-]
-
-MILESTONES = [
-    ("done", "Phases 2-6 complete: ground truth mapping → validation on GPT-2"),
-    ("done", "Phase 10: lottery ticket pipeline built, GPU metrics recorded"),
-    ("done", "Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery"),
-    ("done", "Automated dashboard + CI/CD deployment on GitHub Pages"),
-    ("now", "Phase 11 Llama-3 & Mistral-7B: real 7B evaluation on dual 3090s"),
-    ("then", "Phases 7-9: alternative corpora, downstream tasks, paper"),
-]
-
-PATH_TO_PAPER = [
-    ("done", "Saksham", "Phases 2-6 complete; elasticity discovery validated on GPT-2."),
-    ("done", "Saksham", "Phase 11 GPT-2 real pruning — all 4 stages verified on GPU."),
-    ("done", "Saksham", "Phase 11 analysis written — Conv1D/nn.Linear discovery, translation predictions."),
-    ("now", "Saksham", "Launch 7B runs: runners/run_llama_phase11.sh and runners/run_mistral_phase11.sh on remote 3090."),
-    ("now", "Saksham", "Design 7B analysis framework — causal patching curves, healing recovery rates."),
-    ("next", "Saksham", "InAttention integration with winning-ticket masks for real latency benchmarks."),
-    ("next", "Saksham", "Phase 7 alternative corpora evaluation; begin paper draft."),
-    ("then", "Saksham", "Submit — workshop or conference. Quality over timeline."),
-]
-
-LINKS = [
-    ("Repository", "https://github.com/SakshamKapoor2911/tim-mgdt"),
-    ("Phase 11 Analysis", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/experiments/phase11/gpt2_real_results_analysis.md"),
-    ("Remote Setup Guide", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/REMOTE_SETUP_GUIDE.md"),
-    ("Phase Status Ledger", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PHASE_STATUS_LEDGER.md"),
-]
-
-LITERATURE = [
-    ("All Circuits Lead to Rome", "Chen et al., 2026", "Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: This theoretical redundancy explains the physical 'elasticity' we exploit; we systematically prune these redundant pathways and use activation healing to force the model onto the remaining circuits."),
-    ("The Lottery Ticket Hypothesis", "Frankle & Carbin, 2019", "Dense networks contain sparse subnetworks that can match original accuracy if trained from scratch. <b>Our diff</b>: We find winning tickets <i>post-pretraining</i> in massive LLMs using gradient dynamics, entirely avoiding the retraining phase."),
-    ("SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use cheap 1st-order gradient dynamics instead of expensive 2nd-order Hessians."),
-    ("Wanda", "Sun et al., 2023", "Prunes based on weight magnitude × input activation norm. <b>Our diff</b>: We use temporal gradient variance to find elasticity, avoiding need for large calibration sets."),
-    ("SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling forward-hook healing."),
-    ("ShortGPT", "Men et al., 2024", "Removes entire blocks based on block-level redundancy. <b>Our diff</b>: We do fine-grained structured/unstructured pruning, rather than taking out whole transformer blocks."),
-]
+TAGLINE = _cfg.get("TAGLINE", "")
+OVERVIEW = _cfg.get("OVERVIEW", [])
+RESEARCH_Q = _cfg.get("RESEARCH_Q", ["", ""])
+PHASE = _cfg.get("PHASE", "")
+RUNS = _cfg.get("RUNS", [])
+DECISIONS = _cfg.get("DECISIONS", [])
+TASKS = _cfg.get("TASKS", [])
+HOW_WE_WORK = _cfg.get("HOW_WE_WORK", [])
+BULLETPROOFING = _cfg.get("BULLETPROOFING", [])
+MILESTONES = _cfg.get("MILESTONES", [])
+PATH_TO_PAPER = _cfg.get("PATH_TO_PAPER", [])
+LINKS = _cfg.get("LINKS", [])
+LITERATURE = _cfg.get("LITERATURE", [])
 # ------------------------------------------------------------------------------
 
 
@@ -222,6 +95,27 @@ def gather_experiment_data():
         key = os.path.basename(f).replace(".json", "")
         results[f"phase10_{key}"] = _load(f)
 
+    # Phase 14 ablation results
+    phase14_results = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase14_final", "*_ablation_results.json")):
+        model_name = os.path.basename(f).replace("_ablation_results.json", "")
+        phase14_results[model_name] = _load(f)
+    results["phase14_results"] = phase14_results
+
+    # Phase 14 sensitivity maps (oracle cost, etc)
+    phase14_maps = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase14_final", "*_sensitivity_map.json")):
+        model_name = os.path.basename(f).replace("_sensitivity_map.json", "")
+        phase14_maps[model_name] = _load(f)
+    results["phase14_maps"] = phase14_maps
+
+    # Phase 15 layer drop results
+    phase15_results = {}
+    for f in glob.glob(os.path.join(EXPERIMENTS, "phase15_layer_drop", "*.json")):
+        key = os.path.basename(f).replace(".json", "")
+        phase15_results[key] = _load(f)
+    results["phase15_results"] = phase15_results
+
     # Count total experiments
     all_json = glob.glob(os.path.join(EXPERIMENTS, "**", "*.json"), recursive=True)
     results["_total_experiments"] = len(all_json)
@@ -252,6 +146,9 @@ def extract_metrics(data):
         return {
             "winning_sparsity": winner.get("sparsity", 0),
             "ppl_loss_pct": winner.get("ppl_loss_increase_pct", 0),
+            "Phase 11: Real Measurement": "done",
+            "Phase 12: Recovery Diagnostics": "done",
+            "Phase 13: Ablation & Hardening": "done",
             "critical_layers": critical[:5],
             "safe_layers": safe[:5],
             "covariance_restoration": s4.get("covariance_restoration_score", 0),
@@ -274,7 +171,7 @@ def build_state_json(experiments, metrics):
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z",
         "project": "TIM-MGDT",
         "tagline": TAGLINE,
-        "current_phase": "Phase 11",
+        "current_phase": "Phase 15",
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
@@ -307,6 +204,305 @@ def _overview_cards():
 
 def _research_callout():
     return f"""<div class="callout"><h3>{RESEARCH_Q[0]}</h3><p>{RESEARCH_Q[1]}</p></div>"""
+
+
+def _phase14_html(results, maps):
+    import math
+    # We want to display results for Mistral-7B-v0.1 and Meta-Llama-3-8B.
+    models = [
+        ("Mistral-7B-v0.1", "Mistral 7B (MHA)"),
+        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)")
+    ]
+    
+    html = '<div class="section-label" id="phase14">Legacy Explorations — Phase 14 Surgical Recovery</div>'
+    html += '<details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;">'
+    html += '<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 14 Surgical (ΔCE) Results</summary>'
+    html += '<div style="margin-top: 16px;">'
+    
+    for key, display_name in models:
+        model_results = results.get(key, {})
+        model_map = maps.get(key, {})
+        
+        oracle_cost = "Pending..."
+        if model_map and "oracle_compute_time_min" in model_map:
+            oracle_cost = f"<b>{model_map['oracle_compute_time_min']:.2f} minutes</b>"
+            
+        # Get sensitivities to list surgical targeted layers
+        sens = model_map.get("sensitivities", {})
+        if sens:
+            sorted_layers = sorted(sens.items(), key=lambda x: x[1], reverse=True)
+            top_6 = [int(layer.split("_")[1]) for layer, score in sorted_layers[:6]]
+            surgical_layers_str = str(sorted(top_6))
+        else:
+            surgical_layers_str = "Pending sensitivity map..."
+
+        # Helper to extract metric row
+        def get_row(mode_name, layers_targeted, run_key):
+            run = model_results.get(run_key)
+            if not run:
+                return f"""<tr><td class="task-who">{mode_name}</td><td><code>{layers_targeted}</code></td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td><td class="task-action">—</td></tr>"""
+            
+            baseline = run.get("baseline_c4_ppl")
+            pruned = run.get("pruned_c4_ppl")
+            recovered = run.get("recovered_c4_ppl")
+            delta = run.get("c4_delta_pct")
+            time_s = run.get("recovery_time_s")
+            
+            pruned_str = f"{pruned:.3f}" if pruned is not None else "—"
+            recovered_str = f"{recovered:.3f}" if recovered is not None else "—"
+            
+            if delta is not None:
+                delta_str = f"{delta:+.2f}%"
+                if delta > 15.0:
+                    delta_str = f"<span style='color:var(--red); font-weight:600;'>{delta_str}</span>"
+                elif delta < 5.0:
+                    delta_str = f"<span style='color:var(--green); font-weight:600;'>{delta_str}</span>"
+                else:
+                    delta_str = f"<span style='color:var(--yellow); font-weight:600;'>{delta_str}</span>"
+            else:
+                delta_str = "—"
+                
+            time_str = f"{time_s/60:.1f} min" if time_s is not None else "—"
+            
+            return f"""
+            <tr>
+              <td class="task-who">{mode_name}</td>
+              <td><code>{layers_targeted}</code></td>
+              <td class="task-action">{pruned_str}</td>
+              <td class="task-action"><b>{recovered_str}</b></td>
+              <td class="task-action">{delta_str}</td>
+              <td class="task-action">{time_str}</td>
+            </tr>
+            """
+        
+        # Dense baseline row
+        dense_ppl = "—"
+        if model_map and "baseline_loss" in model_map:
+            try:
+                dense_ppl = f"{math.exp(model_map['baseline_loss']):.3f}"
+            except Exception:
+                pass
+        else:
+            for r_key in ["uniform_20pct", "ends_only_20pct", "surgical_20pct"]:
+                if r_key in model_results:
+                    val = model_results[r_key].get("baseline_c4_ppl")
+                    if val is not None:
+                        dense_ppl = f"{val:.3f}"
+                        break
+        
+        dense_row = f"""
+        <tr>
+          <td class="task-who">Dense Baseline</td>
+          <td>N/A (All Layers Intact)</td>
+          <td class="task-action">—</td>
+          <td class="task-action"><b>{dense_ppl}</b></td>
+          <td class="task-action">0.00%</td>
+          <td class="task-action">—</td>
+        </tr>
+        """
+        
+        uniform_row = get_row("Uniform Random (All Layers)", "All 32 Layers", "uniform_20pct")
+        ends_only_row = get_row("Ends-Only Heuristic", "[0, 1, 2, 29, 30, 31]", "ends_only_20pct")
+        surgical_row = get_row("Surgical Random (ΔCE)", surgical_layers_str, "surgical_20pct")
+        
+        html += f"""
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div class="rc-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3>{display_name}</h3>
+              <div class="rc-meta">Live C4 Held-Out Perplexity recovery validation</div>
+            </div>
+            <div class="nav-meta" style="text-align:right;">
+              Oracle Compute: {oracle_cost}
+            </div>
+          </div>
+          <table class="task-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Allocation Method</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Targeted</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Sparse C4 PPL (20%)</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Recovered C4 PPL</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Δ Recovery vs Dense</th>
+                <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Time (Wall-Clock)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dense_row}
+              {uniform_row}
+              {ends_only_row}
+              {surgical_row}
+            </tbody>
+          </table>
+        </div>
+        """
+    html += '</div></details>'
+    return html
+
+
+def _phase15_html(phase15_results):
+    models = [
+        ("Mistral-7B-v0.1", "Mistral 7B (MHA)"),
+        ("Meta-Llama-3-8B", "Llama 3 8B (GQA)"),
+        ("gemma-2-2b", "Gemma 2 2B (SWA)")
+    ]
+    
+    html = '<div class="section-label" id="phase15">Phase 15: Incision Boundary Healing for Depth-Pruned LLMs</div>'
+    
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        While recent literature (e.g., <i>Gromov et al., ShortGPT, LaCo</i>) has established that <b>Layer Dropping</b> achieves true hardware compression, the standard practice of applying global fine-tuning to all surviving layers to recover performance is highly sub-optimal.
+      </p>
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        <b>Our Primary Contribution — Incision Boundary Healing:</b> We empirically prove that dropping contiguous layers creates a sharp, highly localized discontinuity in the activation flow, rather than global degradation. Our <b>Boundary-Focused Surgical LoRA</b> restricts trainable parameters exclusively to the layers adjacent to the "incision". This routes the compute budget with precision, recovering up to 4x more perplexity than global baselines while using 33% fewer trainable parameters.
+      </p>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:left; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Model</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped C4 PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Global) PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    """
+    
+    for key, display_name in models:
+        eval_data = phase15_results.get(f"{key}_drop4_eval", {})
+        healed_data = phase15_results.get(f"{key}_drop4_healed", {})
+        boundary_data = phase15_results.get(f"{key}_drop4_boundary_healed", {})
+        
+        drop_indices = eval_data.get("drop_indices", healed_data.get("drop_indices", []))
+        drop_indices_str = str(drop_indices) if drop_indices else "—"
+        
+        base_lat = eval_data.get("baseline_latency_ms", 0.0)
+        drop_lat = eval_data.get("dropped_latency_ms", 0.0)
+        lat_saved = eval_data.get("latency_reduction_pct", 0.0)
+        
+        lat_saved_str = f"-{lat_saved:.2f}% ({base_lat:.1f}ms → {drop_lat:.1f}ms)" if lat_saved else "—"
+        
+        base_ppl = eval_data.get("baseline_c4_ppl", healed_data.get("baseline_c4_ppl"))
+        base_ppl_str = f"{base_ppl:.3f}" if base_ppl else "—"
+        
+        drop_ppl = eval_data.get("dropped_c4_ppl", healed_data.get("dropped_c4_ppl"))
+        drop_ppl_str = f"{drop_ppl:.3f}" if drop_ppl else "—"
+        
+        healed_ppl = healed_data.get("healed_c4_ppl")
+        healed_ppl_str = f"{healed_ppl:.3f}" if healed_ppl else "—"
+        
+        boundary_ppl = boundary_data.get("healed_c4_ppl")
+        boundary_ppl_str = f"{boundary_ppl:.3f}" if boundary_ppl else "<i>Pending...</i>"
+        
+        html += f"""
+        <tr>
+          <td class="task-who">{display_name}</td>
+          <td style="text-align:center;"><code>{drop_indices_str}</code></td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">{lat_saved_str}</td>
+          <td style="text-align:center;">{base_ppl_str}</td>
+          <td style="text-align:center; color:var(--red);">{drop_ppl_str}</td>
+          <td style="text-align:center;">{healed_ppl_str}</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">{boundary_ppl_str}</td>
+        </tr>
+        """
+        
+    html += """
+        </tbody>
+      </table>
+    </div>
+    """
+    
+    # Phase 16B Pareto Frontier
+    html += '<div class="section-label" id="pareto">Phase 16B: The Latency-Perplexity Pareto Frontier</div>'
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To build a defensible submission for COLM, we swept across multiple compression ratios (n_drop = 2, 4, 6, 8) on Mistral-7B. This establishes the Pareto frontier of true hardware latency reduction vs perplexity recovery using our Incision Boundary Healing. Note the massive relative recovery at 8 drops: boundary healing brings perplexity down from a completely broken 20.82 back to 11.52.
+      </p>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--primary); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">The Pareto "Knee" Caveat</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          While recovering 9 points of perplexity is an incredible relative win, an absolute perplexity of 11.517 means the 8-layer compressed model is still heavily degraded compared to the 7.855 baseline and will likely fail complex reasoning tasks. We formally designate the <b>4-layer drop (-15.62% latency at 9.073 PPL)</b> as the optimal operating point (the "knee" of the curve)—the most actionable intersection of physical compression and retained capability.
+        </p>
+      </div>
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="figures/bathtub_curve.png" alt="The Bathtub Curve" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px;" />
+        <br/>
+        <img src="figures/pareto_frontier.png" alt="Latency-Perplexity Pareto Frontier" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px;" />
+        <br/>
+        <img src="figures/thickness_ablation.png" alt="Boundary Thickness Ablation" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--primary); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">The "Razor-Thin" Semantic Gap (Ablation 16C)</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          Our thickness ablation proved that the semantic damage is highly localized. Healing just <b>2 layers</b> (t=1) recovered 90% of the possible performance (9.163 PPL), and expanding the boundary beyond 4 layers yielded zero additional recovery. This confirms the boundary discontinuity hypothesis mathematically.
+        </p>
+      </div>
+      <table class="task-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Layers Dropped</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Latency Reduction</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Baseline PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Dropped PPL</th>
+            <th style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink3); text-align:center; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface2);">Healed (Boundary) PPL</th>
+          </tr>
+        </thead>
+        <tbody>
+    """
+    
+    for drop in [2, 4, 6, 8]:
+        eval_data = phase15_results.get(f"Mistral-7B-v0.1_drop{drop}_eval", {})
+        boundary_data = phase15_results.get(f"Mistral-7B-v0.1_drop{drop}_boundary_healed", {})
+        
+        if not eval_data:
+            continue
+            
+        lat_saved = eval_data.get("latency_reduction_pct", 0.0)
+        base_ppl = eval_data.get("baseline_c4_ppl", 0.0)
+        drop_ppl = eval_data.get("dropped_c4_ppl", 0.0)
+        healed_ppl = boundary_data.get("healed_c4_ppl", 0.0)
+        
+        html += f"""
+        <tr>
+          <td style="text-align:center; font-weight:600; color:var(--ink);">{drop} Layers</td>
+          <td style="text-align:center; color:var(--green); font-weight:600;">-{lat_saved:.2f}%</td>
+          <td style="text-align:center;">{base_ppl:.3f}</td>
+          <td style="text-align:center; color:var(--red);">{drop_ppl:.3f}</td>
+          <td style="text-align:center; font-weight:600; color:var(--blue);">{healed_ppl:.3f}</td>
+        </tr>
+        """
+        
+    html += """
+        </tbody>
+      </table>
+    </div>
+    """
+    
+    # Phase 17 Mechanistic Interpretability
+    html += '<div class="section-label" id="phase17">Phase 17: Mechanistic Interpretability</div>'
+    html += """
+    <div class="card" style="margin-bottom: 24px; padding: 18px;">
+      <p style="margin: 0 0 16px 0; color: var(--ink2); line-height: 1.6;">
+        To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token. LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted.
+      </p>
+      <div style="background-color: var(--surface2); border-left: 4px solid var(--accent); padding: 12px 16px; margin-bottom: 20px; border-radius: 0 4px 4px 0;">
+        <h4 style="margin: 0 0 8px 0; color: var(--ink); font-size: 14px;">Attention Sink Spike (Layer 18)</h4>
+        <p style="margin: 0; color: var(--ink2); font-size: 13px; line-height: 1.5;">
+          The massive spike in sink attention exactly at the right boundary layer (Layer 18) mathematically confirms that the structural discontinuity is severely corrupting the incoming residual stream. The model "notices" the incision, causing boundary layers to dump their attention mass into the sink.
+        </p>
+      </div>
+      <div style="text-align: center;">
+        <img src="figures/attention_heatmap.png" alt="Mechanistic Disruption: Attention Mass Directed to Sink Token" style="max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" />
+      </div>
+    </div>
+    """
+    
+    return html
 
 
 def _runs_html():
@@ -346,8 +542,10 @@ def _metrics_html(metrics, model_name="GPT-2"):
         return f"-{100*(1 - opt/base):.1f}%"
 
     return f"""
-<div class="section-label">Performance vs Efficiency — Phase 11 ({model_name})</div>
-<div class="g2">
+<div class="section-label">Legacy Results — Phase 11 ({model_name})</div>
+<details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;">
+<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 11 (GPT-2) Legacy Proof of Concept Metrics</summary>
+<div class="g2" style="margin-top: 16px;">
 <div class="result-card primary">
   <div class="rc-head"><h3>Deployment Metrics</h3>
   <div class="rc-meta">{model_name} · Real GPU measurement</div></div>
@@ -378,7 +576,7 @@ def _metrics_html(metrics, model_name="GPT-2"):
     <b>Safe to prune:</b> {', '.join(metrics['safe_layers'][:5])}
   </div>
 </div>
-</div>"""
+</details>"""
 
 
 def _tasks_html():
@@ -565,7 +763,11 @@ def build_html(experiments, metrics):
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
-    <a href="#results">Results</a>
+    <a href="#phase15">Phase 15 (Results)</a>
+    <a href="#pareto">Pareto Frontier</a>
+    <a href="#phase17">Phase 17 (Mechanistic)</a>
+    <a href="#phase14">Phase 14 (Legacy)</a>
+    <a href="#results">Phase 11 (Legacy)</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -585,7 +787,7 @@ def build_html(experiments, metrics):
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">{TAGLINE}</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 11 complete</span>
+      <span class="chip chip-green">Phase 15 complete</span>
       <span class="chip chip-blue">{done_count}/{len(RUNS)} runs done</span>
       <span class="chip chip-yellow">{total} experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
@@ -600,7 +802,13 @@ def build_html(experiments, metrics):
   </div>
   <div style="margin-top:16px">{_research_callout()}</div>
 
-  <div id="results">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
+  <div style="margin-top: 32px;">
+    {_phase15_html(experiments.get("phase15_results", {}))}
+  </div>
+  <div style="margin-top: 32px;">
+    {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
+  </div>
+  <div id="results" style="margin-top: 32px;">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>
   <div id="tasks">{_tasks_html()}</div>

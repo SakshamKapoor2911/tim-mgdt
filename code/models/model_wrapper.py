@@ -26,7 +26,7 @@ class HookedModelWrapper:
         except (AssertionError, TypeError, Exception) as e:
             # Fallback: Some models don't support quantization or specific device maps
             print(f"Warning: Primary load failed with error: {e}")
-            print(f"Attempting fallback load for {model_name}...")
+            print(f"Attempting fallback load for {model_name} in fp16...")
             self.load_in_8bit = False
             self.load_in_4bit = False
             self.model = HookedTransformer.from_pretrained(
@@ -34,7 +34,8 @@ class HookedModelWrapper:
                 device=self.device,
                 fold_ln=False,
                 center_writing_weights=False,
-                center_unembed=False
+                center_unembed=False,
+                torch_dtype=torch.float16
             )
     
     def run_with_cache(self, input_text):

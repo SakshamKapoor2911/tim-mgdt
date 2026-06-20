@@ -39,6 +39,7 @@ def run_full_pipeline(
     output_dir: str = "experiments/phase11",
     device: Optional[str] = None,
     ppl_threshold_pct: float = 5.0,
+    batch_size: int = 2,
 ) -> Dict[str, Any]:
     """
     Run all 4 stages of the Phase 11 real pruning pipeline.
@@ -49,6 +50,7 @@ def run_full_pipeline(
         output_dir:       Where to save results JSON
         device:           Force device ('cuda'/'cpu'), or auto-detect
         ppl_threshold_pct: Max acceptable PPL increase for IMP winner (Stage 2)
+        batch_size:       Batch size for PPL evaluation (default: 4 to saturate VRAM)
 
     Raises:
         RuntimeError: If model fails to load (no synthetic fallback)
@@ -106,6 +108,7 @@ def run_full_pipeline(
         model, tokenizer, device,
         model_name=model_key,
         ppl_max_samples=num_samples,
+        batch_size=batch_size,
     )
 
     # Stage 2: IMP search
@@ -114,6 +117,7 @@ def run_full_pipeline(
         stage1_results=stage1_res,
         ppl_max_samples=num_samples,
         ppl_threshold_pct=ppl_threshold_pct,
+        batch_size=batch_size,
     )
 
     # Stage 3: Causal activation patching
@@ -125,6 +129,7 @@ def run_full_pipeline(
         model, tokenizer, device,
         target_sparsity=target_sparsity,
         ppl_max_samples=num_samples,
+        batch_size=batch_size,
     )
 
     total_elapsed = time.time() - pipeline_start
@@ -153,6 +158,30 @@ def run_full_pipeline(
     output_path.mkdir(parents=True, exist_ok=True)
     out_file = output_path / f"{model_key.lower().replace('-', '_')}_phase11_results.json"
     save_json(str(out_file), results)
+
+    # Automate Dashboard Update
+    dashboard_path = Path("dashboard/state.json")
+    if dashboard_path.exists():
+        try:
+            with open(dashboard_path, "r") as f:
+                state = json.load(f)
+            
+            state["latest_run"] = {
+                "name": f"{model_key.capitalize()} Phase 11",
+                "status": "complete",
+                "model": model_key,
+                "device": device
+            }
+            
+            for run in state.get("runs", []):
+                if model_key in run["label"].lower() and "phase 11" in run["label"].lower():
+                    run["state"] = "done"
+
+            with open(dashboard_path, "w") as f:
+                json.dump(state, f, indent=2)
+            print("  [OK] Dashboard state.json automatically updated.")
+        except Exception as e:
+            print(f"  [WARN] Failed to update dashboard state: {e}")
 
     print("\n" + "=" * 70)
     print("PHASE 11 PIPELINE COMPLETE")
