@@ -51,6 +51,8 @@ def build_ablation_lora_config(strategy, rank=16):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--strategy", choices=["naive", "oracle"], required=True)
+    parser.add_argument("--model_path", type=str, required=False)
+    parser.add_argument("--output_dir", type=str, required=False)
     args = parser.parse_args()
     
     config = build_ablation_lora_config(args.strategy)

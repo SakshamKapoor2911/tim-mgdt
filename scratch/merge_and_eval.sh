@@ -41,11 +41,10 @@ for MODEL_PATH in "${MODELS[@]}"; do
     # Extract clean name for the JSON output
     MODEL_NAME=$(basename "$MODEL_PATH")
     
-    lm_eval --model vllm \
-      --model_args pretrained=$MODEL_PATH,tensor_parallel_size=2,dtype=bfloat16,gpu_memory_utilization=0.85 \
+    venv_eval/bin/lm_eval --model vllm \
+      --model_args pretrained=$MODEL_PATH,tensor_parallel_size=2,dtype=bfloat16,gpu_memory_utilization=0.85,max_num_seqs=256 \
       --tasks $TASKS \
       --num_fewshot $FEW_SHOT \
-      --batch_size auto \
       --output_path $RESULTS_DIR/${MODEL_NAME}_eval.json
       
     echo "Finished evaluating $MODEL_NAME."
