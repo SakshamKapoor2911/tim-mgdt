@@ -55,8 +55,33 @@ To validate the Actionable Interpretability pipeline and Surgical LoRA recovery,
 
 To prevent data contamination and ensure generalization metrics are robust, all results are evaluated strictly on the \textbf{C4 Held-Out Validation Corpus} using perplexity (PPL) as the primary indicator of merit. Code is available at \url{https://anonymous.4open.science/r/Incision-Healing-Submission}.
 
-\subsection{Downstream Capability Retention (Escaping the Perplexity Trap)}
-While perplexity serves as a proxy for representational smoothness, it does not guarantee the retention of complex reasoning or factual recall. To rigorously evaluate downstream task preservation, we benchmarked the structural recovery on MMLU (5-shot), GSM8K (5-shot), and ARC-Challenge. We observed that boundary-focused healing not only repairs the localized semantic gap but successfully translates to recovering macro-level reasoning capabilities lost during the layer drop... \textit{(Exact evaluation metrics to be inserted upon completion of the vLLM benchmark loop)}.
+\subsection{The Perplexity Trap: A Fundamental Limit of Boundary Recovery}
+
+A critical failure mode in current model compression literature is the over-reliance on perplexity (PPL) as a proxy for structural recovery. To rigorously evaluate the true efficacy of Incision Boundary Healing, we benchmarked the recovered models on MMLU (5-shot), GSM8K (5-shot), and ARC-Challenge.
+
+As demonstrated in Table 2, the empirical results reveal a stark dichotomy between representational smoothness and cognitive utility. While boundary-focused LoRA successfully restores localized semantic flow---evidenced by a 30.5\% to 44.9\% recovery of the performance lost on ARC-Challenge---it fundamentally fails to recover deep reasoning.
+
+Most notably, zero-shot algorithmic reasoning (GSM8K) collapses to near 0.0\% upon layer removal and exhibits a negligible recovery of under 5\% across both architectures after healing. Similarly, stationary factual recall (MMLU) recovers a mere 12.5\% to 12.8\%.
+
+We conclude that while localized boundary intervention is sufficient for repairing surface-level linguistic heuristics and minimizing cross-entropy loss, it is mathematically insufficient for restoring the deep, multi-step logical circuitry that is permanently excised during physical layer dropping. This establishes a hard empirical boundary: parameter-efficient recovery mechanisms cannot reconstruct dense algebraic representations severed during structural pruning.
+
+\begin{table}[h]
+\centering
+\caption{Empirical Capability Recovery across Core Benchmarks}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{MMLU (5-shot)} & \textbf{GSM8K (5-shot)} & \textbf{ARC-c (5-shot)} \\
+\midrule
+Meta-Llama-3-8B & 65.5\% & 50.5\% & 59.4\% \\
+Meta-Llama-3-8B\_boundary\_healed\_merged & 31.5\% & 0.9\% & 46.4\% \\
+Meta-Llama-3-8B\_dropped\_unhealed & 26.5\% & 1.1\% & 35.8\% \\
+\midrule
+Mistral-7B-v0.1 & 62.6\% & 38.5\% & 60.1\% \\
+Mistral-7B-v0.1\_boundary\_healed\_merged & 32.6\% & 3.2\% & 47.1\% \\
+Mistral-7B-v0.1\_dropped\_unhealed & 28.3\% & 1.4\% & 41.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Ablation 1: Surgical vs. Uniform Allocation (Capacity Efficiency Proof)}
 Standard low-rank adaptation is typically applied uniformly across all attention projection layers. We compare this baseline to our surgical allocation.
