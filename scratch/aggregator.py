@@ -10,6 +10,7 @@ def main():
     
     eval_file_a = "./results/Meta-Llama-3-8B_sparse_healed_eval_A.json"
     eval_file_b = "./results/Meta-Llama-3-8B_sparse_healed_eval_B.json"
+    eval_file_c = "./results/Meta-Llama-3-8B_sparse_healed_eval_C.json"
     
     mmlu_acc = "TBD"
     gsm8k_acc = "TBD"
@@ -19,12 +20,16 @@ def main():
         with open(eval_file_a, "r") as f:
             res_a = json.load(f)
         mmlu_acc = res_a.get("mmlu", {}).get("acc,none", "TBD")
-        asdiv_acc = res_a.get("asdiv", {}).get("exact_match,strict-match", "TBD")
         
     if os.path.exists(eval_file_b):
         with open(eval_file_b, "r") as f:
             res_b = json.load(f)
         gsm8k_acc = res_b.get("gsm8k", {}).get("exact_match,strict-match", "TBD")
+
+    if os.path.exists(eval_file_c):
+        with open(eval_file_c, "r") as f:
+            res_c = json.load(f)
+        asdiv_acc = res_c.get("asdiv_cot_llama", {}).get("exact_match,strict-match", "TBD")
         
     if isinstance(mmlu_acc, float): mmlu_acc = f"{mmlu_acc*100:.2f}\\%"
     if isinstance(gsm8k_acc, float): gsm8k_acc = f"{gsm8k_acc*100:.2f}\\%"
