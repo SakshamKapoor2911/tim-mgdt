@@ -8,6 +8,7 @@ on:
     paths:
       - 'experiments/**/*.json'
       - 'scripts/build_dashboard.py'
+      - 'scripts/dashboard_config.json'
       - '*.md'
       - 'code/**/*.py'
   workflow_dispatch:
