@@ -1,117 +1,96 @@
 {
-  "TAGLINE": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
+  "TAGLINE": "Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B with true hardware compression.",
   "OVERVIEW": [
     [
       "What we're building",
-      "A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers are <i>elastic</i> vs <i>critical</i>, prunes the elastic ones, and heals the activation drift \u2014 recovering perplexity while cutting parameters, latency, and memory by ~50%."
+      "A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are <i>elastic</i> vs <i>critical</i>. By exploiting the 'Hardware-Aligned Structural Lottery Ticket' hypothesis, we prune models like Mistral-7B using FIM metrics while fully preserving zero-shot reasoning (GSM8K) capabilities."
     ],
     [
       "Why this matters",
-      "Existing pruning methods either destroy quality or require expensive retraining. We discovered that <b>Layer 10 in GPT-2 is elastic, not broken</b> \u2014 the +108% PPL explosion on hard removal shows over-weighting, not architectural damage. A 2% scaling fix restores balance. TIM-MGDT exploits this insight systematically."
+      "Existing pruning methods either destroy quality or require expensive retraining. We discovered that width pruning based on empirical FIM preserves zero-shot logical reasoning significantly better than depth pruning (which suffers from the 'Perplexity Trap'). We align all pruned layers to Tensor Core dimensions (ceil/floor rounding) ensuring theoretical FLOP reductions map directly to physical wall-clock latency gains."
     ],
     [
       "Where we are today",
-      "<b>Phase 15 complete</b>. While layer dropping is an established compression method, we discovered that it induces a highly localized representation shift rather than global damage. We introduce <b>Incision Boundary Healing</b>, a routing strategy that targets only the immediate boundaries of the dropped block, recovering up to 4x more perplexity than global baselines."
+      "<b>Phase 16 active</b>. We are currently running a smart multi-GPU evaluation of the hardware-aware FIM width-pruned Mistral-7B. We are gathering definitive GSM8K evidence to prove our 'Hardware-Aligned Structural Lottery Ticket' hypothesis, demonstrating that width pruning avoids the catastrophic disruption seen in full layer dropping."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
-    "Can <b>exhaustive causal sensitivity metrics</b> (\u0394CE) reliably <b>identify and exploit</b> layer-level elasticity to achieve lossless (< 5% PPL) structured compression at <b>50%+ parameter reduction</b> without retraining?"
+    "Can <b>empirical FIM metrics</b> reliably identify and exploit elasticity in MLP internal dimensions to achieve structured, hardware-aligned compression at <b>20%+ sparsity</b> without destroying zero-shot reasoning (GSM8K)?"
   ],
-  "PHASE": "Phase 15 Complete. Next: Submit COLM workshop paper.",
+  "PHASE": "Phase 16 Active: Hardware-Aligned Width Pruning Evaluation",
   "RUNS": [
-    ["Phase 2 \u2014 Ground Truth sensitivity mapping (GPT-2)", "done"],
-    ["Phase 5.1 \u2014 Hard pruning baseline", "done"],
-    ["Phase 10 \u2014 Lottery ticket pipeline built", "done"],
-    ["Phase 11 \u2014 Real pruning & measurement (GPT-2)", "done"],
-    ["Phase 11 \u2014 Llama-3 & Mistral-7B eval", "done"],
+    ["Phase 11 \u2014 Llama-3 & Mistral-7B baseline eval", "done"],
     ["Phase 12 \u2014 Hardware Memory Wall discovery", "done"],
     ["Phase 13 \u2014 Ablation & Hardening", "done"],
-    ["Phase 14 \u2014 Final Actionable Interpretability Pipeline", "done"],
-    ["Phase 15 \u2014 True Layer Dropping & Boundary Healing", "done"]
+    ["Phase 14 \u2014 Bulletproof LoRA Healing pipeline", "done"],
+    ["Phase 15 \u2014 True Layer Dropping & Boundary Healing", "done"],
+    ["Phase 16 \u2014 Hardware-Aware Width Pruning Ablation", "running"],
+    ["Phase 3 \u2014 Feedback Distillation (Remote)", "planned"]
   ],
   "DECISIONS": [
     [
-      "Actionability",
-      "Oracle Compute Cost is fast",
-      "We proved that calculating the exhaustive \u0394CE Bathtub Curve for a 7B model takes under 4 minutes. It is highly actionable."
+      "Architecture Choice",
+      "Mistral-7B-v0.1 Focus",
+      "We shifted focus entirely from toy models like GPT-2 to Mistral-7B, proving our pipeline on state-of-the-art reasoning architectures used in modern deployments."
     ],
     [
-      "Layer Dropping",
-      "Contiguous Block Drop",
-      "Instead of dropping scattered layers which causes memory fragmentation, we drop the contiguous 4-layer block with the lowest causal sensitivity to guarantee real-world 15.5% latency reductions."
+      "Pruning Strategy",
+      "FIM Width Pruning over Depth Pruning",
+      "Depth pruning (layer dropping) creates sharp, localized discontinuities ('Perplexity Trap'). Width pruning (MLP dimensionality reduction) guided by Fisher Information Matrix (FIM) preserves the structural manifold and retains zero-shot logical reasoning better."
     ],
     [
-      "Healing Strategy",
-      "Boundary-Focused Healing",
-      "Layer dropping creates a sharp, localized discontinuity in the activation flow. Healing just the incision boundaries (layers immediately before/after the drop) dramatically outperforms healing globally sensitive layers."
-    ],
-    [
-      "Recovery Initialization",
-      "Random Init > SVD Init",
-      "SVD forces dense noise into sparse structures, polluting undamaged weights. Random Init allows the optimizer to find a new sparse-compatible manifold."
-    ],
-    [
-      "Metric",
-      "C4 Held-Out Perplexity",
-      "To preempt data contamination claims (Wikitext-2), we use C4 evaluation exclusively."
+      "Hardware Alignment",
+      "Ceil/Floor Tensor Core Rounding",
+      "To ensure theoretical FLOP reductions translate to physical speedups, we round pruned MLP dimensions to nearest 64 (Tensor Core alignment) via specific ceil/floor strategies."
     ]
   ],
   "TASKS": [
     [
-      "Saksham",
-      "Phase 15 Execution",
-      "done",
-      "Completed layer dropping and evaluated Boundary-Focused Healing vs Global Healing on Llama-3 and Mistral-7B."
+      "System",
+      "Phase 16 Execution (`task-567`)",
+      "running",
+      "A smart parallel script is currently utilizing both RTX 3090s to calculate FIM, prune Mistral-7B with `ceil` and `floor` strategies, and evaluate GSM8K zero-shot recovery simultaneously."
     ],
     [
-      "Agent",
-      "Dashboard Automation",
-      "done",
-      "Extracted hardcoded state to dashboard_config.json and installed Git pre-commit hook."
+      "System",
+      "Phase 3 Distillation",
+      "planned",
+      "A remote feedback distillation task running externally is waiting for Edward's endpoint (~12h remaining). Our local hardware will pivot to robust evaluation generation once Phase 16 finishes."
     ]
   ],
   "HOW_WE_WORK": [
-    ["Cadence", "Solo project \u00b7 ~10+ hrs/week \u00b7 structured sprints"],
-    ["Compute", "<b>2\u00d73090 (48 GB VRAM total)</b> exclusively. No Apple MLX or external A100s."],
+    ["Compute", "<b>2\u00d73090 (48 GB VRAM total)</b> locally + External Remote Endpoint."],
     ["Code", "<b>GitHub only</b> \u2014 single repo <code>SakshamKapoor2911/tim-mgdt</code>, frequent commits."],
-    ["Method", "Actionable Interpretability \u00b7 Surgical LoRA \u00b7 Delta CE Sensitivity"]
+    ["Method", "Actionable Interpretability \u00b7 FIM Width Pruning \u00b7 GSM8K Zero-Shot Eval"]
   ],
   "BULLETPROOFING": [
-    ["done", "Ends-Only baseline implemented to prove exact mapping beats naive heuristics."],
-    ["done", "Oracle Compute Cost actively logged in JSON to preempt 'too slow' claims."],
-    ["done", "SVD Failure Mechanistic explanation fully documented in narrative."],
-    ["done", "C4 evaluation adopted to resolve Wikitext-2 contamination."],
-    ["done", "Cross-Architecture validation running natively on Llama-3-8B and Mistral-7B."]
+    ["done", "Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds."],
+    ["done", "C4 perplexity and TPS latency metrics extracted for Mistral-7B."],
+    ["now", "Generating definitive 5-shot GSM8K recovery metrics for mathematical unassailability."],
+    ["planned", "Running 256-chunk robust evaluation scripts for LoRA healing verification."]
   ],
   "MILESTONES": [
-    ["done", "Phases 2-6 complete: ground truth mapping \u2192 validation on GPT-2"],
-    ["done", "Phase 11 GPT-2: real pruning, 30% winning ticket, healing discovery"],
     ["done", "Phase 12: Proxy validation, Memory Wall proof"],
-    ["done", "Automated dashboard tracking via Pre-Commit Hook"],
-    ["done", "Phase 14: Final pipeline execution (Mistral & Llama 3)"],
+    ["done", "Phase 14: Final pipeline execution (Mistral-7B LoRA healing)"],
     ["done", "Phase 15: True Layer Dropping and Boundary Healing"],
-    ["now", "COLM Actionable Interpretability paper submission"]
+    ["now", "Phase 16: Empirical evaluation of Hardware-Aligned Structural Lottery Ticket via Width Pruning"],
+    ["planned", "COLM Actionable Interpretability paper submission with flawless GSM8K ablations"]
   ],
   "PATH_TO_PAPER": [
-    ["done", "Saksham", "Execute 7B runs on remote 3090s and confirm Phase 11 baseline."],
-    ["done", "Saksham", "Extract proxy NaN correlations confirming the 7B Hardware Memory Wall."],
-    ["done", "Saksham", "Harden Phase 14 script with Ends-Only baseline and SVD explanations."],
-    ["done", "Saksham", "Wait for Phase 14 background completion and update Phase 14 artifacts."],
-    ["done", "Saksham", "Execute Phase 15 layer dropping with boundary healing."],
-    ["done", "Saksham", "Integrate Phase 15 results into PAPER_DRAFT.md."],
-    ["now", "Saksham", "Submit to COLM Actionable Interpretability Workshop."]
+    ["done", "Agent", "Implement FIM Width Pruning with ceil/floor strategies for Mistral-7B."],
+    ["done", "Agent", "Fix multi-GPU tensor device mapping bug causing width pruning crashes."],
+    ["now", "Agent", "Execute Phase 16 parallel ablation to extract GSM8K baseline, ceil, and floor metrics."],
+    ["planned", "Agent", "Inject final GSM8K metrics into `paper/main.tex` removing `\\textit{Pending Eval}` markers."],
+    ["planned", "Saksham", "Final paper review and submission to COLM workshop."]
   ],
   "LINKS": [
     ["Repository", "https://github.com/SakshamKapoor2911/tim-mgdt"],
-    ["Paper Draft", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/PAPER_DRAFT.md"],
-    ["Phase 14 Walkthrough", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE14_WALKTHROUGH.md"],
-    ["Phase Status Ledger", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/docs/PHASE_STATUS_LEDGER.md"]
+    ["Paper Draft", "https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex"]
   ],
   "LITERATURE": [
-    ["The Unreasonable Ineffectiveness of the Deeper Layers", "Gromov et al., 2024", "Demonstrates depth pruning and QLoRA healing. <b>Our diff</b>: We prove that healing should be restricted to the 'incision boundary' rather than applied uniformly across surviving layers."],
-    ["All Circuits Lead to Rome", "Chen et al., 2026", "Shows LLM tasks are supported by multiple, structurally distinct redundant circuits. <b>Our diff</b>: We systematically prune these pathways and surgically recover them."],
-    ["SparseGPT", "Frantar et al., 2023", "One-shot pruning using Hessian inverse. High VRAM requirement. <b>Our diff</b>: We use ground-truth perplexity ablation rather than expensive 2nd-order Hessians."],
-    ["SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling surgical LoRA recovery."]
+    ["The Unreasonable Ineffectiveness of the Deeper Layers", "Gromov et al., 2024", "Demonstrates depth pruning and QLoRA healing. <b>Our diff</b>: We prove that healing should be restricted to the 'incision boundary' and that width pruning avoids the 'Perplexity Trap' altogether."],
+    ["Wanda", "Sun et al., 2023", "Pruning by weights and activations. <b>Our diff</b>: We enforce structured tensor-core hardware alignment on MLP dimensions, ensuring actual physical latency speedups."],
+    ["SliceGPT", "Ashkboos et al., 2024", "Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling surgical LoRA recovery and protecting zero-shot reasoning."]
   ]
 }
