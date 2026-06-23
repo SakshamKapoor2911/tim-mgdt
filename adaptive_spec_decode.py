@@ -49,6 +49,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--draft-device", default="cuda:0")
     parser.add_argument("--target-device", default="cuda:1")
     parser.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16", "float32"])
+    parser.add_argument(
+        "--attn-implementation",
+        default="eager",
+        choices=["eager", "sdpa", "flash_attention_2"],
+        help="Attention backend. eager is slower but avoids backend-dependent exactness drift.",
+    )
     parser.add_argument("--num-prompts", type=int, default=50)
     parser.add_argument("--max-new-tokens", type=int, default=128)
     parser.add_argument("--static-k", type=int, nargs="+", default=[2, 4, 8])
@@ -113,6 +119,7 @@ def load_model_on_device(
     device: str,
     dtype: torch.dtype,
     local_files_only: bool,
+    attn_implementation: str,
 ) -> torch.nn.Module:
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
@@ -120,6 +127,7 @@ def load_model_on_device(
         device_map={"": device},
         low_cpu_mem_usage=True,
         local_files_only=local_files_only,
+        attn_implementation=attn_implementation,
     )
     model.eval()
     model.config.use_cache = False
@@ -131,8 +139,10 @@ def load_examples(num_prompts: int) -> List[Dict]:
     return [{"question": row["question"], "answer": row.get("answer", "")} for row in dataset]
 
 
-def tensor_from_cpu(ids: torch.Tensor, device: torch.device) -> torch.Tensor:
-    return ids.unsqueeze(0).to(device)
+def model_inputs_from_cpu(ids: torch.Tensor, device: torch.device) -> Dict[str, torch.Tensor]:
+    input_ids = ids.unsqueeze(0).to(device)
+    attention_mask = torch.ones_like(input_ids, device=device)
+    return {"input_ids": input_ids, "attention_mask": attention_mask}
 
 
 def argmax_token(logits: torch.Tensor) -> int:
@@ -166,10 +176,10 @@ def target_only_generate(
 
     with torch.inference_mode():
         while len(generated_tokens) < max_new_tokens:
-            target_input = tensor_from_cpu(generated_ids, target_device)
-            target_out = target_model(input_ids=target_input, use_cache=False)
+            target_inputs = model_inputs_from_cpu(generated_ids, target_device)
+            target_out = target_model(**target_inputs, use_cache=False)
             token_id = argmax_token(target_out.logits[0, -1, :])
-            del target_out, target_input
+            del target_out, target_inputs
 
             metrics["target_forward_calls"] += 1
             generated_tokens.append(token_id)
@@ -197,9 +207,9 @@ def draft_span(
 
     with torch.inference_mode():
         for draft_step in range(min(max_span, max_remaining)):
-            draft_input = tensor_from_cpu(draft_context, draft_device)
+            draft_inputs = model_inputs_from_cpu(draft_context, draft_device)
             draft_out = draft_model(
-                input_ids=draft_input,
+                **draft_inputs,
                 output_hidden_states=(mode == "adaptive"),
                 use_cache=False,
             )
@@ -211,7 +221,7 @@ def draft_span(
                 reject_prob = router_probability(router, hidden_state)
                 metrics["router_calls"] += 1
 
-            del draft_out, draft_input
+            del draft_out, draft_inputs
 
             candidates.append(
                 DraftCandidate(
@@ -291,15 +301,26 @@ def speculative_generate(
                 ]
             )
 
-            target_context = torch.cat(
-                [generated_ids, torch.tensor(draft_token_ids, dtype=torch.long)]
-            )
+            # We verify K candidates without using the speculative "bonus" token.
+            # Therefore the target only needs prefix + the first K-1 candidates:
+            # logits at positions [n-1, ..., n+K-2] predict candidates [1, ..., K].
+            # Including the token being predicted can introduce implementation-level
+            # drift under some attention kernels, even though it is causally masked.
+            if len(draft_token_ids) > 1:
+                target_context = torch.cat(
+                    [
+                        generated_ids,
+                        torch.tensor(draft_token_ids[:-1], dtype=torch.long),
+                    ]
+                )
+            else:
+                target_context = generated_ids
             base_len = int(generated_ids.numel())
-            target_input = tensor_from_cpu(target_context, target_device)
-            target_out = target_model(input_ids=target_input, use_cache=False)
+            target_inputs = model_inputs_from_cpu(target_context, target_device)
+            target_out = target_model(**target_inputs, use_cache=False)
             target_slice = target_out.logits[0, base_len - 1 : base_len - 1 + len(draft_token_ids), :]
             target_token_ids = torch.argmax(target_slice, dim=-1).detach().cpu().tolist()
-            del target_out, target_input
+            del target_out, target_inputs
 
             metrics["target_forward_calls"] += 1
             metrics["verification_batches"] += 1
@@ -471,6 +492,7 @@ def main() -> int:
         args.draft_device,
         dtype,
         args.local_files_only,
+        args.attn_implementation,
     )
     print(f"Loading target on {args.target_device}: {args.target_model}")
     target_model = load_model_on_device(
@@ -478,6 +500,7 @@ def main() -> int:
         args.target_device,
         dtype,
         args.local_files_only,
+        args.attn_implementation,
     )
 
     examples = load_examples(args.num_prompts)
@@ -494,6 +517,7 @@ def main() -> int:
             "draft_device": args.draft_device,
             "target_device": args.target_device,
             "dtype": args.dtype,
+            "attn_implementation": args.attn_implementation,
             "num_prompts": args.num_prompts,
             "max_new_tokens": args.max_new_tokens,
             "static_k": args.static_k,
