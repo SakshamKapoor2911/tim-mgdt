@@ -230,6 +230,12 @@ def main():
     }
     
     model_short = args.model.split("/")[-1]
+    
+    ckpt_dir = os.path.join(out_dir, f"{model_short}_pruned_{args.strategy}")
+    print(f"Saving pruned checkpoint to {ckpt_dir}...")
+    model.save_pretrained(ckpt_dir)
+    tokenizer.save_pretrained(ckpt_dir)
+    
     out_file = os.path.join(out_dir, f"{model_short}_width_pruning_{args.strategy}.json")
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
