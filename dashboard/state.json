@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-23T14:06:10.997200+00:00Z",
+  "generated_at": "2026-06-23T14:15:18.682945+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B with true hardware compression.",
   "current_phase": "Phase 15",

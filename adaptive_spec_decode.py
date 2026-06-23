@@ -145,6 +145,29 @@ def model_inputs_from_cpu(ids: torch.Tensor, device: torch.device) -> Dict[str, 
     return {"input_ids": input_ids, "attention_mask": attention_mask}
 
 
+def batch_model_inputs_from_cpu(
+    contexts: Sequence[torch.Tensor],
+    device: torch.device,
+    pad_token_id: int,
+) -> Tuple[Dict[str, torch.Tensor], torch.Tensor]:
+    lengths = torch.tensor([int(context.numel()) for context in contexts], dtype=torch.long)
+    max_len = int(lengths.max().item())
+    input_ids = torch.full(
+        (len(contexts), max_len),
+        int(pad_token_id),
+        dtype=torch.long,
+        device=device,
+    )
+    attention_mask = torch.zeros((len(contexts), max_len), dtype=torch.long, device=device)
+
+    for row_idx, context in enumerate(contexts):
+        length = int(context.numel())
+        input_ids[row_idx, :length] = context.to(device)
+        attention_mask[row_idx, :length] = 1
+
+    return {"input_ids": input_ids, "attention_mask": attention_mask}, lengths.to(device)
+
+
 def argmax_token(logits: torch.Tensor) -> int:
     return int(torch.argmax(logits, dim=-1).item())
 
@@ -249,6 +272,7 @@ def speculative_generate(
     *,
     max_new_tokens: int,
     eos_token_id: Optional[int],
+    pad_token_id: int,
     max_span: int,
     mode: str,
     threshold: Optional[float] = None,
@@ -301,26 +325,30 @@ def speculative_generate(
                 ]
             )
 
-            # We verify K candidates without using the speculative "bonus" token.
-            # Therefore the target only needs prefix + the first K-1 candidates:
-            # logits at positions [n-1, ..., n+K-2] predict candidates [1, ..., K].
-            # Including the token being predicted can introduce implementation-level
-            # drift under some attention kernels, even though it is causally masked.
-            if len(draft_token_ids) > 1:
-                target_context = torch.cat(
+            # Exact-safe batched verification: row j contains the true prefix plus
+            # only the previously accepted speculative candidates. This avoids
+            # future-token drift while preserving one target launch per proposed span.
+            target_contexts = [
+                torch.cat(
                     [
                         generated_ids,
-                        torch.tensor(draft_token_ids[:-1], dtype=torch.long),
+                        torch.tensor(draft_token_ids[:candidate_idx], dtype=torch.long),
                     ]
                 )
-            else:
-                target_context = generated_ids
-            base_len = int(generated_ids.numel())
-            target_inputs = model_inputs_from_cpu(target_context, target_device)
+                if candidate_idx > 0
+                else generated_ids
+                for candidate_idx in range(len(draft_token_ids))
+            ]
+            target_inputs, target_lengths = batch_model_inputs_from_cpu(
+                target_contexts,
+                target_device,
+                pad_token_id,
+            )
             target_out = target_model(**target_inputs, use_cache=False)
-            target_slice = target_out.logits[0, base_len - 1 : base_len - 1 + len(draft_token_ids), :]
-            target_token_ids = torch.argmax(target_slice, dim=-1).detach().cpu().tolist()
-            del target_out, target_inputs
+            row_ids = torch.arange(len(draft_token_ids), device=target_device)
+            next_token_logits = target_out.logits[row_ids, target_lengths - 1, :]
+            target_token_ids = torch.argmax(next_token_logits, dim=-1).detach().cpu().tolist()
+            del target_out, target_inputs, target_lengths, row_ids, next_token_logits
 
             metrics["target_forward_calls"] += 1
             metrics["verification_batches"] += 1
@@ -406,6 +434,9 @@ def run_method(
     draft_device = first_parameter_device(draft_model) if draft_model is not None else None
     target_device = first_parameter_device(target_model)
     eos_token_id = tokenizer.eos_token_id
+    pad_token_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else eos_token_id
+    if pad_token_id is None:
+        raise ValueError("Tokenizer must provide pad_token_id or eos_token_id")
     prompt_metrics: List[Dict] = []
     outputs: List[List[int]] = []
     exact_matches: List[bool] = []
@@ -438,6 +469,7 @@ def run_method(
                 input_ids,
                 max_new_tokens=max_new_tokens,
                 eos_token_id=eos_token_id,
+                pad_token_id=pad_token_id,
                 max_span=max_span,
                 mode=mode,
                 threshold=threshold,
