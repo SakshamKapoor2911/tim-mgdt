@@ -5,6 +5,6 @@
   "eval_samples": 128,
   "baseline_c4_ppl": 7.8549065589904785,
   "pruned_c4_ppl": 10.776409149169922,
-  "baseline_tps": 32.23662333778508,
-  "pruned_tps": 33.48799316108813
+  "baseline_tps": 31.51275347558074,
+  "pruned_tps": 33.10986975202394
 }
