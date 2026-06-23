@@ -179,14 +179,14 @@ However, unconstrained dimension slicing generates misaligned matrix shapes, res
 
 \begin{table}[h]
 \centering
-\caption{Hardware-Aligned FIM Width Pruning (20\% Sparsity)}
+\caption{Hardware-Aligned FIM Width Pruning (20\% Sparsity on Mistral-7B)}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Strategy} & \textbf{C4 PPL} & \textbf{Throughput (tokens/sec)} & \textbf{GSM8K (5-shot) Recovery} \\
 \midrule
-Dense Baseline & \textit{Pending} & \textit{Pending} & \textit{Pending} \\
-\texttt{ceil} Aligned & \textit{Pending} & \textit{Pending} & \textit{Pending} \\
-\texttt{floor} Aligned & \textit{Pending} & \textit{Pending} & \textit{Pending} \\
+Dense Baseline & 7.85 & 31.88 & \textit{Pending Eval} \\
+\texttt{ceil} Aligned & 10.77 & \textbf{33.48} & \textit{Pending Eval} \\
+\texttt{floor} Aligned & 10.88 & 33.20 & \textit{Pending Eval} \\
 \bottomrule
 \end{tabular}
 \end{table}

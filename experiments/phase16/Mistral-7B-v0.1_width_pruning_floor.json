@@ -1,0 +1,10 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "sparsity": 0.2,
+  "strategy": "floor",
+  "eval_samples": 128,
+  "baseline_c4_ppl": 7.8549065589904785,
+  "pruned_c4_ppl": 10.886262893676758,
+  "baseline_tps": 31.418287548780395,
+  "pruned_tps": 33.20660608391344
+}

@@ -69,7 +69,8 @@ def compute_neuron_fim(model, tokenizer, num_samples=50):
             for layer_idx, layer in enumerate(layers):
                 if layer_idx not in fim_accumulators:
                     intermediate_size = layer.mlp.up_proj.weight.shape[0]
-                    fim_accumulators[layer_idx] = torch.zeros(intermediate_size, device=device)
+                    layer_device = layer.mlp.gate_proj.weight.device
+                    fim_accumulators[layer_idx] = torch.zeros(intermediate_size, device=layer_device)
                     
                 # sum of squared gradients across hidden_size dimension
                 g_gate = layer.mlp.gate_proj.weight.grad
@@ -130,10 +131,11 @@ def apply_width_pruning(model, fim_scores, sparsity=0.20, strategy="ceil"):
         _, top_indices = torch.topk(scores, aligned_size)
         top_indices, _ = torch.sort(top_indices)
         
+        layer_device = gate_proj.weight.device
         # Create new smaller linear layers
-        new_gate = nn.Linear(hidden_size, aligned_size, bias=False, device=model.device, dtype=gate_proj.weight.dtype)
-        new_up = nn.Linear(hidden_size, aligned_size, bias=False, device=model.device, dtype=up_proj.weight.dtype)
-        new_down = nn.Linear(aligned_size, hidden_size, bias=False, device=model.device, dtype=down_proj.weight.dtype)
+        new_gate = nn.Linear(hidden_size, aligned_size, bias=False, device=layer_device, dtype=gate_proj.weight.dtype)
+        new_up = nn.Linear(hidden_size, aligned_size, bias=False, device=layer_device, dtype=up_proj.weight.dtype)
+        new_down = nn.Linear(aligned_size, hidden_size, bias=False, device=layer_device, dtype=down_proj.weight.dtype)
         
         # Slice weights
         with torch.no_grad():

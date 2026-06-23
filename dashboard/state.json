@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-23T02:12:29.803755+00:00Z",
+  "generated_at": "2026-06-23T03:39:54.708241+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "A systematic framework for diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B and Llama-3-8B with true hardware compression.",
   "current_phase": "Phase 15",
   "phase_status": "Phase 15 Complete. Next: Submit COLM workshop paper.",
-  "total_experiments": 60,
+  "total_experiments": 62,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
