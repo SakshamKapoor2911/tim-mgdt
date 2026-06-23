@@ -152,6 +152,9 @@ def apply_width_pruning(model, fim_scores, sparsity=0.20, strategy="ceil"):
         total_params_removed += (hidden_size * (intermediate_size - aligned_size)) # down
         modules_pruned += 1
         
+        # We assume all layers are pruned to the same aligned_size
+        model.config.intermediate_size = aligned_size
+        
     print(f"Realigned intermediate sizes. Removed {total_params_removed/1e6:.2f}M params.")
     return modules_pruned
 
