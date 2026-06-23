@@ -112,7 +112,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-23 04:43 UTC</span>
+    <span class="nav-meta">2026-06-23 07:23 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -125,8 +125,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <p class="hero-sub">Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers — scaling to Mistral-7B with true hardware compression.</p>
     <div class="hero-chips">
       <span class="chip chip-green">Phase 15 complete</span>
-      <span class="chip chip-blue">5/7 runs done</span>
-      <span class="chip chip-yellow">70 experiment files</span>
+      <span class="chip chip-blue">5/8 runs done</span>
+      <span class="chip chip-yellow">73 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -136,11 +136,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="section-label" id="overview">Project overview</div>
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are <i>elastic</i> vs <i>critical</i>. By exploiting the 'Hardware-Aligned Structural Lottery Ticket' hypothesis, we prune models like Mistral-7B using FIM metrics while fully preserving zero-shot reasoning (GSM8K) capabilities.</p></div>
-<div class="ov-card"><h3>Why this matters</h3><p>Existing pruning methods either destroy quality or require expensive retraining. We discovered that width pruning based on empirical FIM preserves zero-shot logical reasoning significantly better than depth pruning (which suffers from the 'Perplexity Trap'). We align all pruned layers to Tensor Core dimensions (ceil/floor rounding) ensuring theoretical FLOP reductions map directly to physical wall-clock latency gains.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 16 active</b>. We are currently running a smart multi-GPU evaluation of the hardware-aware FIM width-pruned Mistral-7B. We are gathering definitive GSM8K evidence to prove our 'Hardware-Aligned Structural Lottery Ticket' hypothesis, demonstrating that width pruning avoids the catastrophic disruption seen in full layer dropping.</p></div>
+<div class="ov-card"><h3>Why this matters</h3><p>Existing pruning methods either destroy quality or require expensive retraining. We recently tested 'Hardware-Aligned Width Pruning' and discovered the 'Perplexity Trap': FIM metrics based on general text effectively overwrite and destroy rare mathematical reasoning circuits. We are now testing 'Contrastive Circuit Sparing' to surgically isolate and protect these logic pathways.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 17 active.</b> We discovered that Phase 16 width pruning crashed GSM8K reasoning from 38% to 5% because general text FIM actively deletes reasoning neurons. We are now implementing Contrastive Circuit Sparing to protect math circuits during 20% width pruning.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>empirical FIM metrics</b> reliably identify and exploit elasticity in MLP internal dimensions to achieve structured, hardware-aligned compression at <b>20%+ sparsity</b> without destroying zero-shot reasoning (GSM8K)?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>Contrastive Circuit Sparing</b> isolate and protect mathematically dense neurons during 20% width pruning, achieving zero-shot reasoning preservation without expensive LoRA healing?</p></div></div>
 
   <div style="margin-top: 32px;">
     <div class="section-label" id="phase15">Phase 15: Incision Boundary Healing for Depth-Pruned LLMs</div>
@@ -467,7 +467,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 13 — Ablation & Hardening</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 14 — Bulletproof LoRA Healing pipeline</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 15 — True Layer Dropping & Boundary Healing</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-running'>running</span></td></tr>
+<tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-done (failed: logic collapsed)'>done (failed: logic collapsed)</span></td></tr>
+<tr><td>Phase 17 — Contrastive Circuit Sparing</td><td><span class='pill p-running'>running</span></td></tr>
 <tr><td>Phase 3 — Feedback Distillation (Remote)</td><td><span class='pill p-planned'>planned</span></td></tr>
 
 </table></div>
@@ -521,8 +522,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Implement FIM Width Pruning with ceil/floor strategies for Mistral-7B.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Fix multi-GPU tensor device mapping bug causing width pruning crashes.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17: Implementing Contrastive Circuit Sparing to protect math circuits during compression.</td></tr>
+<tr><td><span class='pill p-today'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Discovered that general-text FIM explicitly destroys rare logic neurons (GSM8K crashed from 38% to 5%).</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Execute Phase 16 parallel ablation to extract GSM8K baseline, ceil, and floor metrics.</td></tr>
 <tr><td><span class='pill p-planned'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Inject final GSM8K metrics into `paper/main.tex` removing `\textit{Pending Eval}` markers.</td></tr>
 <tr><td><span class='pill p-planned'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to COLM workshop.</td></tr>

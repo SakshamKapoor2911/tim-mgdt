@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-23T04:43:50.164986+00:00Z",
+  "generated_at": "2026-06-23T07:23:34.091260+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B with true hardware compression.",
   "current_phase": "Phase 15",
-  "phase_status": "Phase 16 Active: Hardware-Aligned Width Pruning Evaluation",
-  "total_experiments": 70,
+  "phase_status": "Phase 17 Active: Contrastive Circuit Sparing",
+  "total_experiments": 73,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
@@ -41,7 +41,7 @@
     "healed_memory_gb": 8.14,
     "perplexity_recovery_pct": 99.8
   },
-  "research_question": "Can empirical FIM metrics reliably identify and exploit elasticity in MLP internal dimensions to achieve structured, hardware-aligned compression at 20%+ sparsity without destroying zero-shot reasoning (GSM8K)?",
+  "research_question": "Can Contrastive Circuit Sparing isolate and protect mathematically dense neurons during 20% width pruning, achieving zero-shot reasoning preservation without expensive LoRA healing?",
   "overview": [
     {
       "title": "What we're building",
@@ -49,11 +49,11 @@
     },
     {
       "title": "Why this matters",
-      "body": "Existing pruning methods either destroy quality or require expensive retraining. We discovered that width pruning based on empirical FIM preserves zero-shot logical reasoning significantly better than depth pruning (which suffers from the 'Perplexity Trap'). We align all pruned layers to Tensor Core dimensions (ceil/floor rounding) ensuring theoretical FLOP reductions map directly to physical wall-clock latency gains."
+      "body": "Existing pruning methods either destroy quality or require expensive retraining. We recently tested 'Hardware-Aligned Width Pruning' and discovered the 'Perplexity Trap': FIM metrics based on general text effectively overwrite and destroy rare mathematical reasoning circuits. We are now testing 'Contrastive Circuit Sparing' to surgically isolate and protect these logic pathways."
     },
     {
       "title": "Where we are today",
-      "body": "Phase 16 active. We are currently running a smart multi-GPU evaluation of the hardware-aware FIM width-pruned Mistral-7B. We are gathering definitive GSM8K evidence to prove our 'Hardware-Aligned Structural Lottery Ticket' hypothesis, demonstrating that width pruning avoids the catastrophic disruption seen in full layer dropping."
+      "body": "Phase 17 active. We discovered that Phase 16 width pruning crashed GSM8K reasoning from 38% to 5% because general text FIM actively deletes reasoning neurons. We are now implementing Contrastive Circuit Sparing to protect math circuits during 20% width pruning."
     }
   ],
   "decisions": [
@@ -129,14 +129,14 @@
   ],
   "path_to_paper": [
     {
-      "status": "done",
+      "status": "now",
       "owner": "Agent",
-      "item": "Implement FIM Width Pruning with ceil/floor strategies for Mistral-7B."
+      "item": "Phase 17: Implementing Contrastive Circuit Sparing to protect math circuits during compression."
     },
     {
-      "status": "done",
+      "status": "today",
       "owner": "Agent",
-      "item": "Fix multi-GPU tensor device mapping bug causing width pruning crashes."
+      "item": "Phase 16: Discovered that general-text FIM explicitly destroys rare logic neurons (GSM8K crashed from 38% to 5%)."
     },
     {
       "status": "now",
@@ -177,6 +177,10 @@
     },
     {
       "label": "Phase 16 \u2014 Hardware-Aware Width Pruning Ablation",
+      "state": "done (failed: logic collapsed)"
+    },
+    {
+      "label": "Phase 17 \u2014 Contrastive Circuit Sparing",
       "state": "running"
     },
     {
