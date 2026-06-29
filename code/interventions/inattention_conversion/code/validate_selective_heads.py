@@ -79,11 +79,18 @@ class SelectiveHeadValidator:
         
         start_time = time.time()
         
-        for text in texts:
-            if not text.strip():
-                continue
+        # Filter and batch tokenize
+        valid_texts = [text for text in texts if text.strip()]
+        if not valid_texts:
+            return 0, 0, 0, 0
             
-            tokens = self.tokenizer.encode(text, return_tensors="pt").to(self.device)
+        # Batch tokenize all texts
+        encoded_inputs = self.tokenizer(valid_texts, padding=False)
+        all_input_ids = encoded_inputs["input_ids"]
+
+        for input_ids in all_input_ids:
+            # Convert to tensor, add batch dimension and move to device
+            tokens = torch.tensor([input_ids], device=self.device)
             seq_len = tokens.shape[1]
             if seq_len < 2:
                 continue
