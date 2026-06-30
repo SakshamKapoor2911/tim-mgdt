@@ -9,7 +9,7 @@ mock_torch = MagicMock()
 sys.modules['torch'] = mock_torch
 
 # Import utils.py directly without going through the package __init__
-utils_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../code/phases/phase10/utils.py'))
+utils_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../code/phases/phase10/utils.py'))
 spec = importlib.util.spec_from_file_location("utils_direct", utils_path)
 utils_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(utils_module)
