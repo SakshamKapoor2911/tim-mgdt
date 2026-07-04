@@ -18,7 +18,7 @@ The bias-correction approach is based on:
 """
 
 import time
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 import torch
 import torch.nn as nn
@@ -48,8 +48,6 @@ def _sparse_finetuning_healing(
     and forcefully re-applies the mask after every optimizer step
     to ensure 0.0 weights stay exactly 0.0.
     """
-    import torch.optim as optim
-
     # 1. Extract exact sparsity masks (STORE ON CPU TO PREVENT OOM)
     masks = {}
     for name, param in model.named_parameters():
@@ -57,9 +55,13 @@ def _sparse_finetuning_healing(
             # Store as boolean to save memory, and put on CPU
             masks[name] = (param == 0).cpu()
 
-    print(f"      [SFT-ABORT] Hardware physics wall hit: Full-parameter AdamW gradients for 7B require ~42GB VRAM.")
-    print(f"      [SFT-ABORT] Aborting SFT on single 24GB RTX 3090. Deferring to Next Steps (DeepSpeed ZeRO-3).")
-    
+    print(
+        "      [SFT-ABORT] Hardware physics wall hit: Full-parameter AdamW gradients for 7B require ~42GB VRAM."
+    )
+    print(
+        "      [SFT-ABORT] Aborting SFT on single 24GB RTX 3090. Deferring to Next Steps (DeepSpeed ZeRO-3)."
+    )
+
     # We exit gracefully so the pipeline can record the unhealed metrics and complete Phase 11.
     model.eval()
 
@@ -74,6 +76,34 @@ CALIBRATION_TEXTS = [
     "Transfer learning allows models to leverage knowledge from pre-training.",
     "Attention mechanisms help models focus on relevant parts of the input.",
 ]
+
+
+def _measure_metrics(model, tokenizer, device, max_samples, batch_size):
+    """Helper to measure perplexity, latency, and peak memory."""
+    ppl = compute_perplexity(
+        model, tokenizer, device, max_samples=max_samples, batch_size=batch_size
+    )
+    latency = time_forward_pass(model, tokenizer, device)
+
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
+        dummy = tokenizer("Measure memory", return_tensors="pt").to(device)
+        with torch.no_grad():
+            model(**dummy)
+        memory_gb = torch.cuda.max_memory_allocated() / (1024**3)
+    else:
+        memory_gb = 0.0
+
+    return ppl, latency, memory_gb
+
+
+def _apply_pruning_and_get_stats(model, target_sparsity, total_params):
+    """Helper to apply pruning, bake masks into weights, and calculate stats."""
+    modules_pruned = apply_global_pruning(model, target_sparsity)
+    remove_global_pruning(model)
+    nonzero_params = count_nonzero_params(model)
+    actual_sparsity = 1.0 - (nonzero_params / total_params)
+    return modules_pruned, nonzero_params, actual_sparsity
 
 
 def run_stage4(
@@ -109,26 +139,15 @@ def run_stage4(
     print("-" * 70)
 
     cfg = get_model_config(model)
-    layers = cfg["layers"]
-    arch = cfg["arch_family"]
     total_params = cfg["num_params"]
 
     healing_start = time.time()
 
     # --- Step 1: Baseline metrics ---
-    print(f"  [1/6] Measuring baseline (unpruned) metrics...")
-    baseline_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
-    baseline_latency = time_forward_pass(model, tokenizer, device)
-
-    if device == "cuda":
-        torch.cuda.reset_peak_memory_stats()
-        # Run a forward pass to capture peak memory
-        dummy = tokenizer("Measure memory", return_tensors="pt").to(device)
-        with torch.no_grad():
-            model(**dummy)
-        baseline_memory_gb = torch.cuda.max_memory_allocated() / (1024 ** 3)
-    else:
-        baseline_memory_gb = 0.0
+    print("  [1/6] Measuring baseline (unpruned) metrics...")
+    baseline_ppl, baseline_latency, baseline_memory_gb = _measure_metrics(
+        model, tokenizer, device, ppl_max_samples, batch_size
+    )
 
     print(f"    Baseline PPL: {baseline_ppl:.4f}")
     print(f"    Baseline latency: {baseline_latency:.2f}ms")
@@ -141,39 +160,39 @@ def run_stage4(
     original_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
 
     # --- Step 3: Apply pruning ---
-    print(f"  [3/6] Applying {int(target_sparsity*100)}% global L1 magnitude pruning...")
-    modules_pruned = apply_global_pruning(model, target_sparsity)
-    # Make pruning permanent (bake masks into weights)
-    remove_global_pruning(model)
-    nonzero_params = count_nonzero_params(model)
-    actual_sparsity = 1.0 - (nonzero_params / total_params)
-    print(f"    Pruned {modules_pruned} modules. "
-          f"Non-zero params: {nonzero_params/1e6:.1f}M "
-          f"(actual sparsity: {actual_sparsity*100:.1f}%)")
+    print(
+        f"  [3/6] Applying {int(target_sparsity*100)}% global L1 magnitude pruning..."
+    )
+    modules_pruned, nonzero_params, actual_sparsity = _apply_pruning_and_get_stats(
+        model, target_sparsity, total_params
+    )
+    print(
+        f"    Pruned {modules_pruned} modules. "
+        f"Non-zero params: {nonzero_params/1e6:.1f}M "
+        f"(actual sparsity: {actual_sparsity*100:.1f}%)"
+    )
 
     # --- Step 4: Pruned metrics (before healing) ---
-    print(f"  [4/6] Measuring pruned model metrics (BEFORE healing)...")
-    pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
-    pruned_latency = time_forward_pass(model, tokenizer, device)
-    print(f"    Pruned PPL: {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)")
+    print("  [4/6] Measuring pruned model metrics (BEFORE healing)...")
+    pruned_ppl, pruned_latency, _ = _measure_metrics(
+        model, tokenizer, device, ppl_max_samples, batch_size
+    )
+    print(
+        f"    Pruned PPL: {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)"
+    )
     print(f"    Pruned latency: {pruned_latency:.2f}ms")
 
     # --- Step 5 & 6: Sparse Fine-Tuning (SFT) Healing ---
-    print(f"  [5/6] Applying Masked Sparse Fine-Tuning to recover weights...")
-    _sparse_finetuning_healing(model, tokenizer, device, CALIBRATION_TEXTS, steps=10, lr=2e-5)
-    print(f"    Sparse Fine-Tuning completed. Sparsity locked.")
+    print("  [5/6] Applying Masked Sparse Fine-Tuning to recover weights...")
+    _sparse_finetuning_healing(
+        model, tokenizer, device, CALIBRATION_TEXTS, steps=10, lr=2e-5
+    )
+    print("    Sparse Fine-Tuning completed. Sparsity locked.")
 
     # Measure healed PPL (with healing hooks active)
-    healed_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)
-    healed_latency = time_forward_pass(model, tokenizer, device)
-
-    if device == "cuda":
-        torch.cuda.reset_peak_memory_stats()
-        with torch.no_grad():
-            model(**dummy)
-        healed_memory_gb = torch.cuda.max_memory_allocated() / (1024 ** 3)
-    else:
-        healed_memory_gb = 0.0
+    healed_ppl, healed_latency, healed_memory_gb = _measure_metrics(
+        model, tokenizer, device, ppl_max_samples, batch_size
+    )
 
     # Healing hooks are removed, model weights are directly updated via SGD
 
@@ -187,16 +206,26 @@ def run_stage4(
         ppl_recovery = (ppl_recovered / ppl_degradation) * 100
 
     param_reduction_pct = (1.0 - nonzero_params / total_params) * 100
-    latency_improvement_pct = ((baseline_latency - healed_latency) / baseline_latency) * 100 if baseline_latency > 0 else 0
+    latency_improvement_pct = (
+        ((baseline_latency - healed_latency) / baseline_latency) * 100
+        if baseline_latency > 0
+        else 0
+    )
 
     print(f"\n  [OK] Activation Healing completed in {healing_time:.2f}s")
-    print(f"  Summary:")
+    print("  Summary:")
     print(f"    Baseline PPL:    {baseline_ppl:.4f}")
-    print(f"    Pruned PPL:      {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)")
-    print(f"    Healed PPL:      {healed_ppl:.4f} (+{((healed_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)")
+    print(
+        f"    Pruned PPL:      {pruned_ppl:.4f} (+{((pruned_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)"
+    )
+    print(
+        f"    Healed PPL:      {healed_ppl:.4f} (+{((healed_ppl-baseline_ppl)/baseline_ppl)*100:.2f}%)"
+    )
     print(f"    PPL Recovery:    {ppl_recovery:.1f}% of degradation recovered")
     print(f"    Param reduction: {param_reduction_pct:.1f}%")
-    print(f"    Latency:         {baseline_latency:.2f}ms -> {healed_latency:.2f}ms ({latency_improvement_pct:+.1f}%)")
+    print(
+        f"    Latency:         {baseline_latency:.2f}ms -> {healed_latency:.2f}ms ({latency_improvement_pct:+.1f}%)"
+    )
 
     # Restore original model weights (so pipeline doesn't leave model in pruned state)
     model.load_state_dict(original_state)
