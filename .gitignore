@@ -79,3 +79,6 @@ PHASE_INDEX.md
 checkpoints/
 venv_eval/
 results/
+*.safetensors
+experiments/**/*_pruned_*/
+experiments/**/samples_*.jsonl
