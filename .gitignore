@@ -74,3 +74,11 @@ TIM-MGDT-GEMINI-CHAT.md
 TIM-MGDT-GEMINI-CHAT.pdf
 PHASE_STATUS_LEDGER.md
 PHASE_INDEX.md
+
+# Large Local Assets
+checkpoints/
+venv_eval/
+results/
+*.safetensors
+experiments/**/*_pruned_*/
+experiments/**/samples_*.jsonl

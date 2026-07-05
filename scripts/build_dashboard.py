@@ -13,6 +13,7 @@ import json
 import glob
 import datetime
 import argparse
+from pathlib import Path
 
 EXPERIMENTS = "experiments"
 DASHBOARD = "dashboard"
@@ -27,6 +28,7 @@ except Exception as e:
     _cfg = {}
 
 TAGLINE = _cfg.get("TAGLINE", "")
+CURRENT_PHASE = _cfg.get("CURRENT_PHASE", "Phase 18B")
 OVERVIEW = _cfg.get("OVERVIEW", [])
 RESEARCH_Q = _cfg.get("RESEARCH_Q", ["", ""])
 PHASE = _cfg.get("PHASE", "")
@@ -60,7 +62,15 @@ def _fmt(x):
 
 
 def _pill(state):
-    return f"<span class='pill p-{state}'>{state}</span>"
+    if state.startswith("done"):
+        cls = "done"
+    elif state in {"planned", "todo"}:
+        cls = "queued"
+    elif state == "today":
+        cls = "now"
+    else:
+        cls = state
+    return f"<span class='pill p-{cls}'>{state}</span>"
 
 
 def _gap_badge(g):
@@ -117,7 +127,10 @@ def gather_experiment_data():
     results["phase15_results"] = phase15_results
 
     # Count total experiments
-    all_json = glob.glob(os.path.join(EXPERIMENTS, "**", "*.json"), recursive=True)
+    all_json = [
+        path for path in glob.glob(os.path.join(EXPERIMENTS, "**", "*.json"), recursive=True)
+        if not any("_pruned_" in part for part in Path(path).parts)
+    ]
     results["_total_experiments"] = len(all_json)
 
     return results
@@ -171,7 +184,7 @@ def build_state_json(experiments, metrics):
         "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z",
         "project": "TIM-MGDT",
         "tagline": TAGLINE,
-        "current_phase": "Phase 15",
+        "current_phase": CURRENT_PHASE,
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
@@ -505,6 +518,97 @@ def _phase15_html(phase15_results):
     return html
 
 
+def _gsm8k_metric(path):
+    data = _load(path)
+    if not data:
+        return None
+    gsm8k = data.get("results", {}).get("gsm8k", {})
+    samples = data.get("n-samples", {}).get("gsm8k", {})
+    config = data.get("config", {})
+    return {
+        "n": samples.get("effective", gsm8k.get("sample_len")),
+        "strict": gsm8k.get("exact_match,strict-match"),
+        "flex": gsm8k.get("exact_match,flexible-extract"),
+        "params": config.get("model_num_parameters"),
+        "limit": config.get("limit"),
+    }
+
+
+def _pct(value):
+    if value is None:
+        return "—"
+    return f"{value * 100:.1f}%"
+
+
+def _params(value):
+    if value is None:
+        return "—"
+    return f"{value / 1e9:.2f}B"
+
+
+def _width_pruning_html():
+    phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
+    phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
+    rows = [
+        (
+            "Dense Mistral baseline",
+            _gsm8k_metric("experiments/phase16/gsm8k_eval_baseline_2026-06-23T01-43-56.210011.json"),
+            phase16_ceil.get("baseline_c4_ppl"),
+            "Reference run, 5-shot GSM8K full eval.",
+        ),
+        (
+            "Phase 16 width prune (ceil)",
+            _gsm8k_metric("experiments/phase16/gsm8k_eval_ceil_2026-06-23T03-09-22.319762.json"),
+            phase16_ceil.get("pruned_c4_ppl"),
+            "Real structural compression; C4 acceptable, reasoning collapsed.",
+        ),
+        (
+            "Phase 16 width prune (floor)",
+            _gsm8k_metric("experiments/phase16/gsm8k_eval_floor_2026-06-23T01-51-52.825718.json"),
+            phase16_floor.get("pruned_c4_ppl"),
+            "Slightly smaller checkpoint; same reasoning failure mode.",
+        ),
+        (
+            "Phase 17 contrastive sparing",
+            _gsm8k_metric("experiments/phase17/gsm8k_eval_contrastive_ceil_2026-06-23T03-31-48.393338.json"),
+            None,
+            "50-sample smoke test failed; do not scale as-is.",
+        ),
+        (
+            "Phase 18 non-uniform mask",
+            _gsm8k_metric("experiments/phase18/gsm8k_eval_non_uniform_ceil_2026-06-23T03-56-46.992242.json"),
+            None,
+            "Diagnostic mask only; checkpoint keeps dense parameter shape.",
+        ),
+    ]
+
+    body = ""
+    for label, metric, c4_ppl, note in rows:
+        metric = metric or {}
+        n = metric.get("n")
+        n_str = f"{int(n)}" if isinstance(n, (int, float)) else "—"
+        c4_str = f"{c4_ppl:.3f}" if c4_ppl is not None else "—"
+        body += f"""
+        <tr>
+          <td class="task-who">{label}</td>
+          <td>{n_str}</td>
+          <td>{_params(metric.get("params"))}</td>
+          <td>{_pct(metric.get("strict"))}</td>
+          <td>{c4_str}</td>
+          <td class="task-action">{note}</td>
+        </tr>
+        """
+
+    return f"""
+<div class="section-label" id="current">Current pruning diagnostics</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table class="task-table">
+<tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>
+{body}
+</table>
+</div>"""
+
+
 def _runs_html():
     rows = ""
     for label, state in RUNS:
@@ -748,7 +852,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 def build_html(experiments, metrics):
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     total = experiments.get("_total_experiments", 0)
-    done_count = sum(1 for _, s in RUNS if s == "done")
+    done_count = sum(1 for _, s in RUNS if s.startswith("done"))
 
     html = f"""<!doctype html>
 <html lang="en">
@@ -763,9 +867,10 @@ def build_html(experiments, metrics):
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
+    <a href="#current">Current Probe</a>
     <a href="#phase15">Phase 15 (Results)</a>
     <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase17">Phase 17 (Mechanistic)</a>
+    <a href="#phase17">Mechanistic</a>
     <a href="#phase14">Phase 14 (Legacy)</a>
     <a href="#results">Phase 11 (Legacy)</a>
     <a href="#decisions">Decisions</a>
@@ -787,8 +892,8 @@ def build_html(experiments, metrics):
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">{TAGLINE}</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 15 complete</span>
-      <span class="chip chip-blue">{done_count}/{len(RUNS)} runs done</span>
+      <span class="chip chip-blue">{CURRENT_PHASE}</span>
+      <span class="chip chip-green">{done_count}/{len(RUNS)} runs complete</span>
       <span class="chip chip-yellow">{total} experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
@@ -801,6 +906,7 @@ def build_html(experiments, metrics):
     {_overview_cards()}
   </div>
   <div style="margin-top:16px">{_research_callout()}</div>
+  {_width_pruning_html()}
 
   <div style="margin-top: 32px;">
     {_phase15_html(experiments.get("phase15_results", {}))}
