@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-23T04:40:43.360139+00:00Z",
+  "generated_at": "2026-07-05T23:35:32.134596+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B with true hardware compression.",
   "current_phase": "Phase 15",
   "phase_status": "Phase 16 Active: Hardware-Aligned Width Pruning Evaluation",
-  "total_experiments": 67,
+  "total_experiments": 59,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
