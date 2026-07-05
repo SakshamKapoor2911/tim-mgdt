@@ -27,6 +27,11 @@ def compute_neuron_fim(model, tokenizer, num_samples=50):
     
     model.eval()
     
+    # Freeze non-MLP layers to prevent OOM
+    for name, param in model.named_parameters():
+        if "mlp" not in name:
+            param.requires_grad = False
+    
     # Identify layer architecture
     if hasattr(model.model, "layers"):
         layers = model.model.layers
