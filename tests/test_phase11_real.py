@@ -40,8 +40,7 @@ class TestPhase11RealPipeline(unittest.TestCase):
             low_cpu_mem_usage=True,
             torch_dtype=torch.float32  # CPU safe
         )
-        if cls.device == "cpu":
-            cls.model = cls.model.to(cls.device)
+        cls.model = cls.model.to(cls.device)
         cls.model.eval()
 
     def test_0_model_config(self):

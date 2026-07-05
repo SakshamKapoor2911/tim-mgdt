@@ -206,7 +206,7 @@ def run_stage4(
         "target_sparsity": target_sparsity,
         "actual_sparsity": actual_sparsity,
         "healing_time_seconds": healing_time,
-        "layers_bias_corrected": layers_corrected,
+        "layers_bias_corrected": 0,
         "baseline": {
             "ppl": baseline_ppl,
             "latency_ms": baseline_latency,
