@@ -100,9 +100,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="nav-brand"><span class="nav-dot"></span> TIM-MGDT</div>
   <div class="nav-links">
     <a href="#overview">Overview</a>
+    <a href="#current">Current Probe</a>
     <a href="#phase15">Phase 15 (Results)</a>
     <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase17">Phase 17 (Mechanistic)</a>
+    <a href="#phase17">Mechanistic</a>
     <a href="#phase14">Phase 14 (Legacy)</a>
     <a href="#results">Phase 11 (Legacy)</a>
     <a href="#decisions">Decisions</a>
@@ -112,7 +113,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-06-23 14:15 UTC</span>
+    <span class="nav-meta">2026-07-05 23:48 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -122,11 +123,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="hero-inner">
     <div class="hero-eyebrow">Temporal Importance Metrics for Model Gradient-based Diagnostic Tuning</div>
     <h1>TIM-MGDT Project Dashboard</h1>
-    <p class="hero-sub">Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers — scaling to Mistral-7B with true hardware compression.</p>
+    <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
-      <span class="chip chip-green">Phase 15 complete</span>
-      <span class="chip chip-blue">5/8 runs done</span>
-      <span class="chip chip-yellow">83 experiment files</span>
+      <span class="chip chip-blue">Phase 18B planning</span>
+      <span class="chip chip-green">8/10 runs complete</span>
+      <span class="chip chip-yellow">67 experiment files</span>
       <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -135,12 +136,65 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="wrap">
   <div class="section-label" id="overview">Project overview</div>
   <div class="g3">
-    <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are <i>elastic</i> vs <i>critical</i>. By exploiting the 'Hardware-Aligned Structural Lottery Ticket' hypothesis, we prune models like Mistral-7B using FIM metrics while fully preserving zero-shot reasoning (GSM8K) capabilities.</p></div>
-<div class="ov-card"><h3>Why this matters</h3><p>Existing pruning methods either destroy quality or require expensive retraining. We recently tested 'Hardware-Aligned Width Pruning' and discovered the 'Perplexity Trap': FIM metrics based on general text effectively overwrite and destroy rare mathematical reasoning circuits. We are now testing 'Contrastive Circuit Sparing' to surgically isolate and protect these logic pathways.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 17 active.</b> We discovered that Phase 16 width pruning crashed GSM8K reasoning from 38% to 5% because general text FIM actively deletes reasoning neurons. We are now implementing Contrastive Circuit Sparing to protect math circuits during 20% width pruning.</p></div>
+    <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
+<div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 18B planning.</b> Phase 17 contrastive sparing and Phase 18 non-uniform masking both failed 50-sample GSM8K smoke tests. The next experiment should be a true structural, sensitivity-guided sparsity sweep at 5%, 10%, 15%, and 20% before any full GSM8K run.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Can <b>Contrastive Circuit Sparing</b> isolate and protect mathematically dense neurons during 20% width pruning, achieving zero-shot reasoning preservation without expensive LoRA healing?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>What is the highest <b>structural MLP-width sparsity</b> that preserves Mistral-7B's 5-shot GSM8K reasoning, and which layer-sensitivity rule explains that boundary?</p></div></div>
+  
+<div class="section-label" id="current">Current pruning diagnostics</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table class="task-table">
+<tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>
+
+        <tr>
+          <td class="task-who">Dense Mistral baseline</td>
+          <td>1319</td>
+          <td>7.24B</td>
+          <td>38.7%</td>
+          <td>7.855</td>
+          <td class="task-action">Reference run, 5-shot GSM8K full eval.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 16 width prune (ceil)</td>
+          <td>1319</td>
+          <td>6.13B</td>
+          <td>5.2%</td>
+          <td>10.776</td>
+          <td class="task-action">Real structural compression; C4 acceptable, reasoning collapsed.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 16 width prune (floor)</td>
+          <td>1319</td>
+          <td>6.11B</td>
+          <td>4.9%</td>
+          <td>10.886</td>
+          <td class="task-action">Slightly smaller checkpoint; same reasoning failure mode.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 17 contrastive sparing</td>
+          <td>50</td>
+          <td>6.13B</td>
+          <td>0.0%</td>
+          <td>—</td>
+          <td class="task-action">50-sample smoke test failed; do not scale as-is.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18 non-uniform mask</td>
+          <td>50</td>
+          <td>7.24B</td>
+          <td>4.0%</td>
+          <td>—</td>
+          <td class="task-action">Diagnostic mask only; checkpoint keeps dense parameter shape.</td>
+        </tr>
+        
+</table>
+</div>
 
   <div style="margin-top: 32px;">
     <div class="section-label" id="phase15">Phase 15: Incision Boundary Healing for Depth-Pruned LLMs</div>
@@ -467,9 +521,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 13 — Ablation & Hardening</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 14 — Bulletproof LoRA Healing pipeline</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 15 — True Layer Dropping & Boundary Healing</td><td><span class='pill p-done'>done</span></td></tr>
-<tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-done (failed: logic collapsed)'>done (failed: logic collapsed)</span></td></tr>
-<tr><td>Phase 17 — Contrastive Circuit Sparing</td><td><span class='pill p-running'>running</span></td></tr>
-<tr><td>Phase 3 — Feedback Distillation (Remote)</td><td><span class='pill p-planned'>planned</span></td></tr>
+<tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-done'>done (failed: logic collapsed)</span></td></tr>
+<tr><td>Phase 17 — Contrastive Circuit Sparing</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
+<tr><td>Phase 18 — Sensitivity-Guided Non-Uniform Mask</td><td><span class='pill p-done'>done (diagnostic only)</span></td></tr>
+<tr><td>Phase 18B — Structural Non-Uniform Sweep</td><td><span class='pill p-next'>next</span></td></tr>
+<tr><td>Phase 3 — Feedback Distillation</td><td><span class='pill p-queued'>planned</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -479,8 +535,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><th>Topic</th><th>Decision</th><th>Rationale</th></tr>
 <tr><td class="task-who">Architecture Choice</td><td><b>Mistral-7B-v0.1 Focus</b></td>
 <td class="task-action">We shifted focus entirely from toy models like GPT-2 to Mistral-7B, proving our pipeline on state-of-the-art reasoning architectures used in modern deployments.</td></tr>
-<tr><td class="task-who">Pruning Strategy</td><td><b>FIM Width Pruning over Depth Pruning</b></td>
-<td class="task-action">Depth pruning (layer dropping) creates sharp, localized discontinuities ('Perplexity Trap'). Width pruning (MLP dimensionality reduction) guided by Fisher Information Matrix (FIM) preserves the structural manifold and retains zero-shot logical reasoning better.</td></tr>
+<tr><td class="task-who">Current Finding</td><td><b>C4 PPL is not enough</b></td>
+<td class="task-action">Phase 16 width pruning gave plausible C4 metrics but destroyed GSM8K. Reasoning retention must be a first-class pruning metric, not a post-hoc check.</td></tr>
 <tr><td class="task-who">Hardware Alignment</td><td><b>Ceil/Floor Tensor Core Rounding</b></td>
 <td class="task-action">To ensure theoretical FLOP reductions translate to physical speedups, we round pruned MLP dimensions to nearest 64 (Tensor Core alignment) via specific ceil/floor strategies.</td></tr>
 
@@ -490,15 +546,15 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
-<tr><td class="task-who">System<br><span class="task-track">Phase 16 Execution (`task-567`)</span></td>
-<td><span class='pill p-running'>running</span></td><td class="task-action">A smart parallel script is currently utilizing both RTX 3090s to calculate FIM, prune Mistral-7B with `ceil` and `floor` strategies, and evaluate GSM8K zero-shot recovery simultaneously.</td></tr>
-<tr><td class="task-who">System<br><span class="task-track">Phase 3 Distillation</span></td>
-<td><span class='pill p-planned'>planned</span></td><td class="task-action">A remote feedback distillation task running externally is waiting for Edward's endpoint (~12h remaining). Our local hardware will pivot to robust evaluation generation once Phase 16 finishes.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 18B implementation</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Convert the Phase 18 non-uniform mask into real structural MLP slicing, then run 50-sample GSM8K smoke tests at 5%, 10%, 15%, and 20% global sparsity.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Dashboard and paper hygiene</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and update the paper only after a sweep finds a viable operating point.</td></tr>
 
 </table></div></div>
   <div class="section-label">How we work</div><div class="g2"><div class='card'><div class='card-title'>Compute</div><p><b>2×3090 (48 GB VRAM total)</b> locally + External Remote Endpoint.</p></div>
 <div class='card'><div class='card-title'>Code</div><p><b>GitHub only</b> — single repo <code>SakshamKapoor2911/tim-mgdt</code>, frequent commits.</p></div>
-<div class='card'><div class='card-title'>Method</div><p>Actionable Interpretability · FIM Width Pruning · GSM8K Zero-Shot Eval</p></div>
+<div class='card'><div class='card-title'>Method</div><p>Actionable Interpretability · Structural Pruning · GSM8K-first Validation</p></div>
 </div>
   
 <div class="section-label">Bulletproofing checklist</div>
@@ -506,27 +562,29 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="data-table">
 <tr><th>Status</th><th>Item</th></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity and TPS latency metrics extracted for Mistral-7B.</td></tr>
-<tr><td><span class='pill p-now'>now</span></td><td>Generating definitive 5-shot GSM8K recovery metrics for mathematical unassailability.</td></tr>
-<tr><td><span class='pill p-planned'>planned</span></td><td>Running 256-chunk robust evaluation scripts for LoRA healing verification.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td>Do not run full GSM8K again until a 50-sample smoke test clears a meaningful threshold.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td>Repair Phase 18 to produce real parameter-count reduction, not zero-masked dense checkpoints.</td></tr>
 
 </table></div>
   <div id="milestones"><div class="section-label">Milestones</div><div class="milestones"><div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 12: Proxy validation, Memory Wall proof</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 14: Final pipeline execution (Mistral-7B LoRA healing)</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 15: True Layer Dropping and Boundary Healing</div></div>
-<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 16: Empirical evaluation of Hardware-Aligned Structural Lottery Ticket via Width Pruning</div></div>
-<div class="mile"><div><span class='pill p-planned'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Actionable Interpretability paper submission with flawless GSM8K ablations</div></div>
+<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 17/18: Contrastive and non-uniform probes failed smoke tests</div></div>
+<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Structural non-uniform sparsity sweep</div></div>
+<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Actionable Interpretability paper submission with flawless GSM8K ablations</div></div>
 </div></div>
   <div id="path">
 <div class="section-label">Path to paper</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
-<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17: Implementing Contrastive Circuit Sparing to protect math circuits during compression.</td></tr>
-<tr><td><span class='pill p-today'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Discovered that general-text FIM explicitly destroys rare logic neurons (GSM8K crashed from 38% to 5%).</td></tr>
-<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Execute Phase 16 parallel ablation to extract GSM8K baseline, ceil, and floor metrics.</td></tr>
-<tr><td><span class='pill p-planned'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Inject final GSM8K metrics into `paper/main.tex` removing `\textit{Pending Eval}` markers.</td></tr>
-<tr><td><span class='pill p-planned'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to COLM workshop.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 18B: Implement structural non-uniform MLP slicing and run a low-cost sparsity sweep.</td></tr>
+<tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` only after Phase 18B identifies a non-collapsed operating point or proves none exists at useful sparsity.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to COLM workshop.</td></tr>
 
 </table></div></div>
   <div id="literature">

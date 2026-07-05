@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-23T14:15:18.682945+00:00Z",
+  "generated_at": "2026-07-05T23:48:21.668730+00:00Z",
   "project": "TIM-MGDT",
-  "tagline": "Mechanistic Subnetwork Pruning: Diagnosing and recovering from catastrophic layer sensitivity in transformers \u2014 scaling to Mistral-7B with true hardware compression.",
-  "current_phase": "Phase 15",
-  "phase_status": "Phase 17 Active: Contrastive Circuit Sparing",
-  "total_experiments": 83,
+  "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
+  "current_phase": "Phase 18B planning",
+  "phase_status": "Phase 18B Planning: Structural sensitivity-guided sparsity sweep",
+  "total_experiments": 67,
   "latest_run": {
     "name": "GPT2 Phase 11 (Real GPU)",
     "status": "complete",
@@ -41,19 +41,19 @@
     "healed_memory_gb": 8.14,
     "perplexity_recovery_pct": 99.8
   },
-  "research_question": "Can Contrastive Circuit Sparing isolate and protect mathematically dense neurons during 20% width pruning, achieving zero-shot reasoning preservation without expensive LoRA healing?",
+  "research_question": "What is the highest structural MLP-width sparsity that preserves Mistral-7B's 5-shot GSM8K reasoning, and which layer-sensitivity rule explains that boundary?",
   "overview": [
     {
       "title": "What we're building",
-      "body": "A structured pruning + activation healing pipeline (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic vs critical. By exploiting the 'Hardware-Aligned Structural Lottery Ticket' hypothesis, we prune models like Mistral-7B using FIM metrics while fully preserving zero-shot reasoning (GSM8K) capabilities."
+      "body": "A structured pruning + activation healing pipeline (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity."
     },
     {
       "title": "Why this matters",
-      "body": "Existing pruning methods either destroy quality or require expensive retraining. We recently tested 'Hardware-Aligned Width Pruning' and discovered the 'Perplexity Trap': FIM metrics based on general text effectively overwrite and destroy rare mathematical reasoning circuits. We are now testing 'Contrastive Circuit Sparing' to surgically isolate and protect these logic pathways."
+      "body": "Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention."
     },
     {
       "title": "Where we are today",
-      "body": "Phase 17 active. We discovered that Phase 16 width pruning crashed GSM8K reasoning from 38% to 5% because general text FIM actively deletes reasoning neurons. We are now implementing Contrastive Circuit Sparing to protect math circuits during 20% width pruning."
+      "body": "Phase 18B planning. Phase 17 contrastive sparing and Phase 18 non-uniform masking both failed 50-sample GSM8K smoke tests. The next experiment should be a true structural, sensitivity-guided sparsity sweep at 5%, 10%, 15%, and 20% before any full GSM8K run."
     }
   ],
   "decisions": [
@@ -63,9 +63,9 @@
       "rationale": "We shifted focus entirely from toy models like GPT-2 to Mistral-7B, proving our pipeline on state-of-the-art reasoning architectures used in modern deployments."
     },
     {
-      "topic": "Pruning Strategy",
-      "choice": "FIM Width Pruning over Depth Pruning",
-      "rationale": "Depth pruning (layer dropping) creates sharp, localized discontinuities ('Perplexity Trap'). Width pruning (MLP dimensionality reduction) guided by Fisher Information Matrix (FIM) preserves the structural manifold and retains zero-shot logical reasoning better."
+      "topic": "Current Finding",
+      "choice": "C4 PPL is not enough",
+      "rationale": "Phase 16 width pruning gave plausible C4 metrics but destroyed GSM8K. Reasoning retention must be a first-class pruning metric, not a post-hoc check."
     },
     {
       "topic": "Hardware Alignment",
@@ -75,16 +75,16 @@
   ],
   "tasks": [
     {
-      "who": "System",
-      "track": "Phase 16 Execution (`task-567`)",
-      "status": "running",
-      "next_action": "A smart parallel script is currently utilizing both RTX 3090s to calculate FIM, prune Mistral-7B with `ceil` and `floor` strategies, and evaluate GSM8K zero-shot recovery simultaneously."
+      "who": "Agent",
+      "track": "Phase 18B implementation",
+      "status": "next",
+      "next_action": "Convert the Phase 18 non-uniform mask into real structural MLP slicing, then run 50-sample GSM8K smoke tests at 5%, 10%, 15%, and 20% global sparsity."
     },
     {
-      "who": "System",
-      "track": "Phase 3 Distillation",
-      "status": "planned",
-      "next_action": "A remote feedback distillation task running externally is waiting for Edward's endpoint (~12h remaining). Our local hardware will pivot to robust evaluation generation once Phase 16 finishes."
+      "who": "Agent",
+      "track": "Dashboard and paper hygiene",
+      "status": "next",
+      "next_action": "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and update the paper only after a sweep finds a viable operating point."
     }
   ],
   "milestones": [
@@ -102,7 +102,15 @@
     },
     {
       "status": "now",
-      "description": "Phase 16: Empirical evaluation of Hardware-Aligned Structural Lottery Ticket via Width Pruning"
+      "description": "Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL"
+    },
+    {
+      "status": "done",
+      "description": "Phase 17/18: Contrastive and non-uniform probes failed smoke tests"
+    },
+    {
+      "status": "now",
+      "description": "Phase 18B: Structural non-uniform sparsity sweep"
     },
     {
       "status": "planned",
@@ -116,37 +124,37 @@
     },
     {
       "status": "done",
-      "item": "C4 perplexity and TPS latency metrics extracted for Mistral-7B."
+      "item": "C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16."
     },
     {
       "status": "now",
-      "item": "Generating definitive 5-shot GSM8K recovery metrics for mathematical unassailability."
+      "item": "Do not run full GSM8K again until a 50-sample smoke test clears a meaningful threshold."
     },
     {
       "status": "planned",
-      "item": "Running 256-chunk robust evaluation scripts for LoRA healing verification."
+      "item": "Repair Phase 18 to produce real parameter-count reduction, not zero-masked dense checkpoints."
     }
   ],
   "path_to_paper": [
     {
       "status": "now",
       "owner": "Agent",
-      "item": "Phase 17: Implementing Contrastive Circuit Sparing to protect math circuits during compression."
+      "item": "Phase 18B: Implement structural non-uniform MLP slicing and run a low-cost sparsity sweep."
     },
     {
       "status": "today",
       "owner": "Agent",
-      "item": "Phase 16: Discovered that general-text FIM explicitly destroys rare logic neurons (GSM8K crashed from 38% to 5%)."
+      "item": "Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%."
     },
     {
       "status": "now",
       "owner": "Agent",
-      "item": "Execute Phase 16 parallel ablation to extract GSM8K baseline, ceil, and floor metrics."
+      "item": "Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants."
     },
     {
       "status": "planned",
       "owner": "Agent",
-      "item": "Inject final GSM8K metrics into `paper/main.tex` removing `\\textit{Pending Eval}` markers."
+      "item": "Update `paper/main.tex` only after Phase 18B identifies a non-collapsed operating point or proves none exists at useful sparsity."
     },
     {
       "status": "planned",
@@ -181,10 +189,18 @@
     },
     {
       "label": "Phase 17 \u2014 Contrastive Circuit Sparing",
-      "state": "running"
+      "state": "done (failed smoke)"
     },
     {
-      "label": "Phase 3 \u2014 Feedback Distillation (Remote)",
+      "label": "Phase 18 \u2014 Sensitivity-Guided Non-Uniform Mask",
+      "state": "done (diagnostic only)"
+    },
+    {
+      "label": "Phase 18B \u2014 Structural Non-Uniform Sweep",
+      "state": "next"
+    },
+    {
+      "label": "Phase 3 \u2014 Feedback Distillation",
       "state": "planned"
     }
   ],
