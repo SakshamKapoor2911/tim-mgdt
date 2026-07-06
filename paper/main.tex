@@ -109,6 +109,10 @@ The 25\%, 30\%, and 40\% full evaluations show that the dense-shaped mask contro
 
 As a limited robustness check, we also ran a 100-example auxiliary smoke comparing dense Mistral-7B against the 20\% mask on GSM8K Platinum and BBH multistep arithmetic. The 20\% mask reached 34\% strict exact match on GSM8K Platinum versus 36\% for dense, and 39\% exact match on BBH multistep arithmetic versus 33\% for dense. These smoke results are not the main evidence, but they reduce the risk that the 20\% result is narrowly tied to the original GSM8K test set.
 
+\section{Cross-Model Smoke and Limitation}
+
+We also ran a bounded Llama-3-8B smoke check to test whether the Mistral 20\% mask threshold transfers directly across model families. It does not. On a 100-example GSM8K smoke, dense Llama-3-8B reached 53\% strict exact match, a 10\% dense-shaped mask reached 49\%, and a 20\% mask dropped to 29\%. This result is not a full cross-model benchmark, but it prevents an overclaim: dense-shaped mask retention appears thresholded by model family, and each architecture needs its own retention boundary before making deployment claims.
+
 \section{Conclusion}
 
 Phase 19 reframes the compression problem for reasoning models. The immediate bottleneck is not whether parameters can be removed, but whether the structural geometry that carries reasoning behavior survives the compression operator. Dense-shaped masks provide a strong positive control, while hardware-aligned structural width pruning provides a strong negative control. Together they motivate a new target for efficient reasoning compression: preserve reasoning-critical geometry first, then recover hardware efficiency.

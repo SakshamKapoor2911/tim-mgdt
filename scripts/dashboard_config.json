@@ -1,6 +1,6 @@
 {
   "TAGLINE": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "CURRENT_PHASE": "Phase 19 validation",
+  "CURRENT_PHASE": "Phase 19 paper packaging",
   "OVERVIEW": [
     [
       "What we're building",
@@ -12,12 +12,12 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense."
+      "<b>Phase 19 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is Mistral 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense; Phase 22 shows the safe mask threshold is model-specific on Llama-3-8B."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
-    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade despite similar C4 perplexity?"
+    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade, and how model-specific is that retention threshold?"
   ],
   "PHASE": "Phase 19 Validation: Mask-vs-structural reasoning retention",
   "RUNS": [
@@ -68,6 +68,10 @@
     [
       "Phase 21 \u2014 Auxiliary Reasoning Smoke",
       "done"
+    ],
+    [
+      "Phase 22 \u2014 Llama Threshold Smoke",
+      "done"
     ]
   ],
   "DECISIONS": [
@@ -103,8 +107,14 @@
     [
       "Agent",
       "Auxiliary reasoning smoke",
-      "next",
+      "done",
       "The 20% mask is close to dense on GSM8K Platinum smoke and above dense on BBH multistep arithmetic smoke; keep this as support, not the primary claim."
+    ],
+    [
+      "Agent",
+      "Cross-model threshold smoke",
+      "done",
+      "Llama-3-8B GSM8K smoke is near dense at 10% mask sparsity (49% vs 53%, n=100) but drops at 20% (29%), so the Mistral 20% safe point should not be reported as universal."
     ],
     [
       "Agent",
@@ -183,6 +193,10 @@
       "Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic"
     ],
     [
+      "done",
+      "Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded"
+    ],
+    [
       "planned",
       "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     ]
@@ -206,7 +220,7 @@
     [
       "planned",
       "Agent",
-      "Tighten `paper/main.tex` around the final Phase 19 boundary: 20% retained, 25% degraded, 30%/40% collapse further."
+      "Tighten `paper/main.tex` around the final Phase 19 boundary and Phase 22 limitation: Mistral 20% retained, Mistral 25% degraded, and Llama likely needs a lower threshold."
     ],
     [
       "planned",

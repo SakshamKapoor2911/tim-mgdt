@@ -50,7 +50,7 @@ echo "Run label: $RUN_LABEL"
 
 if [[ ! -f "$MASK_META" || ! -d "$MASK_CKPT" || "$FORCE" == "1" ]]; then
     echo
-    echo "=== Building 20% dense-shaped mask checkpoint ==="
+    echo "=== Building dense-shaped mask checkpoint (sparsity=$SPARSITY, tag=$MASK_TAG) ==="
     CUDA_VISIBLE_DEVICES="$PRUNE_GPU" "$VENV/bin/python" -u -m code.phases.phase19.mask_pruning \
         --model "$MODEL" \
         --sparsity "$SPARSITY" \

@@ -26,6 +26,14 @@ def load_json(path):
         return None
 
 
+def repo_relative(path):
+    path = Path(path)
+    try:
+        return str(path.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(path)
+
+
 def parse_eval_name(path):
     name = Path(path).name
     match = re.match(
@@ -62,6 +70,13 @@ def mask_metadata(exp_dir, model_tag, mask_tag):
     return load_json(candidates[-1]) or {}
 
 
+def baseline_metadata(exp_dir, model_tag):
+    candidates = sorted(glob.glob(os.path.join(exp_dir, f"*_mask_pruning_{model_tag}_s*.json")))
+    if not candidates:
+        return {}
+    return load_json(candidates[-1]) or {}
+
+
 def collect(exp_dir, model_tag=None):
     rows = []
     for path in sorted(glob.glob(os.path.join(exp_dir, "eval_*.json"))):
@@ -71,7 +86,7 @@ def collect(exp_dir, model_tag=None):
         data = load_json(path)
         if not data:
             continue
-        meta = {} if state == "dense" else mask_metadata(exp_dir, parsed_model_tag, state)
+        meta = baseline_metadata(exp_dir, parsed_model_tag) if state == "dense" else mask_metadata(exp_dir, parsed_model_tag, state)
         for task, result in sorted(data.get("results", {}).items()):
             metric_name, metric_value = metric_for(result)
             rows.append(
@@ -86,9 +101,35 @@ def collect(exp_dir, model_tag=None):
                     "target_sparsity": 0.0 if state == "dense" else meta.get("target_sparsity"),
                     "linear_sparsity": 0.0 if state == "dense" else meta.get("linear_sparsity"),
                     "c4_ppl": meta.get("baseline_c4_ppl") if state == "dense" else meta.get("masked_c4_ppl"),
-                    "path": path,
+                    "path": repo_relative(path),
+                    "_mtime": Path(path).stat().st_mtime,
                 }
             )
+
+    deduped = {}
+    for row in rows:
+        key = (
+            row["model_tag"],
+            row["state"],
+            row["task"],
+            row["run_label"],
+            row["metric"],
+        )
+        previous = deduped.get(key)
+        if previous is None or row["_mtime"] > previous["_mtime"]:
+            deduped[key] = row
+    rows = sorted(
+        deduped.values(),
+        key=lambda row: (
+            row["run_label"],
+            row["model_tag"],
+            row["task"],
+            0 if row["state"] == "dense" else 1,
+            row["state"],
+        ),
+    )
+    for row in rows:
+        row.pop("_mtime", None)
 
     dense_by_key = {
         (row["model_tag"], row["task"], row["run_label"]): row
@@ -104,7 +145,7 @@ def collect(exp_dir, model_tag=None):
 
     return {
         "schema": "phase22_cross_model_summary_v1",
-        "exp_dir": exp_dir,
+        "exp_dir": repo_relative(exp_dir),
         "rows": rows,
         "notes": [
             "Phase 22 is a bounded cross-model smoke check, not a full benchmark.",

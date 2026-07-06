@@ -39,6 +39,7 @@ Key contrast to preserve:
 - Phase 19 dense-shaped 20% mask: full GSM8K remains within 1.44 points of dense.
 - Phase 19 dense-shaped 25%, 30%, and 40% masks: full GSM8K degrades to 34.04%, 31.77%, and 23.88%, locating the mask-retention threshold just above 20%.
 - Phase 21 auxiliary reasoning smoke: the 20% mask is close to dense on GSM8K Platinum strict EM (34% versus 36%, n=100) and above dense on BBH multistep arithmetic exact match (39% versus 33%, n=100). Treat this as support, not the primary claim.
+- Phase 22 cross-model smoke: on Llama-3-8B GSM8K smoke (n=100), a 10% dense-shaped mask reaches 49% strict EM versus 53% dense, while a 20% mask drops to 29%. Treat this as threshold heterogeneity, not a full cross-model benchmark.
 
 Running Evidence
 ----------------
@@ -48,12 +49,14 @@ Adaptive boundary and structural follow-up runs:
 - `phase19_adaptive_boundary`: completed the 25% branch; 25% is already materially degraded.
 - `phase20_mask_guided_queue`: will now skip larger points because initial mask-guided structured pruning failed its smoke continuation gate.
 - `phase21_aux_reasoning`: completed a dense-vs-20% auxiliary smoke on GSM8K Platinum and BBH multistep arithmetic.
+- `phase22_cross_model`: completed Llama-3-8B dense, 10%, and 20% mask smokes; 10% is close to dense, while 20% fails.
 
 Current interpretation:
 
 - The result is thresholded rather than broad: 20% is near dense, 25% is already degraded, and 30%/40% collapse further.
 - This is still publishable as a mask-vs-structure dissociation because structural width pruning fails at much lower sparsity.
 - Phase 20 is currently negative evidence: naive mask-guided structural transfer fails even below 1% MLP sparsity.
+- Phase 22 prevents an overclaim: the Mistral 20% threshold should be reported as model-specific until a broader sweep is run.
 
 Paper Rewrite Plan
 ------------------
@@ -76,4 +79,5 @@ After publishing the current results:
 2. Keep the Phase 20 mask-guided structural smoke result as a negative control.
 3. Rebuild the dashboard, Phase 19 plot, and paper table.
 4. Use Phase 21 as auxiliary robustness evidence only; do not overclaim from 100-example smoke tests.
-5. Convert the draft into a 4-6 page COLM Efficient Reasoning submission only after presentation logistics are confirmed.
+5. Use Phase 22 as a concise limitation and decide later whether a full Llama sweep is worth compute.
+6. Convert the draft into a 4-6 page COLM Efficient Reasoning submission only after presentation logistics are confirmed.

@@ -1,0 +1,16 @@
+{
+  "model": "meta-llama/Meta-Llama-3-8B",
+  "method": "layerwise_unstructured_magnitude_mask",
+  "target_sparsity": 0.1,
+  "eval_samples": 32,
+  "modules_pruned": 225,
+  "baseline_c4_ppl": 9.439846992492676,
+  "masked_c4_ppl": 9.569906234741211,
+  "baseline_tps": 43.45056608026812,
+  "masked_tps": 43.22165765404818,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase22_cross_model/Meta-Llama-3-8B_mask_pruned_meta-llama-3-8b_s10",
+  "linear_modules": 225,
+  "linear_params": 7504658432,
+  "zero_linear_params": 748643314,
+  "linear_sparsity": 0.09975714694859013
+}
