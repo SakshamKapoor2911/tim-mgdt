@@ -698,9 +698,14 @@ def _phase18b_sweep_html():
 </div>"""
 
 
-def _phase19_mask_readout(tag, strict, c4):
+def _phase19_mask_readout(tag, strict, c4, dense_strict=None):
     if strict is None:
         return "Awaiting GSM8K metric."
+    if dense_strict is not None and tag == "s20":
+        drop_pts = (strict - dense_strict) * 100
+        if drop_pts >= -2.1:
+            return "Full/smoke result is within about 2 points of dense; strongest positive control."
+        return "Best mask point so far, but full validation shows a measurable dense gap."
     if tag == "s20":
         return "Near-dense GSM8K at 20% mask sparsity; strongest positive control."
     if tag == "s30":
@@ -720,7 +725,38 @@ def _phase19_mask_html():
     if not mask_paths:
         return ""
 
-    rows = ""
+    dense_full_metric = (
+        _latest_gsm8k("experiments/phase19/gsm8k_eval_baseline_full*.json")
+        or _gsm8k_metric("experiments/phase16/gsm8k_eval_baseline_2026-06-23T01-43-56.210011.json")
+        or {}
+    )
+    dense_smoke_metric = _latest_gsm8k("experiments/phase18b/gsm8k_eval_baseline*.json") or {}
+    dense_metric = (
+        dense_full_metric
+        if dense_full_metric.get("n")
+        else dense_smoke_metric
+        or _latest_gsm8k("experiments/phase18b/gsm8k_eval_baseline*.json")
+        or {}
+    )
+    dense_strict = dense_metric.get("strict")
+    dense_n = dense_metric.get("n")
+    dense_badge = "full" if isinstance(dense_n, (int, float)) and dense_n > 100 else "smoke"
+    first_mask = _load(mask_paths[0]) or {}
+    baseline_c4 = first_mask.get("baseline_c4_ppl")
+    baseline_tps = first_mask.get("baseline_tps")
+    rows = f"""
+        <tr>
+          <td class="task-who">Dense Mistral baseline</td>
+          <td>0.0%</td>
+          <td>0.0%</td>
+          <td>{int(dense_n) if dense_n else "—"} <span class="muted">({dense_badge})</span></td>
+          <td>{_pct(dense_strict)}</td>
+          <td><span class="muted">ref</span></td>
+          <td>{_float(baseline_c4)}</td>
+          <td>{_float(baseline_tps, 2)}</td>
+          <td class="task-action">Reference for Phase 19 mask-vs-structural controls.</td>
+        </tr>
+    """
     for path in mask_paths:
         data = _load(path) or {}
         tag = Path(path).stem.split("_")[-1]
@@ -728,12 +764,17 @@ def _phase19_mask_html():
         target = data.get("target_sparsity")
         actual = data.get("linear_sparsity")
         strict = metric.get("strict")
+        row_dense_metric = dense_full_metric if isinstance(metric.get("n"), (int, float)) and metric.get("n") > 100 else dense_smoke_metric
+        row_dense_strict = row_dense_metric.get("strict", dense_strict)
+        delta = None if strict is None or row_dense_strict is None else strict - row_dense_strict
         c4 = data.get("masked_c4_ppl")
         n = metric.get("n")
         tps = data.get("masked_tps")
         target_str = f"{target * 100:.1f}%" if target is not None else "—"
         actual_str = f"{actual * 100:.1f}%" if actual is not None else "—"
         full_badge = "full" if isinstance(n, (int, float)) and n > 100 else "smoke"
+        delta_cls = "pos" if delta is not None and delta > 0.02 else ("neg" if delta is not None and delta < -0.02 else "zero")
+        delta_str = "—" if delta is None else f"<span class='b b-{delta_cls}'>{delta * 100:+.1f} pt</span>"
         rows += f"""
         <tr>
           <td class="task-who">Phase 19 mask ({tag})</td>
@@ -741,9 +782,10 @@ def _phase19_mask_html():
           <td>{actual_str}</td>
           <td>{int(n) if n else "—"} <span class="muted">({full_badge})</span></td>
           <td>{_pct(strict)}</td>
+          <td>{delta_str}</td>
           <td>{_float(c4)}</td>
           <td>{_float(tps, 2)}</td>
-          <td class="task-action">{_phase19_mask_readout(tag, strict, c4)}</td>
+          <td class="task-action">{_phase19_mask_readout(tag, strict, c4, row_dense_strict)}</td>
         </tr>
         """
 
@@ -751,10 +793,10 @@ def _phase19_mask_html():
 <div class="section-label">Phase 19 mask control</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
-<tr><th>Probe</th><th>Target</th><th>Actual Linear Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+<tr><th>Probe</th><th>Target</th><th>Actual Linear Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Δ vs dense</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
 {rows}
 </table>
-<div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups, but they isolate whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
+<div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups. Deltas compare against dense runs at the same sample scale when available, isolating whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
 </div>"""
 
 
