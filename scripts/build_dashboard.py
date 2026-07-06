@@ -742,6 +742,28 @@ def _phase19_mask_html():
     first_mask = _load(mask_paths[0]) or {}
     baseline_c4 = first_mask.get("baseline_c4_ppl")
     baseline_tps = first_mask.get("baseline_tps")
+    sample_analysis = _load("experiments/phase19/gsm8k_sample_analysis.json") or {}
+    sample_by_tag = {row.get("tag"): row for row in sample_analysis.get("rows", [])}
+    dense_sample = sample_by_tag.get("dense") or {}
+    s20_sample = sample_by_tag.get("s20") or {}
+    sample_note = ""
+    if (
+        dense_sample.get("avg_response_words") is not None
+        and s20_sample.get("avg_response_words") is not None
+        and s20_sample.get("delta_avg_words_vs_dense_full") is not None
+    ):
+        word_delta = s20_sample.get("delta_avg_words_vs_dense_full")
+        marker_delta = None
+        if dense_sample.get("final_marker_rate") is not None and s20_sample.get("final_marker_rate") is not None:
+            marker_delta = (s20_sample["final_marker_rate"] - dense_sample["final_marker_rate"]) * 100
+        sample_note = (
+            "Sample analysis: the 20% mask keeps generated GSM8K chain length essentially unchanged "
+            f"({s20_sample.get('avg_response_words'):.2f} vs {dense_sample.get('avg_response_words'):.2f} avg words, "
+            f"{word_delta:+.2f} delta)"
+        )
+        if marker_delta is not None:
+            sample_note += f" with a {marker_delta:+.1f} pt final-answer-marker change."
+        sample_note = f"<div class=\"rc-note\">{sample_note}</div>"
     rows = f"""
         <tr>
           <td class="task-who">Dense Mistral baseline</td>
@@ -795,6 +817,7 @@ def _phase19_mask_html():
 {rows}
 </table>
 <div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups. Deltas compare against dense runs at the same sample scale when available, isolating whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
+{sample_note}
 </div>
 <div class="card" style="padding:18px;margin-bottom:18px">
   <img src="figures/phase19_reasoning_dissociation.png" alt="Phase 19 mask-vs-structural C4 and GSM8K dissociation plot" style="display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)" />
