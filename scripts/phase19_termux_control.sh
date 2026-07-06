@@ -14,8 +14,10 @@ Usage:
   bash scripts/phase19_termux_control.sh status
   bash scripts/phase19_termux_control.sh ensure
   bash scripts/phase19_termux_control.sh queue-phase20
+  bash scripts/phase19_termux_control.sh publish
+  bash scripts/phase19_termux_control.sh queue-publish
   bash scripts/phase19_termux_control.sh monitor [seconds]
-  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20]
+  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|publish]
   bash scripts/phase19_termux_control.sh attach [tmux-session-name]
 
 Run this on the GPU host after SSHing in from Termux. Termux is the control
@@ -113,6 +115,25 @@ start_phase20_queue() {
         "cd '$REPO' && bash code/phases/phase20_mask_guided/run_after_phase19.sh > '$log' 2>&1"
 }
 
+start_publish_queue() {
+    local session="experiment_publish_queue"
+    local log_dir="$REPO/experiments/publish_logs"
+    local stamp
+    local log
+
+    mkdir -p "$log_dir"
+    if session_exists "$session"; then
+        echo "$session already running"
+        return
+    fi
+
+    stamp="$(timestamp)"
+    log="$log_dir/publish_queue_${stamp}.log"
+    echo "starting $session; log: $log"
+    tmux new-session -d -s "$session" \
+        "cd '$REPO' && bash scripts/publish_after_sessions.sh > '$log' 2>&1"
+}
+
 status() {
     python scripts/phase19_status.py
 }
@@ -144,6 +165,7 @@ latest_log_for() {
         s40) pattern="$LOG_DIR/gsm8k_s40_full_*.log" ;;
         adaptive) pattern="$LOG_DIR/adaptive_boundary_*.log" ;;
         phase20) pattern="$REPO/experiments/phase20_mask_guided/run_logs/phase20_queue_*.log" ;;
+        publish) pattern="$REPO/experiments/publish_logs/publish_queue_*.log" ;;
         *) return 1 ;;
     esac
     compgen -G "$pattern" | sort | tail -1
@@ -172,6 +194,8 @@ case "$cmd" in
     status) status "$@" ;;
     ensure) ensure "$@" ;;
     queue-phase20) start_phase20_queue "$@" ;;
+    publish) bash scripts/publish_experiment_updates.sh "$@" ;;
+    queue-publish) start_publish_queue "$@" ;;
     monitor) monitor "$@" ;;
     logs) logs "$@" ;;
     attach) attach "$@" ;;

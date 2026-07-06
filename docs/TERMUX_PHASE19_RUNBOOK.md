@@ -26,12 +26,16 @@ ssh <user>@<gpu-host>
 cd /home/skapoor/tim-mgdt
 bash scripts/phase19_termux_control.sh ensure
 bash scripts/phase19_termux_control.sh queue-phase20
+bash scripts/phase19_termux_control.sh queue-publish
 ```
 
 `ensure` is idempotent. It leaves existing sessions alone, skips runs whose full
 JSON result already exists, and starts only missing Phase 19 tmux jobs.
 `queue-phase20` starts a waiting tmux session that does not consume GPUs until
 the Phase 19 sessions have finished.
+`queue-publish` waits for Phase 19 and Phase 20 sessions, rebuilds compact
+summaries/plots/dashboard artifacts, commits them, and pushes to GitHub. It does
+not stage checkpoints, logs, or sample JSONL files.
 
 ## Monitor from the phone
 
@@ -57,6 +61,7 @@ bash scripts/phase19_termux_control.sh logs s30
 bash scripts/phase19_termux_control.sh logs s40
 bash scripts/phase19_termux_control.sh logs adaptive
 bash scripts/phase19_termux_control.sh logs phase20
+bash scripts/phase19_termux_control.sh logs publish
 ```
 
 ## Current Phase 19 expectation
@@ -71,11 +76,14 @@ The intended queue is:
 5. Optional Phase 20 runner waits for all Phase 19 sessions, then tests whether
    the successful Phase 19 mask signal can guide real structured MLP-width
    pruning.
+6. Optional publish runner waits for all queued sessions, then publishes compact
+   JSON/dashboard/paper artifacts to GitHub.
 
 Run this before leaving the machine unattended:
 
 ```bash
 bash scripts/phase19_termux_control.sh ensure
 bash scripts/phase19_termux_control.sh queue-phase20
+bash scripts/phase19_termux_control.sh queue-publish
 python scripts/phase19_status.py
 ```
