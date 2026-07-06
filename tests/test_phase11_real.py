@@ -2,7 +2,7 @@
 """Fast Phase 11 verification on a tiny in-process causal LM.
 
 The production Phase 11 code is intended for Mistral/Llama-class models, but
-CI and local smoke tests should not download GPT-2 or run Wikitext PPL. This
+CI and local smoke tests should not download external models or run Wikitext PPL. This
 fixture keeps the module structure used by Llama/Mistral and patches the slow
 metric calls with deterministic local measurements.
 """

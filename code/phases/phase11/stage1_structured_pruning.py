@@ -8,60 +8,9 @@ the real perplexity impact on Wikitext-2 for each pruning plan.
 
 import torch
 import torch.nn as nn
-import copy
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Any
 
 from code.phases.phase11.utils import get_model_config, compute_perplexity
-
-
-def _get_attn_projections(layer: nn.Module, arch: str):
-    """Return (q_proj, k_proj, v_proj, o_proj) weight tensors for a layer."""
-    if arch == "gpt2":
-        # GPT-2 uses a fused c_attn projection: shape (3*hidden, hidden)
-        # and c_proj for output
-        return layer.attn.c_attn, None, None, layer.attn.c_proj
-    else:
-        # Llama / Mistral
-        sa = layer.self_attn
-        return sa.q_proj, sa.k_proj, sa.v_proj, sa.o_proj
-
-
-def _score_heads_gpt2(model: nn.Module, cfg: Dict) -> Dict[str, float]:
-    """
-    Score attention heads for GPT-2.
-    GPT-2 uses a fused c_attn weight of shape (3*hidden, hidden).
-    The Q portion is rows [0 : hidden].
-    """
-    head_scores = {}
-    num_heads = cfg["num_heads"]
-    head_dim = cfg["head_dim"]
-    layers = cfg["layers"]
-
-    for layer_idx, layer in enumerate(layers):
-        # c_attn.weight shape: (hidden, 3*hidden) for Conv1D in GPT-2
-        # We need to handle both Conv1D and Linear
-        w = layer.attn.c_attn.weight.data
-        # GPT-2 Conv1D stores weights as (in_features, out_features)
-        # Q portion: columns [0 : hidden]
-        if w.shape[0] < w.shape[1]:
-            # Conv1D format: (in_features, 3*hidden)
-            q_weight = w[:, :cfg["hidden_size"]]
-        else:
-            # Linear format: (3*hidden, in_features)
-            q_weight = w[:cfg["hidden_size"], :]
-
-        for head_idx in range(num_heads):
-            start = head_idx * head_dim
-            end = start + head_dim
-            if q_weight.shape[0] == cfg["hidden_size"]:
-                # Conv1D: slice columns
-                score = torch.norm(q_weight[:, start:end], p=2).item()
-            else:
-                # Linear: slice rows
-                score = torch.norm(q_weight[start:end, :], p=2).item()
-            head_scores[f"L{layer_idx}_H{head_idx}"] = score
-
-    return head_scores
 
 
 def _score_heads_llama(model: nn.Module, cfg: Dict) -> Dict[str, float]:
@@ -121,42 +70,6 @@ def _apply_head_mask_llama(model: nn.Module, cfg: Dict, heads_to_prune: List[str
                     sa.v_proj.weight.data[kv_start:kv_end, :] = 0.0
 
 
-def _apply_head_mask_gpt2(model: nn.Module, cfg: Dict, heads_to_prune: List[str]) -> None:
-    """Zero out attention head weights for GPT-2 (fused c_attn)."""
-    head_dim = cfg["head_dim"]
-    hidden = cfg["hidden_size"]
-    layers = cfg["layers"]
-
-    prune_set = set()
-    for key in heads_to_prune:
-        parts = key.split("_")
-        layer_idx = int(parts[0][1:])
-        head_idx = int(parts[1][1:])
-        prune_set.add((layer_idx, head_idx))
-
-    for layer_idx, layer in enumerate(layers):
-        w = layer.attn.c_attn.weight.data
-        for head_idx in range(cfg["num_heads"]):
-            if (layer_idx, head_idx) in prune_set:
-                start = head_idx * head_dim
-                end = start + head_dim
-                # GPT-2 Conv1D: (in, 3*hidden), Q is cols [0:hidden]
-                if w.shape[0] < w.shape[1]:
-                    w[:, start:end] = 0.0              # Q
-                    w[:, hidden + start:hidden + end] = 0.0  # K
-                    w[:, 2*hidden + start:2*hidden + end] = 0.0  # V
-                else:
-                    w[start:end, :] = 0.0
-                    w[hidden + start:hidden + end, :] = 0.0
-                    w[2*hidden + start:2*hidden + end, :] = 0.0
-                # c_proj output rows
-                c_proj_w = layer.attn.c_proj.weight.data
-                if c_proj_w.shape[0] < c_proj_w.shape[1]:
-                    c_proj_w[start:end, :] = 0.0
-                else:
-                    c_proj_w[:, start:end] = 0.0
-
-
 def run_stage1(
     model: nn.Module,
     tokenizer: Any,
@@ -194,10 +107,7 @@ def run_stage1(
 
     # --- Score heads ---
     print("  [1/3] Computing per-head L2 weight norm importance scores...")
-    if arch == "gpt2":
-        head_scores = _score_heads_gpt2(model, cfg)
-    else:
-        head_scores = _score_heads_llama(model, cfg)
+    head_scores = _score_heads_llama(model, cfg)
 
     sorted_heads = sorted(head_scores.items(), key=lambda x: x[1])
     total_heads = len(sorted_heads)
@@ -220,10 +130,7 @@ def run_stage1(
         heads_to_prune = [h[0] for h in sorted_heads[:num_to_prune]]
 
         # Apply mask
-        if arch == "gpt2":
-            _apply_head_mask_gpt2(model, cfg, heads_to_prune)
-        else:
-            _apply_head_mask_llama(model, cfg, heads_to_prune)
+        _apply_head_mask_llama(model, cfg, heads_to_prune)
 
         # Measure perplexity with pruned heads
         pruned_ppl = compute_perplexity(model, tokenizer, device, max_samples=ppl_max_samples, batch_size=batch_size)

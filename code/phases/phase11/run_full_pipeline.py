@@ -12,6 +12,7 @@ stops with a clear error.  No synthetic/fake fallbacks.
 """
 
 import argparse
+import json
 import time
 from pathlib import Path
 from datetime import datetime
@@ -29,7 +30,6 @@ from code.phases.phase11.utils import get_device, save_json
 MODEL_REGISTRY: Dict[str, str] = {
     "mistral-7b": "mistralai/Mistral-7B-v0.1",
     "llama-3-8b": "meta-llama/Meta-Llama-3-8B",
-    "gpt2": "gpt2",
 }
 
 
@@ -45,7 +45,7 @@ def run_full_pipeline(
     Run all 4 stages of the Phase 11 real pruning pipeline.
 
     Args:
-        model_key:        One of 'mistral-7b', 'llama-3-8b', 'gpt2'
+        model_key:        One of 'mistral-7b', 'llama-3-8b'
         num_samples:      Max Wikitext-2 chunks for perplexity evaluation
         output_dir:       Where to save results JSON
         device:           Force device ('cuda'/'cpu'), or auto-detect
@@ -80,7 +80,7 @@ def run_full_pipeline(
     print(f"[LOAD] Loading {model_key} from HuggingFace...")
     tokenizer = AutoTokenizer.from_pretrained(hf_id, trust_remote_code=True)
 
-    # Set pad token if missing (GPT-2 doesn't have one)
+    # Some decoder-only tokenizers do not define an explicit pad token.
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -199,9 +199,9 @@ def main() -> None:
         description="Phase 11: Real Pruning & Measurement Pipeline"
     )
     parser.add_argument(
-        "--model", type=str, default="gpt2",
+        "--model", type=str, default="mistral-7b",
         choices=list(MODEL_REGISTRY.keys()),
-        help="Model to evaluate (default: gpt2 for fast testing)",
+        help="Model to evaluate (default: mistral-7b)",
     )
     parser.add_argument(
         "--samples", type=int, default=128,
