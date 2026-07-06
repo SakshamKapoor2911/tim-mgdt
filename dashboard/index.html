@@ -113,7 +113,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 06:12 UTC</span>
+    <span class="nav-meta">2026-07-06 06:13 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -123,10 +123,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="hero-inner">
     <div class="hero-eyebrow">Temporal Importance Metrics for Model Gradient-based Diagnostic Tuning</div>
     <h1>TIM-MGDT Project Dashboard</h1>
-    <p class="hero-sub"></p>
+    <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
-      <span class="chip chip-blue">Phase 18B</span>
-      <span class="chip chip-green">0/0 runs complete</span>
+      <span class="chip chip-blue">Phase 19 validation</span>
+      <span class="chip chip-green">9/11 runs complete</span>
       <span class="chip chip-yellow">73 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
@@ -136,9 +136,12 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="wrap">
   <div class="section-label" id="overview">Project overview</div>
   <div class="g3">
-    
+    <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
+<div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense.</p></div>
+
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3></h3><p></p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
 
@@ -656,6 +659,17 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="data-table">
 <tr><th>Run</th><th>Status</th></tr>
+<tr><td>Phase 11 — Llama-3 & Mistral-7B baseline eval</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 12 — Hardware Memory Wall discovery</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 13 — Ablation & Hardening</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 14 — Bulletproof LoRA Healing pipeline</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 15 — True Layer Dropping & Boundary Healing</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-done'>done (failed: logic collapsed)</span></td></tr>
+<tr><td>Phase 17 — Contrastive Circuit Sparing</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
+<tr><td>Phase 18 — Sensitivity-Guided Non-Uniform Mask</td><td><span class='pill p-done'>done (diagnostic only)</span></td></tr>
+<tr><td>Phase 18B — Structural Uniform Sweep</td><td><span class='pill p-done'>done (negative)</span></td></tr>
+<tr><td>Phase 19 — Mask-vs-Structural Control</td><td><span class='pill p-now'>now</span></td></tr>
+<tr><td>Phase 3 — Feedback Distillation</td><td><span class='pill p-queued'>planned</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -663,6 +677,12 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Topic</th><th>Decision</th><th>Rationale</th></tr>
+<tr><td class="task-who">Architecture Choice</td><td><b>Mistral-7B-v0.1 Focus</b></td>
+<td class="task-action">We shifted focus to Mistral-7B and Llama-3-class architectures, where compression failures are meaningful for modern reasoning deployments.</td></tr>
+<tr><td class="task-who">Current Finding</td><td><b>C4 PPL is not enough</b></td>
+<td class="task-action">Phase 18B and Phase 19 now form a controlled contrast: C4-matched structural and masked models can have very different GSM8K retention.</td></tr>
+<tr><td class="task-who">Hardware Alignment</td><td><b>Ceil/Floor Tensor Core Rounding</b></td>
+<td class="task-action">To ensure theoretical FLOP reductions translate to physical speedups, we round pruned MLP dimensions to nearest 64 (Tensor Core alignment) via specific ceil/floor strategies.</td></tr>
 
 </table></div></div>
   <div id="tasks">
@@ -670,22 +690,49 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
+<td><span class='pill p-done'>done</span></td><td class="task-action">20% mask full GSM8K finished at 37.2% strict EM versus 38.7% dense, a -1.4 point gap at 20% dense-shaped sparsity.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Dashboard and paper hygiene</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission.</td></tr>
 
 </table></div></div>
-  <div class="section-label">How we work</div><div class="g2"></div>
+  <div class="section-label">How we work</div><div class="g2"><div class='card'><div class='card-title'>Compute</div><p><b>2×3090 (48 GB VRAM total)</b> locally + External Remote Endpoint.</p></div>
+<div class='card'><div class='card-title'>Code</div><p><b>GitHub only</b> — single repo <code>SakshamKapoor2911/tim-mgdt</code>, frequent commits.</p></div>
+<div class='card'><div class='card-title'>Method</div><p>Actionable Interpretability · Structural Pruning · GSM8K-first Validation</p></div>
+</div>
   
 <div class="section-label">Bulletproofing checklist</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="data-table">
 <tr><th>Status</th><th>Item</th></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>20% mask pruning completed full GSM8K validation within 1.4 points of dense.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td>Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups.</td></tr>
 
 </table></div>
-  <div id="milestones"><div class="section-label">Milestones</div><div class="milestones"></div></div>
+  <div id="milestones"><div class="section-label">Milestones</div><div class="milestones"><div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 12: Proxy validation, Memory Wall proof</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 14: Final pipeline execution (Mistral-7B LoRA healing)</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 15: True Layer Dropping and Boundary Healing</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 17/18: Contrastive and non-uniform probes failed smoke tests</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense</div></div>
+<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote presentation policy</div></div>
+</div></div>
   <div id="path">
 <div class="section-label">Path to paper</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
+<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 19: Full GSM8K confirmed the 20% mask-vs-structural control.</td></tr>
+<tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 
 </table></div></div>
   <div id="literature">
@@ -693,9 +740,14 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Paper / Authors</th><th>Context & Our Differentiation</th></tr>
+<tr><td class='task-who'>The Unreasonable Ineffectiveness of the Deeper Layers<br><span class='task-track'>Gromov et al., 2024</span></td><td class='task-action'>Demonstrates depth pruning and QLoRA healing. <b>Our diff</b>: We prove that healing should be restricted to the 'incision boundary' and that width pruning avoids the 'Perplexity Trap' altogether.</td></tr>
+<tr><td class='task-who'>Wanda<br><span class='task-track'>Sun et al., 2023</span></td><td class='task-action'>Pruning by weights and activations. <b>Our diff</b>: We enforce structured tensor-core hardware alignment on MLP dimensions, ensuring actual physical latency speedups.</td></tr>
+<tr><td class='task-who'>SliceGPT<br><span class='task-track'>Ashkboos et al., 2024</span></td><td class='task-action'>Deletes entire rows/cols and uses PCA rotation. <b>Our diff</b>: We prune without destroying the original parameter space mapping, enabling surgical LoRA recovery and protecting zero-shot reasoning.</td></tr>
 
 </table></div></div>
-  <div class="section-label">Links</div><div style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  <div class="section-label">Links</div><div style="display:flex;flex-wrap:wrap;gap:8px"><a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">Repository</a>
+<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex" target="_blank">Paper Draft</a>
+</div>
 </div>
 </body>
 </html>
