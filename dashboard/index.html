@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 17:28 UTC</span>
+    <span class="nav-meta">2026-07-06 18:05 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -119,9 +119,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
-      <span class="chip chip-blue">Phase 19 paper packaging</span>
-      <span class="chip chip-green">12/13 runs complete</span>
-      <span class="chip chip-yellow">94 experiment files</span>
+      <span class="chip chip-blue">Phase 23 paper packaging</span>
+      <span class="chip chip-green">13/14 runs complete</span>
+      <span class="chip chip-yellow">95 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -132,10 +132,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 19 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is Mistral 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense; Phase 22 shows the safe mask threshold is model-specific on Llama-3-8B.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 23 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade, and how model-specific is that retention threshold?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
 
@@ -307,12 +307,12 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td class="task-who">Phase 23 global magnitude (s20)</td>
           <td>20.0%</td>
           <td>20.1%</td>
-          <td>—</td>
-          <td>—</td>
-          <td>—</td>
+          <td>1319</td>
+          <td>35.3%</td>
+          <td><span class='b b-neg'>-3.3 pt</span></td>
           <td>8.203</td>
           <td>44.51</td>
-          <td class="task-action">Full GSM8K is running; this closes the standard global magnitude baseline gap.</td>
+          <td class="task-action">Global magnitude is weaker than the 20% layerwise mask but still far above structural width pruning.</td>
         </tr>
 
 </table>
@@ -736,6 +736,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 20 — Mask-guided Structural Follow-up</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
 <tr><td>Phase 21 — Auxiliary Reasoning Smoke</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 22 — Llama Threshold Smoke</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 23 — Global Unstructured Baseline</td><td><span class='pill p-done'>done</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -757,7 +758,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
-<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 25% drops to 34.0%, making 20% the safe point and 25% the first full-test boundary failure.</td></tr>
+<td><span class='pill p-now'>now</span></td><td class="task-action">20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 23 global baseline</span></td>
+<td><span class='pill p-done'>done</span></td><td class="task-action">Global unstructured magnitude pruning at 20.06% actual linear sparsity reaches 35.33% strict EM on full GSM8K with C4 PPL 8.203.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Auxiliary reasoning smoke</span></td>
@@ -780,6 +783,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td>Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>20% mask pruning completed full GSM8K validation within 1.4 points of dense.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td>Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups.</td></tr>
 
 </table></div>
@@ -793,6 +797,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">
@@ -803,7 +808,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 19: Full GSM8K confirmed the 20% mask-vs-structural control.</td></tr>
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Tighten `paper/main.tex` around the final Phase 19 boundary and Phase 22 limitation: Mistral 20% retained, Mistral 25% degraded, and Llama likely needs a lower threshold.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Run a per-layer or per-module ablation around the 20-25% mask boundary if there is time before submission.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 

@@ -1,0 +1,18 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "global_unstructured_magnitude_mask",
+  "mask_scope": "global",
+  "global_threshold": 0.000755071638195659,
+  "target_sparsity": 0.2,
+  "eval_samples": 64,
+  "modules_pruned": 225,
+  "baseline_c4_ppl": 8.012563705444336,
+  "masked_c4_ppl": 8.202567100524902,
+  "baseline_tps": 45.38450135310457,
+  "masked_tps": 44.51165871010339,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruned_global_s20",
+  "linear_modules": 225,
+  "linear_params": 7110393856,
+  "zero_linear_params": 1426605884,
+  "linear_sparsity": 0.20063668945654534
+}

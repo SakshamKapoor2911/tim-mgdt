@@ -78,36 +78,40 @@ bash scripts/phase19_termux_control.sh logs phase23
 bash scripts/phase19_termux_control.sh logs publish
 ```
 
-## Current Stage: Phase 23 Global Baseline
+## Current Stage: Phase 23 Complete; Paper Packaging
 
-Purpose: answer the obvious reviewer question, "is the 20% result just
+Phase 23 answered the obvious reviewer question, "is the 20% result just
 unstructured magnitude pruning rather than a layerwise dense-mask diagnostic?"
 
-Current run:
+Completed result:
 
 ```bash
-tmux session: phase23_global_s20
-log: experiments/phase23_global_unstructured/run_logs/global_s20_*.log
-metadata: experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json
-eval result: experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full_*.json
+global 20% mask: 35.33% strict EM / 35.63% flexible EM on full GSM8K
+delta vs dense: -3.34 pt
+delta vs layerwise 20% mask: -1.90 pt
+delta vs structural 20% width pruning: +30.10 pt
+C4 PPL: 8.203
+actual linear sparsity: 20.06%
 ```
 
-Expected interpretation once complete:
+Artifact paths:
 
-1. If global 20% is near dense, the paper should say both layerwise and global
-   unstructured masks preserve the 20% Mistral boundary; the failure is shape
-   changing structural pruning.
-2. If global 20% collapses, the paper should say layerwise allocation matters,
-   and the current Phase 19 dense-mask result is not equivalent to standard
-   global magnitude pruning.
-3. Either result strengthens the paper because it closes the baseline gap.
+```bash
+metadata: experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json
+eval result: experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full_2026-07-06T16-36-08_2026-07-06T14-02-18.501393.json
+```
 
-## Next Steps After Phase 23 Finishes
+Interpretation: global 20% unstructured magnitude masking does not collapse; it
+retains substantial GSM8K reasoning and is far stronger than structural width
+pruning. It is still weaker than the layerwise 20% dense-shaped mask, so
+layerwise sparsity allocation matters within geometry-preserving unstructured
+masking.
 
-1. Parse the Phase 23 JSON and add the global 20% row to `paper/main.tex`.
-2. Tighten the abstract to 120-150 words.
-3. Rebuild the Overleaf zip at `paper/tim-mgdt-overleaf-paper.zip`.
-4. Run:
+## Next Steps
+
+1. Keep `paper/main.tex` as the authoritative submission draft.
+2. Rebuild the Overleaf zip at `paper/tim-mgdt-overleaf-paper.zip`.
+3. Run:
 
 ```bash
 python -m py_compile code/phases/phase11/utils.py code/phases/phase19/mask_pruning.py scripts/phase19_status.py
@@ -115,9 +119,11 @@ pytest tests/test_phase11_real.py tests/test_phase20_mask_guided.py
 python scripts/phase19_readiness.py
 ```
 
-5. Commit and push compact code, paper, runbook, dashboard, and Phase 23 JSON
+4. Commit and push compact code, paper, runbook, dashboard, and Phase 23 JSON
    artifacts. Do not stage checkpoint directories, run logs, or sample JSONL
    files.
+5. Optional next experiment: per-layer or per-module ablation around the 20--25%
+   boundary to identify where layerwise allocation matters.
 
 Run this before leaving the machine unattended:
 

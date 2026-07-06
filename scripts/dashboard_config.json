@@ -1,6 +1,6 @@
 {
   "TAGLINE": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "CURRENT_PHASE": "Phase 19 paper packaging",
+  "CURRENT_PHASE": "Phase 23 paper packaging",
   "OVERVIEW": [
     [
       "What we're building",
@@ -12,14 +12,14 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 19 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is Mistral 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense; Phase 22 shows the safe mask threshold is model-specific on Llama-3-8B."
+      "<b>Phase 23 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
-    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade, and how model-specific is that retention threshold?"
+    "Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?"
   ],
-  "PHASE": "Phase 19 Validation: Mask-vs-structural reasoning retention",
+  "PHASE": "Phase 23 Validation: Global unstructured baseline complete",
   "RUNS": [
     [
       "Phase 11 \u2014 Llama-3 & Mistral-7B baseline eval",
@@ -72,6 +72,10 @@
     [
       "Phase 22 \u2014 Llama Threshold Smoke",
       "done"
+    ],
+    [
+      "Phase 23 \u2014 Global Unstructured Baseline",
+      "done"
     ]
   ],
   "DECISIONS": [
@@ -96,7 +100,13 @@
       "Agent",
       "Phase 19 full validation",
       "now",
-      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 25% drops to 34.0%, making 20% the safe point and 25% the first full-test boundary failure."
+      "20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning."
+    ],
+    [
+      "Agent",
+      "Phase 23 global baseline",
+      "done",
+      "Global unstructured magnitude pruning at 20.06% actual linear sparsity reaches 35.33% strict EM on full GSM8K with C4 PPL 8.203."
     ],
     [
       "Agent",
@@ -151,6 +161,10 @@
       "20% mask pruning completed full GSM8K validation within 1.4 points of dense."
     ],
     [
+      "done",
+      "20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM."
+    ],
+    [
       "planned",
       "Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups."
     ]
@@ -197,6 +211,10 @@
       "Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded"
     ],
     [
+      "done",
+      "Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask"
+    ],
+    [
       "planned",
       "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     ]
@@ -218,9 +236,14 @@
       "Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants."
     ],
     [
+      "done",
+      "Agent",
+      "Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed."
+    ],
+    [
       "planned",
       "Agent",
-      "Tighten `paper/main.tex` around the final Phase 19 boundary and Phase 22 limitation: Mistral 20% retained, Mistral 25% degraded, and Llama likely needs a lower threshold."
+      "Run a per-layer or per-module ablation around the 20-25% mask boundary if there is time before submission."
     ],
     [
       "planned",
