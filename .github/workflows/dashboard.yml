@@ -6,8 +6,12 @@ on:
       - main
       - master
     paths:
+      - '.github/workflows/dashboard.yml'
+      - 'dashboard/**'
       - 'experiments/**/*.json'
       - 'scripts/build_dashboard.py'
+      - 'scripts/dashboard_config.json'
+      - 'scripts/generate_plots.py'
   workflow_dispatch:
 
 permissions:
