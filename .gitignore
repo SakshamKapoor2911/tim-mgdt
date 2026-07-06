@@ -52,6 +52,7 @@ experiments/sensitivity_results_*.json
 # Logs
 *.log
 logs/
+experiments/**/run_logs/
 
 # Temporary
 .tmp/
