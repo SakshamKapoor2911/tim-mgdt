@@ -58,6 +58,7 @@ experiments/**/run_logs/
 .tmp/
 temp/
 *.tmp
+.nfs*
 
 # Azure
 .azure/
