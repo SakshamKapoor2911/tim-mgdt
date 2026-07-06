@@ -188,7 +188,7 @@ def print_phase20_table():
     print("-----   ------   ------   -----   ------   --------   ------   -----")
     for path in result_paths:
         meta = structured_metric(path)
-        metric = best_metric(f"experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*_{meta['tag']}.json")
+        metric = best_metric(f"experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*_{meta['tag']}*.json")
         strict = metric.get("strict") if metric else None
         delta = None if strict is None or dense_strict is None else (strict - dense_strict) * 100
         delta_text = "" if delta is None else f"{delta:+.2f} pt"

@@ -52,6 +52,7 @@ for SPARSITY in $STRUCTURED_SPARSITIES; do
     CKPT="$OUT_DIR/${MODEL_SHORT}_mask_guided_width_${STRATEGY}_${TAG}"
     RESULT_JSON="$OUT_DIR/${MODEL_SHORT}_mask_guided_width_${STRATEGY}_${TAG}.json"
     EVAL_JSON="$OUT_DIR/gsm8k_eval_mask_guided_${STRATEGY}_${TAG}.json"
+    EVAL_PATTERN="$OUT_DIR/gsm8k_eval_mask_guided_${STRATEGY}_${TAG}*.json"
 
     echo
     echo "=== Mask-guided structured prune sparsity=$SPARSITY tag=$TAG ==="
@@ -69,8 +70,8 @@ for SPARSITY in $STRUCTURED_SPARSITIES; do
     fi
 
     echo "=== GSM8K smoke eval tag=$TAG checkpoint=$CKPT ==="
-    if [[ "$FORCE_PHASE20" != "1" && -f "$EVAL_JSON" ]]; then
-        echo "Skipping GSM8K eval for tag=$TAG; found $EVAL_JSON"
+    if [[ "$FORCE_PHASE20" != "1" ]] && compgen -G "$EVAL_PATTERN" >/dev/null; then
+        echo "Skipping GSM8K eval for tag=$TAG; found existing eval matching $EVAL_PATTERN"
     else
         CUDA_VISIBLE_DEVICES="$EVAL_GPU" "$VENV/bin/lm_eval" run --model hf \
             --model_args "pretrained=$CKPT" \
