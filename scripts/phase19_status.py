@@ -215,6 +215,33 @@ def print_phase20_table():
         )
 
 
+def print_phase23_table():
+    meta = load_json("experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json")
+    metric = best_metric("experiments/phase23_global_unstructured/gsm8k_eval_global_s20*.json")
+    if not meta and not metric:
+        return
+
+    dense = best_metric("experiments/phase19/gsm8k_eval_baseline_full*.json")
+    dense_strict = dense.get("strict") if dense else None
+    strict = metric.get("strict") if metric else None
+    delta = None if strict is None or dense_strict is None else (strict - dense_strict) * 100
+    delta_text = "" if delta is None else f"{delta:+.2f} pt"
+
+    print("\nPhase 23 global unstructured baseline:")
+    print("tag          target   actual   n       strict   delta      C4 PPL   tok/s")
+    print("----------   ------   ------   -----   ------   --------   ------   -----")
+    print(
+        "global_s20   "
+        f"{percent_text((meta or {}).get('target_sparsity')):>6}   "
+        f"{percent_text((meta or {}).get('linear_sparsity')):>6}   "
+        f"{str(metric.get('n') if metric else ''):<7} "
+        f"{pct_number_text(strict):>6}   "
+        f"{delta_text:<8}   "
+        f"{number_text((meta or {}).get('masked_c4_ppl')):>6}   "
+        f"{number_text((meta or {}).get('masked_tps'), 2):>5}"
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-system", action="store_true", help="Skip tmux and nvidia-smi probes.")
@@ -269,6 +296,7 @@ def main():
 
     print_result_table()
     print_phase20_table()
+    print_phase23_table()
 
 
 if __name__ == "__main__":
