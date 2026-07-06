@@ -57,7 +57,7 @@ def run_sensitivity_sweep(model_name, num_samples, phase, dataset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="gpt2")
+    parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-v0.1")
     parser.add_argument("--samples", type=int, default=50)
     parser.add_argument("--phase", type=str, default="2")
     parser.add_argument("--dataset", type=str, default="wikitext2")
