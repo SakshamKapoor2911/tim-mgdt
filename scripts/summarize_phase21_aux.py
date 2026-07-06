@@ -16,6 +16,7 @@ from pathlib import Path
 PREFERRED_METRICS = [
     "exact_match,strict-match",
     "exact_match,flexible-extract",
+    "exact_match,get-answer",
     "exact_match,none",
     "acc,none",
     "acc_norm,none",
@@ -32,7 +33,14 @@ def load_json(path):
 
 
 def parse_eval_name(path):
-    match = re.match(r"eval_([^_]+)_(.+)\.json$", Path(path).name)
+    name = Path(path).name
+    match = re.match(
+        r"eval_([^_]+)_([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})(?:_.+)?\.json$",
+        name,
+    )
+    if match:
+        return match.group(1), match.group(2)
+    match = re.match(r"eval_([^_]+)_(.+)\.json$", name)
     if not match:
         return None, ""
     return match.group(1), match.group(2)
