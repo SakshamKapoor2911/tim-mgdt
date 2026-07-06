@@ -252,6 +252,11 @@ def main():
         active_session="phase21_aux_reasoning_gpu1",
     )
     print_log_tail(
+        "phase22",
+        "experiments/phase22_cross_model/run_logs/cross_model_*.log",
+        active_session="phase22_cross_model_smoke",
+    )
+    print_log_tail(
         "publish",
         "experiments/publish_logs/publish_queue_*.log",
         active_session="experiment_publish_queue",
