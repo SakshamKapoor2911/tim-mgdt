@@ -13,6 +13,7 @@ EVAL_GPU="${EVAL_GPU:-1}"
 C4_SAMPLES="${C4_SAMPLES:-64}"
 GSM8K_LIMIT="${GSM8K_LIMIT:-50}"
 OUT_DIR="${OUT_DIR:-$REPO/experiments/phase20_mask_guided}"
+FORCE_PHASE20="${FORCE_PHASE20:-0}"
 
 export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -49,27 +50,37 @@ echo "GSM8K limit: $GSM8K_LIMIT"
 for SPARSITY in $STRUCTURED_SPARSITIES; do
     TAG="$(tag_from_sparsity "$SPARSITY")"
     CKPT="$OUT_DIR/${MODEL_SHORT}_mask_guided_width_${STRATEGY}_${TAG}"
+    RESULT_JSON="$OUT_DIR/${MODEL_SHORT}_mask_guided_width_${STRATEGY}_${TAG}.json"
+    EVAL_JSON="$OUT_DIR/gsm8k_eval_mask_guided_${STRATEGY}_${TAG}.json"
 
     echo
     echo "=== Mask-guided structured prune sparsity=$SPARSITY tag=$TAG ==="
-    CUDA_VISIBLE_DEVICES="$PRUNE_GPUS" "$VENV/bin/python" -u -m code.phases.phase20_mask_guided.mask_guided_width_pruning \
-        --model "$MODEL" \
-        --structured_sparsity "$SPARSITY" \
-        --mask_sparsity "$MASK_SPARSITY" \
-        --strategy "$STRATEGY" \
-        --eval_samples "$C4_SAMPLES" \
-        --output_dir "$OUT_DIR" \
-        --output_suffix "$TAG"
+    if [[ "$FORCE_PHASE20" != "1" && -f "$RESULT_JSON" && -d "$CKPT" ]]; then
+        echo "Skipping prune for tag=$TAG; found $RESULT_JSON and $CKPT"
+    else
+        CUDA_VISIBLE_DEVICES="$PRUNE_GPUS" "$VENV/bin/python" -u -m code.phases.phase20_mask_guided.mask_guided_width_pruning \
+            --model "$MODEL" \
+            --structured_sparsity "$SPARSITY" \
+            --mask_sparsity "$MASK_SPARSITY" \
+            --strategy "$STRATEGY" \
+            --eval_samples "$C4_SAMPLES" \
+            --output_dir "$OUT_DIR" \
+            --output_suffix "$TAG"
+    fi
 
     echo "=== GSM8K smoke eval tag=$TAG checkpoint=$CKPT ==="
-    CUDA_VISIBLE_DEVICES="$EVAL_GPU" "$VENV/bin/lm_eval" run --model hf \
-        --model_args "pretrained=$CKPT" \
-        --tasks gsm8k \
-        --num_fewshot 5 \
-        --batch_size auto:4 \
-        --limit "$GSM8K_LIMIT" \
-        --output_path "$OUT_DIR/gsm8k_eval_mask_guided_${STRATEGY}_${TAG}.json" \
-        --log_samples
+    if [[ "$FORCE_PHASE20" != "1" && -f "$EVAL_JSON" ]]; then
+        echo "Skipping GSM8K eval for tag=$TAG; found $EVAL_JSON"
+    else
+        CUDA_VISIBLE_DEVICES="$EVAL_GPU" "$VENV/bin/lm_eval" run --model hf \
+            --model_args "pretrained=$CKPT" \
+            --tasks gsm8k \
+            --num_fewshot 5 \
+            --batch_size auto:4 \
+            --limit "$GSM8K_LIMIT" \
+            --output_path "$EVAL_JSON" \
+            --log_samples
+    fi
 done
 
 echo "=== Phase 20 mask-guided width sweep done at $(date) ==="
