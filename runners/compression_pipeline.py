@@ -59,7 +59,7 @@ def run_compression(model_name, num_samples, phase, dataset, k_prune):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="gpt2")
+    parser.add_argument("--model", type=str, default="mistralai/Mistral-7B-v0.1")
     parser.add_argument("--samples", type=int, default=5)
     parser.add_argument("--phase", type=str, default="5")
     parser.add_argument("--dataset", type=str, default="wikitext2")
