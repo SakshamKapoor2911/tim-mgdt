@@ -8,6 +8,8 @@ LOWER_SPARSITY="${LOWER_SPARSITY:-0.25}"
 UPPER_SPARSITY="${UPPER_SPARSITY:-0.35}"
 RUN_LABEL="${RUN_LABEL:-full_$(date -u +%Y-%m-%dT%H-%M-%S)}"
 LOG_DIR="${LOG_DIR:-$REPO/experiments/phase19/run_logs}"
+SMOKE_GSM8K_LIMIT="${SMOKE_GSM8K_LIMIT:-50}"
+FULL_GSM8K_LIMIT="${FULL_GSM8K_LIMIT:-}"
 
 mkdir -p "$LOG_DIR"
 cd "$REPO"
@@ -23,6 +25,7 @@ for SESSION in $WAIT_SESSIONS; do
 done
 
 echo "Prior full-eval sessions finished at $(date)"
+export S30_STRONG_MIN LOWER_SPARSITY UPPER_SPARSITY
 
 read -r NEXT_SPARSITY S30_STRICT < <(
     python - <<'PY'
@@ -71,17 +74,17 @@ echo "s30 strict EM: $S30_STRICT"
 echo "Next boundary sparsity: $NEXT_SPARSITY"
 
 export REPO
-export SPARSITIES="$NEXT_SPARSITY"
-export GSM8K_LIMIT="${GSM8K_LIMIT:-50}"
-export C4_SAMPLES="${C4_SAMPLES:-64}"
-export PRUNE_GPUS="${PRUNE_GPUS:-0,1}"
-export EVAL_GPU="${EVAL_GPU:-1}"
 
 echo "=== Building mask checkpoint and smoke eval for sparsity=$NEXT_SPARSITY ==="
-bash code/phases/phase19/run_mask_sweep.sh
+SPARSITIES="$NEXT_SPARSITY" \
+GSM8K_LIMIT="$SMOKE_GSM8K_LIMIT" \
+C4_SAMPLES="${C4_SAMPLES:-64}" \
+PRUNE_GPUS="${PRUNE_GPUS:-0,1}" \
+EVAL_GPU="${SMOKE_EVAL_GPU:-1}" \
+    bash code/phases/phase19/run_mask_sweep.sh
 
 echo "=== Running full GSM8K eval for sparsity=$NEXT_SPARSITY ==="
-RUN_LABEL="$RUN_LABEL" EVAL_GPU="${FULL_EVAL_GPU:-0}" SPARSITIES="$NEXT_SPARSITY" \
+RUN_LABEL="$RUN_LABEL" EVAL_GPU="${FULL_EVAL_GPU:-0}" SPARSITIES="$NEXT_SPARSITY" GSM8K_LIMIT="$FULL_GSM8K_LIMIT" \
     bash code/phases/phase19/run_full_gsm8k_eval.sh
 
 echo "=== Phase 19 adaptive boundary runner done at $(date) ==="
