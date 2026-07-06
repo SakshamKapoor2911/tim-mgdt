@@ -13,9 +13,10 @@ usage() {
 Usage:
   bash scripts/phase19_termux_control.sh status
   bash scripts/phase19_termux_control.sh ensure
+  bash scripts/phase19_termux_control.sh queue-phase20
   bash scripts/phase19_termux_control.sh monitor [seconds]
-  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive]
-  bash scripts/phase19_termux_control.sh attach [phase19_s30_full|phase19_s40_full|phase19_adaptive_boundary]
+  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20]
+  bash scripts/phase19_termux_control.sh attach [tmux-session-name]
 
 Run this on the GPU host after SSHing in from Termux. Termux is the control
 terminal; the CUDA jobs run on the remote GPU machine in tmux.
@@ -38,6 +39,10 @@ has_full_result() {
 has_boundary_result() {
     compgen -G "$REPO/experiments/phase19/gsm8k_eval_mask_s25_full*.json" >/dev/null ||
         compgen -G "$REPO/experiments/phase19/gsm8k_eval_mask_s35_full*.json" >/dev/null
+}
+
+has_phase20_result() {
+    compgen -G "$REPO/experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*.json" >/dev/null
 }
 
 start_full_eval() {
@@ -85,6 +90,29 @@ start_adaptive() {
         "cd '$REPO' && bash code/phases/phase19/run_adaptive_boundary.sh > '$log' 2>&1"
 }
 
+start_phase20_queue() {
+    local session="phase20_mask_guided_queue"
+    local log_dir="$REPO/experiments/phase20_mask_guided/run_logs"
+    local stamp
+    local log
+
+    mkdir -p "$log_dir"
+    if session_exists "$session"; then
+        echo "$session already running"
+        return
+    fi
+    if has_phase20_result && [[ "${FORCE_PHASE20:-0}" != "1" ]]; then
+        echo "phase20 smoke results already exist; set FORCE_PHASE20=1 to queue again"
+        return
+    fi
+
+    stamp="$(timestamp)"
+    log="$log_dir/phase20_queue_${stamp}.log"
+    echo "starting $session; log: $log"
+    tmux new-session -d -s "$session" \
+        "cd '$REPO' && bash code/phases/phase20_mask_guided/run_after_phase19.sh > '$log' 2>&1"
+}
+
 status() {
     python scripts/phase19_status.py
 }
@@ -115,6 +143,7 @@ latest_log_for() {
         s30) pattern="$LOG_DIR/gsm8k_s30_full_*.log" ;;
         s40) pattern="$LOG_DIR/gsm8k_s40_full_*.log" ;;
         adaptive) pattern="$LOG_DIR/adaptive_boundary_*.log" ;;
+        phase20) pattern="$REPO/experiments/phase20_mask_guided/run_logs/phase20_queue_*.log" ;;
         *) return 1 ;;
     esac
     compgen -G "$pattern" | sort | tail -1
@@ -142,6 +171,7 @@ shift || true
 case "$cmd" in
     status) status "$@" ;;
     ensure) ensure "$@" ;;
+    queue-phase20) start_phase20_queue "$@" ;;
     monitor) monitor "$@" ;;
     logs) logs "$@" ;;
     attach) attach "$@" ;;

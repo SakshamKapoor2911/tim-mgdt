@@ -25,10 +25,13 @@ ssh-copy-id <user>@<gpu-host>
 ssh <user>@<gpu-host>
 cd /home/skapoor/tim-mgdt
 bash scripts/phase19_termux_control.sh ensure
+bash scripts/phase19_termux_control.sh queue-phase20
 ```
 
 `ensure` is idempotent. It leaves existing sessions alone, skips runs whose full
 JSON result already exists, and starts only missing Phase 19 tmux jobs.
+`queue-phase20` starts a waiting tmux session that does not consume GPUs until
+the Phase 19 sessions have finished.
 
 ## Monitor from the phone
 
@@ -53,6 +56,7 @@ Detach from tmux with `Ctrl-b`, then `d`.
 bash scripts/phase19_termux_control.sh logs s30
 bash scripts/phase19_termux_control.sh logs s40
 bash scripts/phase19_termux_control.sh logs adaptive
+bash scripts/phase19_termux_control.sh logs phase20
 ```
 
 ## Current Phase 19 expectation
@@ -64,10 +68,14 @@ The intended queue is:
 3. Adaptive boundary runner waits for both full evals.
 4. Adaptive runner chooses 25% or 35%, runs the smoke check, then runs the full
    GSM8K eval and regenerates the Phase 19 dashboard/plot summaries.
+5. Optional Phase 20 runner waits for all Phase 19 sessions, then tests whether
+   the successful Phase 19 mask signal can guide real structured MLP-width
+   pruning.
 
 Run this before leaving the machine unattended:
 
 ```bash
 bash scripts/phase19_termux_control.sh ensure
+bash scripts/phase19_termux_control.sh queue-phase20
 python scripts/phase19_status.py
 ```
