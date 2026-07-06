@@ -14,6 +14,7 @@ python scripts/summarize_phase19.py
 python scripts/analyze_phase19_samples.py --output experiments/phase19/gsm8k_sample_analysis.json
 MPLBACKEND=Agg python -c "from scripts.generate_plots import generate_phase19_reasoning_plot; generate_phase19_reasoning_plot()"
 python scripts/build_dashboard.py
+python scripts/phase19_readiness.py
 
 shopt -s nullglob
 paths=(
