@@ -776,7 +776,7 @@ def _phase19_mask_html():
           <td>{_float(baseline_tps, 2)}</td>
           <td class="task-action">Reference for Phase 19 mask-vs-structural controls.</td>
         </tr>
-    """
+"""
     for path in mask_paths:
         data = _load(path) or {}
         tag = Path(path).stem.split("_")[-1]
@@ -875,6 +875,55 @@ def _phase20_mask_guided_html():
 </div>"""
 
 
+def _phase23_global_readout(strict, dense_strict):
+    if strict is None:
+        return "Full GSM8K is running; this closes the standard global magnitude baseline gap."
+    if dense_strict is not None and (strict - dense_strict) * 100 >= -2.1:
+        return "Near-dense full GSM8K; supports unstructured geometry preservation over structural deletion."
+    if dense_strict is not None and strict < 0.30:
+        return "Global magnitude collapses; layerwise allocation is materially stronger."
+    return "Global magnitude is weaker than the 20% layerwise mask but still far above structural width pruning."
+
+
+def _phase23_global_html():
+    meta = _load("experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json") or {}
+    metric = _latest_gsm8k("experiments/phase23_global_unstructured/gsm8k_eval_global_s20*.json") or {}
+    if not meta and not metric:
+        return ""
+
+    dense_metric = _latest_gsm8k("experiments/phase19/gsm8k_eval_baseline_full*.json") or {}
+    dense_strict = dense_metric.get("strict")
+    strict = metric.get("strict")
+    delta = None if strict is None or dense_strict is None else strict - dense_strict
+    delta_cls = "pos" if delta is not None and delta > 0.02 else ("neg" if delta is not None and delta < -0.02 else "zero")
+    delta_str = "—" if delta is None else f"<span class='b b-{delta_cls}'>{delta * 100:+.1f} pt</span>"
+    n = metric.get("n")
+
+    rows = f"""
+        <tr>
+          <td class="task-who">Phase 23 global magnitude (s20)</td>
+          <td>{_pct(meta.get("target_sparsity"))}</td>
+          <td>{_pct(meta.get("linear_sparsity"))}</td>
+          <td>{int(n) if n else "—"}</td>
+          <td>{_pct(strict)}</td>
+          <td>{delta_str}</td>
+          <td>{_float(meta.get("masked_c4_ppl"))}</td>
+          <td>{_float(meta.get("masked_tps"), 2)}</td>
+          <td class="task-action">{_phase23_global_readout(strict, dense_strict)}</td>
+        </tr>
+"""
+
+    return f"""
+<div class="section-label">Phase 23 global unstructured baseline</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Target</th><th>Actual Linear Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Delta vs dense</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+{rows}
+</table>
+<div class="rc-note">This baseline answers whether the 20% retention point is a layerwise dense-mask artifact or also holds for standard global unstructured magnitude masking.</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -932,6 +981,7 @@ def _width_pruning_html():
 <div class="section-label" id="current">Current pruning diagnostics</div>
 {_phase18b_sweep_html()}
 {_phase19_mask_html()}
+{_phase23_global_html()}
 {_phase20_mask_guided_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">

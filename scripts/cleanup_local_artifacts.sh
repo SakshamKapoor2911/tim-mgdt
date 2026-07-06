@@ -39,6 +39,8 @@ cd "$REPO"
 
 legacy_gpt2_paths=(
     "experiments/phase2/gpt2"
+    "experiments/phase5/gpt2"
+    "experiments/phase6/gpt2"
     "code/phases/phase5"
     "code/phases/phase5_1"
     "code/phases/phase8"

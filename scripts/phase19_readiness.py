@@ -79,6 +79,8 @@ def collect():
     s20 = best_metric("experiments/phase19/gsm8k_eval_mask_s20_full*.json")
     s30 = best_metric("experiments/phase19/gsm8k_eval_mask_s30_full*.json")
     s40 = best_metric("experiments/phase19/gsm8k_eval_mask_s40_full*.json")
+    phase23_meta = load_json("experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json")
+    phase23 = best_metric("experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full*.json")
 
     if dense and dense["n"] >= 1000:
         add(checks, "pass", "dense_full_gsm8k", f"n={dense['n']}, strict={dense['strict'] * 100:.2f}%")
@@ -94,6 +96,25 @@ def collect():
         delta = (s20["strict"] - dense["strict"]) * 100
         status = "pass" if delta >= -2.0 else "warn"
         add(checks, status, "s20_near_dense", f"delta={delta:+.2f} pt")
+
+    if phase23_meta and phase23_meta.get("linear_sparsity") is not None:
+        add(
+            checks,
+            "pass",
+            "phase23_global_metadata",
+            f"actual_sparsity={phase23_meta['linear_sparsity'] * 100:.2f}%, C4={phase23_meta.get('masked_c4_ppl', 0):.3f}",
+        )
+    else:
+        add(checks, "fail", "phase23_global_metadata", "missing global 20% metadata")
+
+    if phase23 and phase23["n"] >= 1000:
+        add(checks, "pass", "phase23_global_full_gsm8k", f"n={phase23['n']}, strict={phase23['strict'] * 100:.2f}%")
+    else:
+        add(checks, "fail", "phase23_global_full_gsm8k", "missing full global 20% GSM8K result")
+
+    if dense and phase23:
+        delta = (phase23["strict"] - dense["strict"]) * 100
+        add(checks, "pass", "phase23_global_vs_dense", f"delta={delta:+.2f} pt")
 
     dense_sample = sample_row("dense")
     s20_sample = sample_row("s20")
