@@ -47,10 +47,8 @@ class LayerKnockout:
         # Introspect architecture
         if hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
             self.layers = self.model.model.layers
-        elif hasattr(self.model, "transformer") and hasattr(self.model.transformer, "h"):
-            self.layers = self.model.transformer.h
         else:
-            raise ValueError("Unsupported architecture")
+            raise ValueError("Expected a Llama/Mistral-style model with model.model.layers")
 
     def measure_sensitivity(self, num_samples=30):
         start_time = time.time()
@@ -79,14 +77,6 @@ class LayerKnockout:
             if has_down_proj:
                 down_proj_weight_orig = layer.mlp.down_proj.weight.data.clone()
                 layer.mlp.down_proj.weight.data.zero_()
-                
-            # If GPT-2 architecture
-            if hasattr(layer, "attn") and hasattr(layer.attn, "c_proj"):
-                c_proj_weight_orig = layer.attn.c_proj.weight.data.clone()
-                layer.attn.c_proj.weight.data.zero_()
-            if hasattr(layer, "mlp") and hasattr(layer.mlp, "c_proj"):
-                mlp_c_proj_weight_orig = layer.mlp.c_proj.weight.data.clone()
-                layer.mlp.c_proj.weight.data.zero_()
             
             try:
                 loss = evaluate_loss_c4(self.model, self.tokenizer, self.device, num_samples)
@@ -99,11 +89,6 @@ class LayerKnockout:
                     layer.self_attn.o_proj.weight.data.copy_(o_proj_weight_orig)
                 if has_down_proj:
                     layer.mlp.down_proj.weight.data.copy_(down_proj_weight_orig)
-                    
-                if hasattr(layer, "attn") and hasattr(layer.attn, "c_proj"):
-                    layer.attn.c_proj.weight.data.copy_(c_proj_weight_orig)
-                if hasattr(layer, "mlp") and hasattr(layer.mlp, "c_proj"):
-                    layer.mlp.c_proj.weight.data.copy_(mlp_c_proj_weight_orig)
 
         oracle_compute_time_s = time.time() - start_time
         logger.info(f"Oracle Compute Cost: {oracle_compute_time_s:.2f} seconds.")

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def run_sensitivity_sweep(model_name, num_samples, phase, dataset):
     run_id = f"sensitivity_{int(time.time())}"
-    model_family = "gpt2" if "gpt2" in model_name.lower() else "llama" if "llama" in model_name.lower() else "mistral"
+    model_family = "llama" if "llama" in model_name.lower() else "mistral"
     output_dir = f"experiments/phase{phase}/{model_family}/{dataset}/{run_id}"
     
     manifest = create_manifest(phase, model_family, model_name, dataset, num_samples, 42)
