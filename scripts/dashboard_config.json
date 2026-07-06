@@ -66,7 +66,7 @@
     [
       "Architecture Choice",
       "Mistral-7B-v0.1 Focus",
-      "We shifted focus entirely from toy models like GPT-2 to Mistral-7B, proving our pipeline on state-of-the-art reasoning architectures used in modern deployments."
+      "We shifted focus to Mistral-7B and Llama-3-class architectures, where compression failures are meaningful for modern reasoning deployments."
     ],
     [
       "Current Finding",

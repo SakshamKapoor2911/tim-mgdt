@@ -80,25 +80,66 @@ def _gap_badge(g):
     return f"<span class='b b-{cls}'>{g:+.3f}</span>"
 
 
+def _phase11_model_label(path, data):
+    text = " ".join(
+        [
+            os.path.basename(path).lower(),
+            str((data or {}).get("model_key", "")).lower(),
+            str((data or {}).get("hf_id", "")).lower(),
+        ]
+    )
+    if "mistral" in text:
+        return "Mistral-7B"
+    if "llama" in text:
+        return "Llama-3-8B"
+    if "gpt2" in text or "gpt-2" in text:
+        return "GPT-2"
+    return os.path.basename(path).split("_phase11")[0].replace("_", "-").upper()
+
+
+def _phase11_priority(path, data):
+    label = _phase11_model_label(path, data).lower()
+    if "mistral" in label:
+        return 0
+    if "llama" in label:
+        return 1
+    if "gpt" in label:
+        return 10
+    return 5
+
+
 def gather_experiment_data():
     """Scan experiments/ for JSON results, focused on latest phases."""
     results = {}
 
-    # Dynamically find the newest complete Phase 11 run (GPT-2, Llama, or Mistral)
-    phase11_files = glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_complete_results.json"))
-    if phase11_files:
-        latest_file = max(phase11_files, key=os.path.getmtime)
-        results["phase11"] = _load(latest_file)
-        # Extract model name for the UI (e.g., gpt2, mistral7b, llama3)
-        basename = os.path.basename(latest_file)
-        results["_latest_model_name"] = basename.split("_")[0].upper()
-    else:
-        # Fallback to basic results if no complete run exists
-        basic_files = glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_results.json"))
-        if basic_files:
-            latest_file = max(basic_files, key=os.path.getmtime)
-            results["phase11"] = _load(latest_file)
-            results["_latest_model_name"] = os.path.basename(latest_file).split("_")[0].upper()
+    # Prefer modern Mistral/Llama GPU baselines over old GPT-2 proof-of-concept
+    # files, then pick the newest run within the selected model family.
+    phase11_files = sorted(
+        set(
+            glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_complete_results.json"))
+            + glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_results.json"))
+        )
+    )
+    phase11_candidates = []
+    for path in phase11_files:
+        data = _load(path)
+        if not data:
+            continue
+        phase11_candidates.append(
+            (
+                _phase11_priority(path, data),
+                -os.path.getmtime(path),
+                path,
+                data,
+                _phase11_model_label(path, data),
+            )
+        )
+    if phase11_candidates:
+        _, _, latest_file, latest_data, latest_label = sorted(phase11_candidates)[0]
+        results["phase11"] = latest_data
+        results["_latest_model_name"] = latest_label
+        results["_latest_model_key"] = latest_label.lower().replace("-", "_")
+        results["_latest_phase11_file"] = latest_file
 
     # Phase 10
     for f in glob.glob(os.path.join(EXPERIMENTS, "phase10", "*.json")):
@@ -141,6 +182,11 @@ def extract_metrics(data):
     if not data:
         return None
     try:
+        def pct_fraction(value):
+            if value is None:
+                return 0
+            return value / 100.0 if abs(value) > 1 else value
+
         stages = data.get("stages", {})
 
         # Stage 2: IMP search
@@ -154,25 +200,38 @@ def extract_metrics(data):
 
         # Stage 4: Activation healing
         s4 = stages.get("stage4_activation_healing", {})
-        deploy = s4.get("deployment_metrics", {})
+        deploy = s4.get("deployment_metrics", {}) or s4.get("deployment", {})
+        baseline = s4.get("baseline", {})
+        pruned = s4.get("pruned_before_healing", {})
+        healed = s4.get("healed", {})
+
+        baseline_params_b = deploy.get("baseline_parameters_b")
+        if baseline_params_b is None and baseline.get("params") is not None:
+            baseline_params_b = baseline["params"] / 1e9
+
+        healed_params_b = deploy.get("healed_parameters_b")
+        if healed_params_b is None and pruned.get("nonzero_params") is not None:
+            healed_params_b = pruned["nonzero_params"] / 1e9
 
         return {
-            "winning_sparsity": winner.get("sparsity", 0),
-            "ppl_loss_pct": winner.get("ppl_loss_increase_pct", 0),
+            "winning_sparsity": winner.get("actual_sparsity", winner.get("sparsity", winner.get("target_sparsity", 0))),
+            "ppl_loss_pct": pct_fraction(
+                winner.get("ppl_loss_increase_pct", winner.get("ppl_increase_pct", 0))
+            ),
             "Phase 11: Real Measurement": "done",
             "Phase 12: Recovery Diagnostics": "done",
             "Phase 13: Ablation & Hardening": "done",
             "critical_layers": critical[:5],
             "safe_layers": safe[:5],
             "covariance_restoration": s4.get("covariance_restoration_score", 0),
-            "layers_healed": s4.get("layers_healed_count", 0),
-            "baseline_params_b": deploy.get("baseline_parameters_b", 0),
-            "healed_params_b": deploy.get("healed_parameters_b", 0),
-            "baseline_latency_ms": deploy.get("baseline_latency_ms", 0),
-            "healed_latency_ms": deploy.get("healed_latency_ms", 0),
-            "baseline_memory_gb": deploy.get("baseline_memory_gb", 0),
-            "healed_memory_gb": deploy.get("healed_memory_gb", 0),
-            "perplexity_recovery_pct": deploy.get("perplexity_recovery_pct", 0),
+            "layers_healed": s4.get("layers_healed_count", s4.get("layers_bias_corrected", 0)),
+            "baseline_params_b": baseline_params_b or 0,
+            "healed_params_b": healed_params_b or 0,
+            "baseline_latency_ms": deploy.get("baseline_latency_ms", baseline.get("latency_ms", 0)),
+            "healed_latency_ms": deploy.get("healed_latency_ms", healed.get("latency_ms", 0)),
+            "baseline_memory_gb": deploy.get("baseline_memory_gb", baseline.get("memory_gb", 0)),
+            "healed_memory_gb": deploy.get("healed_memory_gb", healed.get("memory_gb", 0)),
+            "perplexity_recovery_pct": deploy.get("perplexity_recovery_pct", healed.get("ppl_recovery_pct", 0)),
         }
     except Exception:
         return None
@@ -188,9 +247,9 @@ def build_state_json(experiments, metrics):
         "phase_status": PHASE,
         "total_experiments": experiments.get("_total_experiments", 0),
         "latest_run": {
-            "name": f"{experiments.get('_latest_model_name', 'GPT-2')} Phase 11 (Real GPU)",
+            "name": f"{experiments.get('_latest_model_name', 'Mistral-7B')} Phase 11 (Real GPU)",
             "status": "complete" if experiments.get("phase11") else "pending",
-            "model": experiments.get("_latest_model_name", "gpt2").lower(),
+            "model": experiments.get("_latest_model_key", "mistral_7b"),
             "device": experiments.get("phase11", {}).get("device", "unknown") if experiments.get("phase11") else "unknown",
         },
         "metrics": metrics,
@@ -636,19 +695,19 @@ def _decisions_html():
 </table></div>"""
 
 
-def _metrics_html(metrics, model_name="GPT-2"):
+def _metrics_html(metrics, model_name="Mistral-7B"):
     if not metrics:
         return "<div class='card'><p class='muted'>No metrics available yet.</p></div>"
 
     def pct_change(base, opt):
         if base == 0:
             return "—"
-        return f"-{100*(1 - opt/base):.1f}%"
+        return f"{100*(opt/base - 1):+.1f}%"
 
     return f"""
-<div class="section-label">Legacy Results — Phase 11 ({model_name})</div>
+<div class="section-label">Historical Results — Phase 11 ({model_name})</div>
 <details style="margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;">
-<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 11 (GPT-2) Legacy Proof of Concept Metrics</summary>
+<summary style="cursor: pointer; font-weight: 600; color: var(--ink); outline: none;">View Phase 11 Real GPU Baseline Metrics</summary>
 <div class="g2" style="margin-top: 16px;">
 <div class="result-card primary">
   <div class="rc-head"><h3>Deployment Metrics</h3>
@@ -660,9 +719,9 @@ def _metrics_html(metrics, model_name="GPT-2"):
     <tr class="winner"><td>Perplexity Recovery</td><td class="val">{metrics['perplexity_recovery_pct']:.1f}%</td></tr>
   </table>
   <div class="metric-row">
-    <div class="metric-cell"><span class="metric-label">Param Reduction</span>
+    <div class="metric-cell"><span class="metric-label">Param Change</span>
     <span class="metric-value good">{pct_change(metrics['baseline_params_b'], metrics['healed_params_b'])}</span></div>
-    <div class="metric-cell"><span class="metric-label">Latency Reduction</span>
+    <div class="metric-cell"><span class="metric-label">Latency Change</span>
     <span class="metric-value good">{pct_change(metrics['baseline_latency_ms'], metrics['healed_latency_ms'])}</span></div>
   </div>
 </div>
@@ -872,7 +931,7 @@ def build_html(experiments, metrics):
     <a href="#pareto">Pareto Frontier</a>
     <a href="#phase17">Mechanistic</a>
     <a href="#phase14">Phase 14 (Legacy)</a>
-    <a href="#results">Phase 11 (Legacy)</a>
+    <a href="#results">Phase 11 Baseline</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
     <a href="#milestones">Milestones</a>
@@ -895,7 +954,7 @@ def build_html(experiments, metrics):
       <span class="chip chip-blue">{CURRENT_PHASE}</span>
       <span class="chip chip-green">{done_count}/{len(RUNS)} runs complete</span>
       <span class="chip chip-yellow">{total} experiment files</span>
-      <span class="chip chip-gray">GPT-2 · Llama-3 · Mistral-7B</span>
+      <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
 </div>
@@ -914,7 +973,7 @@ def build_html(experiments, metrics):
   <div style="margin-top: 32px;">
     {_phase14_html(experiments.get("phase14_results", {}), experiments.get("phase14_maps", {}))}
   </div>
-  <div id="results" style="margin-top: 32px;">{_metrics_html(metrics, experiments.get('_latest_model_name', 'GPT-2'))}</div>
+  <div id="results" style="margin-top: 32px;">{_metrics_html(metrics, experiments.get('_latest_model_name', 'Mistral-7B'))}</div>
   {_runs_html()}
   <div id="decisions">{_decisions_html()}</div>
   <div id="tasks">{_tasks_html()}</div>
