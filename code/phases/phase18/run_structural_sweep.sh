@@ -45,7 +45,7 @@ for SPARSITY in 0.05 0.10 0.15 0.20; do
 
     CKPT="$OUT_DIR/${MODEL_SHORT}_pruned_${STRATEGY}_${TAG}"
     echo "=== GSM8K smoke eval tag=$TAG checkpoint=$CKPT ==="
-    CUDA_VISIBLE_DEVICES="$EVAL_GPU" "$VENV/bin/lm_eval" --model hf \
+    CUDA_VISIBLE_DEVICES="$EVAL_GPU" "$VENV/bin/lm_eval" run --model hf \
         --model_args "pretrained=$CKPT" \
         --tasks gsm8k \
         --num_fewshot 5 \
