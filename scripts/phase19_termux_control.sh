@@ -17,7 +17,7 @@ Usage:
   bash scripts/phase19_termux_control.sh publish
   bash scripts/phase19_termux_control.sh queue-publish
   bash scripts/phase19_termux_control.sh monitor [seconds]
-  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|publish]
+  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|phase20-gpu1|publish]
   bash scripts/phase19_termux_control.sh attach [tmux-session-name]
 
 Run this on the GPU host after SSHing in from Termux. Termux is the control
@@ -165,6 +165,7 @@ latest_log_for() {
         s40) pattern="$LOG_DIR/gsm8k_s40_full_*.log" ;;
         adaptive) pattern="$LOG_DIR/adaptive_boundary_*.log" ;;
         phase20) pattern="$REPO/experiments/phase20_mask_guided/run_logs/phase20_queue_*.log" ;;
+        phase20-gpu1) pattern="$REPO/experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log" ;;
         publish) pattern="$REPO/experiments/publish_logs/publish_queue_*.log" ;;
         *) return 1 ;;
     esac

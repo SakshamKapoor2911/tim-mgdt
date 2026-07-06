@@ -230,6 +230,7 @@ def main():
 
     print_log_tail("adaptive", "experiments/phase19/run_logs/adaptive_boundary_*.log")
     print_log_tail("phase20", "experiments/phase20_mask_guided/run_logs/phase20_queue_*.log")
+    print_log_tail("phase20-gpu1", "experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log")
     print_log_tail("publish", "experiments/publish_logs/publish_queue_*.log")
 
     print_result_table()
