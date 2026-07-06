@@ -141,11 +141,6 @@ def gather_experiment_data():
         results["_latest_model_key"] = latest_label.lower().replace("-", "_")
         results["_latest_phase11_file"] = latest_file
 
-    # Phase 10
-    for f in glob.glob(os.path.join(EXPERIMENTS, "phase10", "*.json")):
-        key = os.path.basename(f).replace(".json", "")
-        results[f"phase10_{key}"] = _load(f)
-
     # Phase 14 ablation results
     phase14_results = {}
     for f in glob.glob(os.path.join(EXPERIMENTS, "phase14_final", "*_ablation_results.json")):
