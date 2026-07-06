@@ -189,6 +189,8 @@ def main():
     parser.add_argument("--sparsity", type=float, default=0.20)
     parser.add_argument("--strategy", type=str, choices=["ceil", "floor"], default="ceil")
     parser.add_argument("--eval_samples", type=int, default=128)
+    parser.add_argument("--output_dir", type=str, default="experiments/phase16")
+    parser.add_argument("--output_suffix", type=str, default="")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     
@@ -197,7 +199,7 @@ def main():
         torch.cuda.manual_seed_all(args.seed)
         
     device = get_device()
-    out_dir = "experiments/phase16"
+    out_dir = args.output_dir
     os.makedirs(out_dir, exist_ok=True)
     
     print(f"Loading {args.model}...")
@@ -239,12 +241,14 @@ def main():
     
     model_short = args.model.split("/")[-1]
     
-    ckpt_dir = os.path.join(out_dir, f"{model_short}_pruned_{args.strategy}")
+    suffix = f"_{args.output_suffix}" if args.output_suffix else ""
+    ckpt_dir = os.path.join(out_dir, f"{model_short}_pruned_{args.strategy}{suffix}")
     print(f"Saving pruned checkpoint to {ckpt_dir}...")
     model.save_pretrained(ckpt_dir)
     tokenizer.save_pretrained(ckpt_dir)
     
-    out_file = os.path.join(out_dir, f"{model_short}_width_pruning_{args.strategy}.json")
+    out_file = os.path.join(out_dir, f"{model_short}_width_pruning_{args.strategy}{suffix}.json")
+    results["checkpoint_dir"] = ckpt_dir
     with open(out_file, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Saved results to {out_file}")
