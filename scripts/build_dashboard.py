@@ -795,6 +795,9 @@ def _phase19_mask_html():
 {rows}
 </table>
 <div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups. Deltas compare against dense runs at the same sample scale when available, isolating whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
+</div>
+<div class="card" style="padding:18px;margin-bottom:18px">
+  <img src="figures/phase19_reasoning_dissociation.png" alt="Phase 19 mask-vs-structural C4 and GSM8K dissociation plot" style="display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)" />
 </div>"""
 
 
