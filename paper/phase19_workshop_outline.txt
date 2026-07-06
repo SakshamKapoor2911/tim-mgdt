@@ -1,0 +1,75 @@
+Phase 19 Workshop Outline
+=========================
+
+Working title: Structural Geometry, Not Sparsity, Breaks Reasoning Under LLM Compression
+
+Target Venue
+------------
+
+Primary target: COLM 2026 Workshop on Efficient Reasoning, if the workshop organizers confirm that accepted workshop papers can be presented remotely or by an acceptable proxy.
+
+Reason: the result directly fits efficient reasoning, pruning/compression, empirical efficiency, and robustness of reasoning pipelines under resource constraints.
+
+Current logistics constraint: COLM's main FAQ states that the conference is in-person only, while the Efficient Reasoning workshop page labels the workshop as hybrid. Treat the venue as conditional until er.colm2026@gmail.com confirms the workshop author-presentation policy.
+
+Core Claim
+----------
+
+Reasoning collapse in compressed Mistral-7B is not explained by parameter sparsity or modest C4 perplexity degradation alone. Dense-shaped unstructured magnitude masks preserve GSM8K reasoning at high sparsity, while hardware-aligned structural MLP-width pruning destroys GSM8K at much lower sparsity.
+
+Current Evidence
+----------------
+
+Use `python scripts/summarize_phase19.py` for the live table.
+
+Current checked result:
+
+| model/state | sparsity | C4 PPL | GSM8K n | strict EM | delta vs dense |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Dense Mistral-7B | 0.0% | 8.013 | 1319 | 38.67% | 0.00 pt |
+| Phase 19 mask | 20.0% | 8.195 | 1319 | 37.23% | -1.44 pt |
+| Phase 19 mask | 30.0% | 8.586 | 50 | 36.00% | smoke |
+| Phase 19 mask | 40.0% | 9.538 | 50 | 28.00% | smoke |
+
+Key contrast to preserve:
+
+- Phase 16 structural 20% width pruning: full GSM8K collapses to roughly 5%.
+- Phase 18B structural 1-5% width pruning: smoke GSM8K drops sharply even at very low structural sparsity.
+- Phase 19 dense-shaped 20% mask: full GSM8K remains within 1.44 points of dense.
+
+Running Evidence
+----------------
+
+Full GSM8K evaluations currently running in tmux:
+
+- `phase19_s30_full`: 30% mask checkpoint on GPU 0.
+- `phase19_s40_full`: 40% mask checkpoint on GPU 1.
+
+Expected interpretation:
+
+- If 30% remains near dense, the positive regime is broad and publishable as a strong mask-vs-structure dissociation.
+- If 30% degrades but 20% remains near dense, the claim is still useful: reasoning retention has a mask sparsity threshold, while structural pruning fails far earlier.
+- If 40% collapses, it becomes the boundary point showing that the control is not trivially insensitive.
+
+Paper Rewrite Plan
+------------------
+
+1. Replace the current abstract with a Phase 19 framing around reasoning retention under compression.
+2. Move Incision Boundary Healing to related/prior internal evidence or an appendix unless it directly supports the structural-damage mechanism.
+3. Make the main results table a mask-vs-structural contrast:
+   - dense baseline,
+   - structural width pruning at 1%, 5%, and 20%,
+   - mask pruning at 20%, 30%, and 40%.
+4. Add a figure with GSM8K strict EM versus C4 PPL, using point shape/color to separate structural pruning from dense-shaped masks.
+5. Keep the submission compact: 4-6 pages main text, focused on one clear empirical dissociation.
+
+Next Experiments
+----------------
+
+After the current full evals finish:
+
+1. Commit the 30% and 40% full GSM8K result JSONs.
+2. Rebuild the dashboard and regenerate the Phase 19 summary table.
+3. If 30% is strong, run one additional boundary point at 35% mask sparsity.
+4. If 30% is weak, run a 25% mask full eval to locate the retention threshold.
+5. Only after the mask boundary is clear, attempt a structural method that preserves the Phase 19 retained subspace while creating real speedup.
