@@ -14,6 +14,13 @@ FULL_GSM8K_LIMIT="${FULL_GSM8K_LIMIT:-}"
 mkdir -p "$LOG_DIR"
 cd "$REPO"
 
+postprocess_phase19() {
+    echo "=== Phase 19 postprocess at $(date) ==="
+    python scripts/summarize_phase19.py
+    MPLBACKEND=Agg python -c "from scripts.generate_plots import generate_phase19_reasoning_plot; generate_phase19_reasoning_plot()"
+    python scripts/build_dashboard.py
+}
+
 echo "=== Phase 19 adaptive boundary runner starting at $(date) ==="
 echo "Waiting for sessions: $WAIT_SESSIONS"
 
@@ -25,6 +32,7 @@ for SESSION in $WAIT_SESSIONS; do
 done
 
 echo "Prior full-eval sessions finished at $(date)"
+postprocess_phase19
 export S30_STRONG_MIN LOWER_SPARSITY UPPER_SPARSITY
 
 read -r NEXT_SPARSITY S30_STRICT < <(
@@ -88,4 +96,4 @@ RUN_LABEL="$RUN_LABEL" EVAL_GPU="${FULL_EVAL_GPU:-0}" SPARSITIES="$NEXT_SPARSITY
     bash code/phases/phase19/run_full_gsm8k_eval.sh
 
 echo "=== Phase 19 adaptive boundary runner done at $(date) ==="
-python scripts/summarize_phase19.py
+postprocess_phase19
