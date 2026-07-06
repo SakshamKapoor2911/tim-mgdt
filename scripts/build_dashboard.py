@@ -605,7 +605,12 @@ def _float(value, digits=3):
 
 
 def _latest_gsm8k(pattern):
-    paths = sorted(glob.glob(pattern), key=os.path.getmtime)
+    def score(path):
+        metric = _gsm8k_metric(path) or {}
+        n = metric.get("n") or 0
+        return (n, os.path.getmtime(path))
+
+    paths = sorted(glob.glob(pattern), key=score)
     if not paths:
         return None
     return _gsm8k_metric(paths[-1])
