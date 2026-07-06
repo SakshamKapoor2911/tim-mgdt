@@ -14,6 +14,8 @@ C4_SAMPLES="${C4_SAMPLES:-64}"
 GSM8K_LIMIT="${GSM8K_LIMIT:-50}"
 OUT_DIR="${OUT_DIR:-$REPO/experiments/phase20_mask_guided}"
 FORCE_PHASE20="${FORCE_PHASE20:-0}"
+STOP_AFTER_PHASE20_FAILURE="${STOP_AFTER_PHASE20_FAILURE:-1}"
+MIN_PHASE20_STRICT_CONTINUE="${MIN_PHASE20_STRICT_CONTINUE:-0.30}"
 
 export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -39,6 +41,27 @@ tag_from_sparsity() {
     echo "s${tag}"
 }
 
+has_bad_phase20_eval() {
+    "$VENV/bin/python" - "$OUT_DIR" "$MIN_PHASE20_STRICT_CONTINUE" <<'PY'
+import glob
+import json
+import os
+import sys
+
+out_dir, threshold_text = sys.argv[1], sys.argv[2]
+threshold = float(threshold_text)
+for path in sorted(glob.glob(os.path.join(out_dir, "gsm8k_eval_mask_guided_*.json"))):
+    with open(path) as f:
+        data = json.load(f)
+    gsm8k = data.get("results", {}).get("gsm8k", {})
+    strict = gsm8k.get("exact_match,strict-match")
+    if strict is not None and strict < threshold:
+        print(f"{os.path.basename(path)} strict={strict:.4f} < {threshold:.4f}")
+        sys.exit(0)
+sys.exit(1)
+PY
+}
+
 echo "=== Phase 20 mask-guided width sweep starting at $(date) ==="
 echo "Model: $MODEL"
 echo "Strategy: $STRATEGY"
@@ -55,6 +78,11 @@ for SPARSITY in $STRUCTURED_SPARSITIES; do
     EVAL_PATTERN="$OUT_DIR/gsm8k_eval_mask_guided_${STRATEGY}_${TAG}*.json"
 
     echo
+    if [[ "$FORCE_PHASE20" != "1" && "$STOP_AFTER_PHASE20_FAILURE" == "1" ]] && bad_eval="$(has_bad_phase20_eval)"; then
+        echo "Stopping Phase 20 sweep before tag=$TAG; prior eval failed continuation gate: $bad_eval"
+        break
+    fi
+
     echo "=== Mask-guided structured prune sparsity=$SPARSITY tag=$TAG ==="
     if [[ "$FORCE_PHASE20" != "1" && -f "$RESULT_JSON" && -d "$CKPT" ]]; then
         echo "Skipping prune for tag=$TAG; found $RESULT_JSON and $CKPT"
