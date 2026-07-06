@@ -1,0 +1,11 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "sparsity": 0.15,
+  "strategy": "ceil",
+  "eval_samples": 64,
+  "baseline_c4_ppl": 8.012563705444336,
+  "pruned_c4_ppl": 9.969282150268555,
+  "baseline_tps": 31.91193613540758,
+  "pruned_tps": 34.121801119787555,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase18b/Mistral-7B-v0.1_pruned_ceil_s15"
+}

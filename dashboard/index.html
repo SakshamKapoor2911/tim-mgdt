@@ -113,7 +113,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 02:56 UTC</span>
+    <span class="nav-meta">2026-07-06 03:07 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -127,7 +127,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="hero-chips">
       <span class="chip chip-blue">Phase 18B planning</span>
       <span class="chip chip-green">8/10 runs complete</span>
-      <span class="chip chip-yellow">64 experiment files</span>
+      <span class="chip chip-yellow">66 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -144,6 +144,92 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>What is the highest <b>structural MLP-width sparsity</b> that preserves Mistral-7B's 5-shot GSM8K reasoning, and which layer-sensitivity rule explains that boundary?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
+
+<div class="section-label">Phase 18B boundary sweep</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Δ vs dense</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+
+        <tr>
+          <td class="task-who">Dense smoke baseline</td>
+          <td>0.0%</td>
+          <td>50</td>
+          <td>44.0%</td>
+          <td><span class="muted">ref</span></td>
+          <td>8.013</td>
+          <td>32.61</td>
+          <td class="task-action">50-sample dense smoke baseline for the boundary sweep.</td>
+        </tr>
+    
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s01)</td>
+          <td>1.0%</td>
+          <td>50</td>
+          <td>32.0%</td>
+          <td><span class='b b-neg'>-12.0 pt</span></td>
+          <td>8.159</td>
+          <td>33.82</td>
+          <td class="task-action">Even 1% structural pruning loses reasoning accuracy; do not scale uniform width pruning.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s025)</td>
+          <td>2.5%</td>
+          <td>50</td>
+          <td>32.0%</td>
+          <td><span class='b b-neg'>-12.0 pt</span></td>
+          <td>8.300</td>
+          <td>34.28</td>
+          <td class="task-action">Boundary check confirms the damage starts below 2.5%.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s05)</td>
+          <td>5.0%</td>
+          <td>50</td>
+          <td>28.0%</td>
+          <td><span class='b b-neg'>-16.0 pt</span></td>
+          <td>8.581</td>
+          <td>33.79</td>
+          <td class="task-action">Reasoning degradation increases with sparsity.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s10)</td>
+          <td>10.0%</td>
+          <td>50</td>
+          <td>16.0%</td>
+          <td><span class='b b-neg'>-28.0 pt</span></td>
+          <td>9.165</td>
+          <td>33.90</td>
+          <td class="task-action">Reasoning degradation increases with sparsity.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s15)</td>
+          <td>15.0%</td>
+          <td>50</td>
+          <td>10.0%</td>
+          <td><span class='b b-neg'>-34.0 pt</span></td>
+          <td>9.969</td>
+          <td>34.12</td>
+          <td class="task-action">Severe reasoning collapse.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 18B uniform structural (s20)</td>
+          <td>20.0%</td>
+          <td>50</td>
+          <td>4.0%</td>
+          <td><span class='b b-neg'>-40.0 pt</span></td>
+          <td>11.016</td>
+          <td>33.70</td>
+          <td class="task-action">Severe reasoning collapse.</td>
+        </tr>
+        
+</table>
+<div class="rc-note">Smoke metrics use 5-shot GSM8K with <code>--limit 50</code>. They are for ranking directions before expensive full evaluations.</div>
+</div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>
