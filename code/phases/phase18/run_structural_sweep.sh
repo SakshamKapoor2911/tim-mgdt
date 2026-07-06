@@ -11,6 +11,7 @@ C4_SAMPLES="${C4_SAMPLES:-64}"
 GSM8K_LIMIT="${GSM8K_LIMIT:-50}"
 OUT_DIR="$REPO/experiments/phase18b"
 MODEL_SHORT="${MODEL##*/}"
+SPARSITIES="${SPARSITIES:-0.05 0.10 0.15 0.20}"
 
 export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 export PYTHONUNBUFFERED=1
@@ -23,15 +24,27 @@ echo "Model: $MODEL"
 echo "Strategy: $STRATEGY"
 echo "C4 samples: $C4_SAMPLES"
 echo "GSM8K limit: $GSM8K_LIMIT"
+echo "Sparsities: $SPARSITIES"
 
-for SPARSITY in 0.05 0.10 0.15 0.20; do
-    case "$SPARSITY" in
-        0.05) TAG="s05" ;;
-        0.10) TAG="s10" ;;
-        0.15) TAG="s15" ;;
-        0.20) TAG="s20" ;;
-        *) echo "Unsupported sparsity tag: $SPARSITY" >&2; exit 1 ;;
-    esac
+tag_from_sparsity() {
+    local value="$1"
+    local tag
+
+    if [[ "$value" == 0.* ]]; then
+        tag="${value#0.}"
+        while [[ "${#tag}" -lt 2 ]]; do
+            tag="${tag}0"
+        done
+        echo "s${tag}"
+        return
+    fi
+
+    tag="${value//./p}"
+    echo "s${tag}"
+}
+
+for SPARSITY in $SPARSITIES; do
+    TAG="$(tag_from_sparsity "$SPARSITY")"
 
     echo
     echo "=== Structural prune sparsity=$SPARSITY tag=$TAG ==="
