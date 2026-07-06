@@ -39,8 +39,8 @@ def aligned_keep_size(intermediate_size: int, sparsity: float, strategy: str) ->
         keep_size = math.floor(target_size / 64.0) * 64
     else:
         keep_size = int(target_size)
-    keep_size = max(64, min(keep_size, intermediate_size))
-    return keep_size
+    min_keep = 64 if intermediate_size >= 64 else 1
+    return min(intermediate_size, max(min_keep, keep_size))
 
 
 def masked_axis_score(weight: torch.Tensor, axis: int, mask_sparsity: float) -> torch.Tensor:
