@@ -11,14 +11,6 @@ class ModelCapabilities:
     architecture_family: str
 
 MODEL_REGISTRY: Dict[str, ModelCapabilities] = {
-    "gpt2": ModelCapabilities(
-        supports_hooks=True,
-        supports_8bit=False,
-        supports_4bit=False,
-        min_vram_gb=2.0,
-        max_seq_len=1024,
-        architecture_family="gpt2"
-    ),
     "mistral-7b-v0.1": ModelCapabilities(
         supports_hooks=True,
         supports_8bit=True,

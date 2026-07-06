@@ -92,8 +92,6 @@ def _phase11_model_label(path, data):
         return "Mistral-7B"
     if "llama" in text:
         return "Llama-3-8B"
-    if "gpt2" in text or "gpt-2" in text:
-        return "GPT-2"
     return os.path.basename(path).split("_phase11")[0].replace("_", "-").upper()
 
 
@@ -112,8 +110,8 @@ def gather_experiment_data():
     """Scan experiments/ for JSON results, focused on latest phases."""
     results = {}
 
-    # Prefer modern Mistral/Llama GPU baselines over old GPT-2 proof-of-concept
-    # files, then pick the newest run within the selected model family.
+    # Prefer modern Mistral/Llama GPU baselines, then pick the newest run
+    # within the selected model family.
     phase11_files = sorted(
         set(
             glob.glob(os.path.join(EXPERIMENTS, "phase11", "*_complete_results.json"))
