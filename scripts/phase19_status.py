@@ -246,6 +246,11 @@ def main():
         "experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log",
         active_session="phase20_mask_guided_gpu1",
     )
+    print_log_tail(
+        "phase21",
+        "experiments/phase21_aux_reasoning/run_logs/aux_gpu1_*.log",
+        active_session="phase21_aux_reasoning_gpu1",
+    )
     print_log_tail("publish", "experiments/publish_logs/publish_queue_*.log")
 
     print_result_table()
