@@ -97,7 +97,18 @@ def latest_progress_in_log(path):
     return f"{done}/1319 ({pct}%), {timing}"
 
 
-def print_log_tail(label, pattern, lines=3):
+def tmux_session_exists(name):
+    try:
+        subprocess.check_output(["tmux", "has-session", "-t", name], stderr=subprocess.STDOUT)
+        return True
+    except Exception:
+        return False
+
+
+def print_log_tail(label, pattern, lines=3, active_session=None):
+    if active_session and not tmux_session_exists(active_session):
+        print(f"{label}: inactive")
+        return
     latest = latest_path(pattern)
     if not latest:
         return
@@ -230,7 +241,11 @@ def main():
 
     print_log_tail("adaptive", "experiments/phase19/run_logs/adaptive_boundary_*.log")
     print_log_tail("phase20", "experiments/phase20_mask_guided/run_logs/phase20_queue_*.log")
-    print_log_tail("phase20-gpu1", "experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log")
+    print_log_tail(
+        "phase20-gpu1",
+        "experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log",
+        active_session="phase20_mask_guided_gpu1",
+    )
     print_log_tail("publish", "experiments/publish_logs/publish_queue_*.log")
 
     print_result_table()
