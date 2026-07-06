@@ -75,6 +75,21 @@ def parse_progress(path):
     return "no progress marker"
 
 
+def latest_progress_in_log(path):
+    log_path = Path(path)
+    if not log_path.exists():
+        return None
+    text = log_path.read_text(errors="replace")
+    matches = re.findall(
+        r"Running generate_until requests:\s+([0-9]+)%.*?\|\s*([0-9]+)/1319\s*\[([^\]]+)\]",
+        text,
+    )
+    if not matches:
+        return None
+    pct, done, timing = matches[-1]
+    return f"{done}/1319 ({pct}%), {timing}"
+
+
 def print_result_table():
     dense = best_metric("experiments/phase19/gsm8k_eval_baseline_full*.json")
     dense_strict = dense.get("strict") if dense else None
@@ -128,6 +143,9 @@ def main():
         latest = adaptive_logs[-1]
         tail = Path(latest).read_text(errors="replace").splitlines()[-3:]
         print(f"adaptive: {latest}")
+        adaptive_progress = latest_progress_in_log(latest)
+        if adaptive_progress:
+            print(f"  progress: {adaptive_progress}")
         for line in tail:
             print(f"  {line}")
 
