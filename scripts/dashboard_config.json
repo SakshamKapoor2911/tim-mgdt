@@ -17,7 +17,7 @@
   ],
   "RESEARCH_Q": [
     "The research question",
-    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?"
+    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade despite similar C4 perplexity?"
   ],
   "PHASE": "Phase 19 Validation: Mask-vs-structural reasoning retention",
   "RUNS": [
@@ -64,6 +64,10 @@
     [
       "Phase 20 \u2014 Mask-guided Structural Follow-up",
       "done (failed smoke)"
+    ],
+    [
+      "Phase 21 \u2014 Auxiliary Reasoning Smoke",
+      "done"
     ]
   ],
   "DECISIONS": [
@@ -88,13 +92,19 @@
       "Agent",
       "Phase 19 full validation",
       "now",
-      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active."
+      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 25% drops to 34.0%, making 20% the safe point and 25% the first full-test boundary failure."
     ],
     [
       "Agent",
       "Phase 20 structural follow-up",
       "done",
       "Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default."
+    ],
+    [
+      "Agent",
+      "Auxiliary reasoning smoke",
+      "next",
+      "The 20% mask is close to dense on GSM8K Platinum smoke and above dense on BBH multistep arithmetic smoke; keep this as support, not the primary claim."
     ],
     [
       "Agent",
@@ -169,6 +179,10 @@
       "Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim"
     ],
     [
+      "done",
+      "Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic"
+    ],
+    [
       "planned",
       "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     ]
@@ -192,7 +206,7 @@
     [
       "planned",
       "Agent",
-      "Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish."
+      "Tighten `paper/main.tex` around the final Phase 19 boundary: 20% retained, 25% degraded, 30%/40% collapse further."
     ],
     [
       "planned",
@@ -212,7 +226,7 @@
     ],
     [
       "Paper Draft",
-      "https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex"
+      "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/paper/main.tex"
     ]
   ],
   "LITERATURE": [

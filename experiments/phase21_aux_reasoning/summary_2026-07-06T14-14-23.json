@@ -1,0 +1,50 @@
+{
+  "schema": "phase21_aux_reasoning_summary_v1",
+  "exp_dir": "experiments/phase21_aux_reasoning",
+  "rows": [
+    {
+      "model_tag": "dense",
+      "task": "bbh_cot_fewshot_multistep_arithmetic_two",
+      "run_label": "2026-07-06T14-14-23",
+      "n": 100,
+      "metric": "exact_match,get-answer",
+      "value": 0.33,
+      "path": "experiments/phase21_aux_reasoning/eval_dense_2026-07-06T14-14-23_2026-07-06T10-36-14.338914.json",
+      "delta_vs_dense_pt": 0.0
+    },
+    {
+      "model_tag": "dense",
+      "task": "gsm8k_platinum_cot",
+      "run_label": "2026-07-06T14-14-23",
+      "n": 100,
+      "metric": "exact_match,strict-match",
+      "value": 0.36,
+      "path": "experiments/phase21_aux_reasoning/eval_dense_2026-07-06T14-14-23_2026-07-06T10-36-14.338914.json",
+      "delta_vs_dense_pt": 0.0
+    },
+    {
+      "model_tag": "s20",
+      "task": "bbh_cot_fewshot_multistep_arithmetic_two",
+      "run_label": "2026-07-06T14-14-23",
+      "n": 100,
+      "metric": "exact_match,get-answer",
+      "value": 0.39,
+      "path": "experiments/phase21_aux_reasoning/eval_s20_2026-07-06T14-14-23_2026-07-06T10-55-29.851700.json",
+      "delta_vs_dense_pt": 6.0
+    },
+    {
+      "model_tag": "s20",
+      "task": "gsm8k_platinum_cot",
+      "run_label": "2026-07-06T14-14-23",
+      "n": 100,
+      "metric": "exact_match,strict-match",
+      "value": 0.34,
+      "path": "experiments/phase21_aux_reasoning/eval_s20_2026-07-06T14-14-23_2026-07-06T10-55-29.851700.json",
+      "delta_vs_dense_pt": -2.0
+    }
+  ],
+  "notes": [
+    "Auxiliary evals are smoke-sized checks, not replacements for full GSM8K.",
+    "Deltas compare rows with the same task and run label against dense."
+  ]
+}

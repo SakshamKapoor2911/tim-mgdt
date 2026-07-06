@@ -55,7 +55,17 @@ def sample_path_for_result(path):
     match = re.match(r"gsm8k_eval_(?:baseline_full|mask_s[0-9]+(?:_full)?)_(.+)", name)
     if not match:
         return None
-    return str(Path(path).with_name(f"samples_gsm8k_{match.group(1)}.jsonl"))
+    result_dir = Path(path).parent
+    suffix = match.group(1)
+    exact = result_dir / f"samples_gsm8k_{suffix}.jsonl"
+    if exact.exists():
+        return str(exact)
+    if "_" in suffix:
+        latest_timestamp = suffix.rsplit("_", 1)[-1]
+        fallback = result_dir / f"samples_gsm8k_{latest_timestamp}.jsonl"
+        if fallback.exists():
+            return str(fallback)
+    return str(exact)
 
 
 def best_results(exp_dir):

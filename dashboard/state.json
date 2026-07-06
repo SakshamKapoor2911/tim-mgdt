@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-06T14:39:11.724196+00:00Z",
+  "generated_at": "2026-07-06T15:00:17.134622+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 19 validation",
   "phase_status": "Phase 19 Validation: Mask-vs-structural reasoning retention",
-  "total_experiments": 83,
+  "total_experiments": 86,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
@@ -41,7 +41,7 @@
     "healed_memory_gb": 13.49839448928833,
     "perplexity_recovery_pct": -1149.9286492566166
   },
-  "research_question": "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?",
+  "research_question": "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade despite similar C4 perplexity?",
   "overview": [
     {
       "title": "What we're building",
@@ -78,13 +78,19 @@
       "who": "Agent",
       "track": "Phase 19 full validation",
       "status": "now",
-      "next_action": "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active."
+      "next_action": "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 25% drops to 34.0%, making 20% the safe point and 25% the first full-test boundary failure."
     },
     {
       "who": "Agent",
       "track": "Phase 20 structural follow-up",
       "status": "done",
       "next_action": "Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default."
+    },
+    {
+      "who": "Agent",
+      "track": "Auxiliary reasoning smoke",
+      "status": "next",
+      "next_action": "The 20% mask is close to dense on GSM8K Platinum smoke and above dense on BBH multistep arithmetic smoke; keep this as support, not the primary claim."
     },
     {
       "who": "Agent",
@@ -125,6 +131,10 @@
     {
       "status": "planned",
       "description": "Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim"
+    },
+    {
+      "status": "done",
+      "description": "Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic"
     },
     {
       "status": "planned",
@@ -168,7 +178,7 @@
     {
       "status": "planned",
       "owner": "Agent",
-      "item": "Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish."
+      "item": "Tighten `paper/main.tex` around the final Phase 19 boundary: 20% retained, 25% degraded, 30%/40% collapse further."
     },
     {
       "status": "planned",
@@ -225,10 +235,14 @@
     {
       "label": "Phase 20 \u2014 Mask-guided Structural Follow-up",
       "state": "done (failed smoke)"
+    },
+    {
+      "label": "Phase 21 \u2014 Auxiliary Reasoning Smoke",
+      "state": "done"
     }
   ],
   "links": {
     "Repository": "https://github.com/SakshamKapoor2911/tim-mgdt",
-    "Paper Draft": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex"
+    "Paper Draft": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/paper/main.tex"
   }
 }

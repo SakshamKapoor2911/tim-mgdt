@@ -1,205 +1,119 @@
-\documentclass{article} % For LaTeX2e
+\documentclass{article}
 \usepackage{colm2026_conference}
 \usepackage{times}
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{amsmath}
-\usepackage{multirow}
 
-\title{Causal Sensitivity Oracles for Surgical LoRA Recovery of Pruned LLMs}
+\title{Structural Geometry, Not Sparsity, Breaks Reasoning Under LLM Compression}
 
-% Authors must not appear in the submitted version. They should be hidden
-% as long as the \colmfinalcopy macro remains commented out below.
 \author{Anonymous Authors \\
 Paper under double-blind review
 }
 
-\newcommand{\fix}{\marginpar{FIX}}
-\newcommand{\new}{\marginpar{NEW}}
-
-%\colmfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+%\colmfinalcopy
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Recent work has shown that Large Language Models (LLMs) can be structurally compressed via depth pruning (layer dropping), achieving true $O(1)$ latency and memory reductions. However, the standard paradigm of applying uniform parameter-efficient fine-tuning (PEFT) across all remaining layers to recover performance is sub-optimal. We empirically demonstrate that layer dropping induces highly localized representation shifts, creating a precise "semantic gap" rather than global network degradation. We introduce \textbf{Incision Boundary Healing}, a targeted LoRA routing strategy that restricts trainable parameters exclusively to the boundary layers immediately adjacent to the dropped block. Evaluated on Mistral-7B, Llama-3-8B, and Gemma-2-2B, we prove that boundary-focused healing recovers up to 4x more perplexity than global healing baselines while utilizing up to 80\% fewer trainable parameters. This mechanism establishes a new, highly efficient paradigm for structural recovery, proving that adapting the exact site of structural damage is vastly superior to uniform network fine-tuning.
+Compression methods for large language models are often validated with general language-modeling perplexity, but reasoning workloads can fail even when perplexity degradation appears modest. We study this mismatch on Mistral-7B using GSM8K as a reasoning benchmark and C4 perplexity as a general language-modeling control. Hardware-aligned structural MLP-width pruning sharply degrades GSM8K even at low sparsity, while dense-shaped layerwise magnitude masks preserve most reasoning accuracy at substantially higher sparsity. A 20\% dense-shaped mask reaches 37.23\% GSM8K strict exact match on the full 1,319-example test set, compared with 38.67\% for the dense baseline, a gap of only 1.44 points. The retention is thresholded: 25\%, 30\%, and 40\% masks fall to 34.04\%, 31.77\%, and 23.88\%, respectively. The 20\% mask also preserves chain length, with 57.05 average response words versus 56.58 for dense. By contrast, structural 20\% width pruning collapses full GSM8K to roughly 5\% despite remaining a recognizable language model under C4 perplexity. These results show that reasoning retention is governed by structural geometry, not sparsity alone, and motivate compression methods that preserve reasoning-critical subspace geometry before targeting hardware speedups.
 \end{abstract}
 
-\section{Introduction: The Limits of Global Recovery in Depth Pruning}
-The concept of physically deleting entire transformer layers to achieve true hardware compression has gained significant traction. Methods in depth pruning, such as ShortGPT \citep{men-etal-2025-shortgpt} and Layer Collapse (LaCo) \citep{yang-etal-2024-laco}, have successfully identified and removed redundant structures. Further work, most notably ``The Unreasonable Ineffectiveness of the Deeper Layers'' \citep{gromov2024unreasonable}, demonstrated that dropping contiguous blocks of layers and applying QLoRA fine-tuning \citep{hu2022lora} provides an effective recovery path.  
+\section{Introduction}
 
-However, existing recovery methods apply parameter updates \textit{uniformly} across all surviving layers of the model. We argue that this uniform allocation fails to account for the mechanistic reality of the ``incision.''
+Efficient reasoning requires more than reducing parameter count or preserving average next-token loss. Compression can keep a model fluent while damaging the internal geometry needed for multi-step reasoning. This creates a practical failure mode for deployment: a compressed model can look acceptable on C4 perplexity while failing GSM8K.
 
-By analyzing the perplexity degradation of models compressed by 12.5\% depth reduction (a 4-layer drop), we prove that the resulting representation drift is not a global failure, but a localized discontinuity in the activation flow. We propose \textbf{Incision Boundary Healing}: restricting LoRA adapters strictly to the layers preceding and succeeding the dropped block. This surgical intervention routes the compute budget with laser precision, repairing the exact boundary where the structure was broken.
+This paper isolates that failure mode with a paired control. We compare two ways of removing capacity from Mistral-7B:
+\begin{enumerate}
+    \item \textbf{Structural MLP-width pruning}: physically narrows feed-forward dimensions, creating real shape changes and potential hardware speedups.
+    \item \textbf{Dense-shaped magnitude masking}: zeros weights layerwise while preserving the original dense parameter geometry and tensor shapes.
+\end{enumerate}
 
-\section{The Bathtub Curve of Layer Sensitivity}
-We hypothesized that pruning damage is not distributed equally. By systematically measuring the causal perplexity delta ($\Delta$CE) under weight-zeroing ablation across 32 layers, we mapped a distinct \textbf{Bathtub Curve} of layer sensitivity:
+The control is intentionally asymmetric from a systems perspective. Dense-shaped masks do not produce structural speedups. Their role is diagnostic: if a dense-shaped 20\% mask preserves GSM8K while much smaller structural width changes collapse it, then reasoning loss cannot be attributed to sparsity or C4 degradation alone.
+
+\section{Experimental Setup}
+
+We evaluate Mistral-7B-v0.1 under 5-shot GSM8K with deterministic generation. C4 validation perplexity is computed as a general language-modeling control. Structural pruning uses hardware-aligned MLP-width pruning; mask pruning applies layerwise unstructured magnitude masks to all linear layers while preserving the original dense tensor shapes.
+
+All checkpoints and evaluation scripts are implemented in the repository. The live Phase 19 summary table is generated with:
+
+\begin{verbatim}
+python scripts/summarize_phase19.py
+\end{verbatim}
+
+The GSM8K generation-length sanity check is generated with:
+
+\begin{verbatim}
+python scripts/analyze_phase19_samples.py
+\end{verbatim}
+
+\section{Results}
+
+\subsection{Dense-Shaped Masks Preserve Reasoning at 20\% Sparsity}
+
+Table~\ref{tab:phase19_mask} shows the Phase 19 mask-control results on the full GSM8K test set. The 20\% mask is near dense, while 25\% is already materially degraded and 30\%/40\% degrade further.
+
+\begin{table}[h]
+\centering
+\caption{Phase 19 dense-shaped mask controls on Mistral-7B. Full GSM8K uses all 1,319 test examples.}
+\label{tab:phase19_mask}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Model/state} & \textbf{Sparsity} & \textbf{C4 PPL} & \textbf{GSM8K n} & \textbf{Strict EM} & \textbf{$\Delta$ vs dense} \\
+\midrule
+Dense Mistral-7B & 0.0\% & 8.013 & 1319 & 38.67\% & 0.00 \\
+Mask pruning & 20.0\% & 8.195 & 1319 & 37.23\% & -1.44 \\
+Mask pruning & 25.0\% & 8.349 & 1319 & 34.04\% & -4.62 \\
+Mask pruning & 30.0\% & 8.586 & 1319 & 31.77\% & -6.90 \\
+Mask pruning & 40.0\% & 9.538 & 1319 & 23.88\% & -14.78 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 20\% mask is the key positive control: it removes roughly one fifth of linear weights while retaining GSM8K within 1.44 points of the dense baseline. This establishes that substantial weight-level sparsity is not sufficient to explain reasoning collapse. The result is not explained by terse or malformed generations: the full-run sample log shows 57.05 average generated words for the 20\% mask versus 56.58 for the dense baseline, with final-answer-marker rates of 88.7\% and 90.5\%, respectively.
+
+\subsection{Structural Width Pruning Fails Much Earlier}
+
+The paired structural runs show the opposite behavior. Phase 18B structural width pruning smoke tests degrade GSM8K sharply even at 1--5\% sparsity, and Phase 16 full structural 20\% width pruning drops GSM8K to roughly 5\%. This contrast is the central dissociation:
+
 \begin{itemize}
-    \item \textbf{Early layers (Layers 0-2):} Extremely high sensitivity. These layers construct foundational lexical and syntactic representations; disrupting them cascades downstream.
-    \item \textbf{Middle layers (Layers 3-28):} High elasticity. These layers refine features iteratively and exhibit massive structural redundancy, making them robust to weight zeroing.
-    \item \textbf{Late layers (Layers 29-31):} High sensitivity. These final layers project representations back to vocabulary space; damaging them directly corrupts the output distribution.
+    \item Dense-shaped 20\% mask: near-dense full GSM8K.
+    \item Structural 1--5\% width pruning: sharp GSM8K smoke degradation.
+    \item Structural 20\% width pruning: full GSM8K collapse.
 \end{itemize}
 
-\subsection{The Systems-Engineering Oracle}
-A common criticism of causal sensitivity mapping is its compute overhead. However, we demonstrate that deriving the complete 32-layer $\Delta$CE map is an exceptionally fast pre-computation step. On a commodity dual RTX 3090 setup (48GB VRAM), this exhaustive knockout mapping takes exactly \textbf{3.75 minutes} per model. This systems-engineering win makes causal mapping a highly actionable diagnostic step with near-zero overhead.
-
-\section{Sensitivity-Guided Surgical LoRA}
-Building on the Bathtub Curve, we propose a targeted recovery method. Rather than applying LoRA uniformly to all layers, we allocate capacity \textit{only} to the top-6 most sensitive layers (the ``surgical'' allocation) mapped by the $\Delta$CE oracle. 
-
-By targeting capacity only where the model's structural integrity has been compromised, we prevent the optimizer from injecting unnecessary parameter updates (``Dense Noise Pollution'') into the highly robust middle layers.
-
-\section{Experimental Results and Discussion}
-
-To validate the Actionable Interpretability pipeline and Surgical LoRA recovery, we execute a rigorous comparative ablation study across Mistral-7B (MHA), Meta-Llama-3-8B (GQA), and Gemma-2-2B (SWA) under unstructured magnitude pruning and structural layer dropping. 
-
-To prevent data contamination and ensure generalization metrics are robust, all results are evaluated strictly on the \textbf{C4 Held-Out Validation Corpus} using perplexity (PPL) as the primary indicator of merit. Code is available at \url{https://anonymous.4open.science/r/Incision-Healing-Submission}.
-
-\subsection{Ablation 1: Surgical vs. Uniform Allocation (Capacity Efficiency Proof)}
-Standard low-rank adaptation is typically applied uniformly across all attention projection layers. We compare this baseline to our surgical allocation.
-
-\begin{table}[h]
-\centering
-\caption{Capacity Efficiency and Resource Preservation (20\% Magnitude Pruning)}
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Model} & \textbf{Baseline PPL} & \textbf{Pruned PPL} & \textbf{Uniform LoRA} & \textbf{Ends-Only} & \textbf{Surgical LoRA} \\
-\midrule
-Mistral-7B & 8.166 & 8.372 & 8.259 (+1.14\%) & 8.289 (+1.51\%) & \textbf{8.282 (+1.42\%)} \\
-Llama-3-8B & 9.117 & 10.414 & 9.975 (+9.41\%) & 9.986 (+9.53\%) & \textbf{9.981 (+9.48\%)} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Restricting PEFT parameters strictly to the sensitive layers mapped by our oracle achieves comparable recovery performance to uniform allocation while using \textbf{80\% fewer trainable parameters} (6.6M vs 35.1M). 
-
-\subsection{Ablation 2: The ``Death of the Heuristic'' (Llama-3-8B Symmetry Breaking)}
-A common challenge to sensitivity-guided recovery is that boundary layers are intuitively known to be sensitive, suggesting a simple static ``Ends-Only'' heuristic could suffice.
-\begin{itemize}
-    \item For \textbf{Mistral-7B}, the top-6 sensitive layers identified by our oracle (\texttt{[0, 1, 2, 29, 30, 31]}) overlap perfectly with the naive Ends-Only heuristic. 
-    \item However, \textbf{Meta-Llama-3-8B} explicitly breaks this symmetry. The causal sensitivity oracle maps the top-6 layers as \texttt{[0, 1, 2, 3, 30, 31]}—swapping layer 29 for layer 3. Under optimization, the Oracle-guided Surgical allocation out-performs the naive Ends-Only heuristic.
-\end{itemize}
-
-This symmetry breaking serves as the \textbf{mechanistic proof of the oracle over static heuristics}.
-
-\subsection{Ablation 3: Oracle-Guided Layer Dropping (Physical Compression)}
-We dropped a block of 4 contiguous layers (representing a \textbf{12.5\% physical depth reduction}) and compared Global Surgical Healing against Boundary-Focused Surgical Healing.
-
-\begin{table}[h]
-\centering
-\caption{Incision Boundary Localized Recovery Efficacy (4-Layer Drop)}
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Model} & \textbf{Baseline PPL} & \textbf{Dropped PPL} & \textbf{Global Healed} & \textbf{Boundary Healed} & \textbf{Latency Red.} \\
-\midrule
-Mistral-7B & 7.855 & 9.930 & 9.730 & \textbf{9.073} & \textbf{-15.18\%} \\
-Llama-3-8B & 8.990 & 14.953 & 13.697 & \textbf{11.976} & \textbf{-15.84\%} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-For Mistral-7B, boundary-focused healing recovered \textbf{0.857 PPL} (over 4x the 0.200 PPL of the global configuration). For Llama-3-8B, it recovered \textbf{2.977 PPL} (more than double the 1.257 PPL of the global configuration).
-
-\subsection{The Latency-Perplexity Pareto Frontier and the Operational ``Knee''}
-
-To fully establish the boundaries of Incision Boundary Healing, we swept the contiguous drop size across Mistral-7B ($n_{drop} \in \{2, 4, 6, 8\}$) and healed the boundaries.
-
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/pareto_frontier.png}
-\caption{Latency vs. Perplexity Pareto Frontier for Mistral-7B Layer Dropping.}
-\label{fig:pareto}
+\includegraphics[width=\textwidth]{figures/phase19_reasoning_dissociation.png}
+\caption{C4 perplexity versus GSM8K strict exact match for dense, dense-shaped mask, and structural width pruning controls. The full 20\% mask point remains near dense, 25\% marks the first full-test mask-retention boundary failure, and structural width points fall away much earlier.}
+\label{fig:phase19_dissociation}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\caption{Mistral-7B Multi-Drop Pareto Sweep}
-\begin{tabular}{ccccc}
-\toprule
-\textbf{Layers Dropped} & \textbf{Latency Red.} & \textbf{Baseline PPL} & \textbf{Dropped PPL} & \textbf{Healed (Boundary)} \\
-\midrule
-2 (2/32) & -10.36\% & 7.855 & 8.733 & \textbf{8.378} \\
-4 (4/32) & -15.62\% & 7.855 & 9.930 & \textbf{9.073} \\
-6 (6/32) & -19.79\% & 7.855 & 12.734 & \textbf{10.866} \\
-8 (8/32) & -24.57\% & 7.855 & 20.822 & \textbf{11.517} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Interpretation}
 
-While the 8-layer drop exhibits a mathematically staggering recovery—reducing a broken 20.82 PPL down to 11.52—the absolute perplexity at this compression level represents a severe degradation in core language modeling capabilities. We formally designate the \textbf{4-layer drop (-15.62\% latency, 9.07 PPL)} as the ``knee'' of the Pareto frontier. This represents the optimal operational baseline, balancing meaningful physical compression with highly retained language modeling capabilities.
+The result suggests that reasoning degradation is not controlled by sparsity alone. Dense-shaped masks perturb weights but preserve the model's original layer dimensions, residual interfaces, and tensor geometry. Structural width pruning changes those interfaces and can disrupt reasoning-critical subspaces even when C4 perplexity remains in a plausible range.
 
-\subsection{Mechanistic Analysis: Attention to the Sink Token}
+This has two implications for efficient reasoning:
+\begin{enumerate}
+    \item Perplexity-only validation is insufficient for reasoning compression.
+    \item Hardware speedups should be pursued only after identifying structural transformations that preserve the reasoning-retained subspace exposed by the mask control.
+\end{enumerate}
 
-To provide mechanistic evidence of the structural damage induced by the layer drop, we tracked the average attention mass directed toward the Beginning-Of-Sequence (BOS) sink token across all layers. It is well established that LLM attention heads default to the BOS token when uncertain or when their incoming residual stream is disrupted \citep{xiao2023efficient}. 
+\section{Boundary Evidence}
 
-As shown in Figure \ref{fig:attention_heatmap}, the baseline model (blue) maintains a low, stable allocation of attention mass to the sink token across its middle layers. However, when layers 14--17 are incised, the post-drop model (red) exhibits a massive, immediate spike in sink attention exactly at the right boundary layer (Layer 18). This mathematically confirms that the structural discontinuity is severely corrupting the incoming residual stream for the adjacent layer. The model "notices" the incision, causing boundary layers to dump their attention mass into the sink. This provides the causal justification for restricting LoRA capacity exclusively to these boundary layers.
+The 25\%, 30\%, and 40\% full evaluations show that the dense-shaped mask control is not trivially insensitive to sparsity. The 25\% mask reaches 34.04\% strict exact match, a 4.62 point drop from dense, while the 30\% and 40\% masks reach 31.77\% and 23.88\%. Because structural width pruning fails at much lower sparsity, the result supports a thresholded dissociation: dense-shaped weight removal preserves reasoning up to about 20\%, but structural geometry changes damage reasoning far earlier.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{figures/attention_heatmap.png}
-\caption{Layer-wise attention to the BOS (sink) token. The massive spike in sink attention at Layer 18 (the immediate post-drop boundary) indicates severe structural disruption and uncertainty, proving that the adjacent layers are actively attempting to repair the semantic gap.}
-\label{fig:attention_heatmap}
-\end{figure}
+\section{Auxiliary Reasoning Smoke}
 
-\subsection{Ablation: The Locality of the Semantic Gap}
-\label{sec:boundary_thickness}
-
-A core hypothesis of Incision Boundary Healing is that structural depth pruning induces a highly localized discontinuity in the representation manifold, rather than global network degradation. To empirically quantify the "thickness" of this semantic gap, we conducted a hyperparameter ablation on the boundary radius, $t$, defined as the number of layers targeted for LoRA adaptation on either side of the dropped block. 
-
-We evaluated $t \in \{1, 2, 3\}$ across three architecturally distinct model families: Mistral-7B \citep{jiang2023mistral} (standard MHA), Meta-Llama-3-8B \citep{dubey2024llama3} (GQA), and Gemma-2-2B \citep{team2024gemma2} (interleaved Sliding Window and Global Attention). 
-
-As shown in Table \ref{tab:multi_model_thickness}, the underlying attention topology fundamentally dictates the behavior of the semantic gap.
-
-For global attention architectures---encompassing standard MHA (Mistral-7B) and GQA (Meta-Llama-3-8B)---the semantic gap is tightly localized. Both models exhibit a hard recovery plateau by $t=2$, proving that maintaining a global receptive field across all layers confines structural damage to the immediate topological boundary of the incision.
-
-Conversely, Gemma-2-2B explicitly breaks this plateau. Due to its interleaved Sliding Window Attention (SWA), dropping a block of layers not only reduces depth but actively severs the gradual, layer-by-layer expansion of the local receptive field. As a result, the semantic "bleed" of the structural damage is inherently wider. This is perfectly reflected in the empirical data: Gemma-2-2B exhibits a smooth, monotonic decay in perplexity as boundary thickness expands ($22.037 \to 20.461 \to 19.493$). The network mathematically requires the wider capacity of $t=3$ to restitch the broken sliding windows into global coherence.
-
-By comparing these curves, we prove that Incision Boundary Healing is highly sensitive to the underlying attention topology, adapting seamlessly to both dense and sliding-window architectures while strictly minimizing trainable parameters.
-
-\begin{table}[h]
-\centering
-\begin{tabular}{llccc}
-\toprule
-\textbf{Model} & \textbf{Thickness ($t$)} & \textbf{Layers Healed} & \textbf{Healed C4 PPL} & \textbf{Curve Dynamics} \\
-\midrule
-\multirow{3}{*}{\textbf{Mistral-7B-v0.1}} 
-& $t=1$ & 2 ($[-1, +1]$) & 9.163 & 73.8\% of max \\
-& $t=2$ & 4 ($[-2, -1, +1, +2]$) & 9.121 & 99.3\% of max \\
-& $t=3$ & 6 ($[-3, \dots, +3]$) & \textbf{9.120} & Plateau Reached \\
-\midrule
-\multirow{3}{*}{\textbf{Meta-Llama-3-8B}} 
-& $t=1$ & 2 & 12.265 & 90.3\% of max \\
-& $t=2$ & 4 & 12.163 & 93.7\% of max \\
-& $t=3$ & 6 & \textbf{12.107} & Plateau Reached \\
-\midrule
-\multirow{3}{*}{\textbf{Gemma-2-2B}} 
-& $t=1$ & 2 ($[-1, +1]$) & 22.037 & Monotonic Decay \\
-& $t=2$ & 4 ($[-2, -1, +1, +2]$) & 20.461 & Monotonic Decay \\
-& $t=3$ & 6 ($[-3, \dots, +3]$) & \textbf{19.493} & Monotonic Decay \\
-\bottomrule
-\end{tabular}
-\caption{Cross-architecture Boundary Thickness Ablation (4-layer drop). Demonstrates the structural bleed of the semantic gap across standard MHA, GQA, and SWA topologies.}
-\label{tab:multi_model_thickness}
-\end{table}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\textwidth]{figures/thickness_ablation_multimodel.png}
-\caption{Cross-Architecture Boundary Thickness ($t$) vs. Healed PPL. Mistral-7B and Meta-Llama-3-8B exhibit a tightly localized semantic gap, establishing a hard recovery plateau at $t=2$. Conversely, Gemma-2-2B exhibits a monotonic decay curve, demonstrating that its interleaved Sliding Window Attention expands the radius of the structural damage.}
-\label{fig:thickness_multimodel}
-\end{figure}
+As a limited robustness check, we also ran a 100-example auxiliary smoke comparing dense Mistral-7B against the 20\% mask on GSM8K Platinum and BBH multistep arithmetic. The 20\% mask reached 34\% strict exact match on GSM8K Platinum versus 36\% for dense, and 39\% exact match on BBH multistep arithmetic versus 33\% for dense. These smoke results are not the main evidence, but they reduce the risk that the 20\% result is narrowly tied to the original GSM8K test set.
 
 \section{Conclusion}
-We introduce an actionable interpretability framework that shifts the paradigm of LLM recovery from Retraining to Diagnostics. By establishing the 3.75-minute causal sensitivity oracle, we demonstrate that pruning damage is localized and varies asymmetrically across model families. Surgically allocating low-rank capacity to these precise damage zones resolves the "Dense Noise Pollution" failure mode of uniform PEFT.
+
+Phase 19 reframes the compression problem for reasoning models. The immediate bottleneck is not whether parameters can be removed, but whether the structural geometry that carries reasoning behavior survives the compression operator. Dense-shaped masks provide a strong positive control, while hardware-aligned structural width pruning provides a strong negative control. Together they motivate a new target for efficient reasoning compression: preserve reasoning-critical geometry first, then recover hardware efficiency.
 
 \bibliography{colm2026_conference}
 \bibliographystyle{colm2026_conference}
-
-\appendix
-\section{Appendix: Reproducibility and Training Details}
-To ensure strict reproducibility across all evaluated architectures, the Incision Boundary Healing interventions utilize a uniform hyperparameter configuration. Healing is performed via Low-Rank Adaptation (LoRA) with a rank of $r=16$ and an alpha of $\alpha=32$. Parameter updates are restricted exclusively to the attention projections (\texttt{q\_proj}, \texttt{v\_proj}) and MLP projections (\texttt{gate\_proj}, \texttt{up\_proj}, \texttt{down\_proj}) within the targeted boundary layers. 
-
-The models are fine-tuned for exactly 1,000 steps using a batch size of 1 on the C4 (Colossal Clean Crawled Corpus) training split. We utilize the AdamW optimizer with a base learning rate of $1 \times 10^{-5}$ and a linear learning rate scheduler with a 10\% warmup ratio. Evaluation perplexities are computed on a strictly held-out subset of the C4 validation corpus consisting of over 112,000 tokens to rigorously prevent data contamination.
 
 \end{document}

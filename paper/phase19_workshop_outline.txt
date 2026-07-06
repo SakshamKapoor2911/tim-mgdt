@@ -28,6 +28,7 @@ Current checked result:
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Dense Mistral-7B | 0.0% | 8.013 | 1319 | 38.67% | 0.00 pt |
 | Phase 19 mask | 20.0% | 8.195 | 1319 | 37.23% | -1.44 pt |
+| Phase 19 mask | 25.0% | 8.349 | 1319 | 34.04% | -4.62 pt |
 | Phase 19 mask | 30.0% | 8.586 | 1319 | 31.77% | -6.90 pt |
 | Phase 19 mask | 40.0% | 9.538 | 1319 | 23.88% | -14.78 pt |
 
@@ -36,21 +37,23 @@ Key contrast to preserve:
 - Phase 16 structural 20% width pruning: full GSM8K collapses to roughly 5%.
 - Phase 18B structural 1-5% width pruning: smoke GSM8K drops sharply even at very low structural sparsity.
 - Phase 19 dense-shaped 20% mask: full GSM8K remains within 1.44 points of dense.
-- Phase 19 dense-shaped 30% and 40% masks: full GSM8K degrades to 31.77% and 23.88%, locating the mask-retention threshold.
+- Phase 19 dense-shaped 25%, 30%, and 40% masks: full GSM8K degrades to 34.04%, 31.77%, and 23.88%, locating the mask-retention threshold just above 20%.
+- Phase 21 auxiliary reasoning smoke: the 20% mask is close to dense on GSM8K Platinum strict EM (34% versus 36%, n=100) and above dense on BBH multistep arithmetic exact match (39% versus 33%, n=100). Treat this as support, not the primary claim.
 
 Running Evidence
 ----------------
 
-Adaptive boundary and structural follow-up runs are queued/running in tmux:
+Adaptive boundary and structural follow-up runs:
 
-- `phase19_adaptive_boundary`: selected the 25% mask branch because 30% fell below the near-dense threshold.
+- `phase19_adaptive_boundary`: completed the 25% branch; 25% is already materially degraded.
 - `phase20_mask_guided_queue`: will now skip larger points because initial mask-guided structured pruning failed its smoke continuation gate.
+- `phase21_aux_reasoning`: completed a dense-vs-20% auxiliary smoke on GSM8K Platinum and BBH multistep arithmetic.
 
 Current interpretation:
 
-- The result is thresholded rather than broad: 20% is near dense, 30% is already degraded, and 40% collapses further.
+- The result is thresholded rather than broad: 20% is near dense, 25% is already degraded, and 30%/40% collapse further.
 - This is still publishable as a mask-vs-structure dissociation because structural width pruning fails at much lower sparsity.
-- The next useful evidence is the 25% boundary. Phase 20 is currently negative evidence: naive mask-guided structural transfer fails even below 1% MLP sparsity.
+- Phase 20 is currently negative evidence: naive mask-guided structural transfer fails even below 1% MLP sparsity.
 
 Paper Rewrite Plan
 ------------------
@@ -60,17 +63,17 @@ Paper Rewrite Plan
 3. Make the main results table a mask-vs-structural contrast:
    - dense baseline,
    - structural width pruning at 1%, 5%, and 20%,
-   - mask pruning at 20%, 30%, and 40%.
+   - mask pruning at 20%, 25%, 30%, and 40%.
 4. Add a figure with GSM8K strict EM versus C4 PPL, using point shape/color to separate structural pruning from dense-shaped masks.
 5. Keep the submission compact: 4-6 pages main text, focused on one clear empirical dissociation.
 
 Next Experiments
 ----------------
 
-After the current adaptive/Phase 20 runs finish:
+After publishing the current results:
 
-1. Commit the 25% boundary result.
-2. Commit the Phase 20 mask-guided structural smoke result as a negative control.
+1. Keep 20% as the main positive point and 25% as the first full-test boundary failure.
+2. Keep the Phase 20 mask-guided structural smoke result as a negative control.
 3. Rebuild the dashboard, Phase 19 plot, and paper table.
-4. If 25% is near dense, frame the retention threshold between 25% and 30%; if it degrades, frame 20% as the safe point.
+4. Use Phase 21 as auxiliary robustness evidence only; do not overclaim from 100-example smoke tests.
 5. Convert the draft into a 4-6 page COLM Efficient Reasoning submission only after presentation logistics are confirmed.

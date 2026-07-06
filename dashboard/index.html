@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 14:39 UTC</span>
+    <span class="nav-meta">2026-07-06 15:00 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -120,8 +120,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
       <span class="chip chip-blue">Phase 19 validation</span>
-      <span class="chip chip-green">10/11 runs complete</span>
-      <span class="chip chip-yellow">83 experiment files</span>
+      <span class="chip chip-green">11/12 runs complete</span>
+      <span class="chip chip-yellow">86 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -135,7 +135,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="ov-card"><h3>Where we are today</h3><p><b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20% sparsity while 25%+ masks and structural MLP-width pruning degrade despite similar C4 perplexity?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
 
@@ -258,9 +258,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td class="task-who">Phase 19 mask (s25)</td>
           <td>25.0%</td>
           <td>24.9%</td>
-          <td>50 <span class="muted">(smoke)</span></td>
+          <td>1319 <span class="muted">(full)</span></td>
           <td>34.0%</td>
-          <td><span class='b b-neg'>-10.0 pt</span></td>
+          <td><span class='b b-neg'>-4.6 pt</span></td>
           <td>8.349</td>
           <td>31.71</td>
           <td class="task-action">Mask pruning control point.</td>
@@ -713,6 +713,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 18B — Structural Uniform Sweep</td><td><span class='pill p-done'>done (negative)</span></td></tr>
 <tr><td>Phase 19 — Mask-vs-Structural Control</td><td><span class='pill p-now'>now</span></td></tr>
 <tr><td>Phase 20 — Mask-guided Structural Follow-up</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
+<tr><td>Phase 21 — Auxiliary Reasoning Smoke</td><td><span class='pill p-done'>done</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -734,9 +735,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
-<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active.</td></tr>
+<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 25% drops to 34.0%, making 20% the safe point and 25% the first full-test boundary failure.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Auxiliary reasoning smoke</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">The 20% mask is close to dense on GSM8K Platinum smoke and above dense on BBH multistep arithmetic smoke; keep this as support, not the primary claim.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>
 <td><span class='pill p-next'>next</span></td><td class="task-action">Use COLM Efficient Reasoning as the technical target, but confirm remote or proxy presentation before committing to that venue because the workshop page says hybrid while the COLM FAQ is in-person-first.</td></tr>
 
@@ -764,6 +767,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">
@@ -774,7 +778,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 19: Full GSM8K confirmed the 20% mask-vs-structural control.</td></tr>
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Tighten `paper/main.tex` around the final Phase 19 boundary: 20% retained, 25% degraded, 30%/40% collapse further.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 
@@ -790,7 +794,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 
 </table></div></div>
   <div class="section-label">Links</div><div style="display:flex;flex-wrap:wrap;gap:8px"><a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">Repository</a>
-<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex" target="_blank">Paper Draft</a>
+<a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt/blob/master/paper/main.tex" target="_blank">Paper Draft</a>
 </div>
 </div>
 </body>
