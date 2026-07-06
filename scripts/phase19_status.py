@@ -97,6 +97,19 @@ def latest_progress_in_log(path):
     return f"{done}/1319 ({pct}%), {timing}"
 
 
+def print_log_tail(label, pattern, lines=3):
+    latest = latest_path(pattern)
+    if not latest:
+        return
+    tail = Path(latest).read_text(errors="replace").splitlines()[-lines:]
+    print(f"{label}: {latest}")
+    progress = latest_progress_in_log(latest)
+    if progress:
+        print(f"  progress: {progress}")
+    for line in tail:
+        print(f"  {line}")
+
+
 def reference_for(metric, dense_full, dense_smoke):
     if not metric:
         return None, ""
@@ -108,6 +121,30 @@ def reference_for(metric, dense_full, dense_smoke):
     if dense_full:
         return dense_full, "full"
     return dense_smoke, "smoke"
+
+
+def structured_metric(path):
+    data = load_json(path) or {}
+    tag = Path(path).stem.split("_")[-1]
+    return {
+        "tag": tag,
+        "target": data.get("target_structured_sparsity"),
+        "actual": data.get("mlp_param_sparsity"),
+        "c4": data.get("pruned_c4_ppl"),
+        "tps": data.get("pruned_tps"),
+    }
+
+
+def percent_text(value):
+    return "" if value is None else f"{value * 100:.2f}%"
+
+
+def number_text(value, digits=3):
+    return "" if value is None else f"{value:.{digits}f}"
+
+
+def pct_number_text(value):
+    return "" if value is None else f"{value * 100:.2f}"
 
 
 def print_result_table():
@@ -137,6 +174,36 @@ def print_result_table():
         row(tag, best_metric(f"experiments/phase19/gsm8k_eval_mask_{tag}*.json"))
 
 
+def print_phase20_table():
+    result_paths = sorted(glob.glob("experiments/phase20_mask_guided/Mistral-7B-v0.1_mask_guided_width_*.json"))
+    if not result_paths:
+        print("\nPhase 20:")
+        print("mask-guided structured sweep pending")
+        return
+
+    dense_smoke = best_metric("experiments/phase18b/gsm8k_eval_baseline*.json")
+    dense_strict = dense_smoke.get("strict") if dense_smoke else None
+    print("\nPhase 20 mask-guided structured results:")
+    print("tag     target   actual   n       strict   delta      C4 PPL   tok/s")
+    print("-----   ------   ------   -----   ------   --------   ------   -----")
+    for path in result_paths:
+        meta = structured_metric(path)
+        metric = best_metric(f"experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*_{meta['tag']}.json")
+        strict = metric.get("strict") if metric else None
+        delta = None if strict is None or dense_strict is None else (strict - dense_strict) * 100
+        delta_text = "" if delta is None else f"{delta:+.2f} pt"
+        print(
+            f"{meta['tag']:<7} "
+            f"{percent_text(meta['target']):>6}   "
+            f"{percent_text(meta['actual']):>6}   "
+            f"{str(metric.get('n') if metric else ''):<7} "
+            f"{pct_number_text(strict):>6}   "
+            f"{delta_text:<8}   "
+            f"{number_text(meta['c4']):>6}   "
+            f"{number_text(meta['tps'], 2):>5}"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-system", action="store_true", help="Skip tmux and nvidia-smi probes.")
@@ -161,18 +228,11 @@ def main():
         path = latest_path(pattern)
         print(f"{name}: {parse_progress(path)}")
 
-    adaptive_logs = sorted(glob.glob("experiments/phase19/run_logs/adaptive_boundary_*.log"))
-    if adaptive_logs:
-        latest = adaptive_logs[-1]
-        tail = Path(latest).read_text(errors="replace").splitlines()[-3:]
-        print(f"adaptive: {latest}")
-        adaptive_progress = latest_progress_in_log(latest)
-        if adaptive_progress:
-            print(f"  progress: {adaptive_progress}")
-        for line in tail:
-            print(f"  {line}")
+    print_log_tail("adaptive", "experiments/phase19/run_logs/adaptive_boundary_*.log")
+    print_log_tail("phase20", "experiments/phase20_mask_guided/run_logs/phase20_queue_*.log")
 
     print_result_table()
+    print_phase20_table()
 
 
 if __name__ == "__main__":
