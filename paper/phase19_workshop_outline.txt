@@ -44,13 +44,13 @@ Running Evidence
 Adaptive boundary and structural follow-up runs are queued/running in tmux:
 
 - `phase19_adaptive_boundary`: selected the 25% mask branch because 30% fell below the near-dense threshold.
-- `phase20_mask_guided_queue`: waiting to test whether the dense-mask signal can guide hardware-relevant structural pruning.
+- `phase20_mask_guided_queue`: will now skip larger points because initial mask-guided structured pruning failed its smoke continuation gate.
 
 Current interpretation:
 
 - The result is thresholded rather than broad: 20% is near dense, 30% is already degraded, and 40% collapses further.
 - This is still publishable as a mask-vs-structure dissociation because structural width pruning fails at much lower sparsity.
-- The next useful evidence is the 25% boundary and Phase 20 mask-guided structural transfer.
+- The next useful evidence is the 25% boundary. Phase 20 is currently negative evidence: naive mask-guided structural transfer fails even below 1% MLP sparsity.
 
 Paper Rewrite Plan
 ------------------
@@ -70,7 +70,7 @@ Next Experiments
 After the current adaptive/Phase 20 runs finish:
 
 1. Commit the 25% boundary result.
-2. Commit the Phase 20 mask-guided structural smoke/full result if it beats uniform structural pruning.
+2. Commit the Phase 20 mask-guided structural smoke result as a negative control.
 3. Rebuild the dashboard, Phase 19 plot, and paper table.
 4. If 25% is near dense, frame the retention threshold between 25% and 30%; if it degrades, frame 20% as the safe point.
 5. Convert the draft into a 4-6 page COLM Efficient Reasoning submission only after presentation logistics are confirmed.

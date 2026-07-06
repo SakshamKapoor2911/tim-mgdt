@@ -63,7 +63,7 @@
     ],
     [
       "Phase 20 \u2014 Mask-guided Structural Follow-up",
-      "queued"
+      "done (failed smoke)"
     ]
   ],
   "DECISIONS": [
@@ -93,8 +93,8 @@
     [
       "Agent",
       "Phase 20 structural follow-up",
-      "next",
-      "Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning."
+      "done",
+      "Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default."
     ],
     [
       "Agent",
@@ -166,7 +166,7 @@
     ],
     [
       "planned",
-      "Phase 20: mask-guided structural pruning queued as the hardware-relevant follow-up"
+      "Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim"
     ],
     [
       "planned",

@@ -1,0 +1,20 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "mask_guided_structured_mlp_width_pruning",
+  "target_structured_sparsity": 0.005,
+  "scoring_mask_sparsity": 0.2,
+  "strategy": "ceil",
+  "eval_samples": 64,
+  "baseline_c4_ppl": 8.012563705444336,
+  "pruned_c4_ppl": 11.399393081665039,
+  "baseline_tps": 44.50551867162459,
+  "pruned_tps": 44.536453349083835,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase20_mask_guided/Mistral-7B-v0.1_mask_guided_width_ceil_s005",
+  "modules_pruned": 32,
+  "intermediate_size_before": 14336,
+  "intermediate_size_after_min": 14272,
+  "intermediate_size_after_max": 14272,
+  "mlp_params_before": 5637144576,
+  "mlp_params_after": 5611978752,
+  "mlp_param_sparsity": 0.004464285714285698
+}

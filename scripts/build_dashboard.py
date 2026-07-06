@@ -824,6 +824,57 @@ def _phase19_mask_html():
 </div>"""
 
 
+def _phase20_mask_guided_html():
+    result_paths = sorted(
+        glob.glob("experiments/phase20_mask_guided/Mistral-7B-v0.1_mask_guided_width_*.json"),
+        key=lambda p: (_load(p) or {}).get("target_structured_sparsity", 1),
+    )
+    if not result_paths:
+        return ""
+
+    dense_smoke = _latest_gsm8k("experiments/phase18b/gsm8k_eval_baseline*.json") or {}
+    dense_strict = dense_smoke.get("strict")
+    rows = ""
+    for path in result_paths:
+        data = _load(path) or {}
+        tag = Path(path).stem.split("_")[-1]
+        metric = _latest_gsm8k(f"experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*_{tag}*.json") or {}
+        strict = metric.get("strict")
+        delta = None if strict is None or dense_strict is None else strict - dense_strict
+        delta_cls = "pos" if delta is not None and delta > 0.02 else ("neg" if delta is not None and delta < -0.02 else "zero")
+        delta_str = "—" if delta is None else f"<span class='b b-{delta_cls}'>{delta * 100:+.1f} pt</span>"
+        readout = (
+            "Fails continuation gate; do not scale larger mask-guided structured sparsities."
+            if strict is not None and strict < 0.30
+            else "Awaiting smoke metric."
+            if strict is None
+            else "Promising enough for follow-up."
+        )
+        rows += f"""
+        <tr>
+          <td class="task-who">Phase 20 mask-guided ({tag})</td>
+          <td>{_pct(data.get("target_structured_sparsity"))}</td>
+          <td>{_pct(data.get("mlp_param_sparsity"))}</td>
+          <td>{int(metric.get("n")) if metric.get("n") else "—"}</td>
+          <td>{_pct(strict)}</td>
+          <td>{delta_str}</td>
+          <td>{_float(data.get("pruned_c4_ppl"))}</td>
+          <td>{_float(data.get("pruned_tps"), 2)}</td>
+          <td class="task-action">{readout}</td>
+        </tr>
+        """
+
+    return f"""
+<div class="section-label">Phase 20 mask-guided structural transfer</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Target</th><th>Actual MLP Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Δ vs dense smoke</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+{rows}
+</table>
+<div class="rc-note">Phase 20 tests whether the successful dense-mask signal transfers to real MLP-width deletion. Initial smoke results are negative, so larger points are stopped by default.</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -881,6 +932,7 @@ def _width_pruning_html():
 <div class="section-label" id="current">Current pruning diagnostics</div>
 {_phase18b_sweep_html()}
 {_phase19_mask_html()}
+{_phase20_mask_guided_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>

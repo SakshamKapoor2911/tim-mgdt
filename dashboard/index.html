@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 13:29 UTC</span>
+    <span class="nav-meta">2026-07-06 14:04 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -120,8 +120,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
       <span class="chip chip-blue">Phase 19 validation</span>
-      <span class="chip chip-green">9/11 runs complete</span>
-      <span class="chip chip-yellow">76 experiment files</span>
+      <span class="chip chip-green">10/11 runs complete</span>
+      <span class="chip chip-yellow">82 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -255,6 +255,18 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         </tr>
         
         <tr>
+          <td class="task-who">Phase 19 mask (s25)</td>
+          <td>25.0%</td>
+          <td>24.9%</td>
+          <td>50 <span class="muted">(smoke)</span></td>
+          <td>34.0%</td>
+          <td><span class='b b-neg'>-10.0 pt</span></td>
+          <td>8.349</td>
+          <td>31.71</td>
+          <td class="task-action">Mask pruning control point.</td>
+        </tr>
+        
+        <tr>
           <td class="task-who">Phase 19 mask (s30)</td>
           <td>30.0%</td>
           <td>29.9%</td>
@@ -284,6 +296,39 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 </div>
 <div class="card" style="padding:18px;margin-bottom:18px">
   <img src="figures/phase19_reasoning_dissociation.png" alt="Phase 19 mask-vs-structural C4 and GSM8K dissociation plot" style="display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)" />
+</div>
+
+<div class="section-label">Phase 20 mask-guided structural transfer</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Target</th><th>Actual MLP Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Δ vs dense smoke</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+
+        <tr>
+          <td class="task-who">Phase 20 mask-guided (s005)</td>
+          <td>0.5%</td>
+          <td>0.4%</td>
+          <td>50</td>
+          <td>24.0%</td>
+          <td><span class='b b-neg'>-20.0 pt</span></td>
+          <td>11.399</td>
+          <td>44.54</td>
+          <td class="task-action">Fails continuation gate; do not scale larger mask-guided structured sparsities.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 20 mask-guided (s01)</td>
+          <td>1.0%</td>
+          <td>0.9%</td>
+          <td>50</td>
+          <td>10.0%</td>
+          <td><span class='b b-neg'>-34.0 pt</span></td>
+          <td>15.629</td>
+          <td>43.96</td>
+          <td class="task-action">Fails continuation gate; do not scale larger mask-guided structured sparsities.</td>
+        </tr>
+        
+</table>
+<div class="rc-note">Phase 20 tests whether the successful dense-mask signal transfers to real MLP-width deletion. Initial smoke results are negative, so larger points are stopped by default.</div>
 </div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
@@ -667,7 +712,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 18 — Sensitivity-Guided Non-Uniform Mask</td><td><span class='pill p-done'>done (diagnostic only)</span></td></tr>
 <tr><td>Phase 18B — Structural Uniform Sweep</td><td><span class='pill p-done'>done (negative)</span></td></tr>
 <tr><td>Phase 19 — Mask-vs-Structural Control</td><td><span class='pill p-now'>now</span></td></tr>
-<tr><td>Phase 20 — Mask-guided Structural Follow-up</td><td><span class='pill p-queued'>queued</span></td></tr>
+<tr><td>Phase 20 — Mask-guided Structural Follow-up</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -691,7 +736,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
 <td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
-<td><span class='pill p-next'>next</span></td><td class="task-action">Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning.</td></tr>
+<td><span class='pill p-done'>done</span></td><td class="task-action">Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>
 <td><span class='pill p-next'>next</span></td><td class="task-action">Use COLM Efficient Reasoning as the technical target, but confirm remote or proxy presentation before committing to that venue because the workshop page says hybrid while the COLM FAQ is in-person-first.</td></tr>
 
@@ -718,7 +763,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 17/18: Contrastive and non-uniform probes failed smoke tests</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense</div></div>
-<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: mask-guided structural pruning queued as the hardware-relevant follow-up</div></div>
+<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">

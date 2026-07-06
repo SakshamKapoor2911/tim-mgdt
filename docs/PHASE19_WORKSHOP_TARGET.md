@@ -40,7 +40,8 @@ Current strongest claim:
 Current caveat:
 
 - The result is thresholded, not broad: 20% is the safe dense-shaped mask point; 30% is already outside the near-dense regime.
-- A 25% adaptive boundary run is active, and Phase 20 mask-guided structured pruning remains the hardware-relevant follow-up.
+- A 25% adaptive boundary run is active.
+- Phase 20 mask-guided structural pruning is an early negative: 0.45% and 0.89% MLP structured sparsity reached only 24% and 10% GSM8K smoke, respectively.
 
 ## Presentation Constraint
 
@@ -65,5 +66,5 @@ Saksham Kapoor
 
 1. If 25% remains near dense, frame the mask-retention threshold between 25% and 30%.
 2. If 25% degrades materially, frame 20% as the safe point and 30% as the first full-test boundary failure.
-3. If Phase 20 finds any mask-guided structured point that beats uniform structural pruning at similar sparsity, elevate it from diagnostic workshop paper to method paper.
+3. Do not frame Phase 20 as the method claim unless a new structural transfer method beats the current negative mask-guided baseline.
 4. If organizers do not allow remote presentation or a workable proxy, keep COLM ER as a technical fit but prioritize another hybrid/remote-friendly workshop.
