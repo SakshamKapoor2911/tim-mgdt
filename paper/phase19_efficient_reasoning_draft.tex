@@ -18,7 +18,7 @@ Paper under double-blind review
 \maketitle
 
 \begin{abstract}
-Compression methods for large language models are often validated with general language-modeling perplexity, but reasoning workloads can fail even when perplexity degradation appears modest. We study this mismatch on Mistral-7B using GSM8K as a reasoning benchmark and C4 perplexity as a general language-modeling control. Hardware-aligned structural MLP-width pruning sharply degrades GSM8K even at low sparsity, while dense-shaped layerwise magnitude masks preserve most reasoning accuracy at substantially higher sparsity. A 20\% dense-shaped mask reaches 37.23\% GSM8K strict exact match on the full 1,319-example test set, compared with 38.67\% for the dense baseline, a gap of only 1.44 points. Its generated solutions also preserve chain length: 57.05 average response words versus 56.58 for dense. By contrast, structural 20\% width pruning collapses full GSM8K to roughly 5\% despite remaining a recognizable language model under C4 perplexity. These results show that reasoning retention is governed by structural geometry, not sparsity alone, and motivate compression methods that preserve reasoning-critical subspace geometry before targeting hardware speedups.
+Compression methods for large language models are often validated with general language-modeling perplexity, but reasoning workloads can fail even when perplexity degradation appears modest. We study this mismatch on Mistral-7B using GSM8K as a reasoning benchmark and C4 perplexity as a general language-modeling control. Hardware-aligned structural MLP-width pruning sharply degrades GSM8K even at low sparsity, while dense-shaped layerwise magnitude masks preserve most reasoning accuracy at substantially higher sparsity. A 20\% dense-shaped mask reaches 37.23\% GSM8K strict exact match on the full 1,319-example test set, compared with 38.67\% for the dense baseline, a gap of only 1.44 points. The retention is thresholded: 30\% and 40\% masks fall to 31.77\% and 23.88\%, respectively. The 20\% mask also preserves chain length, with 57.05 average response words versus 56.58 for dense. By contrast, structural 20\% width pruning collapses full GSM8K to roughly 5\% despite remaining a recognizable language model under C4 perplexity. These results show that reasoning retention is governed by structural geometry, not sparsity alone, and motivate compression methods that preserve reasoning-critical subspace geometry before targeting hardware speedups.
 \end{abstract}
 
 \section{Introduction}
@@ -53,11 +53,11 @@ python scripts/analyze_phase19_samples.py
 
 \subsection{Dense-Shaped Masks Preserve Reasoning at 20\% Sparsity}
 
-Table~\ref{tab:phase19_mask} shows the current Phase 19 mask-control results. The 20\% mask result is complete on the full GSM8K test set. The 30\% and 40\% rows currently show 50-example smoke metrics while full evaluations are running.
+Table~\ref{tab:phase19_mask} shows the Phase 19 mask-control results on the full GSM8K test set. The 20\% mask is near dense, while 30\% and 40\% define the degradation boundary.
 
 \begin{table}[h]
 \centering
-\caption{Phase 19 dense-shaped mask controls on Mistral-7B. Full GSM8K uses 1,319 examples; smoke rows use 50 examples and are marked accordingly.}
+\caption{Phase 19 dense-shaped mask controls on Mistral-7B. Full GSM8K uses all 1,319 test examples.}
 \label{tab:phase19_mask}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -65,8 +65,8 @@ Table~\ref{tab:phase19_mask} shows the current Phase 19 mask-control results. Th
 \midrule
 Dense Mistral-7B & 0.0\% & 8.013 & 1319 & 38.67\% & 0.00 \\
 Mask pruning & 20.0\% & 8.195 & 1319 & 37.23\% & -1.44 \\
-Mask pruning & 30.0\% & 8.586 & 50 & 36.00\% & smoke \\
-Mask pruning & 40.0\% & 9.538 & 50 & 28.00\% & smoke \\
+Mask pruning & 30.0\% & 8.586 & 1319 & 31.77\% & -6.90 \\
+Mask pruning & 40.0\% & 9.538 & 1319 & 23.88\% & -14.78 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -86,7 +86,7 @@ The paired structural runs show the opposite behavior. Phase 18B structural widt
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/phase19_reasoning_dissociation.png}
-\caption{C4 perplexity versus GSM8K strict exact match for dense, dense-shaped mask, and structural width pruning controls. The current full 20\% mask point remains near dense, while structural width points fall away rapidly. Full 30\% and 40\% mask evaluations are running and will replace the smoke annotations once complete.}
+\caption{C4 perplexity versus GSM8K strict exact match for dense, dense-shaped mask, and structural width pruning controls. The full 20\% mask point remains near dense, 30\% marks the mask-retention boundary, and structural width points fall away much earlier.}
 \label{fig:phase19_dissociation}
 \end{figure}
 
@@ -100,9 +100,9 @@ This has two implications for efficient reasoning:
     \item Hardware speedups should be pursued only after identifying structural transformations that preserve the reasoning-retained subspace exposed by the mask control.
 \end{enumerate}
 
-\section{Next Evidence}
+\section{Boundary Evidence}
 
-Two full GSM8K evaluations are currently running for 30\% and 40\% dense-shaped masks. If the 30\% mask remains near dense, the paper can claim a broad mask-retention regime. If 30\% degrades but 20\% remains near dense, the paper still establishes a thresholded dissociation: structural pruning fails substantially earlier than dense-shaped masking. An adaptive boundary run is queued to evaluate either 35\% or 25\% next, depending on the completed 30\% result.
+The 30\% and 40\% full evaluations show that the dense-shaped mask control is not trivially insensitive to sparsity. The 30\% mask reaches 31.77\% strict exact match, a 6.90 point drop from dense, while the 40\% mask reaches 23.88\%, a 14.78 point drop. Because structural width pruning fails at much lower sparsity, the result supports a thresholded dissociation: dense-shaped weight removal preserves reasoning up to about 20\%, but structural geometry changes damage reasoning far earlier. A 25\% adaptive boundary run is the next refinement point.
 
 \section{Conclusion}
 

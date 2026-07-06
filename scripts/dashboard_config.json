@@ -88,7 +88,7 @@
       "Agent",
       "Phase 19 full validation",
       "now",
-      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% full GSM8K are running, with an adaptive boundary run queued."
+      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active."
     ],
     [
       "Agent",

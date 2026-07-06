@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 13:10 UTC</span>
+    <span class="nav-meta">2026-07-06 13:29 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -121,7 +121,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <div class="hero-chips">
       <span class="chip chip-blue">Phase 19 validation</span>
       <span class="chip chip-green">9/11 runs complete</span>
-      <span class="chip chip-yellow">74 experiment files</span>
+      <span class="chip chip-yellow">76 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -258,9 +258,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td class="task-who">Phase 19 mask (s30)</td>
           <td>30.0%</td>
           <td>29.9%</td>
-          <td>50 <span class="muted">(smoke)</span></td>
-          <td>36.0%</td>
-          <td><span class='b b-neg'>-8.0 pt</span></td>
+          <td>1319 <span class="muted">(full)</span></td>
+          <td>31.8%</td>
+          <td><span class='b b-neg'>-6.9 pt</span></td>
           <td>8.586</td>
           <td>32.38</td>
           <td class="task-action">C4-matched to structural 5%, but retains more GSM8K reasoning.</td>
@@ -270,9 +270,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td class="task-who">Phase 19 mask (s40)</td>
           <td>40.0%</td>
           <td>39.9%</td>
-          <td>50 <span class="muted">(smoke)</span></td>
-          <td>28.0%</td>
-          <td><span class='b b-neg'>-16.0 pt</span></td>
+          <td>1319 <span class="muted">(full)</span></td>
+          <td>23.9%</td>
+          <td><span class='b b-neg'>-14.8 pt</span></td>
           <td>9.538</td>
           <td>32.76</td>
           <td class="task-action">Mask boundary: reasoning starts to collapse once C4 also degrades.</td>
@@ -689,7 +689,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
-<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% full GSM8K are running, with an adaptive boundary run queued.</td></tr>
+<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% drop to 31.8% and 23.9%, so the adaptive 25% boundary run is now active.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
 <td><span class='pill p-next'>next</span></td><td class="task-action">Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>

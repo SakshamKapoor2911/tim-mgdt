@@ -35,11 +35,12 @@ Current strongest claim:
 - 20% dense-shaped mask full GSM8K: 37.23% strict EM.
 - Delta: -1.44 points.
 - Chain-length sanity: 20% mask average generation length is 57.05 words versus 56.58 for dense.
+- Boundary: 30% and 40% dense-shaped masks fall to 31.77% and 23.88% strict EM on full GSM8K.
 
 Current caveat:
 
-- 30% and 40% mask full GSM8K are still running.
-- Phase 20 mask-guided structured pruning is queued as the hardware-relevant follow-up.
+- The result is thresholded, not broad: 20% is the safe dense-shaped mask point; 30% is already outside the near-dense regime.
+- A 25% adaptive boundary run is active, and Phase 20 mask-guided structured pruning remains the hardware-relevant follow-up.
 
 ## Presentation Constraint
 
@@ -62,7 +63,7 @@ Saksham Kapoor
 
 ## Next Decision Gate
 
-1. If 30% mask full GSM8K stays within about 3 points of dense, frame the paper as a broad dense-shaped mask retention regime.
-2. If 30% drops but 20% remains strong, frame the paper as a thresholded structural-geometry dissociation.
+1. If 25% remains near dense, frame the mask-retention threshold between 25% and 30%.
+2. If 25% degrades materially, frame 20% as the safe point and 30% as the first full-test boundary failure.
 3. If Phase 20 finds any mask-guided structured point that beats uniform structural pruning at similar sparsity, elevate it from diagnostic workshop paper to method paper.
 4. If organizers do not allow remote presentation or a workable proxy, keep COLM ER as a technical fit but prioritize another hybrid/remote-friendly workshop.
