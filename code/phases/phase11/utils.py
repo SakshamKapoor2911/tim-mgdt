@@ -243,6 +243,53 @@ def apply_layerwise_pruning(model: nn.Module, sparsity: float) -> int:
     return modules_pruned
 
 
+def apply_global_magnitude_pruning(model: nn.Module, sparsity: float, steps: int = 32) -> tuple[int, float]:
+    """
+    Apply true global unstructured magnitude pruning to all Linear layers.
+
+    Unlike apply_layerwise_pruning, this computes one threshold across all
+    Linear weights. The threshold is found with count-only binary search to
+    avoid materializing every weight magnitude in one huge tensor.
+    """
+    linear_modules = [module for module in model.modules() if isinstance(module, nn.Linear)]
+    if sparsity <= 0:
+        return 0, 0.0
+    if not linear_modules:
+        return 0, 0.0
+
+    total = sum(module.weight.numel() for module in linear_modules)
+    target = int(total * sparsity)
+    if target <= 0:
+        return 0, 0.0
+
+    with torch.no_grad():
+        high = 0.0
+        for module in linear_modules:
+            high = max(high, float(module.weight.data.abs().max().item()))
+
+        low = 0.0
+        for _ in range(steps):
+            mid = (low + high) / 2.0
+            count = 0
+            for module in linear_modules:
+                count += int((module.weight.data.abs() <= mid).sum().item())
+            if count < target:
+                low = mid
+            else:
+                high = mid
+
+        threshold = high
+        modules_pruned = 0
+        for module in linear_modules:
+            weight = module.weight.data
+            mask = weight.abs() > threshold
+            if not bool(mask.all().item()):
+                weight.mul_(mask)
+                modules_pruned += 1
+
+    return modules_pruned, threshold
+
+
 # Backward-compatible alias
 apply_global_pruning = apply_layerwise_pruning
 

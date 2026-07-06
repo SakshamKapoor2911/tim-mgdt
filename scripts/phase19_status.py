@@ -257,6 +257,11 @@ def main():
         active_session="phase22_cross_model_smoke",
     )
     print_log_tail(
+        "phase23",
+        "experiments/phase23_global_unstructured/run_logs/global_s20_*.log",
+        active_session="phase23_global_s20",
+    )
+    print_log_tail(
         "publish",
         "experiments/publish_logs/publish_queue_*.log",
         active_session="experiment_publish_queue",

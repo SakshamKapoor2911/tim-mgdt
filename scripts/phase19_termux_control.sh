@@ -14,10 +14,11 @@ Usage:
   bash scripts/phase19_termux_control.sh status
   bash scripts/phase19_termux_control.sh ensure
   bash scripts/phase19_termux_control.sh queue-phase20
+  bash scripts/phase19_termux_control.sh queue-phase23
   bash scripts/phase19_termux_control.sh publish
   bash scripts/phase19_termux_control.sh queue-publish
   bash scripts/phase19_termux_control.sh monitor [seconds]
-  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|phase20-gpu1|phase21|phase22|publish]
+  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|phase20-gpu1|phase21|phase22|phase23|publish]
   bash scripts/phase19_termux_control.sh attach [tmux-session-name]
 
 Run this on the GPU host after SSHing in from Termux. Termux is the control
@@ -45,6 +46,10 @@ has_boundary_result() {
 
 has_phase20_result() {
     compgen -G "$REPO/experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*.json" >/dev/null
+}
+
+has_phase23_result() {
+    compgen -G "$REPO/experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full_*.json" >/dev/null
 }
 
 start_full_eval() {
@@ -115,6 +120,29 @@ start_phase20_queue() {
         "cd '$REPO' && bash code/phases/phase20_mask_guided/run_after_phase19.sh > '$log' 2>&1"
 }
 
+start_phase23_global() {
+    local session="phase23_global_s20"
+    local log_dir="$REPO/experiments/phase23_global_unstructured/run_logs"
+    local stamp
+    local log
+
+    mkdir -p "$log_dir"
+    if session_exists "$session"; then
+        echo "$session already running"
+        return
+    fi
+    if has_phase23_result && [[ "${FORCE_PHASE23:-0}" != "1" ]]; then
+        echo "phase23 global full result already exists; set FORCE_PHASE23=1 to queue again"
+        return
+    fi
+
+    stamp="$(timestamp)"
+    log="$log_dir/global_s20_${stamp}.log"
+    echo "starting $session; log: $log"
+    tmux new-session -d -s "$session" \
+        "cd '$REPO' && RUN_LABEL='full_${stamp}' PRUNE_GPU='${PRUNE_GPU:-0}' EVAL_GPU='${EVAL_GPU:-1}' bash code/phases/phase23_global_unstructured/run_global_s20.sh > '$log' 2>&1"
+}
+
 start_publish_queue() {
     local session="experiment_publish_queue"
     local log_dir="$REPO/experiments/publish_logs"
@@ -168,6 +196,7 @@ latest_log_for() {
         phase20-gpu1) pattern="$REPO/experiments/phase20_mask_guided/run_logs/phase20_gpu1_*.log" ;;
         phase21) pattern="$REPO/experiments/phase21_aux_reasoning/run_logs/aux_gpu1_*.log" ;;
         phase22) pattern="$REPO/experiments/phase22_cross_model/run_logs/cross_model_*.log" ;;
+        phase23) pattern="$REPO/experiments/phase23_global_unstructured/run_logs/global_s20_*.log" ;;
         publish) pattern="$REPO/experiments/publish_logs/publish_queue_*.log" ;;
         *) return 1 ;;
     esac
@@ -197,6 +226,7 @@ case "$cmd" in
     status) status "$@" ;;
     ensure) ensure "$@" ;;
     queue-phase20) start_phase20_queue "$@" ;;
+    queue-phase23) start_phase23_global "$@" ;;
     publish) bash scripts/publish_experiment_updates.sh "$@" ;;
     queue-publish) start_publish_queue "$@" ;;
     monitor) monitor "$@" ;;

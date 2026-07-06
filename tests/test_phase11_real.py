@@ -26,7 +26,12 @@ from code.phases.phase11.stage1_structured_pruning import run_stage1
 from code.phases.phase11.stage2_imp_search import run_stage2
 from code.phases.phase11.stage3_causal_patching import run_stage3
 from code.phases.phase11.stage4_activation_healing import run_stage4
-from code.phases.phase11.utils import get_device, get_model_config
+from code.phases.phase11.utils import (
+    apply_global_magnitude_pruning,
+    apply_layerwise_pruning,
+    get_device,
+    get_model_config,
+)
 
 
 class TinyBatch(dict):
@@ -142,6 +147,32 @@ def fast_perplexity(model, tokenizer, device, max_samples=2, batch_size=1, **kwa
 
 def fast_latency(model, tokenizer, device, **kwargs):
     return 1.0
+
+
+class TestPruningScopes(unittest.TestCase):
+    def test_global_pruning_uses_single_cross_layer_threshold(self):
+        layerwise_model = nn.Sequential(
+            nn.Linear(4, 1, bias=False),
+            nn.Linear(4, 1, bias=False),
+        )
+        global_model = nn.Sequential(
+            nn.Linear(4, 1, bias=False),
+            nn.Linear(4, 1, bias=False),
+        )
+        with torch.no_grad():
+            for model in (layerwise_model, global_model):
+                model[0].weight.copy_(torch.tensor([[1.0, 2.0, 3.0, 4.0]]))
+                model[1].weight.copy_(torch.tensor([[100.0, 200.0, 300.0, 400.0]]))
+
+        apply_layerwise_pruning(layerwise_model, 0.5)
+        modules_pruned, threshold = apply_global_magnitude_pruning(global_model, 0.5)
+
+        self.assertEqual(modules_pruned, 1)
+        self.assertGreater(threshold, 0)
+        self.assertEqual(int((layerwise_model[0].weight == 0).sum().item()), 1)
+        self.assertEqual(int((layerwise_model[1].weight == 0).sum().item()), 1)
+        self.assertEqual(int((global_model[0].weight == 0).sum().item()), 4)
+        self.assertEqual(int((global_model[1].weight == 0).sum().item()), 0)
 
 
 class TestPhase11FastPipeline(unittest.TestCase):

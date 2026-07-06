@@ -18,6 +18,7 @@ import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from code.phases.phase11.utils import (
+    apply_global_magnitude_pruning,
     apply_layerwise_pruning,
     compute_perplexity_c4,
     get_device,
@@ -83,6 +84,7 @@ def main() -> None:
     parser.add_argument("--eval_samples", type=int, default=64)
     parser.add_argument("--output_dir", type=str, default="experiments/phase19")
     parser.add_argument("--output_suffix", type=str, default="")
+    parser.add_argument("--mask_scope", choices=["layerwise", "global"], default="layerwise")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -111,8 +113,13 @@ def main() -> None:
     print(f"Baseline C4 PPL: {baseline_c4:.4f}")
     print(f"Baseline generation: {baseline_tps:.2f} tok/s")
 
-    print(f"Applying layerwise magnitude mask at sparsity={args.sparsity:.4f}...")
-    modules_pruned = apply_layerwise_pruning(model, args.sparsity)
+    threshold = None
+    if args.mask_scope == "global":
+        print(f"Applying global magnitude mask at sparsity={args.sparsity:.4f}...")
+        modules_pruned, threshold = apply_global_magnitude_pruning(model, args.sparsity)
+    else:
+        print(f"Applying layerwise magnitude mask at sparsity={args.sparsity:.4f}...")
+        modules_pruned = apply_layerwise_pruning(model, args.sparsity)
     sparsity_stats = count_linear_sparsity(model)
     print(
         "Actual linear sparsity: "
@@ -136,7 +143,9 @@ def main() -> None:
 
     results = {
         "model": args.model,
-        "method": "layerwise_unstructured_magnitude_mask",
+        "method": f"{args.mask_scope}_unstructured_magnitude_mask",
+        "mask_scope": args.mask_scope,
+        "global_threshold": threshold,
         "target_sparsity": args.sparsity,
         "eval_samples": args.eval_samples,
         "modules_pruned": modules_pruned,
