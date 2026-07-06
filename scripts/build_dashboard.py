@@ -697,7 +697,7 @@ def _phase19_mask_readout(tag, strict, c4, dense_strict=None):
     if dense_strict is not None and tag == "s20":
         drop_pts = (strict - dense_strict) * 100
         if drop_pts >= -2.1:
-            return "Full/smoke result is within about 2 points of dense; strongest positive control."
+            return "Result is within about 2 points of dense; strongest positive control."
         return "Best mask point so far, but full validation shows a measurable dense gap."
     if tag == "s20":
         return "Near-dense GSM8K at 20% mask sparsity; strongest positive control."

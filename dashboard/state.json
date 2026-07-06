@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-06T06:12:44.754521+00:00Z",
+  "generated_at": "2026-07-06T06:12:55.694035+00:00Z",
   "project": "TIM-MGDT",
-  "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "current_phase": "Phase 19 validation",
-  "phase_status": "Phase 19 Validation: Mask-vs-structural reasoning retention",
-  "total_experiments": 71,
+  "tagline": "",
+  "current_phase": "Phase 18B",
+  "phase_status": "",
+  "total_experiments": 73,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
@@ -41,190 +41,13 @@
     "healed_memory_gb": 13.49839448928833,
     "perplexity_recovery_pct": -1149.9286492566166
   },
-  "research_question": "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?",
-  "overview": [
-    {
-      "title": "What we're building",
-      "body": "A structured pruning + activation healing pipeline (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity."
-    },
-    {
-      "title": "Why this matters",
-      "body": "Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention."
-    },
-    {
-      "title": "Where we are today",
-      "body": "Phase 19 validation. Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 42% GSM8K on the 50-sample smoke set versus 44% dense."
-    }
-  ],
-  "decisions": [
-    {
-      "topic": "Architecture Choice",
-      "choice": "Mistral-7B-v0.1 Focus",
-      "rationale": "We shifted focus to Mistral-7B and Llama-3-class architectures, where compression failures are meaningful for modern reasoning deployments."
-    },
-    {
-      "topic": "Current Finding",
-      "choice": "C4 PPL is not enough",
-      "rationale": "Phase 18B and Phase 19 now form a controlled contrast: C4-matched structural and masked models can have very different GSM8K retention."
-    },
-    {
-      "topic": "Hardware Alignment",
-      "choice": "Ceil/Floor Tensor Core Rounding",
-      "rationale": "To ensure theoretical FLOP reductions translate to physical speedups, we round pruned MLP dimensions to nearest 64 (Tensor Core alignment) via specific ceil/floor strategies."
-    }
-  ],
-  "tasks": [
-    {
-      "who": "Agent",
-      "track": "Phase 19 full validation",
-      "status": "now",
-      "next_action": "Run full GSM8K for the 20% mask checkpoint and compare against dense and structural full-eval baselines."
-    },
-    {
-      "who": "Agent",
-      "track": "Dashboard and paper hygiene",
-      "status": "next",
-      "next_action": "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
-    },
-    {
-      "who": "Agent",
-      "track": "Venue filter",
-      "status": "next",
-      "next_action": "Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission."
-    }
-  ],
-  "milestones": [
-    {
-      "status": "done",
-      "description": "Phase 12: Proxy validation, Memory Wall proof"
-    },
-    {
-      "status": "done",
-      "description": "Phase 14: Final pipeline execution (Mistral-7B LoRA healing)"
-    },
-    {
-      "status": "done",
-      "description": "Phase 15: True Layer Dropping and Boundary Healing"
-    },
-    {
-      "status": "now",
-      "description": "Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL"
-    },
-    {
-      "status": "done",
-      "description": "Phase 17/18: Contrastive and non-uniform probes failed smoke tests"
-    },
-    {
-      "status": "now",
-      "description": "Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility"
-    },
-    {
-      "status": "now",
-      "description": "Phase 19: 20-30% dense-shaped masks preserve more GSM8K than C4-matched structural width pruning"
-    },
-    {
-      "status": "planned",
-      "description": "COLM Actionable Interpretability paper submission with flawless GSM8K ablations"
-    }
-  ],
-  "bulletproofing": [
-    {
-      "status": "done",
-      "item": "Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds."
-    },
-    {
-      "status": "done",
-      "item": "C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16."
-    },
-    {
-      "status": "now",
-      "item": "20% mask pruning cleared the smoke threshold and is running full GSM8K validation."
-    },
-    {
-      "status": "planned",
-      "item": "Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups."
-    }
-  ],
-  "path_to_paper": [
-    {
-      "status": "now",
-      "owner": "Agent",
-      "item": "Phase 19: Validate the mask-vs-structural control with full GSM8K at the 20% mask point."
-    },
-    {
-      "status": "today",
-      "owner": "Agent",
-      "item": "Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%."
-    },
-    {
-      "status": "now",
-      "owner": "Agent",
-      "item": "Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants."
-    },
-    {
-      "status": "planned",
-      "owner": "Agent",
-      "item": "Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result."
-    },
-    {
-      "status": "planned",
-      "owner": "Agent",
-      "item": "Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting."
-    },
-    {
-      "status": "planned",
-      "owner": "Saksham",
-      "item": "Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints."
-    }
-  ],
-  "runs": [
-    {
-      "label": "Phase 11 \u2014 Llama-3 & Mistral-7B baseline eval",
-      "state": "done"
-    },
-    {
-      "label": "Phase 12 \u2014 Hardware Memory Wall discovery",
-      "state": "done"
-    },
-    {
-      "label": "Phase 13 \u2014 Ablation & Hardening",
-      "state": "done"
-    },
-    {
-      "label": "Phase 14 \u2014 Bulletproof LoRA Healing pipeline",
-      "state": "done"
-    },
-    {
-      "label": "Phase 15 \u2014 True Layer Dropping & Boundary Healing",
-      "state": "done"
-    },
-    {
-      "label": "Phase 16 \u2014 Hardware-Aware Width Pruning Ablation",
-      "state": "done (failed: logic collapsed)"
-    },
-    {
-      "label": "Phase 17 \u2014 Contrastive Circuit Sparing",
-      "state": "done (failed smoke)"
-    },
-    {
-      "label": "Phase 18 \u2014 Sensitivity-Guided Non-Uniform Mask",
-      "state": "done (diagnostic only)"
-    },
-    {
-      "label": "Phase 18B \u2014 Structural Uniform Sweep",
-      "state": "done (negative)"
-    },
-    {
-      "label": "Phase 19 \u2014 Mask-vs-Structural Control",
-      "state": "now"
-    },
-    {
-      "label": "Phase 3 \u2014 Feedback Distillation",
-      "state": "planned"
-    }
-  ],
-  "links": {
-    "Repository": "https://github.com/SakshamKapoor2911/tim-mgdt",
-    "Paper Draft": "https://github.com/SakshamKapoor2911/tim-mgdt/blob/subnetwork-pruning-depth-width/paper/main.tex"
-  }
+  "research_question": "",
+  "overview": [],
+  "decisions": [],
+  "tasks": [],
+  "milestones": [],
+  "bulletproofing": [],
+  "path_to_paper": [],
+  "runs": [],
+  "links": {}
 }

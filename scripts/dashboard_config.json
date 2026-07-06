@@ -1,4 +1,4 @@
-{
+2{
   "TAGLINE": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "CURRENT_PHASE": "Phase 19 validation",
   "OVERVIEW": [
@@ -12,7 +12,7 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 42% GSM8K on the 50-sample smoke set versus 44% dense."
+      "<b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 37.2% full GSM8K versus 38.7% dense."
     ]
   ],
   "RESEARCH_Q": [
@@ -87,8 +87,8 @@
     [
       "Agent",
       "Phase 19 full validation",
-      "now",
-      "Run full GSM8K for the 20% mask checkpoint and compare against dense and structural full-eval baselines."
+      "done",
+      "20% mask full GSM8K finished at 37.2% strict EM versus 38.7% dense, a -1.4 point gap at 20% dense-shaped sparsity."
     ],
     [
       "Agent",
@@ -127,8 +127,8 @@
       "C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16."
     ],
     [
-      "now",
-      "20% mask pruning cleared the smoke threshold and is running full GSM8K validation."
+      "done",
+      "20% mask pruning completed full GSM8K validation within 1.4 points of dense."
     ],
     [
       "planned",
@@ -149,7 +149,7 @@
       "Phase 15: True Layer Dropping and Boundary Healing"
     ],
     [
-      "now",
+      "done",
       "Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL"
     ],
     [
@@ -157,23 +157,23 @@
       "Phase 17/18: Contrastive and non-uniform probes failed smoke tests"
     ],
     [
-      "now",
+      "done",
       "Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility"
     ],
     [
-      "now",
-      "Phase 19: 20-30% dense-shaped masks preserve more GSM8K than C4-matched structural width pruning"
+      "done",
+      "Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense"
     ],
     [
       "planned",
-      "COLM Actionable Interpretability paper submission with flawless GSM8K ablations"
+      "COLM Efficient Reasoning workshop submission, gated on confirmed remote presentation policy"
     ]
   ],
   "PATH_TO_PAPER": [
     [
-      "now",
+      "done",
       "Agent",
-      "Phase 19: Validate the mask-vs-structural control with full GSM8K at the 20% mask point."
+      "Phase 19: Full GSM8K confirmed the 20% mask-vs-structural control."
     ],
     [
       "today",
