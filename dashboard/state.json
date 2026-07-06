@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-06T13:04:05.954770+00:00Z",
+  "generated_at": "2026-07-06T13:10:09.878919+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 19 validation",
@@ -77,20 +77,20 @@
     {
       "who": "Agent",
       "track": "Phase 19 full validation",
-      "status": "done",
-      "next_action": "20% mask full GSM8K finished at 37.2% strict EM versus 38.7% dense, a -1.4 point gap at 20% dense-shaped sparsity."
+      "status": "now",
+      "next_action": "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% full GSM8K are running, with an adaptive boundary run queued."
     },
     {
       "who": "Agent",
-      "track": "Dashboard and paper hygiene",
+      "track": "Phase 20 structural follow-up",
       "status": "next",
-      "next_action": "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
+      "next_action": "Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning."
     },
     {
       "who": "Agent",
       "track": "Venue filter",
       "status": "next",
-      "next_action": "Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission."
+      "next_action": "Use COLM Efficient Reasoning as the technical target, but confirm remote or proxy presentation before committing to that venue because the workshop page says hybrid while the COLM FAQ is in-person-first."
     }
   ],
   "milestones": [
@@ -124,7 +124,11 @@
     },
     {
       "status": "planned",
-      "description": "COLM Efficient Reasoning workshop submission, gated on confirmed remote presentation policy"
+      "description": "Phase 20: mask-guided structural pruning queued as the hardware-relevant follow-up"
+    },
+    {
+      "status": "planned",
+      "description": "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     }
   ],
   "bulletproofing": [
@@ -164,12 +168,12 @@
     {
       "status": "planned",
       "owner": "Agent",
-      "item": "Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result."
+      "item": "Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish."
     },
     {
       "status": "planned",
       "owner": "Agent",
-      "item": "Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting."
+      "item": "Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy."
     },
     {
       "status": "planned",
@@ -219,8 +223,8 @@
       "state": "now"
     },
     {
-      "label": "Phase 3 \u2014 Feedback Distillation",
-      "state": "planned"
+      "label": "Phase 20 \u2014 Mask-guided Structural Follow-up",
+      "state": "queued"
     }
   ],
   "links": {

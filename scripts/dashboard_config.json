@@ -62,8 +62,8 @@
       "now"
     ],
     [
-      "Phase 3 \u2014 Feedback Distillation",
-      "planned"
+      "Phase 20 \u2014 Mask-guided Structural Follow-up",
+      "queued"
     ]
   ],
   "DECISIONS": [
@@ -87,20 +87,20 @@
     [
       "Agent",
       "Phase 19 full validation",
-      "done",
-      "20% mask full GSM8K finished at 37.2% strict EM versus 38.7% dense, a -1.4 point gap at 20% dense-shaped sparsity."
+      "now",
+      "20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% full GSM8K are running, with an adaptive boundary run queued."
     ],
     [
       "Agent",
-      "Dashboard and paper hygiene",
+      "Phase 20 structural follow-up",
       "next",
-      "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
+      "Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning."
     ],
     [
       "Agent",
       "Venue filter",
       "next",
-      "Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission."
+      "Use COLM Efficient Reasoning as the technical target, but confirm remote or proxy presentation before committing to that venue because the workshop page says hybrid while the COLM FAQ is in-person-first."
     ]
   ],
   "HOW_WE_WORK": [
@@ -166,7 +166,11 @@
     ],
     [
       "planned",
-      "COLM Efficient Reasoning workshop submission, gated on confirmed remote presentation policy"
+      "Phase 20: mask-guided structural pruning queued as the hardware-relevant follow-up"
+    ],
+    [
+      "planned",
+      "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     ]
   ],
   "PATH_TO_PAPER": [
@@ -188,12 +192,12 @@
     [
       "planned",
       "Agent",
-      "Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result."
+      "Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish."
     ],
     [
       "planned",
       "Agent",
-      "Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting."
+      "Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy."
     ],
     [
       "planned",

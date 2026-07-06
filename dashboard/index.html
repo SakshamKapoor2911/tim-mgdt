@@ -101,19 +101,13 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="nav-links">
     <a href="#overview">Overview</a>
     <a href="#current">Current Probe</a>
-    <a href="#phase15">Phase 15 (Results)</a>
-    <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase17">Mechanistic</a>
-    <a href="#phase14">Phase 14 (Legacy)</a>
-    <a href="#results">Phase 11 Baseline</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
-    <a href="#milestones">Milestones</a>
     <a href="#path">Path to Paper</a>
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 13:04 UTC</span>
+    <span class="nav-meta">2026-07-06 13:10 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -673,7 +667,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 18 — Sensitivity-Guided Non-Uniform Mask</td><td><span class='pill p-done'>done (diagnostic only)</span></td></tr>
 <tr><td>Phase 18B — Structural Uniform Sweep</td><td><span class='pill p-done'>done (negative)</span></td></tr>
 <tr><td>Phase 19 — Mask-vs-Structural Control</td><td><span class='pill p-now'>now</span></td></tr>
-<tr><td>Phase 3 — Feedback Distillation</td><td><span class='pill p-queued'>planned</span></td></tr>
+<tr><td>Phase 20 — Mask-guided Structural Follow-up</td><td><span class='pill p-queued'>queued</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -695,11 +689,11 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
-<td><span class='pill p-done'>done</span></td><td class="task-action">20% mask full GSM8K finished at 37.2% strict EM versus 38.7% dense, a -1.4 point gap at 20% dense-shaped sparsity.</td></tr>
-<tr><td class="task-who">Agent<br><span class="task-track">Dashboard and paper hygiene</span></td>
-<td><span class='pill p-next'>next</span></td><td class="task-action">Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure.</td></tr>
+<td><span class='pill p-now'>now</span></td><td class="task-action">20% mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense; 30% and 40% full GSM8K are running, with an adaptive boundary run queued.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Run the mask-guided structural sweep after Phase 19 finishes to test whether the dense-mask signal can produce hardware-relevant pruning.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>
-<td><span class='pill p-next'>next</span></td><td class="task-action">Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission.</td></tr>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Use COLM Efficient Reasoning as the technical target, but confirm remote or proxy presentation before committing to that venue because the workshop page says hybrid while the COLM FAQ is in-person-first.</td></tr>
 
 </table></div></div>
   <div class="section-label">How we work</div><div class="g2"><div class='card'><div class='card-title'>Compute</div><p><b>2×3090 (48 GB VRAM total)</b> locally + External Remote Endpoint.</p></div>
@@ -724,7 +718,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 17/18: Contrastive and non-uniform probes failed smoke tests</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense</div></div>
-<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote presentation policy</div></div>
+<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: mask-guided structural pruning queued as the hardware-relevant follow-up</div></div>
+<div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">
 <div class="section-label">Path to paper</div>
@@ -734,8 +729,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 19: Full GSM8K confirmed the 20% mask-vs-structural control.</td></tr>
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` around the final Phase 19 boundary and Phase 20 structural result once the queued runs finish.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 
 </table></div></div>

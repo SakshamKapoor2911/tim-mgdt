@@ -1148,14 +1148,8 @@ def build_html(experiments, metrics):
   <div class="nav-links">
     <a href="#overview">Overview</a>
     <a href="#current">Current Probe</a>
-    <a href="#phase15">Phase 15 (Results)</a>
-    <a href="#pareto">Pareto Frontier</a>
-    <a href="#phase17">Mechanistic</a>
-    <a href="#phase14">Phase 14 (Legacy)</a>
-    <a href="#results">Phase 11 Baseline</a>
     <a href="#decisions">Decisions</a>
     <a href="#tasks">Tasks</a>
-    <a href="#milestones">Milestones</a>
     <a href="#path">Path to Paper</a>
     <a href="#literature">Literature</a>
   </div>
