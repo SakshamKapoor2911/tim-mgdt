@@ -1,6 +1,6 @@
 {
   "TAGLINE": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "CURRENT_PHASE": "Phase 18B planning",
+  "CURRENT_PHASE": "Phase 19 validation",
   "OVERVIEW": [
     [
       "What we're building",
@@ -12,14 +12,14 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 18B planning.</b> Phase 17 contrastive sparing and Phase 18 non-uniform masking both failed 50-sample GSM8K smoke tests. The next experiment should be a true structural, sensitivity-guided sparsity sweep at 5%, 10%, 15%, and 20% before any full GSM8K run."
+      "<b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 42% GSM8K on the 50-sample smoke set versus 44% dense."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
-    "What is the highest <b>structural MLP-width sparsity</b> that preserves Mistral-7B's 5-shot GSM8K reasoning, and which layer-sensitivity rule explains that boundary?"
+    "Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?"
   ],
-  "PHASE": "Phase 18B Planning: Structural sensitivity-guided sparsity sweep",
+  "PHASE": "Phase 19 Validation: Mask-vs-structural reasoning retention",
   "RUNS": [
     [
       "Phase 11 \u2014 Llama-3 & Mistral-7B baseline eval",
@@ -54,8 +54,12 @@
       "done (diagnostic only)"
     ],
     [
-      "Phase 18B \u2014 Structural Non-Uniform Sweep",
-      "next"
+      "Phase 18B \u2014 Structural Uniform Sweep",
+      "done (negative)"
+    ],
+    [
+      "Phase 19 \u2014 Mask-vs-Structural Control",
+      "now"
     ],
     [
       "Phase 3 \u2014 Feedback Distillation",
@@ -71,7 +75,7 @@
     [
       "Current Finding",
       "C4 PPL is not enough",
-      "Phase 16 width pruning gave plausible C4 metrics but destroyed GSM8K. Reasoning retention must be a first-class pruning metric, not a post-hoc check."
+      "Phase 18B and Phase 19 now form a controlled contrast: C4-matched structural and masked models can have very different GSM8K retention."
     ],
     [
       "Hardware Alignment",
@@ -82,15 +86,15 @@
   "TASKS": [
     [
       "Agent",
-      "Phase 18B implementation",
-      "next",
-      "Convert the Phase 18 non-uniform mask into real structural MLP slicing, then run 50-sample GSM8K smoke tests at 5%, 10%, 15%, and 20% global sparsity."
+      "Phase 19 full validation",
+      "now",
+      "Run full GSM8K for the 20% mask checkpoint and compare against dense and structural full-eval baselines."
     ],
     [
       "Agent",
       "Dashboard and paper hygiene",
       "next",
-      "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and update the paper only after a sweep finds a viable operating point."
+      "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
     ]
   ],
   "HOW_WE_WORK": [
@@ -118,11 +122,11 @@
     ],
     [
       "now",
-      "Do not run full GSM8K again until a 50-sample smoke test clears a meaningful threshold."
+      "20% mask pruning cleared the smoke threshold and is running full GSM8K validation."
     ],
     [
       "planned",
-      "Repair Phase 18 to produce real parameter-count reduction, not zero-masked dense checkpoints."
+      "Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups."
     ]
   ],
   "MILESTONES": [
@@ -148,7 +152,11 @@
     ],
     [
       "now",
-      "Phase 18B: Structural non-uniform sparsity sweep"
+      "Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility"
+    ],
+    [
+      "now",
+      "Phase 19: 20-30% dense-shaped masks preserve more GSM8K than C4-matched structural width pruning"
     ],
     [
       "planned",
@@ -159,7 +167,7 @@
     [
       "now",
       "Agent",
-      "Phase 18B: Implement structural non-uniform MLP slicing and run a low-cost sparsity sweep."
+      "Phase 19: Validate the mask-vs-structural control with full GSM8K at the 20% mask point."
     ],
     [
       "today",
@@ -174,7 +182,7 @@
     [
       "planned",
       "Agent",
-      "Update `paper/main.tex` only after Phase 18B identifies a non-collapsed operating point or proves none exists at useful sparsity."
+      "Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result."
     ],
     [
       "planned",

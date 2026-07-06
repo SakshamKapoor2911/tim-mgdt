@@ -113,7 +113,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 03:14 UTC</span>
+    <span class="nav-meta">2026-07-06 03:43 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -125,9 +125,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
-      <span class="chip chip-blue">Phase 18B planning</span>
-      <span class="chip chip-green">8/10 runs complete</span>
-      <span class="chip chip-yellow">66 experiment files</span>
+      <span class="chip chip-blue">Phase 19 validation</span>
+      <span class="chip chip-green">9/11 runs complete</span>
+      <span class="chip chip-yellow">72 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -138,10 +138,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 18B planning.</b> Phase 17 contrastive sparing and Phase 18 non-uniform masking both failed 50-sample GSM8K smoke tests. The next experiment should be a true structural, sensitivity-guided sparsity sweep at 5%, 10%, 15%, and 20% before any full GSM8K run.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 19 validation.</b> Uniform structural width pruning collapses GSM8K even at 1%, but dense-shaped magnitude masks preserve reasoning at much higher sparsity. The strongest current positive control is 20% mask sparsity with 42% GSM8K on the 50-sample smoke set versus 44% dense.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>What is the highest <b>structural MLP-width sparsity</b> that preserves Mistral-7B's 5-shot GSM8K reasoning, and which layer-sensitivity rule explains that boundary?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why does dense-shaped magnitude masking preserve Mistral-7B GSM8K reasoning at 20-30% sparsity while structural MLP-width pruning collapses at 1-5% despite similar C4 perplexity?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
 
@@ -229,6 +229,48 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         
 </table>
 <div class="rc-note">Smoke metrics use 5-shot GSM8K with <code>--limit 50</code>. They are for ranking directions before expensive full evaluations.</div>
+</div>
+
+<div class="section-label">Phase 19 mask control</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Target</th><th>Actual Linear Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+
+        <tr>
+          <td class="task-who">Phase 19 mask (s20)</td>
+          <td>20.0%</td>
+          <td>20.0%</td>
+          <td>50 <span class="muted">(smoke)</span></td>
+          <td>42.0%</td>
+          <td>8.195</td>
+          <td>33.18</td>
+          <td class="task-action">Near-dense GSM8K at 20% mask sparsity; strongest positive control.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 19 mask (s30)</td>
+          <td>30.0%</td>
+          <td>29.9%</td>
+          <td>50 <span class="muted">(smoke)</span></td>
+          <td>36.0%</td>
+          <td>8.586</td>
+          <td>32.38</td>
+          <td class="task-action">C4-matched to structural 5%, but retains more GSM8K reasoning.</td>
+        </tr>
+        
+        <tr>
+          <td class="task-who">Phase 19 mask (s40)</td>
+          <td>40.0%</td>
+          <td>39.9%</td>
+          <td>50 <span class="muted">(smoke)</span></td>
+          <td>28.0%</td>
+          <td>9.538</td>
+          <td>32.76</td>
+          <td class="task-action">Mask boundary: reasoning starts to collapse once C4 also degrades.</td>
+        </tr>
+        
+</table>
+<div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups, but they isolate whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
 </div>
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
@@ -610,7 +652,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 16 — Hardware-Aware Width Pruning Ablation</td><td><span class='pill p-done'>done (failed: logic collapsed)</span></td></tr>
 <tr><td>Phase 17 — Contrastive Circuit Sparing</td><td><span class='pill p-done'>done (failed smoke)</span></td></tr>
 <tr><td>Phase 18 — Sensitivity-Guided Non-Uniform Mask</td><td><span class='pill p-done'>done (diagnostic only)</span></td></tr>
-<tr><td>Phase 18B — Structural Non-Uniform Sweep</td><td><span class='pill p-next'>next</span></td></tr>
+<tr><td>Phase 18B — Structural Uniform Sweep</td><td><span class='pill p-done'>done (negative)</span></td></tr>
+<tr><td>Phase 19 — Mask-vs-Structural Control</td><td><span class='pill p-now'>now</span></td></tr>
 <tr><td>Phase 3 — Feedback Distillation</td><td><span class='pill p-queued'>planned</span></td></tr>
 
 </table></div>
@@ -622,7 +665,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td class="task-who">Architecture Choice</td><td><b>Mistral-7B-v0.1 Focus</b></td>
 <td class="task-action">We shifted focus to Mistral-7B and Llama-3-class architectures, where compression failures are meaningful for modern reasoning deployments.</td></tr>
 <tr><td class="task-who">Current Finding</td><td><b>C4 PPL is not enough</b></td>
-<td class="task-action">Phase 16 width pruning gave plausible C4 metrics but destroyed GSM8K. Reasoning retention must be a first-class pruning metric, not a post-hoc check.</td></tr>
+<td class="task-action">Phase 18B and Phase 19 now form a controlled contrast: C4-matched structural and masked models can have very different GSM8K retention.</td></tr>
 <tr><td class="task-who">Hardware Alignment</td><td><b>Ceil/Floor Tensor Core Rounding</b></td>
 <td class="task-action">To ensure theoretical FLOP reductions translate to physical speedups, we round pruned MLP dimensions to nearest 64 (Tensor Core alignment) via specific ceil/floor strategies.</td></tr>
 
@@ -632,10 +675,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
-<tr><td class="task-who">Agent<br><span class="task-track">Phase 18B implementation</span></td>
-<td><span class='pill p-next'>next</span></td><td class="task-action">Convert the Phase 18 non-uniform mask into real structural MLP slicing, then run 50-sample GSM8K smoke tests at 5%, 10%, 15%, and 20% global sparsity.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
+<td><span class='pill p-now'>now</span></td><td class="task-action">Run full GSM8K for the 20% mask checkpoint and compare against dense and structural full-eval baselines.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Dashboard and paper hygiene</span></td>
-<td><span class='pill p-next'>next</span></td><td class="task-action">Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and update the paper only after a sweep finds a viable operating point.</td></tr>
+<td><span class='pill p-next'>next</span></td><td class="task-action">Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure.</td></tr>
 
 </table></div></div>
   <div class="section-label">How we work</div><div class="g2"><div class='card'><div class='card-title'>Compute</div><p><b>2×3090 (48 GB VRAM total)</b> locally + External Remote Endpoint.</p></div>
@@ -649,8 +692,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><th>Status</th><th>Item</th></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>Multi-GPU OOM errors structurally prevented by parallelizing inference and sequentializing gradient bounds.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
-<tr><td><span class='pill p-now'>now</span></td><td>Do not run full GSM8K again until a 50-sample smoke test clears a meaningful threshold.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td>Repair Phase 18 to produce real parameter-count reduction, not zero-masked dense checkpoints.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td>20% mask pruning cleared the smoke threshold and is running full GSM8K validation.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td>Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups.</td></tr>
 
 </table></div>
   <div id="milestones"><div class="section-label">Milestones</div><div class="milestones"><div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 12: Proxy validation, Memory Wall proof</div></div>
@@ -658,7 +701,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 15: True Layer Dropping and Boundary Healing</div></div>
 <div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 16: Hardware-aligned width pruning failed GSM8K despite plausible C4 PPL</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 17/18: Contrastive and non-uniform probes failed smoke tests</div></div>
-<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Structural non-uniform sparsity sweep</div></div>
+<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
+<div class="mile"><div><span class='pill p-now'>now</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20-30% dense-shaped masks preserve more GSM8K than C4-matched structural width pruning</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Actionable Interpretability paper submission with flawless GSM8K ablations</div></div>
 </div></div>
   <div id="path">
@@ -666,10 +710,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Status</th><th>Owner</th><th>Item</th></tr>
-<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 18B: Implement structural non-uniform MLP slicing and run a low-cost sparsity sweep.</td></tr>
+<tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 19: Validate the mask-vs-structural control with full GSM8K at the 20% mask point.</td></tr>
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` only after Phase 18B identifies a non-collapsed operating point or proves none exists at useful sparsity.</td></tr>
+<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Update `paper/main.tex` around the mask-vs-structural dissociation once full GSM8K confirms the smoke result.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to COLM workshop.</td></tr>
 
 </table></div></div>

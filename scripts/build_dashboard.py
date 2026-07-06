@@ -698,6 +698,66 @@ def _phase18b_sweep_html():
 </div>"""
 
 
+def _phase19_mask_readout(tag, strict, c4):
+    if strict is None:
+        return "Awaiting GSM8K metric."
+    if tag == "s20":
+        return "Near-dense GSM8K at 20% mask sparsity; strongest positive control."
+    if tag == "s30":
+        return "C4-matched to structural 5%, but retains more GSM8K reasoning."
+    if tag == "s40":
+        return "Mask boundary: reasoning starts to collapse once C4 also degrades."
+    if c4 is not None and c4 < 8.4 and strict >= 0.38:
+        return "Promising mask point; candidate for full GSM8K validation."
+    return "Mask pruning control point."
+
+
+def _phase19_mask_html():
+    mask_paths = sorted(
+        glob.glob("experiments/phase19/Mistral-7B-v0.1_mask_pruning_s*.json"),
+        key=lambda p: (_load(p) or {}).get("target_sparsity", 1),
+    )
+    if not mask_paths:
+        return ""
+
+    rows = ""
+    for path in mask_paths:
+        data = _load(path) or {}
+        tag = Path(path).stem.split("_")[-1]
+        metric = _latest_gsm8k(f"experiments/phase19/gsm8k_eval_mask_{tag}*.json") or {}
+        target = data.get("target_sparsity")
+        actual = data.get("linear_sparsity")
+        strict = metric.get("strict")
+        c4 = data.get("masked_c4_ppl")
+        n = metric.get("n")
+        tps = data.get("masked_tps")
+        target_str = f"{target * 100:.1f}%" if target is not None else "—"
+        actual_str = f"{actual * 100:.1f}%" if actual is not None else "—"
+        full_badge = "full" if isinstance(n, (int, float)) and n > 100 else "smoke"
+        rows += f"""
+        <tr>
+          <td class="task-who">Phase 19 mask ({tag})</td>
+          <td>{target_str}</td>
+          <td>{actual_str}</td>
+          <td>{int(n) if n else "—"} <span class="muted">({full_badge})</span></td>
+          <td>{_pct(strict)}</td>
+          <td>{_float(c4)}</td>
+          <td>{_float(tps, 2)}</td>
+          <td class="task-action">{_phase19_mask_readout(tag, strict, c4)}</td>
+        </tr>
+        """
+
+    return f"""
+<div class="section-label">Phase 19 mask control</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Target</th><th>Actual Linear Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+{rows}
+</table>
+<div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups, but they isolate whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -754,6 +814,7 @@ def _width_pruning_html():
     return f"""
 <div class="section-label" id="current">Current pruning diagnostics</div>
 {_phase18b_sweep_html()}
+{_phase19_mask_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>
