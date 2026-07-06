@@ -3,7 +3,7 @@ Utility functions for Phase 11 — Real Pruning & Measurement Pipeline
 
 Contains the shared infrastructure used by all 4 stages:
   - compute_perplexity():  Wikitext-2 based perplexity measurement
-  - get_model_config():    Architecture introspection (handles GPT-2 / Llama / Mistral)
+  - get_model_config():    Architecture introspection for Llama/Mistral-style decoders
   - apply_global_pruning(): Unstructured L1 magnitude pruning via torch.nn.utils.prune
   - remove_global_pruning(): Restore original weight buffers after a pruning sweep
   - time_forward_pass():    Measure median latency of a single forward pass
@@ -56,8 +56,7 @@ def get_device() -> str:
 def get_model_config(model: nn.Module) -> Dict[str, Any]:
     """
     Introspect a loaded HuggingFace causal-LM model and return architecture
-    metadata.  Handles GPT-2 (model.transformer.h) and Llama/Mistral
-    (model.model.layers) families.
+    metadata for Llama/Mistral-style HuggingFace decoder families.
 
     Returns dict with keys:
         num_layers, num_heads, num_kv_heads, head_dim, hidden_size,
@@ -66,18 +65,7 @@ def get_model_config(model: nn.Module) -> Dict[str, Any]:
     num_params = sum(p.numel() for p in model.parameters())
     config = model.config
 
-    # Determine architecture family
-    if hasattr(model, "transformer") and hasattr(model.transformer, "h"):
-        # GPT-2 family
-        layers = model.transformer.h
-        num_layers = config.n_layer
-        num_heads = config.n_head
-        num_kv_heads = config.n_head  # GPT-2 uses standard MHA
-        hidden_size = config.n_embd
-        head_dim = hidden_size // num_heads
-        arch = "gpt2"
-    elif hasattr(model, "model") and hasattr(model.model, "layers"):
-        # Llama / Mistral family
+    if hasattr(model, "model") and hasattr(model.model, "layers"):
         layers = model.model.layers
         num_layers = config.num_hidden_layers
         num_heads = config.num_attention_heads
@@ -88,7 +76,7 @@ def get_model_config(model: nn.Module) -> Dict[str, Any]:
     else:
         raise ValueError(
             f"Unsupported architecture: {type(model).__name__}. "
-            "Expected GPT-2 (model.transformer.h) or Llama/Mistral (model.model.layers)."
+            "Expected a Llama/Mistral-style model with model.model.layers."
         )
 
     return {
@@ -106,10 +94,6 @@ def get_model_config(model: nn.Module) -> Dict[str, Any]:
 def get_model_n_layers(model_name: str) -> int:
     """Get number of transformer layers for a model by name (static lookup)."""
     model_configs = {
-        'gpt2': 12,
-        'gpt2-medium': 24,
-        'gpt2-large': 36,
-        'gpt2-xl': 48,
         'mistral-7b': 32,
         'llama-2-7b': 32,
         'llama-2-13b': 40,
