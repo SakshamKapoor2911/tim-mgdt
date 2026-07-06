@@ -9,9 +9,9 @@ import subprocess
 from pathlib import Path
 
 
-RUN_LOGS = {
-    "s30_full": "experiments/phase19/run_logs/gsm8k_s30_full_2026-07-06T12-05-47.log",
-    "s40_full": "experiments/phase19/run_logs/gsm8k_s40_full_2026-07-06T12-05-47.log",
+RUN_LOG_PATTERNS = {
+    "s30_full": "experiments/phase19/run_logs/gsm8k_s30_full_*.log",
+    "s40_full": "experiments/phase19/run_logs/gsm8k_s40_full_*.log",
 }
 
 
@@ -56,7 +56,14 @@ def best_metric(pattern):
     return sorted(candidates, key=lambda m: (m.get("n") or 0, os.path.getmtime(m["path"])))[-1]
 
 
+def latest_path(pattern):
+    paths = sorted(glob.glob(pattern), key=os.path.getmtime)
+    return paths[-1] if paths else None
+
+
 def parse_progress(path):
+    if not path:
+        return "missing log"
     log_path = Path(path)
     if not log_path.exists():
         return "missing log"
@@ -90,12 +97,25 @@ def latest_progress_in_log(path):
     return f"{done}/1319 ({pct}%), {timing}"
 
 
+def reference_for(metric, dense_full, dense_smoke):
+    if not metric:
+        return None, ""
+    n = metric.get("n") or 0
+    if n > 100 and dense_full:
+        return dense_full, "full"
+    if n <= 100 and dense_smoke:
+        return dense_smoke, "smoke"
+    if dense_full:
+        return dense_full, "full"
+    return dense_smoke, "smoke"
+
+
 def print_result_table():
     dense = best_metric("experiments/phase19/gsm8k_eval_baseline_full*.json")
-    dense_strict = dense.get("strict") if dense else None
+    dense_smoke = best_metric("experiments/phase18b/gsm8k_eval_baseline*.json")
     print("\nResults:")
-    print("tag     n       strict   flex     delta_vs_dense")
-    print("-----   -----   ------   ------   --------------")
+    print("tag     n       strict   flex     delta      ref")
+    print("-----   -----   ------   ------   --------   -----")
 
     def row(tag, metric):
         if not metric:
@@ -103,11 +123,13 @@ def print_result_table():
             return
         strict = metric.get("strict")
         flex = metric.get("flex")
-        delta = None if strict is None or dense_strict is None else (strict - dense_strict) * 100
+        ref, ref_name = reference_for(metric, dense, dense_smoke)
+        ref_strict = ref.get("strict") if ref else None
+        delta = None if strict is None or ref_strict is None else (strict - ref_strict) * 100
         delta_text = "" if delta is None else f"{delta:+.2f} pt"
         print(
             f"{tag:<7} {str(metric.get('n')):<7} "
-            f"{strict * 100:>6.2f}   {flex * 100:>6.2f}   {delta_text}"
+            f"{strict * 100:>6.2f}   {flex * 100:>6.2f}   {delta_text:<8}   {ref_name}"
         )
 
     row("dense", dense)
@@ -135,7 +157,8 @@ def main():
         )
 
     print("\nProgress:")
-    for name, path in RUN_LOGS.items():
+    for name, pattern in RUN_LOG_PATTERNS.items():
+        path = latest_path(pattern)
         print(f"{name}: {parse_progress(path)}")
 
     adaptive_logs = sorted(glob.glob("experiments/phase19/run_logs/adaptive_boundary_*.log"))

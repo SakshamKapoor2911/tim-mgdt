@@ -37,6 +37,19 @@ def best_gsm8k(pattern):
     return sorted(metrics, key=lambda m: (m.get("n") or 0, os.path.getmtime(m["path"])))[-1]
 
 
+def reference_for(metric, dense_full, dense_smoke):
+    if not metric:
+        return {}, ""
+    n = metric.get("n") or 0
+    if n > 100 and dense_full:
+        return dense_full, "full"
+    if n <= 100 and dense_smoke:
+        return dense_smoke, "smoke"
+    if dense_full:
+        return dense_full, "full"
+    return dense_smoke, "smoke"
+
+
 def pct(value):
     return "" if value is None else f"{value * 100:.2f}"
 
@@ -54,8 +67,16 @@ def collect_rows(exp_dir):
     if mask_paths:
         dense_c4 = (load_json(mask_paths[0]) or {}).get("baseline_c4_ppl")
 
+    exp_path = Path(exp_dir)
     dense = best_gsm8k(os.path.join(exp_dir, "gsm8k_eval_baseline_full*.json"))
-    dense_strict = dense.get("strict")
+    dense_smoke = best_gsm8k(str(exp_path.parent / "phase18b" / "gsm8k_eval_baseline*.json"))
+    dense_ref, dense_ref_name = reference_for(dense, dense, dense_smoke)
+    dense_ref_strict = dense_ref.get("strict") if dense_ref else None
+    dense_delta = (
+        None
+        if dense.get("strict") is None or dense_ref_strict is None
+        else (dense.get("strict") - dense_ref_strict) * 100
+    )
     rows = [
         {
             "tag": "dense",
@@ -65,7 +86,8 @@ def collect_rows(exp_dir):
             "gsm8k_n": dense.get("n"),
             "strict_em_pct": pct(dense.get("strict")),
             "flex_em_pct": pct(dense.get("flex")),
-            "delta_strict_pt": "0.00" if dense_strict is not None else "",
+            "delta_ref": dense_ref_name,
+            "delta_strict_pt": "" if dense_delta is None else f"{dense_delta:+.2f}",
             "metric_path": dense.get("path", ""),
         }
     ]
@@ -75,7 +97,9 @@ def collect_rows(exp_dir):
         tag = Path(path).stem.split("_")[-1]
         metric = best_gsm8k(os.path.join(exp_dir, f"gsm8k_eval_mask_{tag}*.json"))
         strict = metric.get("strict")
-        delta = None if dense_strict is None or strict is None else (strict - dense_strict) * 100
+        ref, ref_name = reference_for(metric, dense, dense_smoke)
+        ref_strict = ref.get("strict") if ref else None
+        delta = None if ref_strict is None or strict is None else (strict - ref_strict) * 100
         rows.append(
             {
                 "tag": tag,
@@ -85,6 +109,7 @@ def collect_rows(exp_dir):
                 "gsm8k_n": metric.get("n"),
                 "strict_em_pct": pct(strict),
                 "flex_em_pct": pct(metric.get("flex")),
+                "delta_ref": ref_name,
                 "delta_strict_pt": "" if delta is None else f"{delta:+.2f}",
                 "metric_path": metric.get("path", ""),
             }
@@ -101,6 +126,7 @@ def print_markdown(rows):
         "GSM8K n",
         "strict EM %",
         "flex EM %",
+        "delta ref",
         "delta strict pt",
     ]
     keys = [
@@ -111,6 +137,7 @@ def print_markdown(rows):
         "gsm8k_n",
         "strict_em_pct",
         "flex_em_pct",
+        "delta_ref",
         "delta_strict_pt",
     ]
     print("| " + " | ".join(headers) + " |")
