@@ -95,6 +95,12 @@
       "Dashboard and paper hygiene",
       "next",
       "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
+    ],
+    [
+      "Agent",
+      "Venue filter",
+      "next",
+      "Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission."
     ]
   ],
   "HOW_WE_WORK": [
@@ -186,8 +192,13 @@
     ],
     [
       "planned",
+      "Agent",
+      "Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting."
+    ],
+    [
+      "planned",
       "Saksham",
-      "Final paper review and submission to COLM workshop."
+      "Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints."
     ]
   ],
   "LINKS": [
