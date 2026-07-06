@@ -52,7 +52,7 @@ graph TD
 *   `code/phases/phase15_layer_drop/`: Contains the pipeline scripts for dropping layers, measuring baseline/dropped perplexities on C4, and applying boundary healing.
 *   `experiments/phase15_layer_drop/`: Contains the raw JSON outputs and loss curves for all evaluated models.
 *   `scratch/extract.py`: Automated script for extracting LaTeX tables from the JSON results.
-*   `archive/`: Contains legacy experiments on GPT-2 (Phases 1-11).
+*   `archive/`: Compressed historical context only; not part of the runnable experiment pipeline.
 
 ---
 
