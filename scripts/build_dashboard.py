@@ -605,6 +605,99 @@ def _params(value):
     return f"{value / 1e9:.2f}B"
 
 
+def _float(value, digits=3):
+    if value is None:
+        return "—"
+    return f"{value:.{digits}f}"
+
+
+def _latest_gsm8k(pattern):
+    paths = sorted(glob.glob(pattern), key=os.path.getmtime)
+    if not paths:
+        return None
+    return _gsm8k_metric(paths[-1])
+
+
+def _phase18b_readout(sparsity, strict, dense_strict):
+    if sparsity == 0:
+        return "50-sample dense smoke baseline for the boundary sweep."
+    if strict is None or dense_strict is None:
+        return "Awaiting paired GSM8K smoke metric."
+
+    drop = dense_strict - strict
+    if sparsity <= 0.01 and drop >= 0.10:
+        return "Even 1% structural pruning loses reasoning accuracy; do not scale uniform width pruning."
+    if sparsity <= 0.025 and drop >= 0.10:
+        return "Boundary check confirms the damage starts below 2.5%."
+    if strict <= 0.10:
+        return "Severe reasoning collapse."
+    return "Reasoning degradation increases with sparsity."
+
+
+def _phase18b_sweep_html():
+    pruning_paths = sorted(
+        glob.glob("experiments/phase18b/Mistral-7B-v0.1_width_pruning_ceil_s*.json"),
+        key=lambda p: (_load(p) or {}).get("sparsity", 1),
+    )
+    if not pruning_paths:
+        return ""
+
+    baseline_metric = _latest_gsm8k("experiments/phase18b/gsm8k_eval_baseline*.json") or {}
+    first_pruning = _load(pruning_paths[0]) or {}
+    baseline_c4 = first_pruning.get("baseline_c4_ppl")
+    baseline_tps = first_pruning.get("baseline_tps")
+    dense_strict = baseline_metric.get("strict")
+
+    rows = f"""
+        <tr>
+          <td class="task-who">Dense smoke baseline</td>
+          <td>0.0%</td>
+          <td>{int(baseline_metric.get("n", 0)) if baseline_metric.get("n") else "—"}</td>
+          <td>{_pct(dense_strict)}</td>
+          <td><span class="muted">ref</span></td>
+          <td>{_float(baseline_c4)}</td>
+          <td>{_float(baseline_tps, 2)}</td>
+          <td class="task-action">{_phase18b_readout(0, dense_strict, dense_strict)}</td>
+        </tr>
+    """
+
+    for path in pruning_paths:
+        data = _load(path) or {}
+        tag = Path(path).stem.split("_")[-1]
+        metric = _latest_gsm8k(f"experiments/phase18b/gsm8k_eval_ceil_{tag}*.json") or {}
+        sparsity = data.get("sparsity")
+        strict = metric.get("strict")
+        delta = None if strict is None or dense_strict is None else strict - dense_strict
+        delta_cls = "neg" if delta is not None and delta < -0.02 else "zero"
+        delta_str = "—" if delta is None else f"<span class='b b-{delta_cls}'>{delta * 100:+.1f} pt</span>"
+        c4 = data.get("pruned_c4_ppl")
+        tps = data.get("pruned_tps")
+        n = metric.get("n")
+        sparsity_str = f"{sparsity * 100:.1f}%" if sparsity is not None else "—"
+        rows += f"""
+        <tr>
+          <td class="task-who">Phase 18B uniform structural ({tag})</td>
+          <td>{sparsity_str}</td>
+          <td>{int(n) if n else "—"}</td>
+          <td>{_pct(strict)}</td>
+          <td>{delta_str}</td>
+          <td>{_float(c4)}</td>
+          <td>{_float(tps, 2)}</td>
+          <td class="task-action">{_phase18b_readout(sparsity, strict, dense_strict)}</td>
+        </tr>
+        """
+
+    return f"""
+<div class="section-label">Phase 18B boundary sweep</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>Sparsity</th><th>GSM8K n</th><th>Strict EM</th><th>Δ vs dense</th><th>C4 PPL</th><th>Tok/s</th><th>Readout</th></tr>
+{rows}
+</table>
+<div class="rc-note">Smoke metrics use 5-shot GSM8K with <code>--limit 50</code>. They are for ranking directions before expensive full evaluations.</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -660,6 +753,7 @@ def _width_pruning_html():
 
     return f"""
 <div class="section-label" id="current">Current pruning diagnostics</div>
+{_phase18b_sweep_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">
 <tr><th>Probe</th><th>GSM8K n</th><th>Params</th><th>Strict EM</th><th>C4 PPL</th><th>Readout</th></tr>

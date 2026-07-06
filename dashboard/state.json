@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-06T03:09:15.263394+00:00Z",
+  "generated_at": "2026-07-06T03:09:43.914889+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 18B planning",
   "phase_status": "Phase 18B Planning: Structural sensitivity-guided sparsity sweep",
-  "total_experiments": 52,
+  "total_experiments": 65,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
