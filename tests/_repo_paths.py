@@ -1,4 +1,5 @@
 """Shared repo-root path setup for tests run as scripts or via pytest."""
+import importlib
 import os
 import sys
 from pathlib import Path
@@ -14,4 +15,8 @@ def setup_repo_paths():
     code_dir = str(REPO_ROOT / "code")
     if code_dir not in sys.path:
         sys.path.insert(0, code_dir)
+    loaded_code = sys.modules.get("code")
+    if loaded_code is not None and not hasattr(loaded_code, "__path__"):
+        del sys.modules["code"]
+        importlib.invalidate_caches()
     os.chdir(REPO_ROOT)

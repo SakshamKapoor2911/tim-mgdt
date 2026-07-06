@@ -7,9 +7,7 @@ fixture keeps the module structure used by Llama/Mistral and patches the slow
 metric calls with deterministic local measurements.
 """
 
-import sys
 import unittest
-from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -17,9 +15,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-_REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+from tests._repo_paths import setup_repo_paths
+
+setup_repo_paths()
 
 import code.phases.phase11.stage1_structured_pruning as stage1_mod
 import code.phases.phase11.stage2_imp_search as stage2_mod

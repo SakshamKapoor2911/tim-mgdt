@@ -7,6 +7,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from tests._repo_paths import setup_repo_paths
+
+setup_repo_paths()
+
 from code.phases.phase20_mask_guided.mask_guided_width_pruning import (
     aligned_keep_size,
     apply_mask_guided_width_pruning,
