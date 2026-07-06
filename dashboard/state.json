@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-06T06:11:06.148445+00:00Z",
+  "generated_at": "2026-07-06T06:11:11.693227+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 19 validation",
@@ -85,6 +85,12 @@
       "track": "Dashboard and paper hygiene",
       "status": "next",
       "next_action": "Keep only compact metrics in Git, leave checkpoints local or move them to external storage, and turn the C4-matched mask-vs-structural result into the next paper figure."
+    },
+    {
+      "who": "Agent",
+      "track": "Venue filter",
+      "status": "next",
+      "next_action": "Prioritize remote/proceedings-only friendly venues; treat in-person-only workshops as backup targets unless presentation logistics are confirmed before submission."
     }
   ],
   "milestones": [
@@ -162,8 +168,13 @@
     },
     {
       "status": "planned",
+      "owner": "Agent",
+      "item": "Shortlist publication targets by remote/proceedings-only presentation policy before investing in venue-specific formatting."
+    },
+    {
+      "status": "planned",
       "owner": "Saksham",
-      "item": "Final paper review and submission to COLM workshop."
+      "item": "Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints."
     }
   ],
   "runs": [
