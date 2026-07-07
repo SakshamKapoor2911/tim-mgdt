@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-07 08:54 UTC</span>
+    <span class="nav-meta">2026-07-07 08:59 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -132,10 +132,10 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals.</p></div>
 
   </div>
-  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?</p></div></div>
+  <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Where is the Mistral-7B GSM8K reasoning-retention boundary under tensor-preserving masks, and why does layerwise allocation outperform a standard global magnitude threshold?</p></div></div>
   
 <div class="section-label" id="current">Current pruning diagnostics</div>
 
@@ -322,7 +322,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="section-label">Phase 24 grouped boundary ablation</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
-<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th></tr>
+<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th><th>Avg words</th><th>Final marker</th><th>Extract fail</th></tr>
         <tr>
           <td class="task-who">Phase 24 revert attention</td>
           <td>300</td>
@@ -331,6 +331,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>38.0%</td>
           <td>20.2%</td>
           <td>8.985</td>
+          <td>54.0</td>
+          <td>88.7%</td>
+          <td>0.0%</td>
         </tr>
         <tr>
           <td class="task-who">Phase 24 revert early</td>
@@ -340,6 +343,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>36.7%</td>
           <td>16.5%</td>
           <td>9.005</td>
+          <td>54.5</td>
+          <td>89.3%</td>
+          <td>0.0%</td>
         </tr>
         <tr>
           <td class="task-who">Phase 24 revert late</td>
@@ -349,6 +355,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>38.3%</td>
           <td>17.3%</td>
           <td>9.007</td>
+          <td>55.6</td>
+          <td>86.7%</td>
+          <td>0.0%</td>
         </tr>
         <tr>
           <td class="task-who">Phase 24 revert mid</td>
@@ -358,6 +367,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>38.3%</td>
           <td>16.5%</td>
           <td>9.014</td>
+          <td>52.2</td>
+          <td>88.7%</td>
+          <td>0.0%</td>
         </tr>
         <tr>
           <td class="task-who">Phase 24 revert mlp</td>
@@ -367,6 +379,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>40.7%</td>
           <td>5.2%</td>
           <td>8.986</td>
+          <td>54.6</td>
+          <td>90.0%</td>
+          <td>0.0%</td>
         </tr>
 
 </table>

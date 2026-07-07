@@ -13,7 +13,13 @@
       "bootstrap_ci_low": 0.3233333333333333,
       "bootstrap_ci_high": 0.43,
       "actual_linear_sparsity": 0.2023591550819432,
-      "masked_c4_ppl": 8.984512329101562
+      "masked_c4_ppl": 8.984512329101562,
+      "sample_rows": 600,
+      "strict_rows": 300,
+      "avg_response_words": 54.047,
+      "median_response_words": 47.0,
+      "final_marker_rate": 0.887,
+      "extraction_failure_rate": 0.0
     },
     {
       "tag": "revert_early",
@@ -26,7 +32,13 @@
       "bootstrap_ci_low": 0.31666666666666665,
       "bootstrap_ci_high": 0.4266666666666667,
       "actual_linear_sparsity": 0.1652703845664439,
-      "masked_c4_ppl": 9.004630088806152
+      "masked_c4_ppl": 9.004630088806152,
+      "sample_rows": 600,
+      "strict_rows": 300,
+      "avg_response_words": 54.513,
+      "median_response_words": 46.0,
+      "final_marker_rate": 0.893,
+      "extraction_failure_rate": 0.0
     },
     {
       "tag": "revert_late",
@@ -39,7 +51,13 @@
       "bootstrap_ci_low": 0.32,
       "bootstrap_ci_high": 0.43,
       "actual_linear_sparsity": 0.17292369155647516,
-      "masked_c4_ppl": 9.006771087646484
+      "masked_c4_ppl": 9.006771087646484,
+      "sample_rows": 600,
+      "strict_rows": 300,
+      "avg_response_words": 55.6,
+      "median_response_words": 48.0,
+      "final_marker_rate": 0.867,
+      "extraction_failure_rate": 0.0
     },
     {
       "tag": "revert_mid",
@@ -52,7 +70,13 @@
       "bootstrap_ci_low": 0.32666666666666666,
       "bootstrap_ci_high": 0.43666666666666665,
       "actual_linear_sparsity": 0.16525151894483184,
-      "masked_c4_ppl": 9.013861656188965
+      "masked_c4_ppl": 9.013861656188965,
+      "sample_rows": 600,
+      "strict_rows": 300,
+      "avg_response_words": 52.24,
+      "median_response_words": 45.5,
+      "final_marker_rate": 0.887,
+      "extraction_failure_rate": 0.0
     },
     {
       "tag": "revert_mlp",
@@ -65,7 +89,13 @@
       "bootstrap_ci_low": 0.3466666666666667,
       "bootstrap_ci_high": 0.46,
       "actual_linear_sparsity": 0.051670259965976205,
-      "masked_c4_ppl": 8.98564338684082
+      "masked_c4_ppl": 8.98564338684082,
+      "sample_rows": 600,
+      "strict_rows": 300,
+      "avg_response_words": 54.637,
+      "median_response_words": 47.0,
+      "final_marker_rate": 0.9,
+      "extraction_failure_rate": 0.0
     }
   ],
   "decision": {

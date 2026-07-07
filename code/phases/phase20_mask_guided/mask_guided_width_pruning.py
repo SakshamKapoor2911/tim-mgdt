@@ -1,8 +1,8 @@
 """
 Phase 20: Mask-guided structured width pruning.
 
-Phase 19 showed that dense-shaped unstructured magnitude masks can preserve
-GSM8K reasoning at sparsities where uniform structural MLP-width pruning fails.
+Phase 19 showed that dense-shaped magnitude masks can retain much more GSM8K
+accuracy than uniform structural MLP-width pruning at matched sparsity.
 This phase asks the next hardware-relevant question: can the successful mask
 signal rank whole MLP intermediate neurons, then delete low-signal neurons while
 keeping Tensor Core-aligned dimensions?

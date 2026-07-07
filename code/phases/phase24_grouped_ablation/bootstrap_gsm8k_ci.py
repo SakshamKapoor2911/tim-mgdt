@@ -5,6 +5,8 @@ import glob
 import json
 import os
 import random
+import re
+import statistics
 from pathlib import Path
 
 
@@ -48,6 +50,69 @@ def strict_values(sample_path):
                 continue
             values.append(1 if row.get("exact_match") == 1.0 else 0)
     return values
+
+
+def first_response(row):
+    resps = row.get("resps") or []
+    if not resps:
+        return ""
+    first = resps[0]
+    if isinstance(first, list):
+        return str(first[0]) if first else ""
+    return str(first)
+
+
+def mean(values):
+    return None if not values else sum(values) / len(values)
+
+
+def round_or_none(value, digits=3):
+    return None if value is None else round(value, digits)
+
+
+def generation_diagnostics(sample_path):
+    diagnostics = {
+        "sample_rows": 0,
+        "strict_rows": 0,
+        "avg_response_words": None,
+        "median_response_words": None,
+        "final_marker_rate": None,
+        "extraction_failure_rate": None,
+    }
+    if not sample_path or not Path(sample_path).exists():
+        return diagnostics
+
+    word_counts = []
+    marker_count = 0
+    extraction_failure_count = 0
+
+    with open(sample_path) as f:
+        for line in f:
+            diagnostics["sample_rows"] += 1
+            row = json.loads(line)
+            if row.get("filter") != "strict-match":
+                continue
+            diagnostics["strict_rows"] += 1
+            response = first_response(row)
+            word_counts.append(len(re.findall(r"\S+", response)))
+            if "####" in response:
+                marker_count += 1
+            filtered = row.get("filtered_resps") or []
+            if not filtered or filtered[0] in ("", None):
+                extraction_failure_count += 1
+
+    strict_rows = diagnostics["strict_rows"]
+    diagnostics.update(
+        {
+            "avg_response_words": round_or_none(mean(word_counts), 3),
+            "median_response_words": round_or_none(statistics.median(word_counts), 3) if word_counts else None,
+            "final_marker_rate": round_or_none(marker_count / strict_rows, 3) if strict_rows else None,
+            "extraction_failure_rate": round_or_none(extraction_failure_count / strict_rows, 3)
+            if strict_rows
+            else None,
+        }
+    )
+    return diagnostics
 
 
 def percentile(values, q):
@@ -95,7 +160,7 @@ def summarize_result(path, output_dir, iters, seed):
     values = strict_values(sample_path)
     ci_low, ci_high = bootstrap_ci(values, iters=iters, seed=seed)
     meta = metadata_for_result(output_dir, tag) or {}
-    return {
+    row = {
         "tag": tag,
         "result_path": path,
         "sample_path": sample_path,
@@ -108,6 +173,8 @@ def summarize_result(path, output_dir, iters, seed):
         "actual_linear_sparsity": meta.get("linear_sparsity"),
         "masked_c4_ppl": meta.get("masked_c4_ppl"),
     }
+    row.update(generation_diagnostics(sample_path))
+    return row
 
 
 def decision(rows, min_delta_pt=4.0):
@@ -171,15 +238,15 @@ def write_markdown(summary, path):
     lines = [
         "# Phase 24 Grouped Ablation Summary",
         "",
-        "| tag | n | strict % | 95% CI % | flex % | actual sparsity % | C4 PPL |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| tag | n | strict % | 95% CI % | flex % | actual sparsity % | C4 PPL | avg words | final marker % | extract fail % |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in summary["rows"]:
         ci = "n/a"
         if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
             ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}"
         lines.append(
-            "| {tag} | {n} | {strict} | {ci} | {flex} | {sparsity} | {c4} |".format(
+            "| {tag} | {n} | {strict} | {ci} | {flex} | {sparsity} | {c4} | {avg_words} | {marker} | {extract_fail} |".format(
                 tag=row["tag"],
                 n=row.get("n") or "",
                 strict="" if row.get("strict") is None else f"{row['strict'] * 100:.2f}",
@@ -187,6 +254,11 @@ def write_markdown(summary, path):
                 flex="" if row.get("flex") is None else f"{row['flex'] * 100:.2f}",
                 sparsity="" if row.get("actual_linear_sparsity") is None else f"{row['actual_linear_sparsity'] * 100:.2f}",
                 c4="" if row.get("masked_c4_ppl") is None else f"{row['masked_c4_ppl']:.3f}",
+                avg_words="" if row.get("avg_response_words") is None else f"{row['avg_response_words']:.2f}",
+                marker="" if row.get("final_marker_rate") is None else f"{row['final_marker_rate'] * 100:.1f}",
+                extract_fail=""
+                if row.get("extraction_failure_rate") is None
+                else f"{row['extraction_failure_rate'] * 100:.1f}",
             )
         )
     lines.extend(["", f"Decision: `{summary['decision']['recommendation']}`", summary["decision"]["detail"], ""])

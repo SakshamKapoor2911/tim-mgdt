@@ -163,6 +163,30 @@ def collect():
     else:
         add(checks, "warn", "phase24_grouped_rows", f"expected 5 rows, found {len(phase24_rows)}")
 
+    phase24_diag_rows = [
+        row
+        for row in phase24_rows
+        if row.get("avg_response_words") is not None
+        and row.get("final_marker_rate") is not None
+        and row.get("extraction_failure_rate") is not None
+    ]
+    if len(phase24_diag_rows) == len(phase24_rows) and phase24_rows:
+        max_extract_fail = max(row.get("extraction_failure_rate") or 0 for row in phase24_diag_rows)
+        status = "pass" if max_extract_fail <= 0.01 else "warn"
+        add(
+            checks,
+            status,
+            "phase24_format_sanity",
+            f"diagnostics={len(phase24_diag_rows)}/{len(phase24_rows)}, max_extraction_failure={max_extract_fail * 100:.1f}%",
+        )
+    else:
+        add(
+            checks,
+            "warn",
+            "phase24_format_sanity",
+            f"diagnostics={len(phase24_diag_rows)}/{len(phase24_rows)} rows",
+        )
+
     recommendation = phase24_decision.get("recommendation")
     if recommendation in {"distributed_or_weak_module_signal", "module_axis_signal", "stop_after_layer_groups"}:
         add(checks, "pass", "phase24_terminal_decision", recommendation)

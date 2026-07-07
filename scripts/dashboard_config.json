@@ -12,12 +12,12 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals."
+      "<b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
-    "Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?"
+    "Where is the Mistral-7B GSM8K reasoning-retention boundary under tensor-preserving masks, and why does layerwise allocation outperform a standard global magnitude threshold?"
   ],
   "PHASE": "Phase 24 Validation: grouped dense-revert smoke complete",
   "RUNS": [

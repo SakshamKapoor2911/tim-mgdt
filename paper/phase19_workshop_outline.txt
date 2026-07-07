@@ -15,7 +15,7 @@ Current logistics constraint: COLM's main FAQ states that the conference is in-p
 Core Claim
 ----------
 
-Reasoning collapse in compressed Mistral-7B is not explained by parameter sparsity or modest C4 perplexity degradation alone. Dense-shaped unstructured magnitude masks preserve GSM8K reasoning at high sparsity, while hardware-aligned structural MLP-width pruning destroys GSM8K at much lower sparsity.
+Reasoning collapse in compressed Mistral-7B is not explained by parameter sparsity or modest C4 perplexity degradation alone. Dense-shaped magnitude masks identify a controlled reasoning-retention boundary, and the gap between layerwise and global 20% masks shows that preserved tensor geometry is not sufficient by itself; sparsity allocation also matters.
 
 Current Evidence
 ----------------
@@ -36,7 +36,8 @@ Key contrast to preserve:
 
 - Phase 16 structural 20% width pruning: full GSM8K collapses to roughly 5%.
 - Phase 18B structural 1-5% width pruning: smoke GSM8K drops sharply even at very low structural sparsity.
-- Phase 19 dense-shaped 20% mask: full GSM8K remains within 1.44 points of dense.
+- Phase 19 dense-shaped 20% layerwise mask: full GSM8K remains within 1.44 points of dense.
+- Phase 23 global 20% magnitude mask: full GSM8K reaches 35.33%, trailing the layerwise 20% mask by 1.90 points despite preserving tensor shapes.
 - Phase 19 dense-shaped 25%, 30%, and 40% masks: full GSM8K degrades to 34.04%, 31.77%, and 23.88%, locating the mask-retention threshold just above 20%.
 - Phase 21 auxiliary reasoning smoke: the 20% mask is close to dense on GSM8K Platinum strict EM (34% versus 36%, n=100) and above dense on BBH multistep arithmetic exact match (39% versus 33%, n=100). Treat this as support, not the primary claim.
 - Phase 22 cross-model smoke: on Llama-3-8B GSM8K smoke (n=100), a 10% dense-shaped mask reaches 49% strict EM versus 53% dense, while a 20% mask drops to 29%. Treat this as threshold heterogeneity, not a full cross-model benchmark.

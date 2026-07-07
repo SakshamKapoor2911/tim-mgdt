@@ -18,7 +18,7 @@ Paper under double-blind review
 \maketitle
 
 \begin{abstract}
-Compression methods for large language models are often validated with general language-modeling perplexity, but reasoning workloads can fail even when perplexity degradation appears modest. We study this mismatch on Mistral-7B using GSM8K as a reasoning benchmark and C4 perplexity as a general language-modeling control. Hardware-aligned structural MLP-width pruning sharply degrades GSM8K even at low sparsity, while dense-shaped layerwise magnitude masks preserve most reasoning accuracy at substantially higher sparsity. A 20\% dense-shaped mask reaches 37.23\% GSM8K strict exact match on the full 1,319-example test set, compared with 38.67\% for the dense baseline, a gap of only 1.44 points. The retention is thresholded: 25\%, 30\%, and 40\% masks fall to 34.04\%, 31.77\%, and 23.88\%, respectively. The 20\% mask also preserves chain length, with 57.05 average response words versus 56.58 for dense. By contrast, structural 20\% width pruning collapses full GSM8K to roughly 5\% despite remaining a recognizable language model under C4 perplexity. These results show that reasoning retention is governed by structural geometry, not sparsity alone, and motivate compression methods that preserve reasoning-critical subspace geometry before targeting hardware speedups.
+Compression methods for large language models are often validated with general language-modeling perplexity, but reasoning workloads can fail even when perplexity degradation appears modest. We study this mismatch on Mistral-7B using GSM8K as a reasoning benchmark and C4 perplexity as a general language-modeling control. Hardware-aligned structural MLP-width pruning sharply degrades GSM8K even at low sparsity, while dense-shaped layerwise magnitude masks expose a substantially higher-retention boundary. A 20\% dense-shaped mask reaches 37.23\% GSM8K strict exact match on the full 1,319-example test set, compared with 38.67\% for the dense baseline, a gap of only 1.44 points. The retention is thresholded: 25\%, 30\%, and 40\% masks fall to 34.04\%, 31.77\%, and 23.88\%, respectively. The 20\% mask also preserves chain length, with 57.05 average response words versus 56.58 for dense. By contrast, structural 20\% width pruning collapses full GSM8K to roughly 5\% despite remaining a recognizable language model under C4 perplexity. These results identify a controlled reasoning-retention boundary and show that preserving tensor geometry is not sufficient by itself; sparsity allocation also matters.
 \end{abstract}
 
 \section{Introduction}
@@ -31,7 +31,7 @@ This paper isolates that failure mode with a paired control. We compare two ways
     \item \textbf{Dense-shaped magnitude masking}: zeros weights layerwise while preserving the original dense parameter geometry and tensor shapes.
 \end{enumerate}
 
-The control is intentionally asymmetric from a systems perspective. Dense-shaped masks do not produce structural speedups. Their role is diagnostic: if a dense-shaped 20\% mask preserves GSM8K while much smaller structural width changes collapse it, then reasoning loss cannot be attributed to sparsity or C4 degradation alone.
+The control is intentionally asymmetric from a systems perspective. Dense-shaped masks do not produce structural speedups. Their role is diagnostic: if a dense-shaped 20\% mask stays near the dense GSM8K baseline while much smaller structural width changes collapse it, then reasoning loss cannot be attributed to sparsity or C4 degradation alone.
 
 \section{Experimental Setup}
 
@@ -51,7 +51,7 @@ python scripts/analyze_phase19_samples.py
 
 \section{Results}
 
-\subsection{Dense-Shaped Masks Preserve Reasoning at 20\% Sparsity}
+\subsection{Dense-Shaped Masks Identify a 20\% Retention Boundary}
 
 Table~\ref{tab:phase19_mask} shows the Phase 19 mask-control results on the full GSM8K test set. The 20\% mask is near dense, while 25\% is already materially degraded and 30\%/40\% degrade further.
 

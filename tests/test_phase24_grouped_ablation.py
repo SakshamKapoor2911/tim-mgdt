@@ -1,6 +1,9 @@
 """CPU-only checks for Phase 24 grouped mask ablation helpers."""
 
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 
 import torch
@@ -16,7 +19,7 @@ from code.phases.phase24_grouped_ablation.build_grouped_mask import (
     module_metadata,
     should_prune,
 )
-from code.phases.phase24_grouped_ablation.bootstrap_gsm8k_ci import decision
+from code.phases.phase24_grouped_ablation.bootstrap_gsm8k_ci import decision, generation_diagnostics
 
 
 class TinyLayer(nn.Module):
@@ -126,6 +129,39 @@ class TestPhase24GroupedAblation(unittest.TestCase):
 
         self.assertEqual(result["recommendation"], "module_axis_signal")
         self.assertEqual(result["best_module_group"], "revert_mlp")
+
+    def test_generation_diagnostics_counts_format_failures_on_strict_rows(self):
+        rows = [
+            {
+                "filter": "strict-match",
+                "resps": [["We compute carefully. #### 4"]],
+                "filtered_resps": ["4"],
+                "exact_match": 1.0,
+            },
+            {
+                "filter": "strict-match",
+                "resps": [["No final marker here"]],
+                "filtered_resps": [""],
+                "exact_match": 0.0,
+            },
+            {
+                "filter": "flexible-extract",
+                "resps": [["Ignored for strict diagnostics."]],
+                "filtered_resps": ["7"],
+                "exact_match": 0.0,
+            },
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            sample_path = Path(tmp) / "samples_gsm8k_test.jsonl"
+            sample_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+
+            diagnostics = generation_diagnostics(sample_path)
+
+        self.assertEqual(diagnostics["sample_rows"], 3)
+        self.assertEqual(diagnostics["strict_rows"], 2)
+        self.assertEqual(diagnostics["final_marker_rate"], 0.5)
+        self.assertEqual(diagnostics["extraction_failure_rate"], 0.5)
+        self.assertEqual(diagnostics["avg_response_words"], 4.5)
 
 
 if __name__ == "__main__":

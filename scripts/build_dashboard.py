@@ -894,7 +894,7 @@ def _phase23_global_readout(strict, dense_strict):
     if strict is None:
         return "Full GSM8K is running; this closes the standard global magnitude baseline gap."
     if dense_strict is not None and (strict - dense_strict) * 100 >= -2.1:
-        return "Near-dense full GSM8K; supports unstructured geometry preservation over structural deletion."
+        return "Near-dense full GSM8K; supports the tensor-geometry boundary control over structural deletion."
     if dense_strict is not None and strict < 0.30:
         return "Global magnitude collapses; layerwise allocation is materially stronger."
     return "Global magnitude is weaker than the 20% layerwise mask but still far above structural width pruning."
@@ -959,6 +959,9 @@ def _phase24_grouped_ablation_html():
           <td>{_pct(row.get('flex'))}</td>
           <td>{_pct(row.get('actual_linear_sparsity'))}</td>
           <td>{_float(row.get('masked_c4_ppl'))}</td>
+          <td>{_float(row.get('avg_response_words'), 1)}</td>
+          <td>{_pct(row.get('final_marker_rate'))}</td>
+          <td>{_pct(row.get('extraction_failure_rate'))}</td>
         </tr>
 """
 
@@ -968,7 +971,7 @@ def _phase24_grouped_ablation_html():
 <div class="section-label">Phase 24 grouped boundary ablation</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
-<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th></tr>
+<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th><th>Avg words</th><th>Final marker</th><th>Extract fail</th></tr>
 {rows}
 </table>
 <div class="rc-note">Decision: <code>{recommendation}</code>. {detail}</div>
