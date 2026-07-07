@@ -69,12 +69,12 @@ def parse_progress(path):
         return "missing log"
     text = log_path.read_text(errors="replace")
     matches = re.findall(
-        r"Running generate_until requests:\s+([0-9]+)%.*?\|\s*([0-9]+)/1319\s*\[([^\]]+)\]",
+        r"Running generate_until requests:\s+([0-9]+)%.*?\|\s*([0-9]+)/([0-9]+)\s*\[([^\]]+)\]",
         text,
     )
     if matches:
-        pct, done, timing = matches[-1]
-        return f"{done}/1319 ({pct}%), {timing}"
+        pct, done, total, timing = matches[-1]
+        return f"{done}/{total} ({pct}%), {timing}"
     if "Running generate_until requests" in text:
         return "generation started"
     if "Initializing hf model" in text:
@@ -88,13 +88,13 @@ def latest_progress_in_log(path):
         return None
     text = log_path.read_text(errors="replace")
     matches = re.findall(
-        r"Running generate_until requests:\s+([0-9]+)%.*?\|\s*([0-9]+)/1319\s*\[([^\]]+)\]",
+        r"Running generate_until requests:\s+([0-9]+)%.*?\|\s*([0-9]+)/([0-9]+)\s*\[([^\]]+)\]",
         text,
     )
     if not matches:
         return None
-    pct, done, timing = matches[-1]
-    return f"{done}/1319 ({pct}%), {timing}"
+    pct, done, total, timing = matches[-1]
+    return f"{done}/{total} ({pct}%), {timing}"
 
 
 def tmux_session_exists(name):
@@ -242,6 +242,42 @@ def print_phase23_table():
     )
 
 
+def print_phase24_table():
+    summary_path = latest_path("experiments/phase24_grouped_ablation/phase24_summary_*.json")
+    if not summary_path:
+        if glob.glob("experiments/phase24_grouped_ablation/*/gsm8k_eval_*.json"):
+            print("\nPhase 24 grouped ablation:")
+            print("eval result exists; summary pending")
+        return
+
+    summary = load_json(summary_path) or {}
+    decision = summary.get("decision", {})
+    print("\nPhase 24 grouped ablation:")
+    print(f"summary: {summary_path}")
+    if decision:
+        detail = decision.get("detail", "")
+        best = decision.get("best_layer_group")
+        best_text = f", best={best}" if best else ""
+        print(f"decision: {decision.get('recommendation', '')}{best_text}")
+        if detail:
+            print(f"detail: {detail}")
+    print("tag                n       strict   95% CI        flex     actual   C4 PPL")
+    print("----------------   -----   ------   -----------   ------   ------   ------")
+    for row in summary.get("rows", []):
+        ci_text = ""
+        if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
+            ci_text = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}"
+        print(
+            f"{row.get('tag', ''):<18} "
+            f"{str(row.get('n') or ''):<7} "
+            f"{pct_number_text(row.get('strict')):>6}   "
+            f"{ci_text:<11}   "
+            f"{pct_number_text(row.get('flex')):>6}   "
+            f"{percent_text(row.get('actual_linear_sparsity')):>6}   "
+            f"{number_text(row.get('masked_c4_ppl')):>6}"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-system", action="store_true", help="Skip tmux and nvidia-smi probes.")
@@ -289,6 +325,11 @@ def main():
         active_session="phase23_global_s20",
     )
     print_log_tail(
+        "phase24",
+        "experiments/phase24_grouped_ablation/run_logs/grouped_ablation_*.log",
+        active_session="phase24_grouped_ablation",
+    )
+    print_log_tail(
         "publish",
         "experiments/publish_logs/publish_queue_*.log",
         active_session="experiment_publish_queue",
@@ -297,6 +338,7 @@ def main():
     print_result_table()
     print_phase20_table()
     print_phase23_table()
+    print_phase24_table()
 
 
 if __name__ == "__main__":

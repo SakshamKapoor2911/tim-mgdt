@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="${REPO:-/home/skapoor/tim-mgdt}"
-WAIT_SESSIONS="${WAIT_SESSIONS:-phase19_s30_full phase19_s40_full phase19_adaptive_boundary phase20_mask_guided_queue}"
+WAIT_SESSIONS="${WAIT_SESSIONS:-phase19_s30_full phase19_s40_full phase19_adaptive_boundary phase20_mask_guided_queue phase24_grouped_ablation}"
 
 cd "$REPO"
 

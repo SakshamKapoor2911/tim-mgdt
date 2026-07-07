@@ -29,7 +29,7 @@ cd /home/skapoor/tim-mgdt
 python scripts/phase19_status.py
 ```
 
-This prints tmux sessions, GPU use, active run progress, Phase 19/20/21/22/23
+This prints tmux sessions, GPU use, active run progress, Phase 19/20/21/22/23/24
 tails, and the current compact result tables. For continuous monitoring:
 
 ```bash
@@ -44,6 +44,7 @@ cd /home/skapoor/tim-mgdt
 bash scripts/phase19_termux_control.sh ensure
 bash scripts/phase19_termux_control.sh queue-phase20
 bash scripts/phase19_termux_control.sh queue-phase23
+bash scripts/phase19_termux_control.sh queue-phase24
 bash scripts/phase19_termux_control.sh queue-publish
 ```
 
@@ -53,6 +54,9 @@ JSON result already exists, and starts only missing Phase 19 tmux jobs.
 the Phase 19 sessions have finished.
 `queue-phase23` starts the global unstructured magnitude baseline if it is not
 already running and the full GSM8K result is missing.
+`queue-phase24` starts the grouped dense-revert ablation around the 20--25%
+layerwise mask boundary. It builds checkpoints sequentially, evaluates at most
+two GSM8K smoke jobs at once across GPUs, then writes a bootstrap-CI summary.
 `queue-publish` waits for Phase 19 and Phase 20 sessions, rebuilds compact
 summaries/plots/dashboard artifacts, commits them, and pushes to GitHub. It does
 not stage checkpoints, logs, or sample JSONL files.
@@ -75,10 +79,11 @@ bash scripts/phase19_termux_control.sh logs phase20
 bash scripts/phase19_termux_control.sh logs phase21
 bash scripts/phase19_termux_control.sh logs phase22
 bash scripts/phase19_termux_control.sh logs phase23
+bash scripts/phase19_termux_control.sh logs phase24
 bash scripts/phase19_termux_control.sh logs publish
 ```
 
-## Current Stage: Phase 23 Complete; Paper Packaging
+## Current Stage: Phase 24 Mechanistic Smoke; Paper Packaging
 
 Phase 23 answered the obvious reviewer question, "is the 20% result just
 unstructured magnitude pruning rather than a layerwise dense-mask diagnostic?"
@@ -107,6 +112,23 @@ pruning. It is still weaker than the layerwise 20% dense-shaped mask, so
 layerwise sparsity allocation matters within geometry-preserving unstructured
 masking.
 
+Phase 24 is the high-ROI mechanistic smoke. It starts from the 25% layerwise
+mask boundary and reverts early, middle, or late transformer blocks to dense.
+If those three groups are too close, it automatically runs the MLP-vs-attention
+contingency. The summary table is produced here:
+
+```bash
+experiments/phase24_grouped_ablation/phase24_summary_<run_label>.json
+experiments/phase24_grouped_ablation/phase24_summary_<run_label>.md
+```
+
+Manual launch:
+
+```bash
+bash scripts/phase19_termux_control.sh queue-phase24
+bash scripts/phase19_termux_control.sh logs phase24
+```
+
 ## Next Steps
 
 1. Keep `paper/main.tex` as the authoritative submission draft.
@@ -114,8 +136,8 @@ masking.
 3. Run:
 
 ```bash
-python -m py_compile code/phases/phase11/utils.py code/phases/phase19/mask_pruning.py scripts/phase19_status.py
-pytest tests/test_phase11_real.py tests/test_phase20_mask_guided.py
+python -m py_compile code/phases/phase11/utils.py code/phases/phase19/mask_pruning.py code/phases/phase24_grouped_ablation/build_grouped_mask.py code/phases/phase24_grouped_ablation/bootstrap_gsm8k_ci.py scripts/phase19_status.py
+pytest tests/test_phase11_real.py tests/test_phase20_mask_guided.py tests/test_phase24_grouped_ablation.py
 python scripts/phase19_readiness.py
 ```
 
@@ -123,7 +145,8 @@ python scripts/phase19_readiness.py
    artifacts. Do not stage checkpoint directories, run logs, or sample JSONL
    files.
 5. Optional next experiment: per-layer or per-module ablation around the 20--25%
-   boundary to identify where layerwise allocation matters.
+   boundary to identify where layerwise allocation matters. This is Phase 24;
+   run it before expanding to new benchmarks.
 
 Run this before leaving the machine unattended:
 
@@ -131,6 +154,7 @@ Run this before leaving the machine unattended:
 bash scripts/phase19_termux_control.sh ensure
 bash scripts/phase19_termux_control.sh queue-phase20
 bash scripts/phase19_termux_control.sh queue-phase23
+bash scripts/phase19_termux_control.sh queue-phase24
 bash scripts/phase19_termux_control.sh queue-publish
 python scripts/phase19_status.py
 ```

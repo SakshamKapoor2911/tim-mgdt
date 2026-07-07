@@ -29,6 +29,10 @@ paths=(
     experiments/phase19/gsm8k_sample_analysis.json
     experiments/phase20_mask_guided/Mistral-7B-v0.1_mask_guided_width_*.json
     experiments/phase20_mask_guided/gsm8k_eval_mask_guided_*.json
+    experiments/phase24_grouped_ablation/Mistral-7B-v0.1_grouped_mask_*.json
+    experiments/phase24_grouped_ablation/*/gsm8k_eval_*.json
+    experiments/phase24_grouped_ablation/phase24_summary_*.json
+    experiments/phase24_grouped_ablation/phase24_summary_*.md
 )
 
 if ((${#paths[@]} == 0)); then

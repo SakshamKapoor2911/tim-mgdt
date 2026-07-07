@@ -15,10 +15,11 @@ Usage:
   bash scripts/phase19_termux_control.sh ensure
   bash scripts/phase19_termux_control.sh queue-phase20
   bash scripts/phase19_termux_control.sh queue-phase23
+  bash scripts/phase19_termux_control.sh queue-phase24
   bash scripts/phase19_termux_control.sh publish
   bash scripts/phase19_termux_control.sh queue-publish
   bash scripts/phase19_termux_control.sh monitor [seconds]
-  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|phase20-gpu1|phase21|phase22|phase23|publish]
+  bash scripts/phase19_termux_control.sh logs [s30|s40|adaptive|phase20|phase20-gpu1|phase21|phase22|phase23|phase24|publish]
   bash scripts/phase19_termux_control.sh attach [tmux-session-name]
 
 Run this on the GPU host after SSHing in from Termux. Termux is the control
@@ -50,6 +51,10 @@ has_phase20_result() {
 
 has_phase23_result() {
     compgen -G "$REPO/experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full_*.json" >/dev/null
+}
+
+has_phase24_summary() {
+    compgen -G "$REPO/experiments/phase24_grouped_ablation/phase24_summary_*.json" >/dev/null
 }
 
 start_full_eval() {
@@ -143,6 +148,29 @@ start_phase23_global() {
         "cd '$REPO' && RUN_LABEL='full_${stamp}' PRUNE_GPU='${PRUNE_GPU:-0}' EVAL_GPU='${EVAL_GPU:-1}' bash code/phases/phase23_global_unstructured/run_global_s20.sh > '$log' 2>&1"
 }
 
+start_phase24_grouped_ablation() {
+    local session="phase24_grouped_ablation"
+    local log_dir="$REPO/experiments/phase24_grouped_ablation/run_logs"
+    local stamp
+    local log
+
+    mkdir -p "$log_dir"
+    if session_exists "$session"; then
+        echo "$session already running"
+        return
+    fi
+    if has_phase24_summary && [[ "${FORCE_PHASE24:-0}" != "1" ]]; then
+        echo "phase24 grouped ablation summary already exists; set FORCE_PHASE24=1 to queue again"
+        return
+    fi
+
+    stamp="$(timestamp)"
+    log="$log_dir/grouped_ablation_${stamp}.log"
+    echo "starting $session; log: $log"
+    tmux new-session -d -s "$session" \
+        "cd '$REPO' && RUN_LABEL='limit300_${stamp}' BUILD_GPU='${BUILD_GPU:-0}' EVAL_GPUS='${EVAL_GPUS:-0 1}' bash code/phases/phase24_grouped_ablation/run_grouped_ablation.sh > '$log' 2>&1"
+}
+
 start_publish_queue() {
     local session="experiment_publish_queue"
     local log_dir="$REPO/experiments/publish_logs"
@@ -197,6 +225,7 @@ latest_log_for() {
         phase21) pattern="$REPO/experiments/phase21_aux_reasoning/run_logs/aux_gpu1_*.log" ;;
         phase22) pattern="$REPO/experiments/phase22_cross_model/run_logs/cross_model_*.log" ;;
         phase23) pattern="$REPO/experiments/phase23_global_unstructured/run_logs/global_s20_*.log" ;;
+        phase24) pattern="$REPO/experiments/phase24_grouped_ablation/run_logs/grouped_ablation_*.log" ;;
         publish) pattern="$REPO/experiments/publish_logs/publish_queue_*.log" ;;
         *) return 1 ;;
     esac
@@ -227,6 +256,7 @@ case "$cmd" in
     ensure) ensure "$@" ;;
     queue-phase20) start_phase20_queue "$@" ;;
     queue-phase23) start_phase23_global "$@" ;;
+    queue-phase24) start_phase24_grouped_ablation "$@" ;;
     publish) bash scripts/publish_experiment_updates.sh "$@" ;;
     queue-publish) start_publish_queue "$@" ;;
     monitor) monitor "$@" ;;
