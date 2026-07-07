@@ -16,9 +16,11 @@ REQUIRED_ARTIFACTS = [
     "experiments/phase19/gsm8k_sample_analysis.json",
     "experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json",
     "experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json",
+    "experiments/phase21_aux_reasoning/summary_phase25_platinum_full_2026-07-07T13-55-56.json",
 ]
 
 PHASE25_AUX_LABEL = "phase25_aux_limit300_2026-07-07T13-01-49"
+PHASE25_PLATINUM_FULL_LABEL = "phase25_platinum_full_2026-07-07T13-55-56"
 
 
 def load_json(path):
@@ -87,6 +89,9 @@ def collect():
     phase23 = best_metric("experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full*.json")
     phase24 = load_json("experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json") or {}
     phase25_aux = load_json("experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json") or {}
+    phase25_platinum = load_json(
+        "experiments/phase21_aux_reasoning/summary_phase25_platinum_full_2026-07-07T13-55-56.json"
+    ) or {}
 
     if dense and dense["n"] >= 1000:
         add(checks, "pass", "dense_full_gsm8k", f"n={dense['n']}, strict={dense['strict'] * 100:.2f}%")
@@ -197,14 +202,18 @@ def collect():
     else:
         add(checks, "warn", "phase24_terminal_decision", recommendation or "missing")
 
-    phase25_rows = [
+    phase25_platinum_rows = [
+        row for row in phase25_platinum.get("rows", []) if row.get("run_label") == PHASE25_PLATINUM_FULL_LABEL
+    ]
+    phase25_aux_rows = [
         row for row in phase25_aux.get("rows", []) if row.get("run_label") == PHASE25_AUX_LABEL
     ]
-    phase25_by_key = {(row.get("model_tag"), row.get("task")): row for row in phase25_rows}
-    dense_platinum = phase25_by_key.get(("dense", "gsm8k_platinum_cot"), {})
-    s20_platinum = phase25_by_key.get(("s20", "gsm8k_platinum_cot"), {})
-    dense_bbh = phase25_by_key.get(("dense", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
-    s20_bbh = phase25_by_key.get(("s20", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
+    platinum_by_key = {(row.get("model_tag"), row.get("task")): row for row in phase25_platinum_rows}
+    aux_by_key = {(row.get("model_tag"), row.get("task")): row for row in phase25_aux_rows}
+    dense_platinum = platinum_by_key.get(("dense", "gsm8k_platinum_cot"), {})
+    s20_platinum = platinum_by_key.get(("s20", "gsm8k_platinum_cot"), {})
+    dense_bbh = aux_by_key.get(("dense", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
+    s20_bbh = aux_by_key.get(("s20", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
     if all([dense_platinum, s20_platinum, dense_bbh, s20_bbh]):
         add(
             checks,
@@ -230,7 +239,12 @@ def collect():
         status = "pass" if max_extract_fail <= 0.01 else "warn"
         add(checks, status, "phase25_aux_format_sanity", f"max_extraction_failure={max_extract_fail * 100:.1f}%")
     else:
-        add(checks, "warn", "phase25_aux_rows", f"found {len(phase25_rows)} rows for {PHASE25_AUX_LABEL}")
+        add(
+            checks,
+            "warn",
+            "phase25_aux_rows",
+            f"found platinum={len(phase25_platinum_rows)} rows, aux={len(phase25_aux_rows)} rows",
+        )
 
     if s30 and s30["n"] >= 1000:
         add(checks, "pass", "s30_full_gsm8k", f"n={s30['n']}, strict={s30['strict'] * 100:.2f}%")

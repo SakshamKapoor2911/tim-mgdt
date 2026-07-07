@@ -979,11 +979,40 @@ def _phase24_grouped_ablation_html():
 
 
 def _phase25_auxiliary_html():
-    run_label = "phase25_aux_limit300_2026-07-07T13-01-49"
-    summary = _load("experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json") or {}
-    rows_data = [row for row in summary.get("rows", []) if row.get("run_label") == run_label]
+    selections = [
+        (
+            "experiments/phase21_aux_reasoning/summary_phase25_platinum_full_2026-07-07T13-55-56.json",
+            "phase25_platinum_full_2026-07-07T13-55-56",
+            {"gsm8k_platinum_cot"},
+        ),
+        (
+            "experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json",
+            "phase25_aux_limit300_2026-07-07T13-01-49",
+            {"bbh_cot_fewshot_multistep_arithmetic_two"},
+        ),
+    ]
+    rows_data = []
+    for path, run_label, tasks in selections:
+        summary = _load(path) or {}
+        rows_data.extend(
+            row
+            for row in summary.get("rows", [])
+            if row.get("run_label") == run_label and row.get("task") in tasks
+        )
     if not rows_data:
         return ""
+
+    order = {
+        ("gsm8k_platinum_cot", "dense"): 0,
+        ("gsm8k_platinum_cot", "s20"): 1,
+        ("bbh_cot_fewshot_multistep_arithmetic_two", "dense"): 2,
+        ("bbh_cot_fewshot_multistep_arithmetic_two", "s20"): 3,
+    }
+    rows_data = sorted(rows_data, key=lambda row: order.get((row.get("task"), row.get("model_tag")), 99))
+    task_labels = {
+        "gsm8k_platinum_cot": "GSM8K Platinum (full)",
+        "bbh_cot_fewshot_multistep_arithmetic_two": "BBH multistep arithmetic (full)",
+    }
 
     rows = ""
     for row in rows_data:
@@ -991,7 +1020,7 @@ def _phase25_auxiliary_html():
         if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
             ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}%"
         delta = "—" if row.get("delta_vs_dense_pt") is None else f"{row['delta_vs_dense_pt']:+.2f} pt"
-        task = row.get("task", "").replace("bbh_cot_fewshot_", "BBH ").replace("gsm8k_platinum_cot", "GSM8K Platinum")
+        task = task_labels.get(row.get("task"), row.get("task", ""))
         rows += f"""        <tr>
           <td class="task-who">{row.get('model_tag')}</td>
           <td>{task}</td>
@@ -1005,13 +1034,13 @@ def _phase25_auxiliary_html():
 """
 
     return f"""
-<div class="section-label">Phase 25 extended auxiliary reasoning check</div>
+<div class="section-label">Phase 25 full auxiliary reasoning check</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
 <tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Delta vs dense</th><th>Avg words</th><th>Extract fail</th></tr>
 {rows}
 </table>
-<div class="rc-note">The 20% layerwise mask is essentially tied with dense on this larger auxiliary check: -0.33 pt on 300 GSM8K Platinum examples and +1.20 pt on full BBH multistep arithmetic. Treat this as generality support, not a new mechanism claim.</div>
+<div class="rc-note">The 20% layerwise mask is essentially tied with dense on the full auxiliary checks: +1.16 pt on GSM8K Platinum and +1.20 pt on BBH multistep arithmetic, with overlapping confidence intervals. Treat this as generality support, not a superiority claim.</div>
 </div>"""
 
 

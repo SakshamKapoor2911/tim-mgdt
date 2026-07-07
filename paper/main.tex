@@ -161,8 +161,8 @@ MLP modules & 5.17\% & 300 & 40.00\% & 34.7--46.0\% \\
 
 \section{Auxiliary and Cross-Model Checks}
 
-\paragraph{Auxiliary reasoning smoke.}
-We scaled the auxiliary check beyond the initial 100-example smoke by comparing dense Mistral-7B against the 20\% layerwise mask on 300 GSM8K Platinum examples and the full 250-example BBH multistep arithmetic task. The mask reached 38.00\% strict exact match on GSM8K Platinum versus 38.33\% for dense, and 33.60\% exact match on BBH multistep arithmetic versus 32.40\% for dense. Bootstrap intervals overlap in both cases, so this is not a positive transfer claim; it is evidence that the 20\% boundary is not a GSM8K-only artifact. Extraction failure is 0.0\% for all four auxiliary rows.
+\paragraph{Auxiliary reasoning checks.}
+We scaled the auxiliary check beyond the initial 100-example smoke by comparing dense Mistral-7B against the 20\% layerwise mask on the full 1,209-example GSM8K Platinum task and the full 250-example BBH multistep arithmetic task. The mask reached 39.95\% strict exact match on GSM8K Platinum versus 38.79\% for dense, and 33.60\% exact match on BBH multistep arithmetic versus 32.40\% for dense. Bootstrap intervals overlap in both cases, so this is not a positive transfer claim; it is evidence that the 20\% boundary is not a GSM8K-only artifact. Extraction failure is 0.0\% for all four auxiliary rows.
 
 \paragraph{Cross-model smoke.}
 We also ran a bounded Llama-3-8B check \citep{dubey2024llama3}. On a 100-example GSM8K smoke, dense Llama-3-8B reached 53\% strict exact match, a 10\% dense-shaped mask reached 49\%, and a 20\% mask dropped to 29\%. This is not a full cross-model benchmark. It is a limitation: the Mistral 20\% retention boundary does not automatically transfer across model families.
