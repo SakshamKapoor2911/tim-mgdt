@@ -66,8 +66,8 @@ eval_one() {
     local out_file="$eval_dir/gsm8k_eval_${tag}_${RUN_LABEL}.json"
 
     mkdir -p "$eval_dir"
-    if [[ "$FORCE" != "1" && -f "$out_file" ]]; then
-        echo "Skipping existing eval for $tag: $out_file"
+    if [[ "$FORCE" != "1" ]] && compgen -G "$eval_dir/gsm8k_eval_${tag}_${RUN_LABEL}*.json" >/dev/null; then
+        echo "Skipping existing eval for $tag: $(compgen -G "$eval_dir/gsm8k_eval_${tag}_${RUN_LABEL}*.json" | sort | tail -1)"
         return
     fi
     if [[ ! -d "$ckpt" ]]; then
@@ -121,7 +121,7 @@ summarize() {
     local summary_json="$OUT_DIR/phase24_summary_${RUN_LABEL}.json"
     local summary_md="$OUT_DIR/phase24_summary_${RUN_LABEL}.md"
     "$VENV/bin/python" -u -m code.phases.phase24_grouped_ablation.bootstrap_gsm8k_ci \
-        --result_glob "$OUT_DIR/*/gsm8k_eval_*_${RUN_LABEL}.json" \
+        --result_glob "$OUT_DIR/*/gsm8k_eval_*_${RUN_LABEL}*.json" \
         --output_dir "$OUT_DIR" \
         --output "$summary_json" \
         --markdown "$summary_md"
@@ -162,4 +162,3 @@ else
 fi
 
 echo "=== Phase 24 grouped ablation done at $(date) ==="
-
