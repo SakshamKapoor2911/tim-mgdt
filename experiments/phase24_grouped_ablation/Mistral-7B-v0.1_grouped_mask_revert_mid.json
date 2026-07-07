@@ -1,0 +1,66 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "layerwise_unstructured_magnitude_mask_grouped_dense_revert",
+  "base_mask_scope": "layerwise",
+  "target_sparsity": 0.25,
+  "ablation": "revert_mid",
+  "eval_samples": 16,
+  "masked_c4_ppl": 9.013861656188965,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase24_grouped_ablation/Mistral-7B-v0.1_mask_pruned_revert_mid",
+  "linear_modules": 225,
+  "linear_params": 7110393856,
+  "zero_linear_params": 1175003385,
+  "linear_sparsity": 0.16525151894483184,
+  "grouped_stats": {
+    "ablation": "revert_mid",
+    "target_sparsity": 0.25,
+    "modules_pruned": 148,
+    "modules_reverted_to_dense": 77,
+    "by_layer_block": {
+      "early": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 598356908,
+        "linear_sparsity": 0.24940455209958803
+      },
+      "late": {
+        "linear_modules": 70,
+        "linear_params": 2181038080,
+        "zero_linear_params": 543908512,
+        "linear_sparsity": 0.2493805665236253
+      },
+      "mid": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 19580,
+        "linear_sparsity": 8.161251361553486e-06
+      },
+      "non_layer": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    },
+    "by_module_family": {
+      "attention": {
+        "linear_modules": 128,
+        "linear_params": 1342177280,
+        "zero_linear_params": 219554638,
+        "linear_sparsity": 0.1635809525847435
+      },
+      "mlp": {
+        "linear_modules": 96,
+        "linear_params": 5637144576,
+        "zero_linear_params": 922730362,
+        "linear_sparsity": 0.16368754598356428
+      },
+      "other": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    }
+  }
+}

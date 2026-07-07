@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 LAYER_ABLATIONS = ("revert_early", "revert_mid", "revert_late")
+MODULE_ABLATIONS = ("revert_mlp", "revert_attention")
 
 
 def load_json(path):
@@ -117,6 +118,31 @@ def decision(rows, min_delta_pt=4.0):
             "detail": "Need early/mid/late layer ablations before deciding on contingency.",
         }
 
+    module_rows = [row for row in rows if row["tag"] in MODULE_ABLATIONS and row.get("strict") is not None]
+    if len(module_rows) == len(MODULE_ABLATIONS):
+        ranked_modules = sorted(module_rows, key=lambda row: row["strict"], reverse=True)
+        best_module = ranked_modules[0]
+        second_module = ranked_modules[1]
+        gap_pt = (best_module["strict"] - second_module["strict"]) * 100
+        ci_nonoverlap = (
+            best_module.get("bootstrap_ci_low") is not None
+            and second_module.get("bootstrap_ci_high") is not None
+            and best_module["bootstrap_ci_low"] > second_module["bootstrap_ci_high"]
+        )
+        if ci_nonoverlap or gap_pt >= min_delta_pt:
+            return {
+                "recommendation": "module_axis_signal",
+                "best_module_group": best_module["tag"],
+                "best_vs_second_gap_pt": round(gap_pt, 3),
+                "detail": "Module-type dense revert has a clear enough leading group for a smoke-level mechanistic clue.",
+            }
+        return {
+            "recommendation": "distributed_or_weak_module_signal",
+            "best_module_group": best_module["tag"],
+            "best_vs_second_gap_pt": round(gap_pt, 3),
+            "detail": "Depth bands and module-type ablations have overlapping bootstrap intervals; report this as distributed or weakly localized recovery, not a clean mechanism.",
+        }
+
     ranked = sorted(layer_rows, key=lambda row: row["strict"], reverse=True)
     best = ranked[0]
     second = ranked[1]
@@ -195,4 +221,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

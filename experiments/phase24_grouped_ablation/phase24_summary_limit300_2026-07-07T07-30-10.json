@@ -1,0 +1,77 @@
+{
+  "schema": "phase24_grouped_ablation_summary_v1",
+  "result_glob": "experiments/phase24_grouped_ablation/*/gsm8k_eval_*_limit300_2026-07-07T07-30-10*.json",
+  "rows": [
+    {
+      "tag": "revert_attention",
+      "result_path": "experiments/phase24_grouped_ablation/revert_attention/gsm8k_eval_revert_attention_limit300_2026-07-07T07-30-10_2026-07-07T04-48-54.924960.json",
+      "sample_path": "experiments/phase24_grouped_ablation/revert_attention/samples_gsm8k_2026-07-07T04-48-54.924960.jsonl",
+      "n": 300,
+      "strict": 0.37666666666666665,
+      "flex": 0.38,
+      "sample_strict_n": 300,
+      "bootstrap_ci_low": 0.3233333333333333,
+      "bootstrap_ci_high": 0.43,
+      "actual_linear_sparsity": 0.2023591550819432,
+      "masked_c4_ppl": 8.984512329101562
+    },
+    {
+      "tag": "revert_early",
+      "result_path": "experiments/phase24_grouped_ablation/revert_early/gsm8k_eval_revert_early_limit300_2026-07-07T07-30-10_2026-07-07T03-57-41.900776.json",
+      "sample_path": "experiments/phase24_grouped_ablation/revert_early/samples_gsm8k_2026-07-07T03-57-41.900776.jsonl",
+      "n": 300,
+      "strict": 0.37,
+      "flex": 0.36666666666666664,
+      "sample_strict_n": 300,
+      "bootstrap_ci_low": 0.31666666666666665,
+      "bootstrap_ci_high": 0.4266666666666667,
+      "actual_linear_sparsity": 0.1652703845664439,
+      "masked_c4_ppl": 9.004630088806152
+    },
+    {
+      "tag": "revert_late",
+      "result_path": "experiments/phase24_grouped_ablation/revert_late/gsm8k_eval_revert_late_limit300_2026-07-07T07-30-10_2026-07-07T04-20-29.286126.json",
+      "sample_path": "experiments/phase24_grouped_ablation/revert_late/samples_gsm8k_2026-07-07T04-20-29.286126.jsonl",
+      "n": 300,
+      "strict": 0.37333333333333335,
+      "flex": 0.38333333333333336,
+      "sample_strict_n": 300,
+      "bootstrap_ci_low": 0.32,
+      "bootstrap_ci_high": 0.43,
+      "actual_linear_sparsity": 0.17292369155647516,
+      "masked_c4_ppl": 9.006771087646484
+    },
+    {
+      "tag": "revert_mid",
+      "result_path": "experiments/phase24_grouped_ablation/revert_mid/gsm8k_eval_revert_mid_limit300_2026-07-07T07-30-10_2026-07-07T03-59-47.214795.json",
+      "sample_path": "experiments/phase24_grouped_ablation/revert_mid/samples_gsm8k_2026-07-07T03-59-47.214795.jsonl",
+      "n": 300,
+      "strict": 0.38,
+      "flex": 0.38333333333333336,
+      "sample_strict_n": 300,
+      "bootstrap_ci_low": 0.32666666666666666,
+      "bootstrap_ci_high": 0.43666666666666665,
+      "actual_linear_sparsity": 0.16525151894483184,
+      "masked_c4_ppl": 9.013861656188965
+    },
+    {
+      "tag": "revert_mlp",
+      "result_path": "experiments/phase24_grouped_ablation/revert_mlp/gsm8k_eval_revert_mlp_limit300_2026-07-07T07-30-10_2026-07-07T04-48-54.335166.json",
+      "sample_path": "experiments/phase24_grouped_ablation/revert_mlp/samples_gsm8k_2026-07-07T04-48-54.335166.jsonl",
+      "n": 300,
+      "strict": 0.4,
+      "flex": 0.4066666666666667,
+      "sample_strict_n": 300,
+      "bootstrap_ci_low": 0.3466666666666667,
+      "bootstrap_ci_high": 0.46,
+      "actual_linear_sparsity": 0.051670259965976205,
+      "masked_c4_ppl": 8.98564338684082
+    }
+  ],
+  "decision": {
+    "recommendation": "distributed_or_weak_module_signal",
+    "best_module_group": "revert_mlp",
+    "best_vs_second_gap_pt": 2.333,
+    "detail": "Depth bands and module-type ablations have overlapping bootstrap intervals; report this as distributed or weakly localized recovery, not a clean mechanism."
+  }
+}

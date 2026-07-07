@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-07T08:24:00.495536+00:00Z",
+  "generated_at": "2026-07-07T08:54:27.510479+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "current_phase": "Phase 23 paper packaging",
-  "phase_status": "Phase 23 Validation: Global unstructured baseline complete",
-  "total_experiments": 102,
+  "current_phase": "Phase 24 grouped ablation complete",
+  "phase_status": "Phase 24 Validation: grouped dense-revert smoke complete",
+  "total_experiments": 106,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
@@ -53,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 23 paper packaging. Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters."
+      "body": "Phase 24 paper packaging. Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals."
     }
   ],
   "decisions": [
@@ -79,6 +79,12 @@
       "track": "Phase 19 full validation",
       "status": "now",
       "next_action": "20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning."
+    },
+    {
+      "who": "Agent",
+      "track": "Phase 24 grouped ablation",
+      "status": "done",
+      "next_action": "Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery."
     },
     {
       "who": "Agent",
@@ -157,6 +163,10 @@
       "description": "Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask"
     },
     {
+      "status": "done",
+      "description": "Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism"
+    },
+    {
       "status": "planned",
       "description": "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     }
@@ -177,6 +187,10 @@
     {
       "status": "done",
       "item": "20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM."
+    },
+    {
+      "status": "done",
+      "item": "Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency."
     },
     {
       "status": "planned",
@@ -205,9 +219,9 @@
       "item": "Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed."
     },
     {
-      "status": "planned",
+      "status": "done",
       "owner": "Agent",
-      "item": "Run a per-layer or per-module ablation around the 20-25% mask boundary if there is time before submission."
+      "item": "Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim."
     },
     {
       "status": "planned",
@@ -275,6 +289,10 @@
     },
     {
       "label": "Phase 23 \u2014 Global Unstructured Baseline",
+      "state": "done"
+    },
+    {
+      "label": "Phase 24 \u2014 Grouped Boundary Ablation",
       "state": "done"
     }
   ],

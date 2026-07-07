@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-07 08:24 UTC</span>
+    <span class="nav-meta">2026-07-07 08:54 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -119,9 +119,9 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <h1>TIM-MGDT Project Dashboard</h1>
     <p class="hero-sub">Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.</p>
     <div class="hero-chips">
-      <span class="chip chip-blue">Phase 23 paper packaging</span>
-      <span class="chip chip-green">13/14 runs complete</span>
-      <span class="chip chip-yellow">102 experiment files</span>
+      <span class="chip chip-blue">Phase 24 grouped ablation complete</span>
+      <span class="chip chip-green">14/15 runs complete</span>
+      <span class="chip chip-yellow">106 experiment files</span>
       <span class="chip chip-gray">Llama-3 · Mistral-7B</span>
     </div>
   </div>
@@ -132,7 +132,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 23 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals.</p></div>
 
   </div>
   <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?</p></div></div>
@@ -317,6 +317,60 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 
 </table>
 <div class="rc-note">This baseline answers whether the 20% retention point is a layerwise dense-mask artifact or also holds for standard global unstructured magnitude masking.</div>
+</div>
+
+<div class="section-label">Phase 24 grouped boundary ablation</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th></tr>
+        <tr>
+          <td class="task-who">Phase 24 revert attention</td>
+          <td>300</td>
+          <td>37.7%</td>
+          <td>32.3-43.0%</td>
+          <td>38.0%</td>
+          <td>20.2%</td>
+          <td>8.985</td>
+        </tr>
+        <tr>
+          <td class="task-who">Phase 24 revert early</td>
+          <td>300</td>
+          <td>37.0%</td>
+          <td>31.7-42.7%</td>
+          <td>36.7%</td>
+          <td>16.5%</td>
+          <td>9.005</td>
+        </tr>
+        <tr>
+          <td class="task-who">Phase 24 revert late</td>
+          <td>300</td>
+          <td>37.3%</td>
+          <td>32.0-43.0%</td>
+          <td>38.3%</td>
+          <td>17.3%</td>
+          <td>9.007</td>
+        </tr>
+        <tr>
+          <td class="task-who">Phase 24 revert mid</td>
+          <td>300</td>
+          <td>38.0%</td>
+          <td>32.7-43.7%</td>
+          <td>38.3%</td>
+          <td>16.5%</td>
+          <td>9.014</td>
+        </tr>
+        <tr>
+          <td class="task-who">Phase 24 revert mlp</td>
+          <td>300</td>
+          <td>40.0%</td>
+          <td>34.7-46.0%</td>
+          <td>40.7%</td>
+          <td>5.2%</td>
+          <td>8.986</td>
+        </tr>
+
+</table>
+<div class="rc-note">Decision: <code>distributed_or_weak_module_signal</code>. Depth bands and module-type ablations have overlapping bootstrap intervals; report this as distributed or weakly localized recovery, not a clean mechanism.</div>
 </div>
 
 <div class="section-label">Phase 20 mask-guided structural transfer</div>
@@ -737,6 +791,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td>Phase 21 — Auxiliary Reasoning Smoke</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 22 — Llama Threshold Smoke</td><td><span class='pill p-done'>done</span></td></tr>
 <tr><td>Phase 23 — Global Unstructured Baseline</td><td><span class='pill p-done'>done</span></td></tr>
+<tr><td>Phase 24 — Grouped Boundary Ablation</td><td><span class='pill p-done'>done</span></td></tr>
 
 </table></div>
   <div id="decisions">
@@ -759,6 +814,8 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><th>Who</th><th>Status</th><th>Next action</th></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
 <td><span class='pill p-now'>now</span></td><td class="task-action">20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning.</td></tr>
+<tr><td class="task-who">Agent<br><span class="task-track">Phase 24 grouped ablation</span></td>
+<td><span class='pill p-done'>done</span></td><td class="task-action">Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 23 global baseline</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Global unstructured magnitude pruning at 20.06% actual linear sparsity reaches 35.33% strict EM on full GSM8K with C4 PPL 8.203.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
@@ -784,6 +841,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>20% mask pruning completed full GSM8K validation within 1.4 points of dense.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td>Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups.</td></tr>
 
 </table></div>
@@ -798,6 +856,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">
@@ -809,7 +868,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed.</td></tr>
-<tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Run a per-layer or per-module ablation around the 20-25% mask boundary if there is time before submission.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 

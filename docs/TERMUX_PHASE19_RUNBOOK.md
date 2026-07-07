@@ -129,6 +129,21 @@ bash scripts/phase19_termux_control.sh queue-phase24
 bash scripts/phase19_termux_control.sh logs phase24
 ```
 
+Completed result:
+
+```bash
+early-layer revert:     37.00% strict EM, 95% CI 31.7-42.7
+middle-layer revert:    38.00% strict EM, 95% CI 32.7-43.7
+late-layer revert:      37.33% strict EM, 95% CI 32.0-43.0
+attention-module revert:37.67% strict EM, 95% CI 32.3-43.0
+MLP-module revert:      40.00% strict EM, 95% CI 34.7-46.0
+```
+
+Interpretation: the depth bands are flat at this smoke scale. MLP-module
+revert is the best point estimate, but its interval overlaps the attention and
+depth-band intervals, so use the distributed or weakly localized recovery
+framing rather than claiming a clean mechanism.
+
 ## Next Steps
 
 1. Keep `paper/main.tex` as the authoritative submission draft.

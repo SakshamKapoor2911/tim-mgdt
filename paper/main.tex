@@ -136,6 +136,27 @@ Figure~\ref{fig:phase19_dissociation} summarizes the dissociation. Layerwise mas
 \label{fig:phase19_dissociation}
 \end{figure}
 
+\subsection{Grouped Boundary Ablation Gives a Weak Localization Signal}
+
+To probe where the 25\% layerwise boundary lives, we built dense-revert ablations from the 25\% layerwise mask: one coarse depth band or module family was restored to dense while the rest of the model kept the 25\% layerwise mask. This is a 300-example GSM8K smoke with bootstrap confidence intervals, not a full benchmark. Table~\ref{tab:grouped_ablation} shows that early, middle, and late depth bands are statistically indistinguishable at this scale. Reverting MLP modules has the best point estimate (40.00\%), but its interval overlaps the attention-only revert (37.67\%). We therefore treat this as evidence for distributed or weakly localized recovery rather than a clean mechanism.
+
+\begin{table}[h]
+\centering
+\caption{Grouped dense-revert ablations from the 25\% layerwise mask. All rows use 300 GSM8K examples; confidence intervals are bootstrap intervals over strict-match sample rows.}
+\label{tab:grouped_ablation}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Dense-revert group} & \textbf{Actual sparsity} & \textbf{GSM8K n} & \textbf{Strict EM} & \textbf{95\% CI} \\
+\midrule
+Early layers & 16.53\% & 300 & 37.00\% & 31.7--42.7\% \\
+Middle layers & 16.53\% & 300 & 38.00\% & 32.7--43.7\% \\
+Late layers & 17.29\% & 300 & 37.33\% & 32.0--43.0\% \\
+Attention modules & 20.24\% & 300 & 37.67\% & 32.3--43.0\% \\
+MLP modules & 5.17\% & 300 & 40.00\% & 34.7--46.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Auxiliary and Cross-Model Checks}
 
 \paragraph{Auxiliary reasoning smoke.}
@@ -157,7 +178,7 @@ The 20\% unstructured masks are not speedup claims. They are controls that expos
 
 \section{Limitations}
 
-The main full-test result is on Mistral-7B-v0.1 and GSM8K. The Llama-3-8B check is smoke-sized and only establishes that the Mistral threshold should not be generalized. The structural low-sparsity sweep is also smoke-sized, although the 20\% structural collapse is confirmed on full GSM8K. We do not yet identify the exact layers or channels responsible for the retained reasoning subspace, and unstructured masks do not by themselves reduce dense-kernel inference cost.
+The main full-test result is on Mistral-7B-v0.1 and GSM8K. The Llama-3-8B check is smoke-sized and only establishes that the Mistral threshold should not be generalized. The structural low-sparsity sweep and grouped dense-revert ablation are also smoke-sized, although the 20\% structural collapse is confirmed on full GSM8K. The grouped ablation narrows the mechanistic story by ruling out a clean single depth-band explanation at 300 examples, but it does not identify exact layers or channels responsible for the retained reasoning subspace. Unstructured masks also do not by themselves reduce dense-kernel inference cost.
 
 \section{Conclusion}
 

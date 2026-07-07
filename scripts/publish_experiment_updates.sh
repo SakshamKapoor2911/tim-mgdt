@@ -32,7 +32,6 @@ paths=(
     experiments/phase24_grouped_ablation/Mistral-7B-v0.1_grouped_mask_*.json
     experiments/phase24_grouped_ablation/*/gsm8k_eval_*.json
     experiments/phase24_grouped_ablation/phase24_summary_*.json
-    experiments/phase24_grouped_ablation/phase24_summary_*.md
 )
 
 if ((${#paths[@]} == 0)); then
@@ -41,6 +40,11 @@ if ((${#paths[@]} == 0)); then
 fi
 
 git add "${paths[@]}"
+
+summary_markdown=(experiments/phase24_grouped_ablation/phase24_summary_*.md)
+if ((${#summary_markdown[@]} > 0)); then
+    git add -f "${summary_markdown[@]}"
+fi
 
 if git diff --cached --quiet; then
     echo "No compact artifact changes to publish."

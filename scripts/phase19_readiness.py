@@ -14,6 +14,7 @@ REQUIRED_ARTIFACTS = [
     "dashboard/index.html",
     "dashboard/figures/phase19_reasoning_dissociation.png",
     "experiments/phase19/gsm8k_sample_analysis.json",
+    "experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json",
 ]
 
 
@@ -81,6 +82,7 @@ def collect():
     s40 = best_metric("experiments/phase19/gsm8k_eval_mask_s40_full*.json")
     phase23_meta = load_json("experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json")
     phase23 = best_metric("experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full*.json")
+    phase24 = load_json("experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json") or {}
 
     if dense and dense["n"] >= 1000:
         add(checks, "pass", "dense_full_gsm8k", f"n={dense['n']}, strict={dense['strict'] * 100:.2f}%")
@@ -150,6 +152,22 @@ def collect():
             add(checks, status, "global_extraction_sanity", f"extraction_failure={global_extract_fail * 100:.1f}%")
     else:
         add(checks, "warn", "global_sample_diagnostics", "missing global 20% sample row")
+
+    phase24_rows = phase24.get("rows", [])
+    phase24_decision = phase24.get("decision", {})
+    if len(phase24_rows) >= 5:
+        tags = {row.get("tag") for row in phase24_rows}
+        expected_tags = {"revert_early", "revert_mid", "revert_late", "revert_mlp", "revert_attention"}
+        status = "pass" if expected_tags.issubset(tags) else "warn"
+        add(checks, status, "phase24_grouped_rows", f"rows={len(phase24_rows)}, tags={sorted(tags)}")
+    else:
+        add(checks, "warn", "phase24_grouped_rows", f"expected 5 rows, found {len(phase24_rows)}")
+
+    recommendation = phase24_decision.get("recommendation")
+    if recommendation in {"distributed_or_weak_module_signal", "module_axis_signal", "stop_after_layer_groups"}:
+        add(checks, "pass", "phase24_terminal_decision", recommendation)
+    else:
+        add(checks, "warn", "phase24_terminal_decision", recommendation or "missing")
 
     if s30 and s30["n"] >= 1000:
         add(checks, "pass", "s30_full_gsm8k", f"n={s30['n']}, strict={s30['strict'] * 100:.2f}%")

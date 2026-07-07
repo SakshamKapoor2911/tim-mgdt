@@ -1,0 +1,66 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "layerwise_unstructured_magnitude_mask_grouped_dense_revert",
+  "base_mask_scope": "layerwise",
+  "target_sparsity": 0.25,
+  "ablation": "revert_mlp",
+  "eval_samples": 16,
+  "masked_c4_ppl": 8.98564338684082,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase24_grouped_ablation/Mistral-7B-v0.1_mask_pruned_revert_mlp",
+  "linear_modules": 225,
+  "linear_params": 7110393856,
+  "zero_linear_params": 367395899,
+  "linear_sparsity": 0.051670259965976205,
+  "grouped_stats": {
+    "ablation": "revert_mlp",
+    "target_sparsity": 0.25,
+    "modules_pruned": 129,
+    "modules_reverted_to_dense": 96,
+    "by_layer_block": {
+      "early": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 115024905,
+        "linear_sparsity": 0.04794418603390247
+      },
+      "late": {
+        "linear_modules": 70,
+        "linear_params": 2181038080,
+        "zero_linear_params": 104555076,
+        "linear_sparsity": 0.047938216649568995
+      },
+      "mid": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 115097533,
+        "linear_sparsity": 0.047974458524397204
+      },
+      "non_layer": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    },
+    "by_module_family": {
+      "attention": {
+        "linear_modules": 128,
+        "linear_params": 1342177280,
+        "zero_linear_params": 334632591,
+        "linear_sparsity": 0.24932070896029473
+      },
+      "mlp": {
+        "linear_modules": 96,
+        "linear_params": 5637144576,
+        "zero_linear_params": 44923,
+        "linear_sparsity": 7.969105527514503e-06
+      },
+      "other": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    }
+  }
+}

@@ -939,6 +939,42 @@ def _phase23_global_html():
 </div>"""
 
 
+def _phase24_grouped_ablation_html():
+    summary = _load("experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json") or {}
+    rows_data = summary.get("rows", [])
+    if not rows_data:
+        return ""
+
+    decision = summary.get("decision", {})
+    rows = ""
+    for row in rows_data:
+        ci = "—"
+        if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
+            ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}%"
+        rows += f"""        <tr>
+          <td class="task-who">Phase 24 {row.get('tag', '').replace('_', ' ')}</td>
+          <td>{int(row.get('n')) if row.get('n') else "—"}</td>
+          <td>{_pct(row.get('strict'))}</td>
+          <td>{ci}</td>
+          <td>{_pct(row.get('flex'))}</td>
+          <td>{_pct(row.get('actual_linear_sparsity'))}</td>
+          <td>{_float(row.get('masked_c4_ppl'))}</td>
+        </tr>
+"""
+
+    recommendation = decision.get("recommendation", "pending")
+    detail = decision.get("detail", "")
+    return f"""
+<div class="section-label">Phase 24 grouped boundary ablation</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th></tr>
+{rows}
+</table>
+<div class="rc-note">Decision: <code>{recommendation}</code>. {detail}</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -997,6 +1033,7 @@ def _width_pruning_html():
 {_phase18b_sweep_html()}
 {_phase19_mask_html()}
 {_phase23_global_html()}
+{_phase24_grouped_ablation_html()}
 {_phase20_mask_guided_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">

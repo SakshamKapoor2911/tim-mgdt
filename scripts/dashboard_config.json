@@ -1,6 +1,6 @@
 {
   "TAGLINE": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "CURRENT_PHASE": "Phase 23 paper packaging",
+  "CURRENT_PHASE": "Phase 24 grouped ablation complete",
   "OVERVIEW": [
     [
       "What we're building",
@@ -12,14 +12,14 @@
     ],
     [
       "Where we are today",
-      "<b>Phase 23 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters."
+      "<b>Phase 24 paper packaging.</b> Uniform structural width pruning collapses GSM8K even at 1%, while unstructured masks preserve reasoning much better. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals."
     ]
   ],
   "RESEARCH_Q": [
     "The research question",
     "Why do unstructured masks preserve Mistral-7B GSM8K reasoning near 20% sparsity while structural MLP-width pruning collapses, and why does layerwise allocation outperform a standard global magnitude threshold?"
   ],
-  "PHASE": "Phase 23 Validation: Global unstructured baseline complete",
+  "PHASE": "Phase 24 Validation: grouped dense-revert smoke complete",
   "RUNS": [
     [
       "Phase 11 \u2014 Llama-3 & Mistral-7B baseline eval",
@@ -76,6 +76,10 @@
     [
       "Phase 23 \u2014 Global Unstructured Baseline",
       "done"
+    ],
+    [
+      "Phase 24 \u2014 Grouped Boundary Ablation",
+      "done"
     ]
   ],
   "DECISIONS": [
@@ -101,6 +105,12 @@
       "Phase 19 full validation",
       "now",
       "20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning."
+    ],
+    [
+      "Agent",
+      "Phase 24 grouped ablation",
+      "done",
+      "Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery."
     ],
     [
       "Agent",
@@ -165,6 +175,10 @@
       "20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM."
     ],
     [
+      "done",
+      "Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency."
+    ],
+    [
       "planned",
       "Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups."
     ]
@@ -215,6 +229,10 @@
       "Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask"
     ],
     [
+      "done",
+      "Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism"
+    ],
+    [
       "planned",
       "COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy"
     ]
@@ -241,9 +259,9 @@
       "Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed."
     ],
     [
-      "planned",
+      "done",
       "Agent",
-      "Run a per-layer or per-module ablation around the 20-25% mask boundary if there is time before submission."
+      "Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim."
     ],
     [
       "planned",

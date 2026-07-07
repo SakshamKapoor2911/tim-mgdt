@@ -99,7 +99,34 @@ class TestPhase24GroupedAblation(unittest.TestCase):
         ]
         self.assertEqual(decision(rows)["recommendation"], "stop_after_layer_groups")
 
+    def test_decision_reports_weak_signal_after_flat_module_contingency(self):
+        rows = [
+            {"tag": "revert_early", "strict": 0.37},
+            {"tag": "revert_mid", "strict": 0.38},
+            {"tag": "revert_late", "strict": 0.373},
+            {"tag": "revert_mlp", "strict": 0.40, "bootstrap_ci_low": 0.347},
+            {"tag": "revert_attention", "strict": 0.377, "bootstrap_ci_high": 0.43},
+        ]
+
+        result = decision(rows)
+
+        self.assertEqual(result["recommendation"], "distributed_or_weak_module_signal")
+        self.assertEqual(result["best_module_group"], "revert_mlp")
+
+    def test_decision_reports_module_signal_when_module_gap_is_clear(self):
+        rows = [
+            {"tag": "revert_early", "strict": 0.37},
+            {"tag": "revert_mid", "strict": 0.38},
+            {"tag": "revert_late", "strict": 0.373},
+            {"tag": "revert_mlp", "strict": 0.44, "bootstrap_ci_low": 0.39},
+            {"tag": "revert_attention", "strict": 0.37, "bootstrap_ci_high": 0.38},
+        ]
+
+        result = decision(rows)
+
+        self.assertEqual(result["recommendation"], "module_axis_signal")
+        self.assertEqual(result["best_module_group"], "revert_mlp")
+
 
 if __name__ == "__main__":
     unittest.main()
-

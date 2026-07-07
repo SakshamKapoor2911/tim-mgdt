@@ -1,0 +1,66 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "layerwise_unstructured_magnitude_mask_grouped_dense_revert",
+  "base_mask_scope": "layerwise",
+  "target_sparsity": 0.25,
+  "ablation": "revert_late",
+  "eval_samples": 16,
+  "masked_c4_ppl": 9.006771087646484,
+  "checkpoint_dir": "/home/skapoor/tim-mgdt/experiments/phase24_grouped_ablation/Mistral-7B-v0.1_mask_pruned_revert_late",
+  "linear_modules": 225,
+  "linear_params": 7110393856,
+  "zero_linear_params": 1229555554,
+  "linear_sparsity": 0.17292369155647516,
+  "grouped_stats": {
+    "ablation": "revert_late",
+    "target_sparsity": 0.25,
+    "modules_pruned": 155,
+    "modules_reverted_to_dense": 70,
+    "by_layer_block": {
+      "early": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 598356908,
+        "linear_sparsity": 0.24940455209958803
+      },
+      "late": {
+        "linear_modules": 70,
+        "linear_params": 2181038080,
+        "zero_linear_params": 16792,
+        "linear_sparsity": 7.699086115910457e-06
+      },
+      "mid": {
+        "linear_modules": 77,
+        "linear_params": 2399141888,
+        "zero_linear_params": 598463469,
+        "linear_sparsity": 0.24944896839715383
+      },
+      "non_layer": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    },
+    "by_module_family": {
+      "attention": {
+        "linear_modules": 128,
+        "linear_params": 1342177280,
+        "zero_linear_params": 230094307,
+        "linear_sparsity": 0.17143361791968345
+      },
+      "mlp": {
+        "linear_modules": 96,
+        "linear_params": 5637144576,
+        "zero_linear_params": 966742862,
+        "linear_sparsity": 0.17149513356742405
+      },
+      "other": {
+        "linear_modules": 1,
+        "linear_params": 131072000,
+        "zero_linear_params": 32718385,
+        "linear_sparsity": 0.24962146759033202
+      }
+    }
+  }
+}
