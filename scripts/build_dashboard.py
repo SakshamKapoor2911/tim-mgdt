@@ -746,6 +746,7 @@ def _phase19_mask_html():
     sample_by_tag = {row.get("tag"): row for row in sample_analysis.get("rows", [])}
     dense_sample = sample_by_tag.get("dense") or {}
     s20_sample = sample_by_tag.get("s20") or {}
+    global_sample = sample_by_tag.get("global_s20") or {}
     sample_note = ""
     if (
         dense_sample.get("avg_response_words") is not None
@@ -763,6 +764,20 @@ def _phase19_mask_html():
         )
         if marker_delta is not None:
             sample_note += f" with a {marker_delta:+.1f} pt final-answer-marker change."
+        if (
+            global_sample.get("avg_response_words") is not None
+            and global_sample.get("extraction_failure_rate") is not None
+        ):
+            global_marker = global_sample.get("final_marker_rate")
+            global_marker_text = ""
+            if global_marker is not None:
+                global_marker_text = f", {global_marker * 100:.1f}% final-marker rate"
+            sample_note += (
+                " Global 20% shows the same format sanity pattern "
+                f"({global_sample.get('avg_response_words'):.2f} avg words{global_marker_text}, "
+                f"{global_sample.get('extraction_failure_rate') * 100:.1f}% extraction failure), "
+                "so its weaker score is not a parsing collapse."
+            )
         sample_note = f"<div class=\"rc-note\">{sample_note}</div>"
     rows = f"""
         <tr>

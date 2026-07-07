@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-06 18:05 UTC</span>
+    <span class="nav-meta">2026-07-07 07:23 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -292,7 +292,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         
 </table>
 <div class="rc-note">Dense-shaped unstructured masks do not provide structural speedups. Deltas compare against dense runs at the same sample scale when available, isolating whether reasoning loss comes from sparsity itself or from structural MLP-width geometry.</div>
-<div class="rc-note">Sample analysis: the 20% mask keeps generated GSM8K chain length essentially unchanged (57.05 vs 56.58 avg words, +0.47 delta) with a -1.8 pt final-answer-marker change.</div>
+<div class="rc-note">Sample analysis: the 20% mask keeps generated GSM8K chain length essentially unchanged (57.05 vs 56.58 avg words, +0.47 delta) with a -1.8 pt final-answer-marker change. Global 20% shows the same format sanity pattern (57.66 avg words, 88.3% final-marker rate, 0.0% extraction failure), so its weaker score is not a parsing collapse.</div>
 </div>
 <div class="card" style="padding:18px;margin-bottom:18px">
   <img src="figures/phase19_reasoning_dissociation.png" alt="Phase 19 mask-vs-structural C4 and GSM8K dissociation plot" style="display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05)" />

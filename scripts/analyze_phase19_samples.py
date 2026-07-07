@@ -44,6 +44,8 @@ def tag_for_result(path):
     name = Path(path).stem
     if name.startswith("gsm8k_eval_baseline_full_"):
         return "dense"
+    if name.startswith("gsm8k_eval_global_s20"):
+        return "global_s20"
     match = re.match(r"gsm8k_eval_mask_(s[0-9]+)", name)
     if match:
         return match.group(1)
@@ -52,6 +54,15 @@ def tag_for_result(path):
 
 def sample_path_for_result(path):
     name = Path(path).stem
+    if name.startswith("gsm8k_eval_global_s20"):
+        result_dir = Path(path).parent
+        suffix = name.split("_", 5)[-1]
+        if "_" in suffix:
+            latest_timestamp = suffix.rsplit("_", 1)[-1]
+            fallback = result_dir / f"samples_gsm8k_{latest_timestamp}.jsonl"
+            if fallback.exists():
+                return str(fallback)
+        return str(result_dir / f"samples_gsm8k_{suffix}.jsonl")
     match = re.match(r"gsm8k_eval_(?:baseline_full|mask_s[0-9]+(?:_full)?)_(.+)", name)
     if not match:
         return None
@@ -81,6 +92,15 @@ def best_results(exp_dir):
         if old is None or key > old_key:
             by_tag[tag] = metric
     return dict(sorted(by_tag.items(), key=lambda item: (0 if item[0] == "dense" else 1, item[0])))
+
+
+def phase23_result():
+    paths = glob.glob("experiments/phase23_global_unstructured/gsm8k_eval_global_s20*.json")
+    metrics = [gsm8k_metric(path) for path in paths]
+    metrics = [metric for metric in metrics if metric]
+    if not metrics:
+        return None
+    return sorted(metrics, key=lambda m: (m["n"], os.path.getmtime(m["path"])))[-1]
 
 
 def first_response(row):
@@ -124,6 +144,7 @@ def analyze_samples(path):
     correct_word_counts = []
     incorrect_word_counts = []
     marker_count = 0
+    extraction_failure_count = 0
     sample_rows = 0
     strict_rows = 0
 
@@ -144,6 +165,9 @@ def analyze_samples(path):
             line_counts.append(lines)
             if "####" in response:
                 marker_count += 1
+            filtered = row.get("filtered_resps") or []
+            if not filtered or filtered[0] in ("", None):
+                extraction_failure_count += 1
             if row.get("exact_match") == 1.0:
                 correct_word_counts.append(words)
             else:
@@ -160,6 +184,7 @@ def analyze_samples(path):
         "avg_response_chars": round_or_none(mean(char_counts), 3),
         "median_response_lines": round_or_none(statistics.median(line_counts), 3) if line_counts else None,
         "final_marker_rate": round_or_none(marker_count / strict_rows, 3) if strict_rows else None,
+        "extraction_failure_rate": round_or_none(extraction_failure_count / strict_rows, 3) if strict_rows else None,
         "avg_words_correct": round_or_none(mean(correct_word_counts), 3),
         "avg_words_incorrect": round_or_none(mean(incorrect_word_counts), 3),
     }
@@ -180,6 +205,17 @@ def enrich_row(tag, metric, exp_dir):
         mask_paths = sorted(glob.glob(os.path.join(exp_dir, "Mistral-7B-v0.1_mask_pruning_s*.json")))
         first_mask = load_json(mask_paths[0]) if mask_paths else {}
         row.update({"target_sparsity": 0.0, "linear_sparsity": 0.0, "c4_ppl": (first_mask or {}).get("baseline_c4_ppl")})
+    elif tag == "global_s20":
+        mask_meta = load_json(
+            "experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json"
+        ) or {}
+        row.update(
+            {
+                "target_sparsity": mask_meta.get("target_sparsity"),
+                "linear_sparsity": mask_meta.get("linear_sparsity"),
+                "c4_ppl": mask_meta.get("masked_c4_ppl"),
+            }
+        )
     else:
         mask_meta = load_json(os.path.join(exp_dir, f"Mistral-7B-v0.1_mask_pruning_{tag}.json")) or {}
         row.update(
@@ -196,6 +232,9 @@ def enrich_row(tag, metric, exp_dir):
 
 def collect(exp_dir):
     rows = [enrich_row(tag, metric, exp_dir) for tag, metric in best_results(exp_dir).items()]
+    phase23 = phase23_result()
+    if phase23:
+        rows.append(enrich_row("global_s20", phase23, exp_dir))
     dense = next((row for row in rows if row["tag"] == "dense"), None)
     dense_full = dense if dense and dense.get("scale") == "full" else None
     dense_strict = dense_full.get("strict") if dense_full else None
@@ -221,6 +260,7 @@ def collect(exp_dir):
         "rows": rows,
         "notes": [
             "Generation-length statistics use lm-eval strict-match sample rows only.",
+            "Extraction failures count strict-match rows whose filtered answer is empty.",
             "Accuracy fields come from the official lm-eval aggregate JSON.",
             "Full-run deltas are only computed against the full dense baseline.",
         ],
@@ -251,6 +291,7 @@ def print_markdown(summary):
         "median words",
         "p90 words",
         "final marker %",
+        "extract fail %",
         "delta strict full pt",
         "delta words full",
     ]
@@ -268,6 +309,7 @@ def print_markdown(summary):
             format_number(row.get("median_response_words"), 2),
             format_number(row.get("p90_response_words"), 2),
             pct(row.get("final_marker_rate")),
+            pct(row.get("extraction_failure_rate")),
             format_number(row.get("delta_strict_vs_dense_full_pt"), 2),
             format_number(row.get("delta_avg_words_vs_dense_full"), 2),
         ]

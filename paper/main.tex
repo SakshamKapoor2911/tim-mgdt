@@ -18,21 +18,21 @@ Paper under double-blind review
 \maketitle
 
 \begin{abstract}
-LLM compression is often evaluated with language-modeling perplexity, but reasoning can fail even when perplexity remains plausible. We study this mismatch on Mistral-7B-v0.1 by comparing structural MLP-width pruning, layerwise dense-shaped magnitude masks, and a standard global unstructured magnitude mask. On full GSM8K, a 20\% layerwise mask reaches 37.23\% strict exact match versus 38.67\% dense, while 25\%, 30\%, and 40\% masks fall to 34.04\%, 31.77\%, and 23.88\%. A 20\% global mask reaches 35.33\%, showing that unstructured pruning survives but layerwise allocation matters. In contrast, structural 20\% width pruning collapses to 5.23\%, with structural smoke tests degrading at 1--5\% width sparsity. A Llama-3-8B smoke check shows that the safe threshold is model-specific. These results support geometry-sensitive reasoning compression: masks expose retention boundaries, but deployable pruning must preserve retained reasoning geometry.
+LLM compression is often evaluated with language-modeling perplexity, but reasoning can fail even when perplexity remains plausible. We study this mismatch on Mistral-7B-v0.1 by comparing structural MLP-width pruning, layerwise dense-shaped magnitude masks, and a standard global unstructured magnitude mask. On full GSM8K, a 20\% layerwise mask reaches 37.23\% strict exact match versus 38.67\% dense, while 25\%, 30\%, and 40\% masks fall to 34.04\%, 31.77\%, and 23.88\%. A 20\% global mask reaches 35.33\%, showing that preserving tensor geometry is not sufficient by itself: sparsity allocation also matters. In contrast, structural 20\% width pruning collapses to 5.23\%, with structural smoke tests degrading at 1--5\% width sparsity. A Llama-3-8B smoke check shows that the safe threshold is model-specific. These results identify a controlled reasoning-retention boundary that deployable pruning methods must respect.
 \end{abstract}
 
 \section{Introduction}
 
 Efficient reasoning requires more than removing parameters. A compressed model can remain fluent and maintain moderate language-modeling perplexity while losing the internal computation needed for multi-step mathematical reasoning. This is a practical risk for deployment: a pruning method can appear acceptable under a general text objective but fail the reasoning workload it is meant to serve.
 
-Post-training LLM pruning has made substantial progress. SparseGPT and Wanda showed that large pretrained models can tolerate high unstructured sparsity with modest perplexity loss \citep{frantar2023sparsegpt,sun2024wanda}. Structural pruning methods such as LLM-Pruner, SliceGPT, ShortGPT, and Bonsai target deployable speedups by removing coupled channels, rows/columns, layers, or modules \citep{ma2023llmpruner,ashkboos2024slicegpt,men-etal-2025-shortgpt,kolawole2024bonsai}. More recent work has begun to make pruning explicitly reasoning-aware \citep{wang2026gisp,qian2026rku,sheth2026cap}. Our question is narrower and diagnostic: when reasoning collapses, is the culprit simply sparsity, or the geometry of the compression operator?
+Post-training LLM pruning has made substantial progress. SparseGPT and Wanda showed that large pretrained models can tolerate high unstructured sparsity with modest perplexity loss \citep{frantar2023sparsegpt,sun2024wanda}. Structural pruning methods such as LLM-Pruner, SliceGPT, ShortGPT, and Bonsai target deployable speedups by removing coupled channels, rows/columns, layers, or modules \citep{ma2023llmpruner,ashkboos2024slicegpt,men-etal-2025-shortgpt,kolawole2024bonsai}. Recent reasoning-focused work shows that unstructured pruning can outperform structured pruning under test-time scaling and that layer-wise allocation affects reasoning outcomes \citep{monjur2026ttspruning}. Other methods make pruning explicitly reasoning-aware through task-aligned structured importance, self-reflective calibration, curvature-aware structural utility, or causal attribution \citep{wang2026gisp,wang2025resp,qian2026rku,sheth2026cap}. Our question is narrower and diagnostic: when reasoning changes, how much comes from weight removal, tensor geometry, and sparsity allocation under a controlled Mistral/GSM8K setup?
 
-We answer with a paired control on Mistral-7B-v0.1 \citep{jiang2023mistral}. We compare structural MLP-width pruning against dense-shaped magnitude masks under the same reasoning benchmark, GSM8K \citep{cobbe2021gsm8k}, and the same general language-modeling control, C4 perplexity \citep{raffel2020c4}. We also add a standard global unstructured magnitude mask at 20\% to separate the effect of unstructured weight removal from the effect of layerwise sparsity allocation. Dense-shaped masks are not a deployment method: they do not shrink tensors or speed inference in ordinary dense kernels. Their value is diagnostic. If 20\% unstructured weight removal preserves GSM8K while structural width pruning fails at far lower sparsity, then reasoning loss is not explained by sparsity amount alone.
+We answer with a paired control on Mistral-7B-v0.1 \citep{jiang2023mistral}. We compare structural MLP-width pruning against dense-shaped magnitude masks under the same reasoning benchmark, GSM8K \citep{cobbe2021gsm8k}, and the same general language-modeling control, C4 perplexity \citep{raffel2020c4}. We also add a standard global unstructured magnitude mask at 20\% to separate the effect of unstructured weight removal from the effect of layerwise sparsity allocation. Dense-shaped masks are not a deployment method: they do not shrink tensors or speed inference in ordinary dense kernels. Their value is diagnostic. If two 20\% tensor-preserving masks with similar C4 perplexity differ on GSM8K, and structural width pruning fails much earlier, then reasoning retention depends on more than sparsity amount or perplexity alone.
 
 Our contributions are:
 \begin{enumerate}
     \item We identify a \textbf{reasoning-retention boundary} for dense-shaped Mistral-7B masks: 20\% masking is near dense on full GSM8K, while 25\% and above degrade materially.
-    \item We close the \textbf{standard unstructured baseline} gap: a 20\% global magnitude mask retains substantial GSM8K accuracy but trails the layerwise 20\% mask, showing that allocation matters within unstructured masking.
+    \item We close the \textbf{standard unstructured baseline} gap: a 20\% global magnitude mask trails the layerwise 20\% mask despite similar C4 perplexity, showing that preserving tensor geometry is not sufficient by itself.
     \item We show a \textbf{mask-vs-structure dissociation}: structural MLP-width pruning damages GSM8K much earlier than dense-shaped weight masking, even when C4 perplexity remains in a plausible range.
     \item We add a \textbf{cross-model caution}: a Llama-3-8B smoke test suggests a lower safe mask threshold, so the Mistral 20\% point should not be treated as universal.
 \end{enumerate}
@@ -40,13 +40,13 @@ Our contributions are:
 \section{Related Work and Positioning}
 
 \paragraph{Unstructured post-training pruning.}
-SparseGPT formulates one-shot pruning as a large sparse regression problem and reports high unstructured sparsity with small perplexity loss on large GPT-family models \citep{frantar2023sparsegpt}. Wanda removes weights by combining weight magnitudes with input activation norms, avoiding retraining and expensive second-order updates \citep{sun2024wanda}. These methods motivate our dense-shaped mask controls, but our goal is not to beat them as pruning algorithms. We use layerwise and global magnitude masks to ask whether reasoning can survive weight-level removal when architecture geometry is held fixed.
+SparseGPT formulates one-shot pruning as a large sparse regression problem and reports high unstructured sparsity with small perplexity loss on large GPT-family models \citep{frantar2023sparsegpt}. Wanda removes weights by combining weight magnitudes with input activation norms, avoiding retraining and expensive second-order updates \citep{sun2024wanda}. Monjur et al. study pruning for test-time scaling and show that unstructured methods can outperform structured pruning on reasoning benchmarks, while layer-wise sparsity allocation changes outcomes \citep{monjur2026ttspruning}. Our work should be read as complementary rather than as a broad rediscovery of that point: we run a controlled Mistral/GSM8K boundary diagnostic that pairs layerwise and global magnitude masks with structural MLP-width pruning and C4 perplexity.
 
 \paragraph{Structural pruning for deployment.}
 Structural pruning is attractive because it can shrink actual tensors. LLM-Pruner removes coupled structures with gradient information and LoRA recovery \citep{ma2023llmpruner}. SliceGPT deletes rows and columns after an invariance transformation, reducing embedding dimension and inference cost \citep{ashkboos2024slicegpt}. ShortGPT removes redundant layers using a block-influence score \citep{men-etal-2025-shortgpt}. Bonsai uses forward-pass-only perturbative pruning to reduce memory and backpropagation requirements \citep{kolawole2024bonsai}. These papers optimize compression quality or deployment efficiency. Our result complements them by isolating a failure mode: structural geometry can break reasoning even at sparsities where dense-shaped masks remain near dense.
 
 \paragraph{Reasoning-aware pruning.}
-Recent papers increasingly target reasoning retention directly. GISP argues that task-agnostic local pruning can preserve perplexity while leaving downstream task performance under-optimized, and introduces task-specific structured importance \citep{wang2026gisp}. RKU frames structural pruning failures as a reasoning-collapse problem and proposes a curvature-aware criterion \citep{qian2026rku}. CAP scores attention heads by their causal contribution to reasoning tasks before pruning \citep{sheth2026cap}. These works are close in motivation. Our distinct contribution is a simple empirical dissociation and boundary measurement: dense-shaped masks reveal that Mistral-7B has a near-dense reasoning regime at 20\%, while shape-changing structural pruning fails much earlier.
+Recent papers increasingly target reasoning retention directly. GISP argues that task-agnostic local pruning can preserve perplexity while leaving downstream task performance under-optimized, and introduces task-specific structured importance \citep{wang2026gisp}. RESP uses self-generated reasoning traces and self-reflective calibration to preserve reasoning in structured pruning \citep{wang2025resp}. RKU frames structural pruning failures as a reasoning-collapse problem and proposes a curvature-aware criterion \citep{qian2026rku}. CAP scores attention heads by their causal contribution to reasoning tasks before pruning \citep{sheth2026cap}. These works optimize pruning criteria. Our distinct contribution is a small controlled boundary measurement: dense-shaped masks reveal a near-dense Mistral-7B regime at 20\%, the global 20\% baseline shows allocation sensitivity within preserved tensor geometry, and shape-changing structural pruning fails much earlier.
 
 \section{Experimental Design}
 
@@ -88,7 +88,22 @@ Layerwise mask & 40.0\% & 9.538 & 1319 & 23.88\% & -14.78 \\
 \end{tabular}
 \end{table}
 
-The 20\% layerwise result is not explained by short or malformed generations. The full-run sample analysis gives 57.05 average generated words for the 20\% layerwise mask versus 56.58 for dense, with final-answer-marker rates of 88.7\% and 90.5\%, respectively.
+The 20\% layerwise and global results are not explained by short or unparseable generations. Table~\ref{tab:sample_diagnostics} shows that both 20\% masks have average response lengths close to dense and zero strict-answer extraction failures. The global 20\% mask is slightly longer than dense on average and has a similar final-answer-marker rate to the layerwise 20\% mask, so its 1.90-point gap versus the layerwise mask is more consistent with reasoning quality than with answer-format collapse.
+
+\begin{table}[h]
+\centering
+\caption{Full-run GSM8K generation diagnostics for the dense model and 20\% unstructured masks. Extraction failure counts strict-match sample rows whose parsed answer is empty.}
+\label{tab:sample_diagnostics}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Model/state} & \textbf{Avg. words} & \textbf{Median words} & \textbf{Final marker} & \textbf{Extraction fail} \\
+\midrule
+Dense & 56.58 & 49 & 90.5\% & 0.0\% \\
+Layerwise mask 20\% & 57.05 & 50 & 88.7\% & 0.0\% \\
+Global magnitude mask 20\% & 57.66 & 49 & 88.3\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Structural Width Pruning Fails Much Earlier}
 
@@ -112,12 +127,12 @@ Structural width & 20.0\% & 11.016 & 50 & 4.00\% \\
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:phase19_dissociation} summarizes the dissociation. Dense-shaped masks move along a relatively smooth boundary; structural width points fall away much earlier.
+Figure~\ref{fig:phase19_dissociation} summarizes the dissociation. Layerwise masks move along a relatively smooth boundary; the global 20\% point lies below the layerwise 20\% point despite nearly identical C4 perplexity; structural width points fall away much earlier.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=\textwidth]{figures/phase19_reasoning_dissociation.png}
-\caption{C4 perplexity versus GSM8K strict exact match for dense, dense-shaped mask, and structural width controls. Full GSM8K points use all 1,319 examples; structural smoke points use 50 examples.}
+\caption{C4 perplexity versus GSM8K strict exact match for dense, layerwise masks, the global 20\% magnitude mask, and structural width controls. Full GSM8K points use all 1,319 examples; structural smoke points use 50 examples.}
 \label{fig:phase19_dissociation}
 \end{figure}
 
@@ -146,7 +161,7 @@ The main full-test result is on Mistral-7B-v0.1 and GSM8K. The Llama-3-8B check 
 
 \section{Conclusion}
 
-This paper reframes LLM pruning for reasoning as a boundary-finding problem. On Mistral-7B-v0.1, unstructured masks preserve substantial full GSM8K reasoning at 20\% sparsity, with layerwise masking closer to dense than global thresholding, while structural width pruning fails much earlier. The result is not that masking is a deployable speedup method; it is that masks reveal reasoning-retention boundaries that structural methods must respect. Efficient reasoning compression should therefore optimize for geometry-preserving transformations first, and only then for hardware speedups.
+This paper reframes LLM pruning for reasoning as a boundary-finding problem. On Mistral-7B-v0.1, 20\% tensor-preserving masks expose a high-retention regime, but the gap between layerwise and global thresholding shows that preserved geometry alone is not enough: sparsity allocation also matters. Structural width pruning fails much earlier. The result is not that masking is a deployable speedup method; it is that controlled masks reveal reasoning-retention boundaries that structural methods must respect. Efficient reasoning compression should therefore optimize for geometry-preserving transformations and allocation before claiming hardware speedups.
 
 \bibliography{colm2026_conference}
 \bibliographystyle{colm2026_conference}

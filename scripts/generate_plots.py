@@ -182,6 +182,20 @@ def generate_phase19_reasoning_plot():
             "sparsity": data.get("target_sparsity", 0),
         })
 
+    global_meta = _load_json(
+        "experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json"
+    ) or {}
+    global_metric = _best_gsm8k("experiments/phase23_global_unstructured/gsm8k_eval_global_s20*.json")
+    if global_meta and global_metric:
+        points.append({
+            "label": "Global 20%",
+            "family": "Global magnitude mask",
+            "c4": global_meta.get("masked_c4_ppl"),
+            "strict": global_metric.get("strict"),
+            "n": global_metric.get("n"),
+            "sparsity": global_meta.get("target_sparsity", 0.2),
+        })
+
     for path in sorted(glob.glob("experiments/phase18b/Mistral-7B-v0.1_width_pruning_ceil_s*.json")):
         data = _load_json(path) or {}
         tag = os.path.splitext(os.path.basename(path))[0].split("_")[-1]
@@ -220,6 +234,7 @@ def generate_phase19_reasoning_plot():
     styles = {
         "Dense baseline": {"marker": "*", "color": "#111827", "size": 220},
         "Dense-shaped mask": {"marker": "o", "color": "#2563eb", "size": 100},
+        "Global magnitude mask": {"marker": "D", "color": "#7c3aed", "size": 95},
         "Structural width": {"marker": "s", "color": "#dc2626", "size": 85},
     }
 
@@ -243,10 +258,11 @@ def generate_phase19_reasoning_plot():
     label_offsets = {
         "Dense": (8, 10),
         "Mask 20%": (8, 10),
+        "Global 20%": (18, -22),
         "Mask 30% smoke": (8, 10),
         "Mask 40% smoke": (8, 10),
-        "Width 1.0% smoke": (-42, 10),
-        "Width 2.5% smoke": (8, 10),
+        "Width 1.0% smoke": (-60, -2),
+        "Width 2.5% smoke": (8, -20),
         "Width 5.0% smoke": (8, 10),
         "Width 10.0% smoke": (8, 10),
         "Width 15.0% smoke": (8, 10),
@@ -268,13 +284,13 @@ def generate_phase19_reasoning_plot():
             alpha=alpha,
         )
 
-    ax.set_title("Phase 19: Reasoning Retention Separates Masking from Structural Pruning", fontsize=13, pad=12)
+    ax.set_title("Reasoning Retention Separates Geometry, Allocation, and Structure", fontsize=13, pad=12)
     ax.set_xlabel("C4 perplexity (lower is better)", fontsize=11)
     ax.set_ylabel("GSM8K strict exact match (%)", fontsize=11)
     ax.grid(True, linestyle=":", alpha=0.55)
     ax.legend(frameon=True, fontsize=10)
 
-    note = "Full GSM8K points use n=1319; smoke points use n=50."
+    note = "Full GSM8K points use n=1319; structural smoke points use n=50."
     ax.text(0.01, -0.14, note, transform=ax.transAxes, fontsize=9, color="#4b5563")
 
     os.makedirs('dashboard/figures', exist_ok=True)

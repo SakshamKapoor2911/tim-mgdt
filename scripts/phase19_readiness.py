@@ -118,6 +118,7 @@ def collect():
 
     dense_sample = sample_row("dense")
     s20_sample = sample_row("s20")
+    global_sample = sample_row("global_s20")
     word_delta = s20_sample.get("delta_avg_words_vs_dense_full")
     if word_delta is None:
         add(checks, "warn", "sample_length_sanity", "missing full-run sample-length delta")
@@ -132,6 +133,23 @@ def collect():
         add(checks, status, "final_marker_sanity", f"delta={marker_delta:+.1f} pt")
     else:
         add(checks, "warn", "final_marker_sanity", "missing final-answer-marker rates")
+
+    if global_sample:
+        global_word_delta = global_sample.get("delta_avg_words_vs_dense_full")
+        global_extract_fail = global_sample.get("extraction_failure_rate")
+        if global_word_delta is None:
+            add(checks, "warn", "global_sample_length_sanity", "missing global 20% sample-length delta")
+        else:
+            status = "pass" if abs(global_word_delta) <= 2.0 else "warn"
+            add(checks, status, "global_sample_length_sanity", f"global_s20 avg-word delta={global_word_delta:+.2f}")
+
+        if global_extract_fail is None:
+            add(checks, "warn", "global_extraction_sanity", "missing global 20% extraction-failure rate")
+        else:
+            status = "pass" if global_extract_fail <= 0.01 else "warn"
+            add(checks, status, "global_extraction_sanity", f"extraction_failure={global_extract_fail * 100:.1f}%")
+    else:
+        add(checks, "warn", "global_sample_diagnostics", "missing global 20% sample row")
 
     if s30 and s30["n"] >= 1000:
         add(checks, "pass", "s30_full_gsm8k", f"n={s30['n']}, strict={s30['strict'] * 100:.2f}%")
