@@ -164,13 +164,31 @@ def collect():
 
     phase24_rows = phase24.get("rows", [])
     phase24_decision = phase24.get("decision", {})
-    if len(phase24_rows) >= 5:
+    if len(phase24_rows) >= 6:
         tags = {row.get("tag") for row in phase24_rows}
-        expected_tags = {"revert_early", "revert_mid", "revert_late", "revert_mlp", "revert_attention"}
+        expected_tags = {
+            "s25_no_revert",
+            "revert_early",
+            "revert_mid",
+            "revert_late",
+            "revert_mlp",
+            "revert_attention",
+        }
         status = "pass" if expected_tags.issubset(tags) else "warn"
         add(checks, status, "phase24_grouped_rows", f"rows={len(phase24_rows)}, tags={sorted(tags)}")
     else:
-        add(checks, "warn", "phase24_grouped_rows", f"expected 5 rows, found {len(phase24_rows)}")
+        add(checks, "warn", "phase24_grouped_rows", f"expected 6 rows, found {len(phase24_rows)}")
+
+    phase24_baseline = next((row for row in phase24_rows if row.get("tag") == "s25_no_revert"), {})
+    if phase24_baseline and phase24_baseline.get("n") == 300:
+        add(
+            checks,
+            "pass",
+            "phase24_no_revert_baseline",
+            f"n=300, strict={phase24_baseline.get('strict', 0) * 100:.2f}%, CI={phase24_baseline.get('bootstrap_ci_low', 0) * 100:.1f}-{phase24_baseline.get('bootstrap_ci_high', 0) * 100:.1f}%",
+        )
+    else:
+        add(checks, "warn", "phase24_no_revert_baseline", "missing same-prefix 25% no-revert row")
 
     phase24_diag_rows = [
         row

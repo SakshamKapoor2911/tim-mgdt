@@ -39,17 +39,41 @@ def sample_path_for_result(path):
     return str(samples[-1]) if samples else None
 
 
-def strict_values(sample_path):
+def include_sample_row(row, doc_id_limit=None):
+    if doc_id_limit is None:
+        return True
+    doc_id = row.get("doc_id")
+    return isinstance(doc_id, int) and doc_id < doc_id_limit
+
+
+def strict_values(sample_path, doc_id_limit=None):
     values = []
     if not sample_path or not Path(sample_path).exists():
         return values
     with open(sample_path) as f:
         for line in f:
             row = json.loads(line)
+            if not include_sample_row(row, doc_id_limit):
+                continue
             if row.get("filter") != "strict-match":
                 continue
             values.append(1 if row.get("exact_match") == 1.0 else 0)
     return values
+
+
+def sample_exact_match(sample_path, filter_name, doc_id_limit=None):
+    values = []
+    if not sample_path or not Path(sample_path).exists():
+        return None
+    with open(sample_path) as f:
+        for line in f:
+            row = json.loads(line)
+            if not include_sample_row(row, doc_id_limit):
+                continue
+            if row.get("filter") != filter_name:
+                continue
+            values.append(1 if row.get("exact_match") == 1.0 else 0)
+    return mean(values)
 
 
 def first_response(row):
@@ -70,7 +94,7 @@ def round_or_none(value, digits=3):
     return None if value is None else round(value, digits)
 
 
-def generation_diagnostics(sample_path):
+def generation_diagnostics(sample_path, doc_id_limit=None):
     diagnostics = {
         "sample_rows": 0,
         "strict_rows": 0,
@@ -88,8 +112,10 @@ def generation_diagnostics(sample_path):
 
     with open(sample_path) as f:
         for line in f:
-            diagnostics["sample_rows"] += 1
             row = json.loads(line)
+            if not include_sample_row(row, doc_id_limit):
+                continue
+            diagnostics["sample_rows"] += 1
             if row.get("filter") != "strict-match":
                 continue
             diagnostics["strict_rows"] += 1
@@ -177,6 +203,40 @@ def summarize_result(path, output_dir, iters, seed):
     return row
 
 
+def summarize_sample_baseline(tag, sample_path, result_path, meta_path, doc_id_limit, iters, seed):
+    values = strict_values(sample_path, doc_id_limit=doc_id_limit)
+    ci_low, ci_high = bootstrap_ci(values, iters=iters, seed=seed)
+    meta = load_json(meta_path) or {}
+    row = {
+        "tag": tag,
+        "result_path": result_path,
+        "sample_path": sample_path,
+        "source_doc_id_limit": doc_id_limit,
+        "n": len(values),
+        "strict": mean(values),
+        "flex": sample_exact_match(sample_path, "flexible-extract", doc_id_limit=doc_id_limit),
+        "sample_strict_n": len(values),
+        "bootstrap_ci_low": ci_low,
+        "bootstrap_ci_high": ci_high,
+        "actual_linear_sparsity": meta.get("linear_sparsity"),
+        "masked_c4_ppl": meta.get("masked_c4_ppl"),
+    }
+    row.update(generation_diagnostics(sample_path, doc_id_limit=doc_id_limit))
+    return row
+
+
+def row_sort_key(row):
+    order = {
+        "s25_no_revert": 0,
+        "revert_early": 1,
+        "revert_mid": 2,
+        "revert_late": 3,
+        "revert_attention": 4,
+        "revert_mlp": 5,
+    }
+    return order.get(row["tag"], 100), row["tag"]
+
+
 def decision(rows, min_delta_pt=4.0):
     layer_rows = [row for row in rows if row["tag"] in LAYER_ABLATIONS and row.get("strict") is not None]
     if len(layer_rows) < len(LAYER_ABLATIONS):
@@ -202,6 +262,17 @@ def decision(rows, min_delta_pt=4.0):
                 "best_module_group": best_module["tag"],
                 "best_vs_second_gap_pt": round(gap_pt, 3),
                 "detail": "Module-type dense revert has a clear enough leading group for a smoke-level mechanistic clue.",
+            }
+        baseline_rows = [row for row in rows if row.get("tag") == "s25_no_revert" and row.get("strict") is not None]
+        if baseline_rows:
+            baseline = baseline_rows[0]
+            baseline_gap_pt = (best_module["strict"] - baseline["strict"]) * 100
+            return {
+                "recommendation": "distributed_or_weak_module_signal",
+                "best_module_group": best_module["tag"],
+                "best_vs_second_gap_pt": round(gap_pt, 3),
+                "best_vs_no_revert_gap_pt": round(baseline_gap_pt, 3),
+                "detail": "Single-group dense reverts sit close to the same-prefix no-revert 25% baseline and have overlapping bootstrap intervals; report this as null or weak coarse-grained recovery, not a localization mechanism.",
             }
         return {
             "recommendation": "distributed_or_weak_module_signal",
@@ -273,11 +344,28 @@ def main():
     parser.add_argument("--markdown", default="")
     parser.add_argument("--bootstrap_iters", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--baseline_tag", default="")
+    parser.add_argument("--baseline_sample", default="")
+    parser.add_argument("--baseline_result", default="")
+    parser.add_argument("--baseline_meta", default="")
+    parser.add_argument("--baseline_doc_limit", type=int, default=0)
     args = parser.parse_args()
 
     paths = sorted(glob.glob(args.result_glob))
     rows = [summarize_result(path, args.output_dir, args.bootstrap_iters, args.seed) for path in paths]
-    rows = sorted(rows, key=lambda row: row["tag"])
+    if args.baseline_sample:
+        rows.append(
+            summarize_sample_baseline(
+                args.baseline_tag or "baseline",
+                args.baseline_sample,
+                args.baseline_result,
+                args.baseline_meta,
+                args.baseline_doc_limit or None,
+                args.bootstrap_iters,
+                args.seed,
+            )
+        )
+    rows = sorted(rows, key=row_sort_key)
     summary = {
         "schema": "phase24_grouped_ablation_summary_v1",
         "result_glob": args.result_glob,

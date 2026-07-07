@@ -138,18 +138,19 @@ Figure~\ref{fig:phase19_dissociation} summarizes the dissociation. Layerwise mas
 
 \subsection{Grouped Boundary Ablation Gives a Weak Localization Signal}
 
-To probe where the 25\% layerwise boundary lives, we built dense-revert ablations from the 25\% layerwise mask: one coarse depth band or module family was restored to dense while the rest of the model kept the 25\% layerwise mask. This is a 300-example GSM8K smoke with bootstrap confidence intervals, not a full benchmark. Table~\ref{tab:grouped_ablation} shows that early, middle, and late depth bands are statistically indistinguishable at this scale. Reverting MLP modules has the best point estimate (40.00\%), but its interval overlaps the attention-only revert (37.67\%). We therefore treat this as evidence for distributed or weakly localized recovery rather than a clean mechanism.
+To probe where the 25\% layerwise boundary lives, we built dense-revert ablations from the 25\% layerwise mask: one coarse depth band or module family was restored to dense while the rest of the model kept the 25\% layerwise mask. This is a 300-example GSM8K smoke with bootstrap confidence intervals, not a full benchmark. Table~\ref{tab:grouped_ablation} compares these reverts against the no-revert 25\% mask on the same 300-example prefix. The no-revert reference reaches 36.00\% strict exact match, while the revert rows range from 37.00\% to 40.00\%; all intervals overlap. Reverting MLP modules has the best point estimate, but its interval overlaps attention, depth-band, and no-revert references. We therefore treat this as a null or weak recovery result at this granularity rather than a clean localization mechanism.
 
-The grouped ablation rows also pass the same format sanity check used for the global 20\% mask: average responses are 52--56 words, final-answer-marker rates are 86.7--90.0\%, and strict-answer extraction failure is 0.0\% for every row. The weak localization signal is therefore not explained by degenerate formatting.
+The grouped ablation rows also pass the same format sanity check used for the global 20\% mask: average responses are 52--56 words, final-answer-marker rates are 86.7--90.0\%, and strict-answer extraction failure is 0.0\% for every row, including the no-revert reference. The weak recovery signal is therefore not explained by degenerate formatting.
 
 \begin{table}[h]
 \centering
-\caption{Grouped dense-revert ablations from the 25\% layerwise mask. All rows use 300 GSM8K examples; confidence intervals are bootstrap intervals over strict-match sample rows.}
+\caption{Grouped dense-revert ablations from the 25\% layerwise mask. All rows use the same 300 GSM8K examples; confidence intervals are bootstrap intervals over strict-match sample rows.}
 \label{tab:grouped_ablation}
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Dense-revert group} & \textbf{Actual sparsity} & \textbf{GSM8K n} & \textbf{Strict EM} & \textbf{95\% CI} \\
+\textbf{Condition} & \textbf{Actual sparsity} & \textbf{GSM8K n} & \textbf{Strict EM} & \textbf{95\% CI} \\
 \midrule
+No revert (25\% mask) & 24.94\% & 300 & 36.00\% & 30.3--41.7\% \\
 Early layers & 16.53\% & 300 & 37.00\% & 31.7--42.7\% \\
 Middle layers & 16.53\% & 300 & 38.00\% & 32.7--43.7\% \\
 Late layers & 17.29\% & 300 & 37.33\% & 32.0--43.0\% \\

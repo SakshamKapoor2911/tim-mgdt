@@ -103,7 +103,7 @@ This has two implications for efficient reasoning:
 
 \section{Boundary Evidence}
 
-The 25\%, 30\%, and 40\% full evaluations show that the dense-shaped mask control is not trivially insensitive to sparsity. The 25\% mask reaches 34.04\% strict exact match, a 4.62 point drop from dense, while the 30\% and 40\% masks reach 31.77\% and 23.88\%. Because structural width pruning fails at much lower sparsity, the result supports a thresholded dissociation: dense-shaped weight removal preserves reasoning up to about 20\%, but structural geometry changes damage reasoning far earlier.
+The 25\%, 30\%, and 40\% full evaluations show that the dense-shaped mask control is not trivially insensitive to sparsity. The 25\% mask reaches 34.04\% strict exact match, a 4.62 point drop from dense, while the 30\% and 40\% masks reach 31.77\% and 23.88\%. Because structural width pruning fails at much lower sparsity, the result supports a thresholded dissociation: dense-shaped masks remain near dense around 20\% in this controlled setting, but structural geometry changes damage reasoning far earlier.
 
 \section{Auxiliary Reasoning Smoke}
 

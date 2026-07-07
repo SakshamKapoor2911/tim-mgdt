@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-07T15:10:05.043642+00:00Z",
+  "generated_at": "2026-07-07T15:19:26.167499+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 25 full auxiliary scaling complete",
@@ -84,7 +84,7 @@
       "who": "Agent",
       "track": "Phase 24 grouped ablation",
       "status": "done",
-      "next_action": "Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery."
+      "next_action": "Dense-revert probes from the 25% layerwise mask are close to the same-prefix no-revert baseline at n=300: no-revert is 36.0%, while single-group reverts range from 37.0% to 40.0% with overlapping confidence intervals. Report this as null or weak recovery at coarse granularity, not a localization claim."
     },
     {
       "who": "Agent",
@@ -164,7 +164,7 @@
     },
     {
       "status": "done",
-      "description": "Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism"
+      "description": "Phase 24: grouped dense-revert ablation shows no statistically distinguishable single-group recovery over the same-prefix 25% no-revert baseline"
     },
     {
       "status": "planned",
@@ -190,7 +190,7 @@
     },
     {
       "status": "done",
-      "item": "Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency."
+      "item": "Grouped 25% dense-revert smoke completed with a same-prefix no-revert baseline and bootstrap confidence intervals."
     },
     {
       "status": "planned",
@@ -221,7 +221,7 @@
     {
       "status": "done",
       "owner": "Agent",
-      "item": "Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim."
+      "item": "Fold the Phase 24 grouped ablation into the paper as a smoke-level null/weak recovery diagnostic, not a strong localization claim."
     },
     {
       "status": "planned",

@@ -19,7 +19,11 @@ from code.phases.phase24_grouped_ablation.build_grouped_mask import (
     module_metadata,
     should_prune,
 )
-from code.phases.phase24_grouped_ablation.bootstrap_gsm8k_ci import decision, generation_diagnostics
+from code.phases.phase24_grouped_ablation.bootstrap_gsm8k_ci import (
+    decision,
+    generation_diagnostics,
+    summarize_sample_baseline,
+)
 
 
 class TinyLayer(nn.Module):
@@ -162,6 +166,60 @@ class TestPhase24GroupedAblation(unittest.TestCase):
         self.assertEqual(diagnostics["final_marker_rate"], 0.5)
         self.assertEqual(diagnostics["extraction_failure_rate"], 0.5)
         self.assertEqual(diagnostics["avg_response_words"], 4.5)
+
+    def test_sample_baseline_filters_to_matching_doc_prefix(self):
+        rows = [
+            {
+                "doc_id": 0,
+                "filter": "strict-match",
+                "resps": [["#### 1"]],
+                "filtered_resps": ["1"],
+                "exact_match": 1.0,
+            },
+            {
+                "doc_id": 0,
+                "filter": "flexible-extract",
+                "resps": [["#### 1"]],
+                "filtered_resps": ["1"],
+                "exact_match": 1.0,
+            },
+            {
+                "doc_id": 1,
+                "filter": "strict-match",
+                "resps": [["#### 2"]],
+                "filtered_resps": ["2"],
+                "exact_match": 0.0,
+            },
+            {
+                "doc_id": 1,
+                "filter": "flexible-extract",
+                "resps": [["#### 2"]],
+                "filtered_resps": ["2"],
+                "exact_match": 0.0,
+            },
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            tmpdir = Path(tmp)
+            sample_path = tmpdir / "samples_gsm8k_test.jsonl"
+            sample_path.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+            meta_path = tmpdir / "meta.json"
+            meta_path.write_text(json.dumps({"linear_sparsity": 0.25, "masked_c4_ppl": 8.3}))
+
+            summary = summarize_sample_baseline(
+                "s25_no_revert",
+                str(sample_path),
+                "result.json",
+                str(meta_path),
+                doc_id_limit=1,
+                iters=100,
+                seed=0,
+            )
+
+        self.assertEqual(summary["n"], 1)
+        self.assertEqual(summary["sample_rows"], 2)
+        self.assertEqual(summary["strict"], 1.0)
+        self.assertEqual(summary["flex"], 1.0)
+        self.assertEqual(summary["actual_linear_sparsity"], 0.25)
 
 
 if __name__ == "__main__":

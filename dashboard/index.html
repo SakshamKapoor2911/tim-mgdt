@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-07 15:10 UTC</span>
+    <span class="nav-meta">2026-07-07 15:19 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -324,15 +324,15 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <table class="task-table">
 <tr><th>Probe</th><th>GSM8K n</th><th>Strict EM</th><th>95% CI</th><th>Flex EM</th><th>Actual sparsity</th><th>C4 PPL</th><th>Avg words</th><th>Final marker</th><th>Extract fail</th></tr>
         <tr>
-          <td class="task-who">Phase 24 revert attention</td>
+          <td class="task-who">Phase 24 s25 no revert</td>
           <td>300</td>
-          <td>37.7%</td>
-          <td>32.3-43.0%</td>
-          <td>38.0%</td>
-          <td>20.2%</td>
-          <td>8.985</td>
-          <td>54.0</td>
-          <td>88.7%</td>
+          <td>36.0%</td>
+          <td>30.3-41.7%</td>
+          <td>37.3%</td>
+          <td>24.9%</td>
+          <td>8.349</td>
+          <td>51.8</td>
+          <td>89.3%</td>
           <td>0.0%</td>
         </tr>
         <tr>
@@ -348,6 +348,18 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>0.0%</td>
         </tr>
         <tr>
+          <td class="task-who">Phase 24 revert mid</td>
+          <td>300</td>
+          <td>38.0%</td>
+          <td>32.7-43.7%</td>
+          <td>38.3%</td>
+          <td>16.5%</td>
+          <td>9.014</td>
+          <td>52.2</td>
+          <td>88.7%</td>
+          <td>0.0%</td>
+        </tr>
+        <tr>
           <td class="task-who">Phase 24 revert late</td>
           <td>300</td>
           <td>37.3%</td>
@@ -360,14 +372,14 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>0.0%</td>
         </tr>
         <tr>
-          <td class="task-who">Phase 24 revert mid</td>
+          <td class="task-who">Phase 24 revert attention</td>
           <td>300</td>
+          <td>37.7%</td>
+          <td>32.3-43.0%</td>
           <td>38.0%</td>
-          <td>32.7-43.7%</td>
-          <td>38.3%</td>
-          <td>16.5%</td>
-          <td>9.014</td>
-          <td>52.2</td>
+          <td>20.2%</td>
+          <td>8.985</td>
+          <td>54.0</td>
           <td>88.7%</td>
           <td>0.0%</td>
         </tr>
@@ -385,7 +397,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
         </tr>
 
 </table>
-<div class="rc-note">Decision: <code>distributed_or_weak_module_signal</code>. Depth bands and module-type ablations have overlapping bootstrap intervals; report this as distributed or weakly localized recovery, not a clean mechanism.</div>
+<div class="rc-note">Decision: <code>distributed_or_weak_module_signal</code>. Single-group dense reverts sit close to the same-prefix no-revert 25% baseline and have overlapping bootstrap intervals; report this as null or weak coarse-grained recovery, not a localization mechanism.</div>
 </div>
 
 <div class="section-label">Phase 25 full auxiliary reasoning check</div>
@@ -880,7 +892,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 19 full validation</span></td>
 <td><span class='pill p-now'>now</span></td><td class="task-action">20% layerwise mask full GSM8K is strong at 37.2% strict EM versus 38.7% dense. The standard 20% global magnitude mask reaches 35.3%, weaker than layerwise by 1.9 points but far above 20% structural width pruning.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 24 grouped ablation</span></td>
-<td><span class='pill p-done'>done</span></td><td class="task-action">Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery.</td></tr>
+<td><span class='pill p-done'>done</span></td><td class="task-action">Dense-revert probes from the 25% layerwise mask are close to the same-prefix no-revert baseline at n=300: no-revert is 36.0%, while single-group reverts range from 37.0% to 40.0% with overlapping confidence intervals. Report this as null or weak recovery at coarse granularity, not a localization claim.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 23 global baseline</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Global unstructured magnitude pruning at 20.06% actual linear sparsity reaches 35.33% strict EM on full GSM8K with C4 PPL 8.203.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
@@ -906,7 +918,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-done'>done</span></td><td>C4 perplexity, throughput, and full GSM8K metrics extracted for Phase 16.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>20% mask pruning completed full GSM8K validation within 1.4 points of dense.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td>20% global unstructured magnitude baseline completed full GSM8K validation at 35.33% strict EM.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td>Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td>Grouped 25% dense-revert smoke completed with a same-prefix no-revert baseline and bootstrap confidence intervals.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td>Develop a structural method that preserves the Phase 19 mask-retained reasoning subspace while creating real speedups.</td></tr>
 
 </table></div>
@@ -921,7 +933,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 25: full auxiliary reasoning check leaves the 20% layerwise mask statistically indistinguishable from dense on GSM8K Platinum and BBH multistep arithmetic</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask</div></div>
-<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 24: grouped dense-revert ablation shows no statistically distinguishable single-group recovery over the same-prefix 25% no-revert baseline</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">COLM Efficient Reasoning workshop submission, gated on confirmed remote/proxy presentation policy</div></div>
 </div></div>
   <div id="path">
@@ -933,7 +945,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td><span class='pill p-now'>today</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 16: Established the negative result: 20% MLP width pruning drops GSM8K from 38.7% to roughly 5%.</td></tr>
 <tr><td><span class='pill p-now'>now</span></td><td class='task-who'>Agent</td><td class='task-action'>Phase 17/18: Keep the smoke-test failures as evidence, but do not invest more full-eval compute in those exact variants.</td></tr>
 <tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Tighten `paper/main.tex` around the Phase 23 global baseline: global 20% retained substantial reasoning, layerwise 20% remained stronger, and structural 20% collapsed.</td></tr>
-<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim.</td></tr>
+<tr><td><span class='pill p-done'>done</span></td><td class='task-who'>Agent</td><td class='task-action'>Fold the Phase 24 grouped ablation into the paper as a smoke-level null/weak recovery diagnostic, not a strong localization claim.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Agent</td><td class='task-action'>Email the COLM Efficient Reasoning organizers to confirm whether accepted workshop contributions can be presented remotely or by proxy.</td></tr>
 <tr><td><span class='pill p-queued'>planned</span></td><td class='task-who'>Saksham</td><td class='task-action'>Final paper review and submission to the strongest venue whose presentation policy is compatible with travel constraints.</td></tr>
 

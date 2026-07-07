@@ -114,7 +114,7 @@
       "Agent",
       "Phase 24 grouped ablation",
       "done",
-      "Depth-band dense reverts from the 25% layerwise mask are indistinguishable at n=300. MLP revert is the best point estimate at 40.0% strict EM, but overlaps attention and depth-band confidence intervals, so report distributed or weakly localized recovery."
+      "Dense-revert probes from the 25% layerwise mask are close to the same-prefix no-revert baseline at n=300: no-revert is 36.0%, while single-group reverts range from 37.0% to 40.0% with overlapping confidence intervals. Report this as null or weak recovery at coarse granularity, not a localization claim."
     ],
     [
       "Agent",
@@ -180,7 +180,7 @@
     ],
     [
       "done",
-      "Grouped 25% dense-revert smoke completed with bootstrap confidence intervals and bounded MLP-vs-attention contingency."
+      "Grouped 25% dense-revert smoke completed with a same-prefix no-revert baseline and bootstrap confidence intervals."
     ],
     [
       "planned",
@@ -234,7 +234,7 @@
     ],
     [
       "done",
-      "Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism"
+      "Phase 24: grouped dense-revert ablation shows no statistically distinguishable single-group recovery over the same-prefix 25% no-revert baseline"
     ],
     [
       "planned",
@@ -265,7 +265,7 @@
     [
       "done",
       "Agent",
-      "Fold the Phase 24 grouped ablation into the paper as a smoke-level mechanistic diagnostic, not a strong localization claim."
+      "Fold the Phase 24 grouped ablation into the paper as a smoke-level null/weak recovery diagnostic, not a strong localization claim."
     ],
     [
       "planned",
