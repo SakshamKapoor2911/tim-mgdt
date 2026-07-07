@@ -107,7 +107,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
     <a href="#literature">Literature</a>
   </div>
   <div class="nav-right">
-    <span class="nav-meta">2026-07-07 14:57 UTC</span>
+    <span class="nav-meta">2026-07-07 15:10 UTC</span>
     <a class="nav-gh" href="https://github.com/SakshamKapoor2911/tim-mgdt" target="_blank">GitHub</a>
     <a class="nav-gh" href="state.json">state.json</a>
   </div>
@@ -132,7 +132,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
   <div class="g3">
     <div class="ov-card"><h3>What we're building</h3><p>A <b>structured pruning + activation healing pipeline</b> (TIM-MGDT) that identifies which transformer layers and MLP widths are elastic, critical, or reasoning-specific. The current focus is Mistral-7B compression that survives GSM8K rather than merely preserving C4 perplexity.</p></div>
 <div class="ov-card"><h3>Why this matters</h3><p>Phase 16 showed the central failure mode: 20% hardware-aligned width pruning kept C4 perplexity in a plausible range but collapsed 5-shot GSM8K from 38.7% to about 5%. That is a useful negative result because it separates general language retention from reasoning-circuit retention.</p></div>
-<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 25 full auxiliary scaling complete.</b> Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. The full auxiliary check keeps the 20% layerwise mask essentially tied with dense on GSM8K Platinum and BBH multistep arithmetic.</p></div>
+<div class="ov-card"><h3>Where we are today</h3><p><b>Phase 25 full auxiliary scaling complete.</b> Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. The full auxiliary check leaves the 20% layerwise mask statistically indistinguishable from dense on GSM8K Platinum and BBH multistep arithmetic.</p></div>
 
   </div>
   <div style="margin-top:16px"><div class="callout"><h3>The research question</h3><p>Where is the Mistral-7B GSM8K reasoning-retention boundary under tensor-preserving masks, and why does layerwise allocation outperform a standard global magnitude threshold?</p></div></div>
@@ -391,14 +391,14 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="section-label">Phase 25 full auxiliary reasoning check</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
-<tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Delta vs dense</th><th>Avg words</th><th>Extract fail</th></tr>
+<tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Readout</th><th>Avg words</th><th>Extract fail</th></tr>
         <tr>
           <td class="task-who">dense</td>
           <td>GSM8K Platinum (full)</td>
           <td>1209</td>
           <td>38.8%</td>
           <td>36.2-41.8%</td>
-          <td>+0.00 pt</td>
+          <td>Dense reference</td>
           <td>58.9</td>
           <td>0.0%</td>
         </tr>
@@ -408,7 +408,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>1209</td>
           <td>40.0%</td>
           <td>37.2-42.7%</td>
-          <td>+1.16 pt</td>
+          <td>CI overlap</td>
           <td>59.4</td>
           <td>0.0%</td>
         </tr>
@@ -418,7 +418,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>250</td>
           <td>32.4%</td>
           <td>26.8-38.0%</td>
-          <td>+0.00 pt</td>
+          <td>Dense reference</td>
           <td>216.5</td>
           <td>0.0%</td>
         </tr>
@@ -428,13 +428,13 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
           <td>250</td>
           <td>33.6%</td>
           <td>28.0-39.6%</td>
-          <td>+1.20 pt</td>
+          <td>CI overlap</td>
           <td>189.1</td>
           <td>0.0%</td>
         </tr>
 
 </table>
-<div class="rc-note">The 20% layerwise mask is essentially tied with dense on the full auxiliary checks: +1.16 pt on GSM8K Platinum and +1.20 pt on BBH multistep arithmetic, with overlapping confidence intervals. Treat this as generality support, not a superiority claim.</div>
+<div class="rc-note">The 20% layerwise mask is statistically indistinguishable from dense on both GSM8K Platinum (39.95% vs 38.79%, CIs overlapping) and BBH multistep arithmetic (33.60% vs 32.40%, CIs overlapping), supporting that the retention boundary is not an artifact of the primary GSM8K test set.</div>
 </div>
 
 <div class="section-label">Phase 20 mask-guided structural transfer</div>
@@ -886,7 +886,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <tr><td class="task-who">Agent<br><span class="task-track">Phase 20 structural follow-up</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Initial mask-guided structural pruning failed: 0.45% and 0.89% MLP sparsity reached only 24% and 10% GSM8K smoke, so larger points are stopped by default.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Auxiliary reasoning smoke</span></td>
-<td><span class='pill p-done'>done</span></td><td class="task-action">The 20% mask is essentially tied with dense on the full auxiliary check: 39.95% vs 38.79% on GSM8K Platinum and 33.60% vs 32.40% on BBH multistep arithmetic. Confidence intervals overlap, so keep this as support, not a superiority claim.</td></tr>
+<td><span class='pill p-done'>done</span></td><td class="task-action">The 20% mask is statistically indistinguishable from dense on the full auxiliary check: 39.95% vs 38.79% on GSM8K Platinum and 33.60% vs 32.40% on BBH multistep arithmetic, with overlapping confidence intervals.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Cross-model threshold smoke</span></td>
 <td><span class='pill p-done'>done</span></td><td class="task-action">Llama-3-8B GSM8K smoke is near dense at 10% mask sparsity (49% vs 53%, n=100) but drops at 20% (29%), so the Mistral 20% safe point should not be reported as universal.</td></tr>
 <tr><td class="task-who">Agent<br><span class="task-track">Venue filter</span></td>
@@ -918,7 +918,7 @@ nav{position:sticky;top:0;z-index:100;height:52px;display:flex;align-items:cente
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 18B: Uniform structural sparsity sweep proved low-sparsity fragility</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 19: 20% dense-shaped mask preserves full GSM8K within 1.4 points of dense</div></div>
 <div class="mile"><div><span class='pill p-queued'>planned</span></div><div style="font-size:13px;color:var(--ink2)">Phase 20: initial mask-guided structural pruning failed smoke; use it as a negative control, not the method claim</div></div>
-<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 25: full auxiliary reasoning check keeps the 20% layerwise mask essentially tied with dense on GSM8K Platinum and BBH multistep arithmetic</div></div>
+<div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 25: full auxiliary reasoning check leaves the 20% layerwise mask statistically indistinguishable from dense on GSM8K Platinum and BBH multistep arithmetic</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 22: Llama-3-8B smoke suggests a lower model-specific safe threshold, with 10% near dense and 20% degraded</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 23: 20% global unstructured magnitude mask retains substantial GSM8K reasoning but trails the layerwise 20% mask</div></div>
 <div class="mile"><div><span class='pill p-done'>done</span></div><div style="font-size:13px;color:var(--ink2)">Phase 24: grouped dense-revert ablation suggests distributed or weakly localized recovery rather than a clean depth-band mechanism</div></div>

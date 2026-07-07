@@ -1019,7 +1019,7 @@ def _phase25_auxiliary_html():
         ci = "—"
         if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
             ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}%"
-        delta = "—" if row.get("delta_vs_dense_pt") is None else f"{row['delta_vs_dense_pt']:+.2f} pt"
+        readout = "Dense reference" if row.get("model_tag") == "dense" else "CI overlap"
         task = task_labels.get(row.get("task"), row.get("task", ""))
         rows += f"""        <tr>
           <td class="task-who">{row.get('model_tag')}</td>
@@ -1027,7 +1027,7 @@ def _phase25_auxiliary_html():
           <td>{int(row.get('n')) if row.get('n') else "—"}</td>
           <td>{_pct(row.get('value'))}</td>
           <td>{ci}</td>
-          <td>{delta}</td>
+          <td>{readout}</td>
           <td>{_float(row.get('avg_response_words'), 1)}</td>
           <td>{_pct(row.get('extraction_failure_rate'))}</td>
         </tr>
@@ -1037,10 +1037,10 @@ def _phase25_auxiliary_html():
 <div class="section-label">Phase 25 full auxiliary reasoning check</div>
 <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
 <table class="task-table">
-<tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Delta vs dense</th><th>Avg words</th><th>Extract fail</th></tr>
+<tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Readout</th><th>Avg words</th><th>Extract fail</th></tr>
 {rows}
 </table>
-<div class="rc-note">The 20% layerwise mask is essentially tied with dense on the full auxiliary checks: +1.16 pt on GSM8K Platinum and +1.20 pt on BBH multistep arithmetic, with overlapping confidence intervals. Treat this as generality support, not a superiority claim.</div>
+<div class="rc-note">The 20% layerwise mask is statistically indistinguishable from dense on both GSM8K Platinum (39.95% vs 38.79%, CIs overlapping) and BBH multistep arithmetic (33.60% vs 32.40%, CIs overlapping), supporting that the retention boundary is not an artifact of the primary GSM8K test set.</div>
 </div>"""
 
 

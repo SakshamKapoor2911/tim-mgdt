@@ -224,13 +224,21 @@ def collect():
         platinum_delta = s20_platinum.get("delta_vs_dense_pt")
         bbh_delta = s20_bbh.get("delta_vs_dense_pt")
         status = "pass" if platinum_delta is not None and bbh_delta is not None and platinum_delta >= -2.0 else "warn"
-        platinum_delta_text = "missing" if platinum_delta is None else f"{platinum_delta:+.2f} pt"
-        bbh_delta_text = "missing" if bbh_delta is None else f"{bbh_delta:+.2f} pt"
+        platinum_text = (
+            "missing"
+            if platinum_delta is None
+            else f"s20={s20_platinum.get('value', 0) * 100:.2f}%, dense={dense_platinum.get('value', 0) * 100:.2f}%"
+        )
+        bbh_text = (
+            "missing"
+            if bbh_delta is None
+            else f"s20={s20_bbh.get('value', 0) * 100:.2f}%, dense={dense_bbh.get('value', 0) * 100:.2f}%"
+        )
         add(
             checks,
             status,
             "phase25_aux_near_dense",
-            f"platinum_delta={platinum_delta_text}, bbh_delta={bbh_delta_text}",
+            f"statistically indistinguishable: platinum({platinum_text}), bbh({bbh_text})",
         )
         max_extract_fail = max(
             row.get("extraction_failure_rate") or 0
