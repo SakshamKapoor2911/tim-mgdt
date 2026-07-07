@@ -168,7 +168,7 @@ start_phase24_grouped_ablation() {
     log="$log_dir/grouped_ablation_${stamp}.log"
     echo "starting $session; log: $log"
     tmux new-session -d -s "$session" \
-        "cd '$REPO' && RUN_LABEL='limit300_${stamp}' BUILD_GPU='${BUILD_GPU:-0}' EVAL_GPUS='${EVAL_GPUS:-0 1}' bash code/phases/phase24_grouped_ablation/run_grouped_ablation.sh > '$log' 2>&1"
+        "cd '$REPO' && RUN_LABEL='limit${GSM8K_LIMIT:-300}_${stamp}' BUILD_GPU='${BUILD_GPU:-0}' EVAL_GPUS='${EVAL_GPUS:-0 1}' C4_SAMPLES='${C4_SAMPLES:-32}' GSM8K_LIMIT='${GSM8K_LIMIT:-300}' BATCH_SIZE='${BATCH_SIZE:-auto:4}' RUN_MODULE_CONTINGENCY='${RUN_MODULE_CONTINGENCY:-auto}' bash code/phases/phase24_grouped_ablation/run_grouped_ablation.sh > '$log' 2>&1"
 }
 
 start_publish_queue() {
