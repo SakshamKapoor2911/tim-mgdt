@@ -978,6 +978,43 @@ def _phase24_grouped_ablation_html():
 </div>"""
 
 
+def _phase25_auxiliary_html():
+    run_label = "phase25_aux_limit300_2026-07-07T13-01-49"
+    summary = _load("experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json") or {}
+    rows_data = [row for row in summary.get("rows", []) if row.get("run_label") == run_label]
+    if not rows_data:
+        return ""
+
+    rows = ""
+    for row in rows_data:
+        ci = "—"
+        if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
+            ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}%"
+        delta = "—" if row.get("delta_vs_dense_pt") is None else f"{row['delta_vs_dense_pt']:+.2f} pt"
+        task = row.get("task", "").replace("bbh_cot_fewshot_", "BBH ").replace("gsm8k_platinum_cot", "GSM8K Platinum")
+        rows += f"""        <tr>
+          <td class="task-who">{row.get('model_tag')}</td>
+          <td>{task}</td>
+          <td>{int(row.get('n')) if row.get('n') else "—"}</td>
+          <td>{_pct(row.get('value'))}</td>
+          <td>{ci}</td>
+          <td>{delta}</td>
+          <td>{_float(row.get('avg_response_words'), 1)}</td>
+          <td>{_pct(row.get('extraction_failure_rate'))}</td>
+        </tr>
+"""
+
+    return f"""
+<div class="section-label">Phase 25 extended auxiliary reasoning check</div>
+<div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+<table class="task-table">
+<tr><th>State</th><th>Task</th><th>n</th><th>Metric</th><th>95% CI</th><th>Delta vs dense</th><th>Avg words</th><th>Extract fail</th></tr>
+{rows}
+</table>
+<div class="rc-note">The 20% layerwise mask is essentially tied with dense on this larger auxiliary check: -0.33 pt on 300 GSM8K Platinum examples and +1.20 pt on full BBH multistep arithmetic. Treat this as generality support, not a new mechanism claim.</div>
+</div>"""
+
+
 def _width_pruning_html():
     phase16_ceil = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_ceil.json") or {}
     phase16_floor = _load("experiments/phase16/Mistral-7B-v0.1_width_pruning_floor.json") or {}
@@ -1037,6 +1074,7 @@ def _width_pruning_html():
 {_phase19_mask_html()}
 {_phase23_global_html()}
 {_phase24_grouped_ablation_html()}
+{_phase25_auxiliary_html()}
 {_phase20_mask_guided_html()}
 <div class="card" style="padding:0;overflow:hidden">
 <table class="task-table">

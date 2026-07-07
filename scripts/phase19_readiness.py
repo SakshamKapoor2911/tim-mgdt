@@ -15,7 +15,10 @@ REQUIRED_ARTIFACTS = [
     "dashboard/figures/phase19_reasoning_dissociation.png",
     "experiments/phase19/gsm8k_sample_analysis.json",
     "experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json",
+    "experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json",
 ]
+
+PHASE25_AUX_LABEL = "phase25_aux_limit300_2026-07-07T13-01-49"
 
 
 def load_json(path):
@@ -83,6 +86,7 @@ def collect():
     phase23_meta = load_json("experiments/phase23_global_unstructured/Mistral-7B-v0.1_mask_pruning_global_s20.json")
     phase23 = best_metric("experiments/phase23_global_unstructured/gsm8k_eval_global_s20_full*.json")
     phase24 = load_json("experiments/phase24_grouped_ablation/phase24_summary_limit300_2026-07-07T07-30-10.json") or {}
+    phase25_aux = load_json("experiments/phase21_aux_reasoning/summary_phase25_aux_limit300_2026-07-07T13-01-49.json") or {}
 
     if dense and dense["n"] >= 1000:
         add(checks, "pass", "dense_full_gsm8k", f"n={dense['n']}, strict={dense['strict'] * 100:.2f}%")
@@ -192,6 +196,41 @@ def collect():
         add(checks, "pass", "phase24_terminal_decision", recommendation)
     else:
         add(checks, "warn", "phase24_terminal_decision", recommendation or "missing")
+
+    phase25_rows = [
+        row for row in phase25_aux.get("rows", []) if row.get("run_label") == PHASE25_AUX_LABEL
+    ]
+    phase25_by_key = {(row.get("model_tag"), row.get("task")): row for row in phase25_rows}
+    dense_platinum = phase25_by_key.get(("dense", "gsm8k_platinum_cot"), {})
+    s20_platinum = phase25_by_key.get(("s20", "gsm8k_platinum_cot"), {})
+    dense_bbh = phase25_by_key.get(("dense", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
+    s20_bbh = phase25_by_key.get(("s20", "bbh_cot_fewshot_multistep_arithmetic_two"), {})
+    if all([dense_platinum, s20_platinum, dense_bbh, s20_bbh]):
+        add(
+            checks,
+            "pass",
+            "phase25_aux_rows",
+            f"gsm8k_platinum n={s20_platinum.get('n')}, bbh n={s20_bbh.get('n')}",
+        )
+        platinum_delta = s20_platinum.get("delta_vs_dense_pt")
+        bbh_delta = s20_bbh.get("delta_vs_dense_pt")
+        status = "pass" if platinum_delta is not None and bbh_delta is not None and platinum_delta >= -2.0 else "warn"
+        platinum_delta_text = "missing" if platinum_delta is None else f"{platinum_delta:+.2f} pt"
+        bbh_delta_text = "missing" if bbh_delta is None else f"{bbh_delta:+.2f} pt"
+        add(
+            checks,
+            status,
+            "phase25_aux_near_dense",
+            f"platinum_delta={platinum_delta_text}, bbh_delta={bbh_delta_text}",
+        )
+        max_extract_fail = max(
+            row.get("extraction_failure_rate") or 0
+            for row in [dense_platinum, s20_platinum, dense_bbh, s20_bbh]
+        )
+        status = "pass" if max_extract_fail <= 0.01 else "warn"
+        add(checks, status, "phase25_aux_format_sanity", f"max_extraction_failure={max_extract_fail * 100:.1f}%")
+    else:
+        add(checks, "warn", "phase25_aux_rows", f"found {len(phase25_rows)} rows for {PHASE25_AUX_LABEL}")
 
     if s30 and s30["n"] >= 1000:
         add(checks, "pass", "s30_full_gsm8k", f"n={s30['n']}, strict={s30['strict'] * 100:.2f}%")

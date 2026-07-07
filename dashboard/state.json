@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-07T09:01:52.220120+00:00Z",
+  "generated_at": "2026-07-07T13:58:41.688153+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
-  "current_phase": "Phase 24 grouped ablation complete",
-  "phase_status": "Phase 24 Validation: grouped dense-revert smoke complete",
-  "total_experiments": 106,
+  "current_phase": "Phase 25 auxiliary scaling complete",
+  "phase_status": "Phase 25 Validation: extended auxiliary reasoning check complete",
+  "total_experiments": 109,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
@@ -53,7 +53,7 @@
     },
     {
       "title": "Where we are today",
-      "body": "Phase 24 paper packaging. Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. Grouped 25% dense-revert ablations show no clean depth-band mechanism at 300 examples; MLP revert leads only weakly with overlapping bootstrap intervals."
+      "body": "Phase 25 auxiliary scaling complete. Uniform structural width pruning collapses GSM8K even at 1%, while tensor-preserving masks expose a much higher-retention boundary. The strongest positive control is Mistral 20% layerwise mask sparsity with 37.2% full GSM8K versus 38.7% dense; the standard 20% global magnitude baseline reaches 35.3%, confirming retention but showing layerwise allocation matters. The extended auxiliary check keeps the 20% layerwise mask essentially tied with dense on 300 GSM8K Platinum examples and full BBH multistep arithmetic."
     }
   ],
   "decisions": [
@@ -102,7 +102,7 @@
       "who": "Agent",
       "track": "Auxiliary reasoning smoke",
       "status": "done",
-      "next_action": "The 20% mask is close to dense on GSM8K Platinum smoke and above dense on BBH multistep arithmetic smoke; keep this as support, not the primary claim."
+      "next_action": "The 20% mask is essentially tied with dense on the larger auxiliary check: 38.00% vs 38.33% on 300 GSM8K Platinum examples and 33.60% vs 32.40% on full BBH multistep arithmetic. Keep this as support, not the primary claim."
     },
     {
       "who": "Agent",
@@ -152,7 +152,7 @@
     },
     {
       "status": "done",
-      "description": "Phase 21: 20% mask auxiliary smoke is close to dense on GSM8K Platinum and above dense on BBH multistep arithmetic"
+      "description": "Phase 25: extended auxiliary reasoning check keeps the 20% layerwise mask essentially tied with dense on GSM8K Platinum and BBH multistep arithmetic"
     },
     {
       "status": "done",
@@ -273,7 +273,7 @@
     },
     {
       "label": "Phase 19 \u2014 Mask-vs-Structural Control",
-      "state": "now"
+      "state": "done"
     },
     {
       "label": "Phase 20 \u2014 Mask-guided Structural Follow-up",
@@ -293,6 +293,10 @@
     },
     {
       "label": "Phase 24 \u2014 Grouped Boundary Ablation",
+      "state": "done"
+    },
+    {
+      "label": "Phase 25 \u2014 Extended Auxiliary Reasoning Check",
       "state": "done"
     }
   ],

@@ -9,7 +9,9 @@ import argparse
 import glob
 import json
 import os
+import random
 import re
+import statistics
 from pathlib import Path
 
 
@@ -33,17 +35,17 @@ def load_json(path):
 
 
 def parse_eval_name(path):
-    name = Path(path).name
-    match = re.match(
-        r"eval_([^_]+)_([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2})(?:_.+)?\.json$",
-        name,
-    )
-    if match:
-        return match.group(1), match.group(2)
-    match = re.match(r"eval_([^_]+)_(.+)\.json$", name)
+    stem = Path(path).stem
+    match = re.match(r"eval_([^_]+)_(.+)$", stem)
     if not match:
         return None, ""
-    return match.group(1), match.group(2)
+    model_tag, run_label = match.groups()
+    run_label = re.sub(
+        r"_[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}(?:\.[0-9]+)?$",
+        "",
+        run_label,
+    )
+    return model_tag, run_label
 
 
 def metric_for(task_result):
@@ -64,6 +66,114 @@ def sample_count(data, task):
     return None
 
 
+def sample_path_for_result(path, task):
+    stem = Path(path).stem
+    match = re.search(
+        r"_([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}(?:\.[0-9]+)?)$",
+        stem,
+    )
+    if match:
+        candidate = Path(path).parent / f"samples_{task}_{match.group(1)}.jsonl"
+        if candidate.exists():
+            return str(candidate)
+    candidates = sorted(Path(path).parent.glob(f"samples_{task}_*.jsonl"), key=os.path.getmtime)
+    return str(candidates[-1]) if candidates else None
+
+
+def filter_name(metric):
+    if "," not in metric:
+        return None
+    return metric.split(",", 1)[1]
+
+
+def strict_values(sample_path, metric):
+    values = []
+    target_filter = filter_name(metric)
+    if not sample_path or not Path(sample_path).exists() or not target_filter:
+        return values
+    with open(sample_path) as f:
+        for line in f:
+            row = json.loads(line)
+            if row.get("filter") != target_filter:
+                continue
+            if row.get("exact_match") is None:
+                continue
+            values.append(1 if row.get("exact_match") == 1.0 else 0)
+    return values
+
+
+def percentile(values, q):
+    if not values:
+        return None
+    ordered = sorted(values)
+    idx = min(len(ordered) - 1, max(0, round((len(ordered) - 1) * q)))
+    return ordered[idx]
+
+
+def bootstrap_ci(values, iters=2000, seed=42):
+    if not values:
+        return None, None
+    rng = random.Random(seed)
+    n = len(values)
+    means = []
+    for _ in range(iters):
+        total = 0
+        for _ in range(n):
+            total += values[rng.randrange(n)]
+        means.append(total / n)
+    return percentile(means, 0.025), percentile(means, 0.975)
+
+
+def first_response(row):
+    resps = row.get("resps") or []
+    if not resps:
+        return ""
+    first = resps[0]
+    if isinstance(first, list):
+        return str(first[0]) if first else ""
+    return str(first)
+
+
+def sample_diagnostics(sample_path, metric):
+    diagnostics = {
+        "avg_response_words": None,
+        "median_response_words": None,
+        "answer_marker_rate": None,
+        "extraction_failure_rate": None,
+    }
+    target_filter = filter_name(metric)
+    if not sample_path or not Path(sample_path).exists() or not target_filter:
+        return diagnostics
+
+    word_counts = []
+    marker_count = 0
+    extraction_failure_count = 0
+    row_count = 0
+    with open(sample_path) as f:
+        for line in f:
+            row = json.loads(line)
+            if row.get("filter") != target_filter:
+                continue
+            row_count += 1
+            response = first_response(row)
+            word_counts.append(len(re.findall(r"\S+", response)))
+            if "answer is" in response.lower() or "####" in response:
+                marker_count += 1
+            filtered = row.get("filtered_resps") or []
+            if not filtered or filtered[0] in ("", None):
+                extraction_failure_count += 1
+
+    diagnostics.update(
+        {
+            "avg_response_words": round(sum(word_counts) / len(word_counts), 3) if word_counts else None,
+            "median_response_words": round(statistics.median(word_counts), 3) if word_counts else None,
+            "answer_marker_rate": round(marker_count / row_count, 3) if row_count else None,
+            "extraction_failure_rate": round(extraction_failure_count / row_count, 3) if row_count else None,
+        }
+    )
+    return diagnostics
+
+
 def collect(exp_dir):
     rows = []
     for path in sorted(glob.glob(os.path.join(exp_dir, "eval_*.json"))):
@@ -75,17 +185,24 @@ def collect(exp_dir):
             continue
         for task, result in sorted(data.get("results", {}).items()):
             metric_name, metric_value = metric_for(result)
-            rows.append(
-                {
-                    "model_tag": model_tag,
-                    "task": task,
-                    "run_label": run_label,
-                    "n": sample_count(data, task),
-                    "metric": metric_name,
-                    "value": metric_value,
-                    "path": path,
-                }
-            )
+            sample_path = sample_path_for_result(path, task)
+            values = strict_values(sample_path, metric_name)
+            ci_low, ci_high = bootstrap_ci(values)
+            row = {
+                "model_tag": model_tag,
+                "task": task,
+                "run_label": run_label,
+                "n": sample_count(data, task),
+                "metric": metric_name,
+                "value": metric_value,
+                "path": path,
+                "sample_path": sample_path,
+                "sample_n": len(values),
+                "bootstrap_ci_low": ci_low,
+                "bootstrap_ci_high": ci_high,
+            }
+            row.update(sample_diagnostics(sample_path, metric_name))
+            rows.append(row)
 
     dense_by_run_task = {
         (row["run_label"], row["task"]): row
@@ -125,20 +242,36 @@ def fmt(value):
 
 
 def print_markdown(summary):
-    headers = ["run", "model", "task", "n", "metric", "value", "delta vs dense pt"]
-    keys = ["run_label", "model_tag", "task", "n", "metric", "value", "delta_vs_dense_pt"]
+    headers = [
+        "run",
+        "model",
+        "task",
+        "n",
+        "metric",
+        "value",
+        "95% CI",
+        "delta vs dense pt",
+        "avg words",
+        "extract fail %",
+    ]
     print("| " + " | ".join(headers) + " |")
     print("| " + " | ".join(["---"] * len(headers)) + " |")
     for row in summary["rows"]:
-        values = []
-        for key in keys:
-            value = row.get(key)
-            if key == "value":
-                values.append(pct(value))
-            elif key == "delta_vs_dense_pt":
-                values.append("" if value is None else f"{value:+.2f}")
-            else:
-                values.append(fmt(value))
+        ci = ""
+        if row.get("bootstrap_ci_low") is not None and row.get("bootstrap_ci_high") is not None:
+            ci = f"{row['bootstrap_ci_low'] * 100:.1f}-{row['bootstrap_ci_high'] * 100:.1f}"
+        values = [
+            fmt(row.get("run_label")),
+            fmt(row.get("model_tag")),
+            fmt(row.get("task")),
+            fmt(row.get("n")),
+            fmt(row.get("metric")),
+            pct(row.get("value")),
+            ci,
+            "" if row.get("delta_vs_dense_pt") is None else f"{row['delta_vs_dense_pt']:+.2f}",
+            fmt(row.get("avg_response_words")),
+            pct(row.get("extraction_failure_rate")),
+        ]
         print("| " + " | ".join(values) + " |")
 
 
