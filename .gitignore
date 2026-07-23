@@ -76,6 +76,11 @@ TIM-MGDT-GEMINI-CHAT.md
 TIM-MGDT-GEMINI-CHAT.pdf
 PHASE_STATUS_LEDGER.md
 PHASE_INDEX.md
+main_BlackboxNLP2026_review.txt
+scratch/
+Association_for_Computational_Linguistics__ACL__conference.zip
+Formatting_Instructions_For_NeurIPS_2026.zip
+paper/*.pdf
 
 # Large Local Assets
 checkpoints/
