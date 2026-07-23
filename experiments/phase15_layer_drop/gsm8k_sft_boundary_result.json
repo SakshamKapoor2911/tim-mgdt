@@ -1,0 +1,5 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "healing": "task_aligned_boundary_sft",
+  "gsm8k_accuracy": 8.0
+}

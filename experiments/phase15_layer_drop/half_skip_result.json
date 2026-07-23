@@ -1,0 +1,15 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    12,
+    13
+  ],
+  "boundary_layers_old": [
+    11,
+    10,
+    14,
+    15
+  ],
+  "ppl": 8.622760772705078,
+  "gsm8k_accuracy": 14.000000000000002
+}

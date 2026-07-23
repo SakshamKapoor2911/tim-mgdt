@@ -1,0 +1,79 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "subspace_alignment": {
+    "layer_15": {
+      "top_k_cos_sim": 0.5508,
+      "angular_deviation_deg": 56.57
+    },
+    "layer_16": {
+      "top_k_cos_sim": 0.6746,
+      "angular_deviation_deg": 47.58
+    },
+    "layer_17": {
+      "top_k_cos_sim": 0.6408,
+      "angular_deviation_deg": 50.15
+    },
+    "layer_18": {
+      "top_k_cos_sim": 0.694,
+      "angular_deviation_deg": 46.05
+    },
+    "layer_19": {
+      "top_k_cos_sim": 0.6551,
+      "angular_deviation_deg": 49.07
+    },
+    "layer_20": {
+      "top_k_cos_sim": 0.8687,
+      "angular_deviation_deg": 29.69
+    },
+    "layer_21": {
+      "top_k_cos_sim": 0.7948,
+      "angular_deviation_deg": 37.36
+    },
+    "layer_22": {
+      "top_k_cos_sim": 0.856,
+      "angular_deviation_deg": 31.13
+    },
+    "layer_23": {
+      "top_k_cos_sim": 0.7267,
+      "angular_deviation_deg": 43.39
+    },
+    "layer_24": {
+      "top_k_cos_sim": 0.7995,
+      "angular_deviation_deg": 36.92
+    },
+    "layer_25": {
+      "top_k_cos_sim": 0.8927,
+      "angular_deviation_deg": 26.78
+    },
+    "layer_26": {
+      "top_k_cos_sim": 0.9149,
+      "angular_deviation_deg": 23.8
+    },
+    "layer_27": {
+      "top_k_cos_sim": 0.8604,
+      "angular_deviation_deg": 30.64
+    },
+    "layer_28": {
+      "top_k_cos_sim": 0.876,
+      "angular_deviation_deg": 28.83
+    },
+    "layer_29": {
+      "top_k_cos_sim": 0.9186,
+      "angular_deviation_deg": 23.27
+    },
+    "layer_30": {
+      "top_k_cos_sim": 0.7569,
+      "angular_deviation_deg": 40.8
+    },
+    "layer_31": {
+      "top_k_cos_sim": 0.8751,
+      "angular_deviation_deg": 28.95
+    }
+  }
+}

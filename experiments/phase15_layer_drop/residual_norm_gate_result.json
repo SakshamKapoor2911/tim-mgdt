@@ -1,0 +1,23 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "trainable_params": 32768,
+  "gsm8k_accuracy": 0.0,
+  "learned_scales": {
+    "layer_9": {
+      "alpha_mean": NaN,
+      "beta_mean": NaN
+    },
+    "layer_10": {
+      "alpha_mean": NaN,
+      "beta_mean": NaN
+    },
+    "layer_11": {
+      "alpha_mean": NaN,
+      "beta_mean": NaN
+    },
+    "layer_12": {
+      "alpha_mean": NaN,
+      "beta_mean": NaN
+    }
+  }
+}

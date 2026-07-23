@@ -1,0 +1,5 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "trainable_params": 65536,
+  "norm_recalibrated_ppl": NaN
+}

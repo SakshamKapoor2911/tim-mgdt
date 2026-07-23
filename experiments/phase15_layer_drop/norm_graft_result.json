@@ -1,0 +1,7 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "healing": "deterministic_teacher_norm_graft",
+  "teacher_mean_norm": 3.9921875,
+  "teacher_std_norm": 30.609375,
+  "gsm8k_accuracy": 0.0
+}

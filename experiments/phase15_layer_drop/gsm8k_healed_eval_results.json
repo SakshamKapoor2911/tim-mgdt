@@ -1,0 +1,14 @@
+{
+  "Mistral-7B-v0.1": {
+    "dense": 34.0,
+    "dropped_unhealed": 1.0,
+    "global_healed": 2.0,
+    "boundary_healed_t2": 6.0
+  },
+  "Meta-Llama-3-8B": {
+    "dense": 46.0,
+    "dropped_unhealed": 4.0,
+    "global_healed": 2.0,
+    "boundary_healed_t2": 3.0
+  }
+}

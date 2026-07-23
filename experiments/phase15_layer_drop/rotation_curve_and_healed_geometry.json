@@ -1,0 +1,46 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "rotation_curve": {
+    "depth_1": {
+      "dropped_layers": [
+        12
+      ],
+      "theta_mean_deg": 30.02,
+      "theta_std_deg": 10.24,
+      "top10_cos_sim_mean": 0.8522
+    },
+    "depth_2": {
+      "dropped_layers": [
+        12,
+        13
+      ],
+      "theta_mean_deg": 44.81,
+      "theta_std_deg": 8.56,
+      "top10_cos_sim_mean": 0.7016
+    },
+    "depth_3": {
+      "dropped_layers": [
+        12,
+        13,
+        14
+      ],
+      "theta_mean_deg": 54.75,
+      "theta_std_deg": 5.96,
+      "top10_cos_sim_mean": 0.574
+    },
+    "depth_4": {
+      "dropped_layers": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "theta_mean_deg": 56.61,
+      "theta_std_deg": 5.23,
+      "top10_cos_sim_mean": 0.5481
+    }
+  },
+  "boundary_lora_healed_effect": {
+    "status": "checkpoint_not_found"
+  }
+}

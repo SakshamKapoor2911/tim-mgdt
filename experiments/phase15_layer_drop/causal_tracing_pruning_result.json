@@ -1,0 +1,14 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "pruned_layers": [
+    31,
+    0,
+    1,
+    2
+  ],
+  "boundary_layers": [
+    3,
+    30
+  ],
+  "gsm8k_accuracy": 2.0
+}

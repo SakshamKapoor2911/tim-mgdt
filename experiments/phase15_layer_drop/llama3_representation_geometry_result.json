@@ -1,0 +1,91 @@
+{
+  "model": "meta-llama/Meta-Llama-3-8B",
+  "drop_indices": [
+    8,
+    9,
+    10,
+    11
+  ],
+  "subspace_alignment": {
+    "layer_12": {
+      "top_k_cos_sim": 0.467,
+      "angular_deviation_deg": 62.16
+    },
+    "layer_13": {
+      "top_k_cos_sim": 0.5184,
+      "angular_deviation_deg": 58.77
+    },
+    "layer_14": {
+      "top_k_cos_sim": 0.4611,
+      "angular_deviation_deg": 62.54
+    },
+    "layer_15": {
+      "top_k_cos_sim": 0.4728,
+      "angular_deviation_deg": 61.78
+    },
+    "layer_16": {
+      "top_k_cos_sim": 0.3704,
+      "angular_deviation_deg": 68.26
+    },
+    "layer_17": {
+      "top_k_cos_sim": 0.3949,
+      "angular_deviation_deg": 66.74
+    },
+    "layer_18": {
+      "top_k_cos_sim": 0.3627,
+      "angular_deviation_deg": 68.73
+    },
+    "layer_19": {
+      "top_k_cos_sim": 0.6473,
+      "angular_deviation_deg": 49.66
+    },
+    "layer_20": {
+      "top_k_cos_sim": 0.6185,
+      "angular_deviation_deg": 51.8
+    },
+    "layer_21": {
+      "top_k_cos_sim": 0.6605,
+      "angular_deviation_deg": 48.66
+    },
+    "layer_22": {
+      "top_k_cos_sim": 0.792,
+      "angular_deviation_deg": 37.63
+    },
+    "layer_23": {
+      "top_k_cos_sim": 0.7701,
+      "angular_deviation_deg": 39.63
+    },
+    "layer_24": {
+      "top_k_cos_sim": 0.797,
+      "angular_deviation_deg": 37.16
+    },
+    "layer_25": {
+      "top_k_cos_sim": 0.8465,
+      "angular_deviation_deg": 32.17
+    },
+    "layer_26": {
+      "top_k_cos_sim": 0.7724,
+      "angular_deviation_deg": 39.43
+    },
+    "layer_27": {
+      "top_k_cos_sim": 0.7437,
+      "angular_deviation_deg": 41.95
+    },
+    "layer_28": {
+      "top_k_cos_sim": 0.7988,
+      "angular_deviation_deg": 36.99
+    },
+    "layer_29": {
+      "top_k_cos_sim": 0.7003,
+      "angular_deviation_deg": 45.55
+    },
+    "layer_30": {
+      "top_k_cos_sim": 0.7283,
+      "angular_deviation_deg": 43.25
+    },
+    "layer_31": {
+      "top_k_cos_sim": 0.6786,
+      "angular_deviation_deg": 47.26
+    }
+  }
+}

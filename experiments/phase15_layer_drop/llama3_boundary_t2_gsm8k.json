@@ -1,0 +1,5 @@
+{
+  "model": "meta-llama/Meta-Llama-3-8B",
+  "condition": "boundary_healed_t2",
+  "gsm8k_accuracy": 3.0
+}

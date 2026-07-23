@@ -1,0 +1,6 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "r": 128,
+  "ppl": 10.942684173583984,
+  "gsm8k_accuracy": 4.0
+}

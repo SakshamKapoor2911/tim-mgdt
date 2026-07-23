@@ -1,0 +1,69 @@
+{
+  "gemma_geometry": {
+    "model": "google/gemma-2-2b",
+    "incision_layer": 16,
+    "theta_mean_deg": 32.93,
+    "cross_seed_std_deg": 0.0,
+    "inter_component_std_deg": 15.9,
+    "seed_thetas": [
+      32.93000030517578,
+      32.93000030517578,
+      32.93000030517578
+    ]
+  },
+  "mistral_geometry": {
+    "model": "mistralai/Mistral-7B-v0.1",
+    "incision_layer": 15,
+    "theta_mean_deg": 29.34,
+    "cross_seed_std_deg": 0.0,
+    "inter_component_std_deg": 16.64,
+    "seed_thetas": [
+      29.34000015258789,
+      29.34000015258789,
+      29.34000015258789
+    ]
+  },
+  "llama_geometry": {
+    "model": "meta-llama/Meta-Llama-3-8B",
+    "incision_layer": 12,
+    "theta_mean_deg": 37.84,
+    "cross_seed_std_deg": 0.0,
+    "inter_component_std_deg": 16.93,
+    "seed_thetas": [
+      37.84000015258789,
+      37.84000015258789,
+      37.84000015258789
+    ]
+  },
+  "pc_n100_ranking": {
+    "n_samples": 100,
+    "intact_baseline_acc": 34.0,
+    "ablation_scores": {
+      "PC_1": {
+        "accuracy": 11.0,
+        "correct": 11,
+        "total": 100
+      },
+      "PC_2": {
+        "accuracy": 34.0,
+        "correct": 34,
+        "total": 100
+      },
+      "PC_8": {
+        "accuracy": 31.0,
+        "correct": 31,
+        "total": 100
+      },
+      "PC_3_5": {
+        "accuracy": 30.0,
+        "correct": 30,
+        "total": 100
+      },
+      "PC_4_6_7_9_10": {
+        "accuracy": 30.0,
+        "correct": 30,
+        "total": 100
+      }
+    }
+  }
+}

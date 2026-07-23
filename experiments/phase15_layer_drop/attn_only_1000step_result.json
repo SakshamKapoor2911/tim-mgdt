@@ -1,0 +1,11 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "pruned_layers": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "kv_cache_reduction": "33.3%",
+  "final_c4_ppl": 310.910400390625
+}

@@ -1,0 +1,59 @@
+{
+  "mistral": {
+    "model": "mistralai/Mistral-7B-v0.1",
+    "incision_layer": 15,
+    "mean_cosine": 0.548,
+    "mean_theta_deg": 56.61,
+    "std_passage_deg": 5.23,
+    "passage_thetas": [
+      48.23,
+      56.2,
+      50.8,
+      60.72,
+      50.14,
+      61.49,
+      63.93,
+      54.56,
+      58.28,
+      61.7
+    ]
+  },
+  "llama": {
+    "model": "meta-llama/Meta-Llama-3-8B",
+    "incision_layer": 12,
+    "mean_cosine": 0.403,
+    "mean_theta_deg": 66.14,
+    "std_passage_deg": 4.41,
+    "passage_thetas": [
+      60.4,
+      61.38,
+      63.24,
+      72.78,
+      65.65,
+      73.75,
+      65.7,
+      63.75,
+      70.47,
+      64.23
+    ]
+  },
+  "gemma": {
+    "model": "google/gemma-2-2b",
+    "incision_layer": 16,
+    "mean_cosine": 0.37,
+    "mean_theta_deg": 68.23,
+    "std_passage_deg": 3.83,
+    "passage_thetas": [
+      68.04,
+      62.78,
+      73.24,
+      63.63,
+      65.68,
+      72.54,
+      70.72,
+      71.24,
+      70.98,
+      63.42
+    ]
+  }
+}

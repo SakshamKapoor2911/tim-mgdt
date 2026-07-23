@@ -1,0 +1,91 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "concatenated_canonical_principal_angles",
+  "k": 10,
+  "num_passages": 40,
+  "incision_reference_layer": 15,
+  "rotation_curve": {
+    "depth_1": {
+      "dropped_layers": [
+        12
+      ],
+      "theta_mean_deg": 9.6,
+      "theta_std_deg": 5.23,
+      "principal_angles_deg": [
+        0.15,
+        0.7,
+        8.76,
+        9.68,
+        9.86,
+        10.18,
+        11.7,
+        12.24,
+        15.7,
+        17.07
+      ]
+    },
+    "depth_2": {
+      "dropped_layers": [
+        12,
+        13
+      ],
+      "theta_mean_deg": 18.1,
+      "theta_std_deg": 11.23,
+      "principal_angles_deg": [
+        0.2,
+        0.77,
+        15.74,
+        16.44,
+        17.86,
+        19.34,
+        19.7,
+        22.97,
+        26.98,
+        41.01
+      ]
+    },
+    "depth_3": {
+      "dropped_layers": [
+        12,
+        13,
+        14
+      ],
+      "theta_mean_deg": 22.27,
+      "theta_std_deg": 11.45,
+      "principal_angles_deg": [
+        0.25,
+        1.41,
+        21.08,
+        23.31,
+        24.35,
+        26.53,
+        28.42,
+        29.14,
+        32.96,
+        35.21
+      ]
+    },
+    "depth_4": {
+      "dropped_layers": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "theta_mean_deg": 29.34,
+      "theta_std_deg": 16.64,
+      "principal_angles_deg": [
+        0.31,
+        1.5,
+        25.15,
+        26.93,
+        27.43,
+        33.85,
+        36.59,
+        40.53,
+        46.93,
+        54.19
+      ]
+    }
+  }
+}

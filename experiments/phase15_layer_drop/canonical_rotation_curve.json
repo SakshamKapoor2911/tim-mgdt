@@ -1,0 +1,92 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "method": "canonical_principal_angles",
+  "formula": "M = V_t_k @ V_s_k.T; sigmas = svdvals(M); theta = mean(arccos(sigmas))",
+  "k": 10,
+  "num_passages": 10,
+  "incision_reference_layer": 15,
+  "rotation_curve": {
+    "depth_1": {
+      "theta_mean_deg": 14.93,
+      "theta_std_passage_deg": 0.99,
+      "passage_thetas": [
+        13.59,
+        14.59,
+        15.15,
+        13.88,
+        14.06,
+        16.9,
+        15.12,
+        15.09,
+        14.61,
+        16.35
+      ],
+      "dropped_layers": [
+        12
+      ]
+    },
+    "depth_2": {
+      "theta_mean_deg": 23.38,
+      "theta_std_passage_deg": 1.58,
+      "passage_thetas": [
+        21.41,
+        22.18,
+        23.94,
+        21.64,
+        21.5,
+        24.69,
+        23.53,
+        24.77,
+        23.77,
+        26.39
+      ],
+      "dropped_layers": [
+        12,
+        13
+      ]
+    },
+    "depth_3": {
+      "theta_mean_deg": 31.79,
+      "theta_std_passage_deg": 1.39,
+      "passage_thetas": [
+        32.69,
+        28.63,
+        32.98,
+        32.3,
+        31.62,
+        33.5,
+        32.04,
+        31.29,
+        30.16,
+        32.72
+      ],
+      "dropped_layers": [
+        12,
+        13,
+        14
+      ]
+    },
+    "depth_4": {
+      "theta_mean_deg": 35.85,
+      "theta_std_passage_deg": 1.82,
+      "passage_thetas": [
+        35.65,
+        32.03,
+        37.87,
+        36.79,
+        35.44,
+        39.04,
+        36.53,
+        35.79,
+        34.43,
+        34.96
+      ],
+      "dropped_layers": [
+        11,
+        12,
+        13,
+        14
+      ]
+    }
+  }
+}

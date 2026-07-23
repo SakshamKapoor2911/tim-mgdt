@@ -1,0 +1,825 @@
+{
+  "model": "mistralai/Mistral-7B-v0.1",
+  "teacher_logit_lens": [
+    {
+      "layer": "embedding",
+      "top_tokens": [
+        "laug",
+        "avax",
+        "auf"
+      ],
+      "top_probs": [
+        0.0003,
+        0.0003,
+        0.0003
+      ]
+    },
+    {
+      "layer": 0,
+      "top_tokens": [
+        "hab",
+        "janu",
+        "popped"
+      ],
+      "top_probs": [
+        0.0009,
+        0.0006,
+        0.0006
+      ]
+    },
+    {
+      "layer": 1,
+      "top_tokens": [
+        "pop",
+        "\u200b",
+        "ched"
+      ],
+      "top_probs": [
+        0.0023,
+        0.0021,
+        0.0017
+      ]
+    },
+    {
+      "layer": 2,
+      "top_tokens": [
+        "stud",
+        "\u00c2",
+        "eda"
+      ],
+      "top_probs": [
+        0.0036,
+        0.0027,
+        0.0024
+      ]
+    },
+    {
+      "layer": 3,
+      "top_tokens": [
+        "stud",
+        "\u00c2",
+        "spl"
+      ],
+      "top_probs": [
+        0.0057,
+        0.005,
+        0.0016
+      ]
+    },
+    {
+      "layer": 4,
+      "top_tokens": [
+        "\u021b\u0103",
+        "\u00c2",
+        "\"("
+      ],
+      "top_probs": [
+        0.0026,
+        0.0021,
+        0.002
+      ]
+    },
+    {
+      "layer": 5,
+      "top_tokens": [
+        "initially",
+        "\u0159i",
+        "anas"
+      ],
+      "top_probs": [
+        0.003,
+        0.0014,
+        0.0012
+      ]
+    },
+    {
+      "layer": 6,
+      "top_tokens": [
+        "nomin",
+        "Dy",
+        "initially"
+      ],
+      "top_probs": [
+        0.0031,
+        0.0026,
+        0.0022
+      ]
+    },
+    {
+      "layer": 7,
+      "top_tokens": [
+        "Gle",
+        "oyle",
+        "NOT"
+      ],
+      "top_probs": [
+        0.0017,
+        0.0015,
+        0.0014
+      ]
+    },
+    {
+      "layer": 8,
+      "top_tokens": [
+        "ahan",
+        "Gle",
+        "conv"
+      ],
+      "top_probs": [
+        0.0027,
+        0.0025,
+        0.0022
+      ]
+    },
+    {
+      "layer": 9,
+      "top_tokens": [
+        "isf",
+        "again",
+        "conv"
+      ],
+      "top_probs": [
+        0.0017,
+        0.0015,
+        0.0014
+      ]
+    },
+    {
+      "layer": 10,
+      "top_tokens": [
+        "eca",
+        "\u30e5",
+        "again"
+      ],
+      "top_probs": [
+        0.0026,
+        0.002,
+        0.0019
+      ]
+    },
+    {
+      "layer": 11,
+      "top_tokens": [
+        "apan",
+        "again",
+        "jes"
+      ],
+      "top_probs": [
+        0.0022,
+        0.0019,
+        0.0015
+      ]
+    },
+    {
+      "layer": 12,
+      "top_tokens": [
+        "oka",
+        "ekt",
+        "ava"
+      ],
+      "top_probs": [
+        0.003,
+        0.0027,
+        0.002
+      ]
+    },
+    {
+      "layer": 13,
+      "top_tokens": [
+        "ued",
+        "\u30a3",
+        "ekt"
+      ],
+      "top_probs": [
+        0.0027,
+        0.0024,
+        0.0017
+      ]
+    },
+    {
+      "layer": 14,
+      "top_tokens": [
+        "wick",
+        "ahan",
+        "hausen"
+      ],
+      "top_probs": [
+        0.002,
+        0.0019,
+        0.0018
+      ]
+    },
+    {
+      "layer": 15,
+      "top_tokens": [
+        "Ost",
+        "divid",
+        "ycz"
+      ],
+      "top_probs": [
+        0.0054,
+        0.0035,
+        0.002
+      ]
+    },
+    {
+      "layer": 16,
+      "top_tokens": [
+        "total",
+        "divid",
+        "ilon"
+      ],
+      "top_probs": [
+        0.0028,
+        0.0026,
+        0.0023
+      ]
+    },
+    {
+      "layer": 17,
+      "top_tokens": [
+        "allo",
+        "starting",
+        "initially"
+      ],
+      "top_probs": [
+        0.003,
+        0.0024,
+        0.0023
+      ]
+    },
+    {
+      "layer": 18,
+      "top_tokens": [
+        "initially",
+        "originally",
+        "ovi"
+      ],
+      "top_probs": [
+        0.0059,
+        0.0049,
+        0.003
+      ]
+    },
+    {
+      "layer": 19,
+      "top_tokens": [
+        "initially",
+        "originally",
+        "Before"
+      ],
+      "top_probs": [
+        0.0118,
+        0.0086,
+        0.0075
+      ]
+    },
+    {
+      "layer": 20,
+      "top_tokens": [
+        "Answer",
+        "answer",
+        "Before"
+      ],
+      "top_probs": [
+        0.0262,
+        0.0089,
+        0.0085
+      ]
+    },
+    {
+      "layer": 21,
+      "top_tokens": [
+        "initially",
+        "originally",
+        "Before"
+      ],
+      "top_probs": [
+        0.1068,
+        0.0599,
+        0.0233
+      ]
+    },
+    {
+      "layer": 22,
+      "top_tokens": [
+        "initially",
+        "originally",
+        "Before"
+      ],
+      "top_probs": [
+        0.0938,
+        0.079,
+        0.0235
+      ]
+    },
+    {
+      "layer": 23,
+      "top_tokens": [
+        "originally",
+        "initially",
+        "Before"
+      ],
+      "top_probs": [
+        0.0925,
+        0.0699,
+        0.0298
+      ]
+    },
+    {
+      "layer": 24,
+      "top_tokens": [
+        "originally",
+        "initially",
+        "Before"
+      ],
+      "top_probs": [
+        0.2893,
+        0.1142,
+        0.0186
+      ]
+    },
+    {
+      "layer": 25,
+      "top_tokens": [
+        "originally",
+        "initially",
+        "Before"
+      ],
+      "top_probs": [
+        0.814,
+        0.0516,
+        0.0052
+      ]
+    },
+    {
+      "layer": 26,
+      "top_tokens": [
+        "originally",
+        "Origin",
+        "initially"
+      ],
+      "top_probs": [
+        0.8613,
+        0.0316,
+        0.0108
+      ]
+    },
+    {
+      "layer": 27,
+      "top_tokens": [
+        "originally",
+        "Origin",
+        "They"
+      ],
+      "top_probs": [
+        0.728,
+        0.0662,
+        0.0101
+      ]
+    },
+    {
+      "layer": 28,
+      "top_tokens": [
+        "originally",
+        "Origin",
+        "origin"
+      ],
+      "top_probs": [
+        0.52,
+        0.3987,
+        0.0383
+      ]
+    },
+    {
+      "layer": 29,
+      "top_tokens": [
+        "originally",
+        "Origin",
+        "origin"
+      ],
+      "top_probs": [
+        0.5181,
+        0.426,
+        0.0212
+      ]
+    },
+    {
+      "layer": 30,
+      "top_tokens": [
+        "Origin",
+        "originally",
+        "origin"
+      ],
+      "top_probs": [
+        0.9282,
+        0.0296,
+        0.0106
+      ]
+    },
+    {
+      "layer": 31,
+      "top_tokens": [
+        "Origin",
+        "Le",
+        "There"
+      ],
+      "top_probs": [
+        0.7275,
+        0.0698,
+        0.0392
+      ]
+    }
+  ],
+  "student_logit_lens": [
+    {
+      "layer": "embedding",
+      "top_tokens": [
+        "laug",
+        "avax",
+        "auf"
+      ],
+      "top_probs": [
+        0.0003,
+        0.0003,
+        0.0003
+      ]
+    },
+    {
+      "layer": 0,
+      "top_tokens": [
+        "hab",
+        "janu",
+        "popped"
+      ],
+      "top_probs": [
+        0.0009,
+        0.0006,
+        0.0006
+      ]
+    },
+    {
+      "layer": 1,
+      "top_tokens": [
+        "pop",
+        "\u200b",
+        "ched"
+      ],
+      "top_probs": [
+        0.0023,
+        0.0021,
+        0.0017
+      ]
+    },
+    {
+      "layer": 2,
+      "top_tokens": [
+        "stud",
+        "\u00c2",
+        "eda"
+      ],
+      "top_probs": [
+        0.0036,
+        0.0027,
+        0.0024
+      ]
+    },
+    {
+      "layer": 3,
+      "top_tokens": [
+        "stud",
+        "\u00c2",
+        "spl"
+      ],
+      "top_probs": [
+        0.0057,
+        0.005,
+        0.0016
+      ]
+    },
+    {
+      "layer": 4,
+      "top_tokens": [
+        "\u021b\u0103",
+        "\u00c2",
+        "\"("
+      ],
+      "top_probs": [
+        0.0026,
+        0.0021,
+        0.002
+      ]
+    },
+    {
+      "layer": 5,
+      "top_tokens": [
+        "initially",
+        "\u0159i",
+        "anas"
+      ],
+      "top_probs": [
+        0.003,
+        0.0014,
+        0.0012
+      ]
+    },
+    {
+      "layer": 6,
+      "top_tokens": [
+        "nomin",
+        "Dy",
+        "initially"
+      ],
+      "top_probs": [
+        0.0031,
+        0.0026,
+        0.0022
+      ]
+    },
+    {
+      "layer": 7,
+      "top_tokens": [
+        "Gle",
+        "oyle",
+        "NOT"
+      ],
+      "top_probs": [
+        0.0017,
+        0.0015,
+        0.0014
+      ]
+    },
+    {
+      "layer": 8,
+      "top_tokens": [
+        "ahan",
+        "Gle",
+        "conv"
+      ],
+      "top_probs": [
+        0.0027,
+        0.0025,
+        0.0022
+      ]
+    },
+    {
+      "layer": 9,
+      "top_tokens": [
+        "isf",
+        "again",
+        "conv"
+      ],
+      "top_probs": [
+        0.0017,
+        0.0015,
+        0.0014
+      ]
+    },
+    {
+      "layer": 10,
+      "top_tokens": [
+        "eca",
+        "\u30e5",
+        "again"
+      ],
+      "top_probs": [
+        0.0026,
+        0.002,
+        0.0019
+      ]
+    },
+    {
+      "layer": 11,
+      "top_tokens": [
+        "iken",
+        "answer",
+        "odi"
+      ],
+      "top_probs": [
+        0.003,
+        0.0027,
+        0.0026
+      ]
+    },
+    {
+      "layer": 12,
+      "top_tokens": [
+        "answer",
+        "ERCHANT",
+        "answer"
+      ],
+      "top_probs": [
+        0.013,
+        0.0035,
+        0.0028
+      ]
+    },
+    {
+      "layer": 13,
+      "top_tokens": [
+        "\u00e8s",
+        "staying",
+        "stay"
+      ],
+      "top_probs": [
+        0.0024,
+        0.0021,
+        0.0017
+      ]
+    },
+    {
+      "layer": 14,
+      "top_tokens": [
+        "There",
+        "they",
+        "They"
+      ],
+      "top_probs": [
+        0.003,
+        0.003,
+        0.0028
+      ]
+    },
+    {
+      "layer": 15,
+      "top_tokens": [
+        "They",
+        "they",
+        "they"
+      ],
+      "top_probs": [
+        0.0047,
+        0.0041,
+        0.0036
+      ]
+    },
+    {
+      "layer": 16,
+      "top_tokens": [
+        "Answer",
+        "They",
+        "According"
+      ],
+      "top_probs": [
+        0.0086,
+        0.0052,
+        0.004
+      ]
+    },
+    {
+      "layer": 17,
+      "top_tokens": [
+        "There",
+        "They",
+        "Answer"
+      ],
+      "top_probs": [
+        0.0072,
+        0.0051,
+        0.0049
+      ]
+    },
+    {
+      "layer": 18,
+      "top_tokens": [
+        "Answer",
+        "There",
+        "They"
+      ],
+      "top_probs": [
+        0.0097,
+        0.0071,
+        0.0046
+      ]
+    },
+    {
+      "layer": 19,
+      "top_tokens": [
+        "they",
+        "They",
+        ""
+      ],
+      "top_probs": [
+        0.012,
+        0.0098,
+        0.0094
+      ]
+    },
+    {
+      "layer": 20,
+      "top_tokens": [
+        "",
+        "total",
+        "Answer"
+      ],
+      "top_probs": [
+        0.0242,
+        0.0115,
+        0.0115
+      ]
+    },
+    {
+      "layer": 21,
+      "top_tokens": [
+        "total",
+        "originally",
+        ""
+      ],
+      "top_probs": [
+        0.0641,
+        0.0632,
+        0.0431
+      ]
+    },
+    {
+      "layer": 22,
+      "top_tokens": [
+        "originally",
+        "Origin",
+        "origin"
+      ],
+      "top_probs": [
+        0.1777,
+        0.1682,
+        0.1138
+      ]
+    },
+    {
+      "layer": 23,
+      "top_tokens": [
+        "Origin",
+        "originally",
+        "origin"
+      ],
+      "top_probs": [
+        0.259,
+        0.1223,
+        0.047
+      ]
+    },
+    {
+      "layer": 24,
+      "top_tokens": [
+        "Origin",
+        "originally",
+        "Origin"
+      ],
+      "top_probs": [
+        0.6279,
+        0.2169,
+        0.0617
+      ]
+    },
+    {
+      "layer": 25,
+      "top_tokens": [
+        "Origin",
+        "originally",
+        "origin"
+      ],
+      "top_probs": [
+        0.5718,
+        0.2922,
+        0.0402
+      ]
+    },
+    {
+      "layer": 26,
+      "top_tokens": [
+        "Origin",
+        "",
+        "originally"
+      ],
+      "top_probs": [
+        0.8691,
+        0.0256,
+        0.0223
+      ]
+    },
+    {
+      "layer": 27,
+      "top_tokens": [
+        "Origin",
+        "Le",
+        "The"
+      ],
+      "top_probs": [
+        0.7402,
+        0.0608,
+        0.0335
+      ]
+    }
+  ],
+  "causal_pc_scores": {
+    "PC_1": 3.33,
+    "PC_2": 20.0,
+    "PC_3": 26.67,
+    "PC_4": 30.0,
+    "PC_5": 26.67,
+    "PC_6": 30.0,
+    "PC_7": 30.0,
+    "PC_8": 20.0,
+    "PC_9": 30.0,
+    "PC_10": 30.0
+  }
+}
