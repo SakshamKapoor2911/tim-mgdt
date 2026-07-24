@@ -82,3 +82,22 @@ The pruned baseline discrepancy is the main issue. The dense and boundary-healed
 *\*Statistically significant at N=500 (non-overlapping CIs).*
 
 Recommend using dense=39.6%, pruned=1.8%, boundary-healed=6.2% for the main results table. Leave the Phase 25 causal intervention results (sufficiency, PC ablation) at N=100 since they test different hypotheses and were not re-run.
+
+---
+
+## Llama-3-8B Cross-Model Validation (N=100, 8-shot)
+
+Re-ran the same evaluation on Meta-Llama-3-8B (drop layers 8-11) to confirm the dissociation is not Mistral-specific:
+
+| Condition | Accuracy | 95% CI |
+|:---|---:|:---:|
+| Dense baseline | 56.0% | [46.0%, 66.0%] |
+| Boundary healed t=2 | 6.0% | [2.0%, 11.0%] |
+| Pruned unhealed | 1.0% | [0.0%, 3.0%] |
+| Recovery gap (healed - pruned) | +5.0 pp | — |
+
+**Key findings**:
+1. The fluency-reasoning dissociation generalizes to Llama-3-8B: PPL recovers dramatically (like Mistral) but reasoning goes from 56% → 1%, only recovering to 6%.
+2. The recovery gap (+5 pp) is similar to Mistral's +4.4 pp at N=500.
+3. This cross-model evidence substantially weakens the "single model" reviewer objection (Weakness #7). Llama-3-8B shows the same pattern despite being a different architecture with higher absolute reasoning capability (56% vs Mistral's 40%).
+4. CIs are wide at N=100 but the qualitative pattern is unambiguous.

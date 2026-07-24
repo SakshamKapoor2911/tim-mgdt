@@ -1,0 +1,35 @@
+[
+  {
+    "name": "llama3_dense_baseline",
+    "num_shots": 8,
+    "accuracy": 56.0,
+    "ci_95": [
+      46.0,
+      66.0
+    ],
+    "correct": 56,
+    "total": 100
+  },
+  {
+    "name": "llama3_boundary_healed_t2",
+    "num_shots": 8,
+    "accuracy": 6.0,
+    "ci_95": [
+      2.0,
+      11.0
+    ],
+    "correct": 6,
+    "total": 100
+  },
+  {
+    "name": "llama3_pruned_unhealed",
+    "num_shots": 8,
+    "accuracy": 1.0,
+    "ci_95": [
+      0.0,
+      3.0
+    ],
+    "correct": 1,
+    "total": 100
+  }
+]

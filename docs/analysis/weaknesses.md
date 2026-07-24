@@ -429,7 +429,7 @@ This is a complete diagnostic contribution. However, the paper needs to explicit
 | 4 | Noise floor (0--4%) | Medium | Medium | Frame honestly |
 | 5 | Location non-specificity | Medium | Medium | Do not claim specificity |
 | 6 | Residual norm correlation | Medium | High | Add norm/R* counter-argument |
-| 7 | Single model reasoning | Medium | Medium | Add limitation sentence |
+| 7 | Single model reasoning | ✅ **Partially resolved** | — | Llama-3-8B confirms same pattern (56%→1%→6%) |
 | 8 | PC₁ 179.52° measurement | Medium | Medium | Add methodological note |
 | 9 | Gemma-2 SWA t=3 | Low | Low | Adequate as-is |
 | 10 | Bathtub is ground-truth | Low | N/A | Already fixed |
