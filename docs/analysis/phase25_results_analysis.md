@@ -2,22 +2,24 @@
 
 **Date**: 2026-07-24
 **Branch**: `feature/subspace-suturing-improvements`
-**Pipeline Status**: P2 Control 2A complete, Control 2B running (44/100), P3 complete, P4 queued, P5 (PC₁ un-rotation) designed and ready to run after pipeline completes
+**Pipeline Status**: P1-P4 complete, P5 (PC₁ un-rotation) running on GPU 0 (launched 12:59 PM EDT, ~25 min ETA)
 
 ---
 
 ## Executive Summary
 
-Phase 25 ran three causal intervention experiments plus a competing metrics evaluation. The results strengthen the paper's core causal claims significantly in two dimensions (sufficiency + specificity of negative controls) but reveal a weakness in the Procrustes full-space recovery. Overall the paper is substantially stronger with these results.
+Phase 25 ran five experiments: three causal interventions, one competing metrics evaluation, and one location/robustness sweep. The sufficiency test is a clear success, but the recovery experiments (Procrustes, wrong-layer, wrong-PC) all converge to a 0–3% noise floor, revealing that constructive recovery at n=100 sample sizes is indistinguishable from random. This makes P5 (PC₁-specific un-rotation) the single decisive experiment.
 
 **What works best**:
 1. **Sufficiency test**: 34% → 10% — strongest single piece of causal evidence
-2. **Negative controls (P2 2A)**: Random rotation = 0.00% across 3 seeds — establishes that R* is specific
-3. **Competing metrics**: θ uncorrelated with scalar metrics — θ is a unique geometric signal
+2. **Competing metrics**: θ uncorrelated with scalar metrics — θ is a unique geometric signal
+3. **Robustness (P4)**: Early(0%) / Middle(2%) / Late(4.3%) — depth pruning uniform collapse
 
 **What is weak**:
-1. **Procrustes recovery**: 1% → 3% — barely measurable
-2. **Pruned baseline discrepancy**: 1% vs paper's 7% — needs explanation
+1. **Noise floor**: Every intervention (R*, random rotation, wrong-layer, wrong-PC) gives 0–3% — all indistinguishable from the pruned baseline of 1%
+2. **Location not specific**: R* at wrong layers 5 and 25 also gives 3% — same as correct layer
+3. **PC specificity not tested yet**: P5 (PC₁ un-rotation) is running now to close this gap
+4. **Pruned baseline discrepancy**: 1% vs paper's 7% — needs explanation
 
 ---
 
@@ -132,9 +134,9 @@ Add a new table or figure showing the correlation matrix. Key claim:
 
 ---
 
-## 4. P2: Negative Controls — Specificity Analysis (STRENGTHENS PAPER)
+## 4. P2 & P4: Negative Controls and Robustness
 
-### 4A. Random Rotation Placebo (COMPLETE)
+### 4A. Random Rotation Placebo (Complete)
 
 | Condition | GSM8K |
 |:---|:---:|
@@ -144,42 +146,60 @@ Add a new table or figure showing the correlation matrix. Key claim:
 | Random rotation Seed 2 | 0.00% |
 | Random rotation combined | 0/300 = 0.00% |
 
-**Interpretation**: Random orthogonal matrix rotations at the post-incision layer produce exactly 0.00% accuracy. This is not above chance. The 3/100 (3%) from Procrustes R*, while small, is distinguishable from the 0/300 (0%) from random rotation.
+**Interpretation**: Random orthogonal matrix rotations produce exactly 0.00%. The 3% from Procrustes R* is barely above this floor. At n=100, Fisher exact p for 3/100 vs 0/300 = 0.037 — marginally significant. This shows R* encodes SOME signal, but the effect is extremely weak.
 
-**Paper value**: This proves the R* matrix is NOT generic — it encodes genuine student→teacher alignment. Without this control, a reviewer could argue that "any orthogonal transformation at the incision site" explains the small Procrustes recovery. The 0/300 random result shows this is false.
+### 4B. Wrong-Layer Repair (Complete)
 
-### 4B. Wrong-Layer Repair (PARTIALLY COMPLETE)
+| Condition | GSM8K |
+|:---|:---:|
+| R* at Layer 0 (very early, wrong) | 0.00% |
+| R* at Layer 5 (early, wrong) | 3.00% |
+| R* at Layer 25 (late, wrong) | 3.00% |
+| R* at Layer 11 (correct, post-incision) | 3.00% |
 
-| Condition | GSM8K | Status |
+**Interpretation**: R* at Layer 0 gives 0%, but R* at Layers 5 and 25 gives 3% — the SAME as the correct Layer 11. The Procrustes R* is NOT location-specific within the network; any layer from Layer 5 onward gives the same 3% result. This weakens the spatial specificity argument. It suggests the R* matrix acts as a generic perturbation rather than a targeted alignment at the incision boundary.
+
+### 4C. Wrong-PC Repair (Complete)
+
+| PC Realigned | GSM8K |
+|:---|:---:|
+| PC₂ | 3.00% |
+| PC₅ | 1.00% |
+| PC₁₀ | 0.00% |
+
+**Interpretation**: Realigning PC₂, PC₅, or PC₁₀ all give 0–3%, indistinguishable from the pruned baseline (1%). This does NOT mean PC₁ is irrelevant — it means that realigning non-PC₁ components also fails to recover reasoning. The paper's claim (Table 3) is that ablating PC₂ in an INTACT model leaves accuracy at 34%; that's a destruction-only claim. Realigning PC₂ in a BROKEN model gives 3%, which is consistent with the model being too broken to recover, not with PC₂ being unimportant.
+
+### 4D. P4: Location Sweep (Complete, n=300 per location)
+
+| Location | Drop Indices | GSM8K | 95% CI |
+|:---|:---:|:---:|:---:|
+| Early | 3–6 | 0.00% | [0.0, 1.2] |
+| Middle | 11–14 | 2.00% | [0.7, 4.3] |
+| Late | 20–23 | 4.33% | [2.3, 7.3] |
+
+**Interpretation**: Depth pruning at any location causes severe reasoning collapse. Early layers (0%) are most destructive, late layers retain a sliver (~4.3%). The CIs are tight from n=300. This confirms robustness — the paper's findings are not an artifact of picking middle layers.
+
+### 4E. The Noise Floor — Critical Discovery
+
+Every intervention across P1, P2, and P4 converges to the same range:
+
+| Condition | GSM8K | Above 1% baseline? |
 |:---|:---:|:---:|
-| R* applied at Layer 0 (early, wrong) | In progress (44/100) | Running |
-| R* applied at Layer 5 (wrong) | Pending | Queued |
-| R* applied at Layer 25 (wrong) | Pending | Queued |
-| R* applied at correct Layer 11 | Pending | Queued |
+| Pruned unhealed baseline | 1.00% | — |
+| Random rotation (3 seeds pooled) | 0.00% | No |
+| Wrong-PC: PC₁₀ realign | 0.00% | No |
+| P4: Early location drop | 0.00% | No |
+| Wrong-PC: PC₅ realign | 1.00% | No |
+| P4: Middle location drop | 2.00% | Barely |
+| Procrustes R* (correct layer+PC) | 3.00% | Yes (p=0.31 vs baseline) |
+| Wrong-layer: R* at Layer 5 | 3.00% | Yes |
+| Wrong-layer: R* at Layer 25 | 3.00% | Yes |
+| Wrong-PC: PC₂ realign | 3.00% | Yes |
+| P4: Late location drop | 4.33% | Yes |
 
-**Expected**: R* at wrong layers should give ≈ 0-2% (no recovery), R* at the correct layer should give ≈ 3% (same as P1 Exp 1A). This establishes spatial specificity: the rotation must be applied at the exact incision boundary.
+**The signal range for all constructive recovery interventions is 0–4.3%.** The Procrustes R* at 3% is NOT statistically distinguishable from the 2% middle drop result (p=0.50) or the 3% wrong-PC result (p=1.0). The only intervention that produces a large effect is the sufficiency test (34% → 10%), which is destructive, not constructive.
 
-### 4C. Wrong-PC Repair (QUEUED)
-
-| Component | Paper Table 3 | Expected P2 Result |
-|:---|:---:|:---:|
-| No ablation (baseline) | 34.0% | — |
-| Ablate PC₁ | 11.0% | — |
-| Realign PC₂ (control) | — | ≈ 34% (no effect expected) |
-| Realign PC₅ (control) | — | ≈ 34% |
-| Realign PC₁₀ (control) | — | ≈ 34% |
-
-**Expected**: Realigning any principal component except PC₁ should have no effect on reasoning accuracy. This would directly replicate Table 3's finding that PC₁ is causally dominant, using an intervention method (realignment) instead of ablation. This is stronger than the paper's existing evidence because it shows realignment (restoring orientation) works differently for PC₁ than for other PCs.
-
-### 4D. Three-Point Specificity Summary
-
-Once P2 completes, the paper will have a clean specificity chain:
-
-| Claim | Control | Result | Strengthens |
-|:---|:---|:---:|:---:|
-| **Rotation must be R*** | Random rotation → 0.00% | R* → 3.00% vs Rand → 0.00% | ✅ |
-| **R* must be at correct layer** | Wrong-layer R* → expected ~0-3% | Correct-layer R* → 3.00% | ✅ (pending) |
-| **Rotation must target PC₁** | Wrong-PC realign → expected ~34% | PC₁ realign → would test full paper claim | ✅ (pending) |
+**Implication**: The noise floor of n=100 GSM8K evaluations is ~3% for this pruned model. Any recovery claim based on a delta of 2–3% is not reliable. The P5 experiment (PC₁-specific un-rotation) MUST produce a substantially larger recovery (>10%) to be distinguishable from this floor.
 
 ---
 
@@ -260,6 +280,10 @@ The current Phase 25 results have a lopsided causal structure:
 
 A reviewer can argue: "You showed rotation breaks an intact model (sufficiency), but you couldn't show un-rotation fixes a broken model (recovery). The weak Procrustes recovery suggests the rotation signal, while statistically detectable, is not operationally meaningful for repair. Maybe both rotation and reasoning collapse are co-effects of layer removal without a direct causal link."
 
+### The Noise Floor Problem
+
+Every constructive intervention tested (P1 Procrustes, P2 wrong-layer, P2 wrong-PC, P2 random rotation) produces 0–3%, which is indistinguishable from the pruned baseline (1%) at n=100. This means the entire "recovery" signal is within the measurement noise floor. The 3% from full Procrustes R* is not meaningfully better than the 0% from random rotation (p=0.037) or the 1% from baseline (p=0.31).
+
 ### The Core Issue: Full-Space Procrustes Dilutes the PC₁ Signal
 
 Procrustes R* operates on all 4096 dimensions. The paper's Table 3 shows PC₁ is uniquely causal (23% drop vs 0% for PC₂). By rotating the FULL 4096-dim space, R* distributes the correction across ALL singular vectors, not just PC₁. This dilutes the PC₁-specific correction by a factor of ~1/4096.
@@ -267,8 +291,9 @@ Procrustes R* operates on all 4096 dimensions. The paper's Table 3 shows PC₁ i
 | Method | Dimensions affected | GSM8K recovery |
 |:---|:---:|:---:|
 | Random rotation (placebo) | 4096 (full space) | 0.00% |
-| Full Procrustes R* | 4096 (full space) | +2% (1% → 3%) |
-| PC₁-specific Givens rotation | 2 (PC₁ plane only) | **Not yet tested** |
+| Full Procrustes R* | 4096 (full space) | 3.00% |
+| Wrong-PC realign (PC₂) | 2 (PC₂ plane) | 3.00% |
+| **PC₁-specific Givens rotation** | **2 (PC₁ plane only)** | **Running now (P5)** |
 
 ### P5: PC₁-Specific Un-Rotation — The Missing Experiment
 
@@ -287,16 +312,10 @@ Unlike full Procrustes which affects ALL 4096 directions, the PC₁ rotation is 
 | Outcome | Interpretation | Paper Impact |
 |:---|:---|:---:|
 | PC₁ recovers to ≈20-34% | Rotation of PC₁ IS the causal mechanism | 🟢 Strong — directly proves current paper claim in line 220 |
-| PC₁ recovers to ≈3-10% | PC₁ is PART of the mechanism but other components matter | 🟡 Mixed — partial support |
-| PC₁ shows no recovery (<3%) | PC₁ rotation is NOT the causal mechanism | 🔴 Paper claim in line 220 unsupported |
+| PC₁ recovers to 5–10% | PC₁ is PART of the mechanism but other components matter | 🟡 Mixed — partial support, barely above noise floor |
+| PC₁ shows no recovery (<3%) | PC₁ rotation is NOT the causal mechanism | 🔴 Paper claim in line 220 unsupported. The entire recovery hypothesis fails. |
 
-**GPU time estimate**: ~1 hour total (collect hidden both models: 2 min, SVD: 1 min, 1 GSM8K eval: ~7 min, baselines: 14 min = ~25 min total plus overhead)
-
-### When to Run P5
-
-After the main pipeline (P2+P3+P4) completes. Either:
-- Standalone: `CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.5_pc1_unrotation`
-- Via `run_next.sh` orchestrator
+**Status**: Running on GPU 0 as of 12:59 PM EDT. **~20 minutes remaining**.
 
 ---
 
@@ -338,14 +357,14 @@ After the main pipeline (P2+P3+P4) completes. Either:
 
 | Experiment | Actual | Supports Paper? | Status |
 |:---|:---:|:---:|:---:|
-| P1 Exp 1A: Procrustes realignment | 1% → 3% | 🟡 Mixed (supports PC₁ narrative) | ✅ Complete |
+| P1 Exp 1A: Procrustes realignment | 1% → 3% | 🟡 Mixed (noise floor) | ✅ Complete |
 | P1 Exp 1B: Sufficiency test | 34% → 10% | 🟢 Strong | ✅ Complete |
-| P2 2A: Random rotation placebo | 0.00% (3 seeds) | 🟢 Strongest control | ✅ Complete |
-| P2 2B: Wrong-layer repair | Running (44/100) | 🟢 Expected to show location specificity | 🔄 Running |
-| P2 2C: Wrong-PC repair | Queued | 🟢 Expected to show PC₁ specificity | ⏳ Queued |
+| P2 2A: Random rotation placebo | 0.00% (3 seeds) | 🟢 Establishes noise floor at 0% | ✅ Complete |
+| P2 2B: Wrong-layer repair | 0%, 3%, 3%, 3% | 🔴 Location NOT specific | ✅ Complete |
+| P2 2C: Wrong-PC repair | 3%, 1%, 0% | 🔴 Cannot distinguish PC specificity | ✅ Complete |
 | P3: Competing metrics | 7 metrics × 50 passages | 🟢 θ unique vs scalar metrics | ✅ Complete |
-| P4: Early/Mid/Late sweep | Queued after P2 | 🟢 Expected to show robustness | ⏳ Queued |
-| P5: PC₁-specific un-rotation | Designed, ready to run | 🟢 Would close the recovery gap | ⏳ After pipeline |
+| P4: Early/Mid/Late sweep | 0%, 2%, 4.33% (n=300) | 🟢 Robustness confirmed | ✅ Complete |
+| P5: PC₁-specific un-rotation | Running (GPU 0) | 🟢 Decisive — will close/fail the gap | 🔄 15 min ETA |
 
 ---
 
@@ -353,12 +372,19 @@ After the main pipeline (P2+P3+P4) completes. Either:
 |:---|:---|
 | `exp_1a_procrustes.json` | P1 Procrustes intervention: 1% → 3% |
 | `exp_1b_sufficiency.json` | P1 Sufficiency test: baseline 34%, rotated 10% |
+| `exp_1b_rotation_sweep.json` | P1 Sufficiency result file (same as exp_1b_sufficiency) |
 | `exp_2a_random_rotation.json` | P2 Random rotation placebo: 0.00% (3 seeds) |
+| `exp_2b_wrong_layer_repair.json` | P2 Wrong-layer: 0%, 3%, 3%, 3% |
+| `exp_2c_wrong_pc_repair.json` | P2 Wrong-PC: 3%, 1%, 0% |
 | `exp_3_competing_metrics.json` | P3 Full correlation matrix (50 passages × 7 metrics) |
+| `exp_4_location_sweep.json` | P4 Merged location sweep |
+| `exp_4_location_sweep_gpu0.json` | P4 GPU 0 partial (early+late) |
+| `exp_4_location_sweep_gpu1.json` | P4 GPU 1 partial (middle) |
+| `exp_5_pc1_unrotation.json` | P5 PC₁-specific un-rotation (pending) |
 | `R_star.pt` | Procrustes rotation matrix [4096, 4096] |
-| `code/phases/phase25_causal_interventions/5_pc1_unrotation.py` | P5 PC₁-specific un-rotation (ready to run) |
-| `_checkpoint_1_complete.json` | Stage 1 completion marker |
+| `R_pc1.pt` | PC₁-specific Givens rotation matrix (pending) |
+| `_checkpoint_1-4_complete.json` | Stage completion markers |
 
 ---
 
-*Document generated during Phase 25 pipeline execution. P2 2A complete, P2 2B-C, P4, P5 pending.*
+*Document updated 2026-07-24 13:00 PM EDT. All pipeline stages P1-P4 complete. P5 (PC₁ un-rotation) running on GPU 0, ETA ~20 min.*
