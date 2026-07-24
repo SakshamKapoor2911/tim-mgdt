@@ -28,14 +28,17 @@ from code.phases.phase11.utils import get_device, save_json
 
 
 def _drop_layers(model, drop_indices):
-    model.model.layers = nn.ModuleList(
+    remaining = nn.ModuleList(
         [layer for i, layer in enumerate(model.model.layers) if i not in set(drop_indices)]
     )
-    model.config.num_hidden_layers = len(model.model.layers)
+    for idx, layer in enumerate(remaining):
+        layer.self_attn.layer_idx = idx
+    model.model.layers = remaining
+    model.config.num_hidden_layers = len(remaining)
 
 
 def compute_principal_angles(H_teacher, H_student, top_m=10):
-    Bs, Ss, Ds = H_teacher.shape
+    Ds = H_teacher.shape[-1]
     H_t = H_teacher.detach().float().reshape(-1, Ds).cpu().numpy()
     H_s = H_student.detach().float().reshape(-1, Ds).cpu().numpy()
     _, _, Vt_t = np.linalg.svd(H_t, full_matrices=False)
@@ -129,6 +132,8 @@ def main():
             prompts.append(text)
 
     print("Loading intact model...")
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     intact_model = AutoModelForCausalLM.from_pretrained(
         args.model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True

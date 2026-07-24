@@ -89,10 +89,13 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100, seed=42):
 
 
 def _drop_layers(model, drop_indices):
-    model.model.layers = nn.ModuleList(
+    remaining = nn.ModuleList(
         [layer for i, layer in enumerate(model.model.layers) if i not in set(drop_indices)]
     )
-    model.config.num_hidden_layers = len(model.model.layers)
+    for idx, layer in enumerate(remaining):
+        layer.self_attn.layer_idx = idx
+    model.model.layers = remaining
+    model.config.num_hidden_layers = len(remaining)
 
 
 def compute_clopper_pearson_ci(k, n, alpha=0.05):
@@ -110,11 +113,15 @@ def run_location_sweep(args):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    locations = {
+    all_locations = {
         "early": {"name": "Early (3-6)", "drop": [3, 4, 5, 6]},
         "middle": {"name": "Middle (11-14)", "drop": [11, 12, 13, 14]},
         "late": {"name": "Late (20-23)", "drop": [20, 21, 22, 23]},
     }
+    location_keys = args.locations if args.locations else [k for k in all_locations]
+    locations = {k: all_locations[k] for k in location_keys if k in all_locations}
+    if not locations:
+        locations = all_locations
 
     all_results = {}
     for loc_key, loc_info in locations.items():
@@ -133,6 +140,8 @@ def run_location_sweep(args):
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(seed)
 
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             model = AutoModelForCausalLM.from_pretrained(
                 args.model_name, torch_dtype=torch.float16, device_map="auto",
                 low_cpu_mem_usage=True
@@ -166,7 +175,8 @@ def run_location_sweep(args):
         "locations": all_results,
     }
 
-    save_json(os.path.join(args.output_dir, "exp_4_location_sweep.json"), out)
+    out_filename = f"exp_4_location_sweep{args.output_suffix}.json"
+    save_json(os.path.join(args.output_dir, out_filename), out)
     print("\n" + "=" * 60)
     print("P4 LOCATION SWEEP COMPLETE. SUMMARY:")
     print("=" * 60)
@@ -183,16 +193,24 @@ def main():
     parser.add_argument("--num_seeds", type=int, default=3)
     parser.add_argument("--seed_base", type=int, default=0)
     parser.add_argument("--num_eval_samples", type=int, default=100)
+    parser.add_argument("--locations", type=str, nargs="+", default=None,
+                        help="Location subset: early middle late (default: all)")
+    parser.add_argument("--output_suffix", type=str, default="",
+                        help="Suffix for result file to avoid conflicts in parallel runs")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
-    save_json(os.path.join(args.output_dir, "_checkpoint_4_started.json"),
+    save_json(os.path.join(args.output_dir, f"_checkpoint_4_started{args.output_suffix}.json"),
               {"status": "started", "args": vars(args)})
 
     run_location_sweep(args)
 
-    save_json(os.path.join(args.output_dir, "_checkpoint_4_complete.json"),
-              {"status": "complete"})
+    if args.output_suffix:
+        save_json(os.path.join(args.output_dir, f"_checkpoint_4_complete{args.output_suffix}.json"),
+                  {"status": "complete"})
+    else:
+        save_json(os.path.join(args.output_dir, "_checkpoint_4_complete.json"),
+                  {"status": "complete"})
     print("\nP4 COMPLETE")
 
 

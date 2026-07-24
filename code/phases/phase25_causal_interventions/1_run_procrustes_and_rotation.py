@@ -116,14 +116,17 @@ def collect_hidden_at_layer(
     handle.remove()
     del model
     torch.cuda.empty_cache()
-    return torch.cat(all_hidden, dim=1)
+    return torch.cat(all_hidden, dim=0)
 
 
 def _drop_layers(model, drop_indices):
-    model.model.layers = nn.ModuleList(
+    remaining = nn.ModuleList(
         [layer for i, layer in enumerate(model.model.layers) if i not in set(drop_indices)]
     )
-    model.config.num_hidden_layers = len(model.model.layers)
+    for idx, layer in enumerate(remaining):
+        layer.self_attn.layer_idx = idx
+    model.model.layers = remaining
+    model.config.num_hidden_layers = len(remaining)
 
 
 def run_procrustes_recovery(args):

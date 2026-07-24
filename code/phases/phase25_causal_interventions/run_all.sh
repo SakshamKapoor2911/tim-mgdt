@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Master execution script for Phase 25: Causal Interventions
-# Sequence: P1 (Procrustes + Rotation) -> P2 (Negative Controls) -> P3 (Metrics) -> P4 (Location Sweep)
+# DUAL-GPU version: runs P2+P3 in parallel, P4 split across GPUs.
 #
 # Usage:
 #   tmux new-session -s phase25
@@ -20,89 +20,160 @@ OUTPUT_DIR="${OUTPUT_DIR:-experiments/phase25_causal_interventions}"
 VENV="${VENV:-$REPO/venv}"
 NUM_EVAL="${NUM_EVAL:-100}"
 NUM_CALIB="${NUM_CALIB:-50}"
-GPU="${GPU:-0}"
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 
 mkdir -p "$OUTPUT_DIR"
 
-echo "=== Phase 25: Causal Interventions ==="
-echo "  REPO:          $REPO"
+log_gpu() {
+    local label="${1:-}"
+    if command -v nvidia-smi &>/dev/null; then
+        nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,noheader 2>/dev/null \
+            | while IFS=, read -r idx used total; do
+                echo "  [GPU${idx}${label:+, }${label}] ${used}, ${total}"
+            done
+    fi
+}
+
+echo "=== Phase 25: Causal Interventions (DUAL GPU) ==="
 echo "  MODEL:         $MODEL"
-echo "  OUTPUT_DIR:    $OUTPUT_DIR"
 echo "  NUM_EVAL:      $NUM_EVAL"
-echo "  NUM_CALIB:     $NUM_CALIB"
-echo "  GPU:           $GPU"
 echo "  Started at:    $(date)"
 echo ""
-
-export CUDA_VISIBLE_DEVICES="$GPU"
-
-if command -v nvidia-smi &>/dev/null; then
-    nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || true
-fi
+log_gpu "start"
 
 # ---------------------------------------------------------------------------
-# Stage 1: P1 — Procrustes Realignment + Artificial Rotation Sweep
+# Stage 1: P1 — Procrustes Realignment + Sufficiency (GPU 0 only, sequential)
 # ---------------------------------------------------------------------------
 if [ -f "$OUTPUT_DIR/_checkpoint_1_complete.json" ]; then
     echo "[SKIP] P1 already complete."
 else
-    echo "[RUN]  P1: Procrustes Realignment + Artificial Rotation"
-    echo "       Est. GPU time: ~6h (Procrustes 45min + 5-angle sweep ~5h)"
-    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.1_run_procrustes_and_rotation \
+    echo "[RUN]  P1: Procrustes (R*) + Sufficiency ((R*)^T) on GPU 0"
+    CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.1_run_procrustes_and_rotation \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
         --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p1_procrustes_rotation.log"
     echo "[DONE] P1 complete at $(date)"
+    log_gpu "after P1"
 fi
 
 # ---------------------------------------------------------------------------
-# Stage 2: P2 — Negative Controls
+# Stage 2+3: P2 (GPU 0) + P3 (GPU 1) in PARALLEL
 # ---------------------------------------------------------------------------
+p2_pid=""
+p3_pid=""
+p2_failed=""
+p3_failed=""
+
 if [ -f "$OUTPUT_DIR/_checkpoint_2_complete.json" ]; then
     echo "[SKIP] P2 already complete."
 else
-    echo "[RUN]  P2: Negative Controls (Random Rotation, Wrong-Layer, Wrong-PC)"
-    echo "       Est. GPU time: ~3h (3 controls × 1h each)"
-    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.2_run_negative_controls \
+    echo "[RUN]  P2: Negative Controls on GPU 0 (est. ~3h)"
+    sleep 3
+    log_gpu "before P2"
+    (CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.2_run_negative_controls \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
-        --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p2_negative_controls.log"
-    echo "[DONE] P2 complete at $(date)"
+        --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p2_negative_controls.log") &
+    p2_pid=$!
 fi
 
-# ---------------------------------------------------------------------------
-# Stage 3: P3 — Competing Metrics Matrix (no GPU eval needed after collect)
-# ---------------------------------------------------------------------------
 if [ -f "$OUTPUT_DIR/_checkpoint_3_complete.json" ]; then
     echo "[SKIP] P3 already complete."
 else
-    echo "[RUN]  P3: Fixed-Depth Competing Metrics Matrix"
-    echo "       Est. GPU time: ~1h (metric computation, no GSM8K eval)"
-    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.3_run_competing_metrics \
+    echo "[RUN]  P3: Competing Metrics on GPU 1 (est. ~1h)"
+    sleep 3
+    log_gpu "before P3"
+    (CUDA_VISIBLE_DEVICES=1 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.3_run_competing_metrics \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
-        --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p3_competing_metrics.log"
-    touch "$OUTPUT_DIR/_checkpoint_3_complete.json"
-    echo "[DONE] P3 complete at $(date)"
+        --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p3_competing_metrics.log") &
+    p3_pid=$!
+fi
+
+# Wait for both P2 and P3 to finish
+if [ -n "$p2_pid" ] || [ -n "$p3_pid" ]; then
+    echo "[WAIT] Waiting for P2 (GPU 0) and P3 (GPU 1)..."
+    if [ -n "$p2_pid" ]; then wait "$p2_pid" && { touch "$OUTPUT_DIR/_checkpoint_2_complete.json"; echo "[DONE] P2 complete at $(date)"; } || p2_failed="P2"; fi
+    if [ -n "$p3_pid" ]; then wait "$p3_pid" && { touch "$OUTPUT_DIR/_checkpoint_3_complete.json"; echo "[DONE] P3 complete at $(date)"; } || p3_failed="P3"; fi
+    if [ -n "$p2_failed$p3_failed" ]; then
+        echo "[FAIL] Failed stages: ${p2_failed} ${p3_failed}"
+        exit 1
+    fi
+    log_gpu "after P2+P3"
 fi
 
 # ---------------------------------------------------------------------------
-# Stage 4: P4 — Multi-Location & Seed Robustness Sweep
+# Stage 4: P4 — Multi-Location Sweep split across BOTH GPUs
 # ---------------------------------------------------------------------------
 if [ -f "$OUTPUT_DIR/_checkpoint_4_complete.json" ]; then
     echo "[SKIP] P4 already complete."
 else
-    echo "[RUN]  P4: Multi-Location & Seed Sweep (Early/Mid/Late × 3 seeds)"
-    echo "       Est. GPU time: ~9h (3 locations × 3 seeds × 1h each)"
-    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.4_run_multi_location_sweep \
+    echo "[RUN]  P4: Location Sweep split across GPUs"
+    echo "       GPU 0: early+late, GPU 1: middle (est. ~4.5h total)"
+    sleep 3
+    log_gpu "before P4"
+
+    p4_gpu0_pid=""
+    p4_gpu1_pid=""
+    p4_failed=""
+
+    # GPU 0: early + late (6 evals)
+    (CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.4_run_multi_location_sweep \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
-        --num_seeds 3 \
-        --seed_base 0 2>&1 | tee "$OUTPUT_DIR/p4_location_sweep.log"
+        --num_seeds 3 --seed_base 0 \
+        --locations early late \
+        --output_suffix "_gpu0" 2>&1 | tee "$OUTPUT_DIR/p4_location_sweep_gpu0.log") &
+    p4_gpu0_pid=$!
+
+    # GPU 1: middle (3 evals)
+    (CUDA_VISIBLE_DEVICES=1 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.4_run_multi_location_sweep \
+        --model_name "$MODEL" \
+        --output_dir "$OUTPUT_DIR" \
+        --num_eval_samples "$NUM_EVAL" \
+        --num_seeds 3 --seed_base 0 \
+        --locations middle \
+        --output_suffix "_gpu1" 2>&1 | tee "$OUTPUT_DIR/p4_location_sweep_gpu1.log") &
+    p4_gpu1_pid=$!
+
+    # Wait for both
+    if [ -n "$p4_gpu0_pid" ]; then wait "$p4_gpu0_pid" || p4_failed="GPU0"; fi
+    if [ -n "$p4_gpu1_pid" ]; then wait "$p4_gpu1_pid" || p4_failed="GPU1"; fi
+
+    if [ -n "$p4_failed" ]; then
+        echo "[FAIL] P4 on $p4_failed failed."
+        exit 1
+    fi
+
+    # Merge GPU 0 + GPU 1 results
+    echo "[MERGE] Merging P4 results from both GPUs..."
+    "$VENV/bin/python" -c "
+import json, os
+d = os.path.abspath('$OUTPUT_DIR')
+merged = {'experiment': 'P4_multi_location_seed_sweep_merged', 'model': '$MODEL',
+          'num_seeds': $NUM_EVAL, 'locations': {}}
+for suffix in ['_gpu0', '_gpu1']:
+    fp = os.path.join(d, f'exp_4_location_sweep{suffix}.json')
+    if os.path.exists(fp):
+        with open(fp) as f:
+            data = json.load(f)
+            merged['locations'].update(data.get('locations', {}))
+if merged['locations']:
+    with open(os.path.join(d, 'exp_4_location_sweep.json'), 'w') as f:
+        json.dump(merged, f, indent=2)
+    print('[MERGE] Merged into exp_4_location_sweep.json')
+    for loc, res in merged['locations'].items():
+        print(f'  {res[\"location\"]}: {res[\"mean\"]:.2f}% [95% CI: {res[\"clopper_pearson_ci_95\"][0]:.2f}, {res[\"clopper_pearson_ci_95\"][1]:.2f}]')
+else:
+    print('[MERGE] No result files found')
+" 2>&1 | tee -a "$OUTPUT_DIR/p4_location_sweep.log"
+
+    touch "$OUTPUT_DIR/_checkpoint_4_complete.json"
     echo "[DONE] P4 complete at $(date)"
+    log_gpu "after P4"
 fi
 
 # ---------------------------------------------------------------------------

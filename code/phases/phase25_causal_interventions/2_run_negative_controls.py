@@ -90,13 +90,18 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
 
 
 def _drop_layers(model, drop_indices):
-    model.model.layers = nn.ModuleList(
+    remaining = nn.ModuleList(
         [layer for i, layer in enumerate(model.model.layers) if i not in set(drop_indices)]
     )
-    model.config.num_hidden_layers = len(model.model.layers)
+    for idx, layer in enumerate(remaining):
+        layer.self_attn.layer_idx = idx
+    model.model.layers = remaining
+    model.config.num_hidden_layers = len(remaining)
 
 
 def load_model_with_drop(model_name, drop_indices):
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     model = AutoModelForCausalLM.from_pretrained(
         model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True
@@ -126,7 +131,7 @@ def collect_hidden_states(model, tokenizer, layer_idx, num_prompts=50):
             model(**inputs)
         all_hidden.append(collector.hidden)
     handle.remove()
-    return torch.cat(all_hidden, dim=1)
+    return torch.cat(all_hidden, dim=0)
 
 
 def run_random_rotation_control(args):
@@ -226,8 +231,8 @@ def run_wrong_layer_repair(args):
     del pruned_model, pruned_collector
     torch.cuda.empty_cache()
 
-    intact_hidden = torch.cat(intact_hidden_list, dim=1)
-    pruned_hidden = torch.cat(pruned_hidden_list, dim=1)
+    intact_hidden = torch.cat(intact_hidden_list, dim=0)
+    pruned_hidden = torch.cat(pruned_hidden_list, dim=0)
 
     R_star = compute_procrustes_rotation(intact_hidden, pruned_hidden)
     torch.save(R_star, os.path.join(args.output_dir, "R_star_for_wrong_layer.pt"))

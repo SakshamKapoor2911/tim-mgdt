@@ -69,17 +69,24 @@ An active pipeline run is executing in `tmux` session `phase25` on GPU 0. To pre
 - ✅ Procrustes SVD (4096×4096 matrix computed successfully)
 - ✅ `model.generate()` with re-indexed KV cache (GSM8K eval running, 22/100 at 3.8s/it)
 
-GSM8K eval is currently running at 22/100 with a stable ~3.8s/it. **No remaining known failure modes.** The pipeline will proceed through P1→P2→P3→P4 automatically with checkpoint resumption.
+P1 Exp 1A completed: Procrustes-intervened GSM8K = 3.00%. Exp 1B (sufficiency, R*^T) running now. **No remaining known failure modes.**
 
-## ⏳ Expected Phase & Run Durations (at NUM_EVAL=100)
+## 🚀 Dual-GPU Parallel Execution
+
+P2-P4 now use **both GPUs** (run_all.sh rewritten for parallelism):
+- **GPU 0**: P1 (sequential) → P2 (negative controls) → P4 (early+late, 6 evals)
+- **GPU 1**: P3 (competing metrics) in parallel with P2 → P4 (middle, 3 evals)
+- Results merged automatically on completion.
+
+## ⏳ Expected Phase & Run Durations (at NUM_EVAL=100, Dual GPU)
 
 | Phase | Description | Expected Duration | Status Tracker |
 | :--- | :--- | :---: | :--- |
-| **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **~2 hours** | `_checkpoint_1_complete.json` |
-| **P2** | Negative Controls (Placebo, Wrong Layer, Wrong PC) | **~3 hours** | `_checkpoint_2_complete.json` |
-| **P3** | Fixed-Depth Competing Metrics Correlation Matrix | **~1 hour** | `_checkpoint_3_complete.json` |
-| **P4** | Location Sweep (Early/Middle/Late $\times$ 3 seeds) | **~9 hours** | `_checkpoint_4_complete.json` |
-| **Total** | **Complete Phase 25 Evaluation Pipeline** | **~15 hours** | `phase25` tmux session exits |
+| **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **~1h** | `_checkpoint_1_complete.json` |
+| **P2** (GPU 0) | Negative Controls parallel with P3 | **~3h** | `_checkpoint_2_complete.json` |
+| **P3** (GPU 1) | Competing Metrics parallel with P2 | **~1h** | `_checkpoint_3_complete.json` |
+| **P4** | Early+Late (GPU 0) + Middle (GPU 1) | **~4.5h** | `_checkpoint_4_complete.json` |
+| **Total** | **Dual-GPU Phase 25** | **~8.5h** | `phase25` tmux session exits |
 
 *(Note: If `NUM_EVAL=50` is specified, all evaluation phase durations are halved, leading to ~7.5 hours total runtime).*
 

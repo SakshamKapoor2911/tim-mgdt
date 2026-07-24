@@ -24,12 +24,19 @@ def random_orthogonal_matrix(dim: int, seed: int = 42) -> torch.Tensor:
     return torch.from_numpy(Q).float()
 
 
+def _get_hidden(output):
+    if isinstance(output, tuple):
+        return output[0]
+    return output
+
+
 class HiddenStateCollector:
     def __init__(self):
         self.hidden = None
 
     def __call__(self, module, input, output):
-        self.hidden = output[0].detach().cpu()
+        h = _get_hidden(output).detach().cpu()
+        self.hidden = h.reshape(-1, h.shape[-1])
         return output
 
 
@@ -43,10 +50,12 @@ class SubspaceInterventionHook:
     def __call__(self, module, input, output):
         if self.R is None:
             return output
-        h = output[0]
+        h = _get_hidden(output)
         R_dev = self.R.to(h.device, dtype=h.dtype)
         h_intervened = torch.matmul(h, R_dev)
-        return (h_intervened,) + output[1:]
+        if isinstance(output, tuple):
+            return (h_intervened,) + output[1:]
+        return h_intervened
 
 
 def register_collector(model, layer_idx: int):
