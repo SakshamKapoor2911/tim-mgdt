@@ -47,6 +47,7 @@ All bugs were identified during code audit before launch and fixed iteratively:
 | 12 | Hook assumed tuple output | `causal_hooks.py` | Added `_get_hidden()` helper | `model.generate()` hook fires without TypeError |
 | 13 | P3 CPU SVD FP16 crash | `3_run_*.py:94` | Cast hidden state to `.float()` before CPU SVD | P3 runs CPU SVD successfully without LAPACK error |
 | 14 | P3 SDPA ignores attention hooks | `3_run_*.py` model load | Set `attn_implementation="eager"` to materialize matrix | Hook retrieves attention weights, entropy calculated |
+| 15 | P3 attention entropy NaN underflow | `3_run_*.py:90` | Cast weights to `.float()` before clamp(min=1e-10) | `exp_3_competing_metrics.json` has non-NaN values |
 
 ---
 
