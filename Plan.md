@@ -1,71 +1,87 @@
-# High-Impact Research Execution Plan: Suturing the Cut (BlackboxNLP 2026 @ EMNLP 2026)
+# Reviewer-Proofing Execution Plan: Suturing the Cut (Subspace Rotation & Fluency--Reasoning Dissociation)
 
-**Status**: Baseline Completed & Preserved on GitHub | Active Iteration  
+**Master Framing**: Do NOT simply ask *"Make the paper stronger."* Ask: **"Design experiments that eliminate the strongest reviewer objections."**  
+**Core Goal**: Construct an unassailable causal chain by systematically ruling out alternative explanations and proving causal sufficiency/necessity.  
 **Baseline Branch**: `blackboxnlp-2026-baseline` (Commit `2401589`)  
-**Active Improvement Branch**: `feature/subspace-suturing-improvements`  
-**Final Review Verdict**: **Top-Tier Workshop Paper (9.0/10)** — 90%--95% Acceptance Probability (Special Track Oral Recommendation)  
-**Target Venue**: BlackboxNLP 2026: The 9th Workshop on Analyzing and Interpreting Neural Networks for NLP (**co-located with EMNLP 2026 in Budapest, Hungary** — *Full Archival Track*, Up to 8 Pages)  
-**Submission Deadline**: July 30, 2026 (AOE)  
-**Hardware Executed**: Dual GPU (2x NVIDIA RTX 3090, 24GB VRAM each)
+**Active Development Branch**: `feature/subspace-suturing-improvements`  
 
 ---
 
-## 🎯 Completed Research Goals & Benchmark Matrix
+## 🎯 Logical Flow of the Final Paper
 
-### 1. Perplexity Recovery & Parameter Efficiency (Completed)
-- **Mistral-7B-v0.1**: Baseline PPL 7.855 -> Dropped ($t=0$) 9.930 -> Global Sensitivity LoRA 9.730 -> Incision Boundary ($t=2$) **9.122** (**4.04x higher recovery than global**, -33.3% parameter updates).
-- **Meta-Llama-3-8B**: Baseline PPL 8.990 -> Dropped ($t=0$) 14.953 -> Global Sensitivity LoRA 13.697 -> Incision Boundary ($t=2$) **12.163** (**2.22x higher recovery than global**, -33.3% parameter updates).
-- **Gemma-2-2B (SWA Architecture)**: Calibrated Baseline 13.901 -> Dropped ($t=0$) 103.681 -> Global LoRA 19.714 -> Incision Boundary ($t=3$) **19.493** (Demonstrates Sliding Window Attention context truncation bleed where optimal boundary $t=3$ out-recovers global LoRA).
-
-### 2. Mechanistic BOS Attention Sink Heatmap (Completed)
-- Script: `code/phases/phase17_mechanistic/attention_heatmap.py`
-- Generated [`paper/figures/bos_attention_sink_comparison.png`](file:///home/skapoor/tim-mgdt/paper/figures/bos_attention_sink_comparison.png). Proves mechanistically that boundary LoRA restores local BOS attention sink mass at the incision site without polluting unperturbed layers.
-
-### 3. Representation Geometry & 3-Part Mechanistic Proof (Completed)
-- **Subspace Shift ($\theta_{15} = 56.57^\circ$)**: SVD analysis reveals dropping layers 11-14 induces an immediate $56.57^\circ$ rotational shift in the top-10 principal subspace at Layer 15.
-- **Causal PC Ranking ($\text{PC}_1 \to 3.33\%$)**: Targeted ablation at Layer 10 proves that $\text{PC}_1$—the primary eigenvector subjected to the $56.57^\circ$ rotation—is causally responsible for 95%+ of GSM8K reasoning accuracy.
-- **Logit Lens Pathway**: Projects intermediate hidden states onto vocabulary space, showing intermediate calculation token derailment right at the $l=15$ incision.
+The revised manuscript should read like a formal proof:
+1. **Observation**: Depth pruning consistently induces a localized representational rotation at the incision boundary.
+2. **Predictive Dominance**: Subspace rotation angle predicts downstream reasoning collapse significantly better than competing scalar metrics (residual norm, LayerNorm drift, attention entropy, effective rank).
+3. **Necessity**: Targeted ablation of $\text{PC}_1$ (the primary eigenvector subjected to rotation) destroys reasoning accuracy while preserving fluency.
+4. **Sufficiency**: 
+   - **Induction**: Artificially rotating hidden states in an intact model without pruning destroys reasoning (rotation is *sufficient* to cause failure).
+   - **Recovery**: Direct Orthogonal Procrustes subspace realignment ($R^* \in \text{SO}(d)$) or targeted $\text{PC}_1$ un-rotation in the pruned model restores reasoning (rotation repair is *sufficient* for recovery).
+5. **PEFT Mechanism**: Boundary LoRA restores local BOS attention sink mass and fluency without realigning the rotated subspace, explaining the fluency-reasoning dissociation.
+6. **Alternative Explanations Eliminated**: Explicit negative controls prove that non-rotational factors fail to account for reasoning collapse.
 
 ---
 
-## 📊 Systematic 9-Intervention Benchmark Summary
+## 📋 Priority Matrix & Actionable Roadmap
 
-| Intervention Paradigm | Pruning / Healing Condition | GSM8K Acc (%) | Key Mechanistic Finding |
-| :--- | :--- | :---: | :--- |
-| **Baseline** | Dense Intact Mistral-7B | **34.0%** | Upper bound capacity |
-| **Skip Depth Control** | **Half-Skip (2-layer drop, $t=2$)** | **14.0%** | **Recovery scales non-linearly with depth** |
-| **Boundary Adaptation** | Boundary LoRA ($r=16, t=2$) | **7.0%** | PPL recovers (9.12), reasoning stays capped |
-| **Distillation** | Cascade MSE + Logit KL | **4.0%** | Intermediate L2 loss omits CoT trajectories |
-| **Capacity Scaling** | Boundary LoRA ($r=128$, 41.9M params) | **4.0%** | Parameter capacity is NOT the bottleneck |
-| **Subnetwork Pruning** | Head Zero-Masking (50%--90%) | **3.0%** | Layers 11--14 are dense and non-modular |
-| **Edge Isolation** | Causal Tracing Edge Drop | **2.0%** | Edge layers (0--2, 31) are invariant anchors |
-| **Norm Matching** | Deterministic Teacher Graft ($\mu, \sigma$) | **0.0%** | Norm matching fails under $56.57^\circ$ rotation |
-| **Norm Scaling** | Unconstrained Scalar Gate ($\alpha, \beta$) | **0.0%** | Explodes to NaN loss in FP16 (10 steps) |
-
----
-
-## 📄 Paper Integration & Reviewer Rigor Status
-- Paper manuscript fully synthesized in 6-page ACL layout [`paper/main.tex`](file:///home/skapoor/tim-mgdt/paper/main.tex) and packaged in [`paper/blackboxnlp2026_overleaf.zip`](file:///home/skapoor/tim-mgdt/paper/blackboxnlp2026_overleaf.zip) for **BlackboxNLP 2026 @ EMNLP 2026**.
-- **Reviewer Rigor & Reliability Enhancements (Completed & Integrated)**:
-  1. Title realigned to explicitly state the core finding: `Suturing the Cut: Subspace Rotation and the Fluency--Reasoning Dissociation in Incision Boundary Healing of Depth-Pruned LLMs`.
-  2. Full 28-layer Global LoRA explicitly added to baseline comparison matrices (Table 1: 28 layers tuned, 85.7% parameter savings for Boundary LoRA).
-  3. Added exact 95% Clopper-Pearson / Bootstrap confidence intervals to all GSM8K accuracy numbers, SVD subspace angles, and intervention matrices.
-  4. Added statistical significance testing ($p < 0.001$, Wilcoxon signed-rank test for PPL recovery, McNemar's test for accuracy differences, paired t-test $t = 6.42, p < 0.0001$ for BOS attention sink mass, and Spearman rank correlation $r_s = 1.0, p < 0.001$ for skip-depth rotation scaling).
-  5. Direct pruned-model PC energy collapse (71.4% drop along intact $\text{PC}_1$) and direct pruned-model $\text{PC}_1$ projection/ablation analysis integrated into Section 4.4, proving causal mechanism.
-  6. Added cross-benchmark validation on Big-Bench Hard (BBH) Multi-Step Arithmetic ($42.0\% \to 6.5\%$), confirming generalizability of the fluency-reasoning dissociation across multi-step algorithmic reasoning tasks.
-  7. SVD subspace rotation sequence sample size harmonized to $N=50$ passages across both Methodology section and Table 2 caption with 95% CI reported.
-  8. Cleaned all markdown syntax formatting (e.g. `**bold**` to `\textbf{}`) in TeX source.
-  9. Re-packaged final paper in [`paper/blackboxnlp2026_overleaf.zip`](file:///home/skapoor/tim-mgdt/paper/blackboxnlp2026_overleaf.zip).
+| Priority | Focus Area | Key Deliverable | Reviewer Objection Eliminated | Estimated ROI |
+| :--- | :--- | :--- | :--- | :---: |
+| **Priority 0** | **Claim Calibration** | Precision text pass across `paper/main.tex` | "Overclaiming / Unsubstantiated causality statements" | ★★★★★ |
+| **Priority 1** | **Causal Interventions** | Procrustes un-rotation ($R^*$) & Artificial rotation | "Correlation is not causation / How do you know rotation causes collapse?" | ★★★★★★★★★★ |
+| **Priority 2** | **Sufficiency vs Necessity** | Inject repaired $\text{PC}_1$ into pruned model | "Ablation only proves necessity, not sufficiency" | ★★★★★ |
+| **Priority 3** | **Alternative Explanations** | Metric correlation table (Rotation vs Norm vs Entropy) | "What if it's just LayerNorm drift, attention collapse, or norm explosion?" | ★★★★★ |
+| **Priority 4** | **Robustness & Locations** | Multi-seed + Early/Mid/Late layer drop evaluation | "Is this an artifact of picking middle layers or specific random seeds?" | ★★★★☆ |
+| **Priority 5** | **PC Spectrum Ranking** | Spectrum ablation across $\text{PC}_1 \dots \text{PC}_{20}$ | "Why $\text{PC}_1$? What about the rest of the principal spectrum?" | ★★★★☆ |
+| **Priority 6** | **Architecture Expansion** | Qwen-2.5-7B validation run | "Does this hold beyond Llama/Mistral/Gemma?" | ★★★☆☆ |
+| **Priority 7** | **Benchmark Generalization** | BBH / StrategyQA multi-step evaluation | "GSM8K is overfitted / Single benchmark risk" | ★★★★☆ |
+| **Priority 8** | **Geometric Sensitivity** | CKA, SVCCA, PWCCA & top-$k$ principal angle sweeps | "Sensitivity to metric choice or top-10 cutoff" | ★★★★☆ |
+| **Priority 9** | **Mechanistic Visualizations**| Publication scatter plots & PC trajectory figures | "Clarity of mechanistic proof" | ★★★☆☆ |
+| **Priority 10**| **Negative Controls** | Random rotation, wrong layer/PC repair controls | "Placebo / Artifact controls missing" | ★★★★★ |
 
 ---
 
-## 🚀 Future Main Conference Expansion Roadmap (ICLR 2027 / ACL 2027)
+## 🔍 Detailed Priority Specifications
 
-- **Detailed Plan Document**: [`docs/FUTURE_EXPANSION_ICLR2027.md`](file:///home/skapoor/tim-mgdt/docs/FUTURE_EXPANSION_ICLR2027.md)
-- **Target Working Title**: *Un-Rotating the Cut: Orthogonal Procrustes Adaptation and Directional Subspace Realignment for Post-Pruning Reasoning Recovery in LLMs*
-- **Key Scientific Goals**:
-  1. Transition from diagnostic workshop paper (BlackboxNLP 2026) to a **solution-driven 12-page main conference paper** (ICLR 2027 / ACL 2027).
-  2. Implement **Orthogonal Procrustes PEFT (OP-LoRA)**: $h' = R^* h + B A h$ where $R^* = U \det(U V^T) V^T \in \text{SO}(d)$ directly un-rotates $\text{PC}_1$ at the incision boundary.
-  3. Expand benchmarks to **MATH**, **MMLU-Pro**, **HumanEval**, and scale models to **Llama-3.1-70B** and **Qwen-2.5-72B**.
+### Priority 0: Claim Calibration & Precision Pass (Mandatory)
+* **Goal**: Categorize every claim in `paper/main.tex` into (A) Direct Experimental Proof, (B) Indirect Evidence, (C) Working Hypothesis.
+* **Target Changes**:
+  - Replace *"We prove $\text{PC}_1$ is causally responsible..."* $\to$ *"We provide direct causal intervention evidence that $\text{PC}_1$ realignment..."*
+  - Replace *"universal rotational shift"* $\to$ *"consistent rotational shift across evaluated transformer architectures"*
 
+### Priority 1: Direct Causal Intervention (Highest ROI ★★★★★★★★★★)
+* **Experiment 1A: Orthogonal Procrustes Realignment ($R^*$)**:
+  - Compute $R^* = U \det(U V^T) V^T \in \text{SO}(d)$ via SVD of student-teacher cross-covariance at the incision boundary.
+  - Apply $h' = R^* h$ during forward pass and evaluate GSM8K/BBH reasoning.
+* **Experiment 1D: Artificial Rotation in Intact Model**:
+  - Apply synthetic rotation $R_{\theta}$ to intact hidden states without dropping layers.
+  - Verify if rotation alone is *sufficient* to destroy multi-step reasoning.
 
+### Priority 2: Sufficiency vs. Necessity
+* **Goal**: Inject un-rotated/repaired $\text{PC}_1$ back into pruned model to test if reasoning is restored.
+
+### Priority 3: Ruling Out Alternative Explanations
+* **Goal**: Compute a unified correlation matrix comparing:
+  1. Subspace rotation angle $\theta$
+  2. Residual vector norm $\|h\|_2$
+  3. LayerNorm mean/variance drift $(\mu, \sigma)$
+  4. Attention entropy $H(A)$
+  5. Effective rank / Singular value decay
+* **Hypothesis**: Subspace rotation angle $\theta$ will exhibit the highest correlation ($r_s > 0.85$) with GSM8K accuracy degradation.
+
+### Priority 4: Robustness & Pruning Location Sweeps
+* **Goal**: Run Early (layers 3-6), Middle (layers 11-14), Late (layers 20-23) block drops across 3 random seeds with 95% Clopper-Pearson / Bootstrap CIs.
+
+### Priority 5: Complete Principal Component Spectrum Ranking
+* **Goal**: Rank and ablate $\text{PC}_1, \text{PC}_2, \dots, \text{PC}_{20}$ individually to map the exact causal energy landscape.
+
+### Priority 6-10: Generalization, Geometry Sensitivity & Controls
+* **Geometry Sensitivity**: Compare Principal Angles, CKA, SVCCA, and PWCCA across top-5 to top-50 components.
+* **Negative Controls**: Test random orthogonal matrix rotation $R_{\text{rand}}$, repair at unperturbed layers, and random direction injection to confirm specificity.
+
+---
+
+## 🛑 Strict Execution Guardrails ("Things NOT to Do")
+
+1. **Do NOT add 10 arbitrary benchmarks**: Focus on 1-2 decisive reasoning tasks (GSM8K, BBH) with deep causal analysis.
+2. **Do NOT run endless LoRA hyperparameter sweeps**: Ranks $r=16, 128$ are already established.
+3. **Do NOT make bigger claims**: Make tighter, bulletproof claims with unassailable empirical backing.
+4. **Do NOT report uncorrelated observations**: Every figure/table must directly answer a Reviewer #2 objection.
