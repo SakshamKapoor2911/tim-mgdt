@@ -91,7 +91,7 @@ def compute_attention_entropy(model, tokenizer, text, device, layer_idx):
 
 def compute_effective_rank(hidden):
     if isinstance(hidden, torch.Tensor):
-        S = torch.linalg.svdvals(hidden.reshape(-1, hidden.shape[-1]))
+        S = torch.linalg.svdvals(hidden.float().reshape(-1, hidden.shape[-1]))
     else:
         _, S, _ = np.linalg.svd(hidden.reshape(-1, hidden.shape[-1]), full_matrices=False)
         S = torch.from_numpy(S)
@@ -136,7 +136,7 @@ def main():
         torch.cuda.empty_cache()
     intact_model = AutoModelForCausalLM.from_pretrained(
         args.model_name, torch_dtype=torch.float16, device_map="auto",
-        low_cpu_mem_usage=True
+        low_cpu_mem_usage=True, attn_implementation="eager"
     )
     intact_model.config.use_cache = False
 
@@ -168,7 +168,7 @@ def main():
     print("Loading pruned model...")
     pruned_model = AutoModelForCausalLM.from_pretrained(
         args.model_name, torch_dtype=torch.float16, device_map="auto",
-        low_cpu_mem_usage=True
+        low_cpu_mem_usage=True, attn_implementation="eager"
     )
     _drop_layers(pruned_model, drop_set)
     pruned_model.config.use_cache = False
