@@ -1,0 +1,35 @@
+[
+  {
+    "name": "dense_baseline",
+    "num_shots": 8,
+    "accuracy": 39.6,
+    "ci_95": [
+      35.4,
+      44.0
+    ],
+    "correct": 198,
+    "total": 500
+  },
+  {
+    "name": "pruned_unhealed",
+    "num_shots": 8,
+    "accuracy": 1.8,
+    "ci_95": [
+      0.8,
+      3.0
+    ],
+    "correct": 9,
+    "total": 500
+  },
+  {
+    "name": "boundary_healed_t2",
+    "num_shots": 8,
+    "accuracy": 6.2,
+    "ci_95": [
+      4.2,
+      8.4
+    ],
+    "correct": 31,
+    "total": 500
+  }
+]
