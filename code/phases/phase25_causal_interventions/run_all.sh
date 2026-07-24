@@ -17,7 +17,7 @@ export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 
 MODEL="${MODEL:-mistralai/Mistral-7B-v0.1}"
 OUTPUT_DIR="${OUTPUT_DIR:-experiments/phase25_causal_interventions}"
-VENV="${VENV:-$REPO/.venv}"
+VENV="${VENV:-$REPO/venv}"
 NUM_EVAL="${NUM_EVAL:-100}"
 NUM_CALIB="${NUM_CALIB:-50}"
 GPU="${GPU:-0}"
@@ -48,7 +48,7 @@ if [ -f "$OUTPUT_DIR/_checkpoint_1_complete.json" ]; then
 else
     echo "[RUN]  P1: Procrustes Realignment + Artificial Rotation"
     echo "       Est. GPU time: ~6h (Procrustes 45min + 5-angle sweep ~5h)"
-    python -m code.phases.phase25_causal_interventions.1_run_procrustes_and_rotation \
+    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.1_run_procrustes_and_rotation \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
@@ -64,7 +64,7 @@ if [ -f "$OUTPUT_DIR/_checkpoint_2_complete.json" ]; then
 else
     echo "[RUN]  P2: Negative Controls (Random Rotation, Wrong-Layer, Wrong-PC)"
     echo "       Est. GPU time: ~3h (3 controls × 1h each)"
-    python -m code.phases.phase25_causal_interventions.2_run_negative_controls \
+    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.2_run_negative_controls \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
@@ -80,7 +80,7 @@ if [ -f "$OUTPUT_DIR/_checkpoint_3_complete.json" ]; then
 else
     echo "[RUN]  P3: Fixed-Depth Competing Metrics Matrix"
     echo "       Est. GPU time: ~1h (metric computation, no GSM8K eval)"
-    python -m code.phases.phase25_causal_interventions.3_run_competing_metrics \
+    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.3_run_competing_metrics \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_calibration "$NUM_CALIB" 2>&1 | tee "$OUTPUT_DIR/p3_competing_metrics.log"
@@ -96,7 +96,7 @@ if [ -f "$OUTPUT_DIR/_checkpoint_4_complete.json" ]; then
 else
     echo "[RUN]  P4: Multi-Location & Seed Sweep (Early/Mid/Late × 3 seeds)"
     echo "       Est. GPU time: ~9h (3 locations × 3 seeds × 1h each)"
-    python -m code.phases.phase25_causal_interventions.4_run_multi_location_sweep \
+    "$VENV/bin/python" -m code.phases.phase25_causal_interventions.4_run_multi_location_sweep \
         --model_name "$MODEL" \
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \

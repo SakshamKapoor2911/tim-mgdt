@@ -108,9 +108,10 @@ def load_model_with_drop(model_name, drop_indices):
 
 def collect_hidden_states(model, tokenizer, layer_idx, num_prompts=50):
     device = get_device()
+    model.config.use_cache = False
     collector = HiddenStateCollector()
     handle = model.model.layers[layer_idx].register_forward_hook(collector)
-    dataset = load_dataset("c4", "en", split="validation", streaming=True)
+    dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
     prompts = []
     for i, example in enumerate(dataset):
         if len(prompts) >= num_prompts:
@@ -120,7 +121,7 @@ def collect_hidden_states(model, tokenizer, layer_idx, num_prompts=50):
             prompts.append(text)
     all_hidden = []
     for text in tqdm(prompts, desc="Collecting hidden", leave=False):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=512).to(device)
         with torch.no_grad():
             model(**inputs)
         all_hidden.append(collector.hidden)
@@ -181,7 +182,7 @@ def run_wrong_layer_repair(args):
     pruned_post_layer = args.post_incision_layer - args.skip_depth
     n_layers = 32
 
-    dataset = load_dataset("c4", "en", split="validation", streaming=True)
+    dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
     prompts = []
     for i, example in enumerate(dataset):
         if len(prompts) >= args.num_calibration:
@@ -197,10 +198,11 @@ def run_wrong_layer_repair(args):
         args.model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True
     )
+    intact_model.config.use_cache = False
     handle_intact = intact_model.model.layers[args.post_incision_layer].register_forward_hook(intact_collector)
     intact_hidden_list = []
     for text in tqdm(prompts, desc="Intact (Wrong-Layer Collect)", leave=False):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=512).to(device)
         with torch.no_grad():
             intact_model(**inputs)
         intact_hidden_list.append(intact_collector.hidden)
@@ -212,10 +214,11 @@ def run_wrong_layer_repair(args):
     print("  Collecting pruned model hidden states...")
     pruned_collector = HiddenStateCollector()
     pruned_model = load_model_with_drop(args.model_name, drop_set)
+    pruned_model.config.use_cache = False
     handle_pruned = pruned_model.model.layers[pruned_post_layer].register_forward_hook(pruned_collector)
     pruned_hidden_list = []
     for text in tqdm(prompts, desc="Pruned (Wrong-Layer Collect)", leave=False):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=512).to(device)
         with torch.no_grad():
             pruned_model(**inputs)
         pruned_hidden_list.append(pruned_collector.hidden)

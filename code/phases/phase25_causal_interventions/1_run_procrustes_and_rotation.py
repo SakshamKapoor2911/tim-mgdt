@@ -97,8 +97,9 @@ def collect_hidden_at_layer(
     )
     if drop_indices:
         _drop_layers(model, drop_indices)
+    model.config.use_cache = False
     collector, handle = register_collector(model, layer_idx)
-    dataset = load_dataset("c4", "en", split="validation", streaming=True)
+    dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
     prompts = []
     for i, example in enumerate(dataset):
         if len(prompts) >= num_prompts:
@@ -108,7 +109,7 @@ def collect_hidden_at_layer(
             prompts.append(text)
     all_hidden = []
     for text in tqdm(prompts, desc="Collecting hidden states", leave=False):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=512).to(device)
         with torch.no_grad():
             model(**inputs)
         all_hidden.append(collector.hidden)

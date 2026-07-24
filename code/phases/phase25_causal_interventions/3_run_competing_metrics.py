@@ -75,7 +75,7 @@ def compute_attention_entropy(model, tokenizer, text, device, layer_idx):
 
     handle = model.model.layers[layer_idx].self_attn.register_forward_hook(hook_fn)
     with torch.no_grad():
-        model(**inputs, output_attentions=True)
+        model(**inputs, output_attentions=True, use_cache=False)
     handle.remove()
 
     if "weights" in attention_outputs:
@@ -119,7 +119,7 @@ def main():
     pruned_post_layer = args.post_incision_layer - args.skip_depth
     pre_incision_layer = args.incision_start - 1
 
-    dataset = load_dataset("c4", "en", split="validation", streaming=True)
+    dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
     prompts = []
     for i, example in enumerate(dataset):
         if len(prompts) >= args.num_calibration:
@@ -133,6 +133,7 @@ def main():
         args.model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True
     )
+    intact_model.config.use_cache = False
 
     collector_post = HiddenStateCollector()
     handle_post = intact_model.model.layers[args.post_incision_layer].register_forward_hook(collector_post)
@@ -144,7 +145,7 @@ def main():
     intact_hidden_post_list = []
     intact_hidden_pre_list = []
     for text in tqdm(prompts, desc="Intact"):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=args.seq_len).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=args.seq_len).to(device)
         with torch.no_grad():
             intact_model(**inputs)
         intact_hidden_post_list.append(collector_post.hidden)
@@ -165,6 +166,7 @@ def main():
         low_cpu_mem_usage=True
     )
     _drop_layers(pruned_model, drop_set)
+    pruned_model.config.use_cache = False
 
     collector_post_s = HiddenStateCollector()
     handle_post_s = pruned_model.model.layers[pruned_post_layer].register_forward_hook(collector_post_s)
@@ -176,7 +178,7 @@ def main():
     pruned_hidden_post_list = []
     pruned_hidden_pre_list = []
     for text in tqdm(prompts, desc="Pruned"):
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=args.seq_len).to(device)
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=args.seq_len).to(device)
         with torch.no_grad():
             pruned_model(**inputs)
         pruned_hidden_post_list.append(collector_post_s.hidden)
