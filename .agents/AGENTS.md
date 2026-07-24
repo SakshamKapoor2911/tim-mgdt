@@ -19,10 +19,10 @@
 
 1. **GPU 0 & GPU 1 Compute Pipeline**: **100% COMPLETED** for initial baseline.
 2. **Phase 25 Causal Interventions Pipeline**: **RUNNING** in background `tmux` session `phase25`.
-   - Launched: July 24, 2026, 10:00 AM EDT (restarted after bug fixes).
+   - Launched: July 24, 2026, 10:43:29 AM EDT (clean dual-GPU parallel restart).
    - Script: [`run_all.sh`](file:///home/skapoor/tim-mgdt/code/phases/phase25_causal_interventions/run_all.sh)
    - Active logs: [`p1_procrustes_rotation.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/p1_procrustes_rotation.log), [`run_all.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/run_all.log)
-   - **Current progress (as of last check)**: P1 is complete (Exp 1A healed = 3.00%; Exp 1B intact baseline = 34.00%). P3 is 100% complete (metrics saved). P2 is running (~9% on placebo).
+   - **Current progress (as of last check)**: P1 is complete (Exp 1A healed = 3.00%; Exp 1B intact baseline = 34.00%). P3 is 100% complete (metrics saved at 10:44:17 AM EDT). P2 is running (~47% on placebo, started at 10:43:32 AM EDT).
    - **Stability**: Stable. All 14 critical+medium bugs fixed (see below). No crashes expected.
 
 ---
@@ -68,7 +68,7 @@ An active pipeline run is executing in `tmux` session `phase25` on GPU 0. To pre
 - ✅ Model loading via venv and streaming on C4 (`allenai/c4`)
 - ✅ Hidden state collection and Procrustes alignment ($R^*$)
 - ✅ P1 Exp 1A (GSM8K realigned accuracy = 3.00%) & Exp 1B (Sufficiency baseline = 34.00%)
-- ✅ P3 fixed-depth correlation metrics (computed eager attention and effective ranks)
+- ✅ P3 fixed-depth correlation metrics (computed eager attention and effective ranks at 10:44:17 AM EDT)
 - ✅ Currently running P2 on GPU 0 without crashes
 
 P1 and P3 completed successfully. P2 is running now. **No remaining known failure modes.**
@@ -86,7 +86,7 @@ P2-P4 now use **both GPUs** (run_all.sh rewritten for parallelism):
 | :--- | :--- | :---: | :--- |
 | **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **43 min** (Done) | `_checkpoint_1_complete.json` |
 | **P2** (GPU 0) | Negative Controls parallel with P3 | **~1.5 hours** | `_checkpoint_2_complete.json` |
-| **P3** (GPU 1) | Competing Metrics parallel with P2 | **2 min** (Done) | `_checkpoint_3_complete.json` |
+| **P3** (GPU 1) | Competing Metrics parallel with P2 | **48 sec** (Done at 10:44:17 AM EDT) | `_checkpoint_3_complete.json` |
 | **P4** | Early+Late (GPU 0) + Middle (GPU 1) | **~4.5 hours** | `_checkpoint_4_complete.json` |
 | **Total** | **Dual-GPU Phase 25** | **~7 hours** | `phase25` tmux session exits |
 
