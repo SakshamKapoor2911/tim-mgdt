@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-24T13:45:50.014317+00:00Z",
+  "generated_at": "2026-07-24T13:47:00.002698+00:00Z",
   "project": "TIM-MGDT",
   "tagline": "Mechanistic pruning experiments for separating compression that preserves general perplexity from compression that preserves reasoning circuits.",
   "current_phase": "Phase 25 full auxiliary scaling complete",
   "phase_status": "Phase 25 Validation: full auxiliary reasoning check complete",
-  "total_experiments": 134,
+  "total_experiments": 135,
   "latest_run": {
     "name": "Mistral-7B Phase 11 (Real GPU)",
     "status": "complete",
