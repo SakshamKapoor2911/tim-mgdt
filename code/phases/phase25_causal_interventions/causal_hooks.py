@@ -12,7 +12,7 @@ def compute_procrustes_rotation(
     student_np = (
         student_hidden.detach().float().reshape(-1, student_hidden.shape[-1]).cpu().numpy()
     )
-    R, _ = orthogonal_procrustes(teacher_np, student_np)
+    R, _ = orthogonal_procrustes(student_np, teacher_np)
     return torch.from_numpy(R).float()
 
 
@@ -22,17 +22,6 @@ def random_orthogonal_matrix(dim: int, seed: int = 42) -> torch.Tensor:
     if np.linalg.det(Q) < 0:
         Q[:, 0] *= -1
     return torch.from_numpy(Q).float()
-
-
-def synthetic_rotation_matrix(theta_degrees: float, dim: int) -> torch.Tensor:
-    theta = np.radians(theta_degrees)
-    R = np.eye(dim)
-    c, s = np.cos(theta), np.sin(theta)
-    R[0, 0] = c
-    R[0, 1] = -s
-    R[1, 0] = s
-    R[1, 1] = c
-    return torch.from_numpy(R).float()
 
 
 class HiddenStateCollector:

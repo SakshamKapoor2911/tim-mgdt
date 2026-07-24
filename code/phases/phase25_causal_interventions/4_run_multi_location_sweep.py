@@ -19,6 +19,7 @@ import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import load_dataset
 from tqdm import tqdm
+from scipy.stats import beta
 from code.phases.phase11.utils import get_device, save_json
 
 GSM8K_PROMPT_TEMPLATE = """Q: There are 15 trees in the park. Park workers will plant trees in the park today. After they are done, there will be 21 trees in the park. How many trees did the park workers plant today?
@@ -51,14 +52,17 @@ def extract_strict_answer(text):
     return ""
 
 
-def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
+def evaluate_gsm8k(model, tokenizer, device, num_samples=100, seed=42):
     dataset = load_dataset("gsm8k", "main", split="test")
     model.eval()
     correct = 0
     total = min(num_samples, len(dataset))
 
-    for i in tqdm(range(total), desc="GSM8K", leave=False):
-        item = dataset[i]
+    rng = np.random.RandomState(seed)
+    indices = rng.choice(len(dataset), size=total, replace=False)
+
+    for idx in tqdm(indices, desc="GSM8K", leave=False):
+        item = dataset[int(idx)]
         question = item["question"]
         gold_text = item["answer"]
         gold_ans = extract_strict_answer(gold_text)
@@ -81,7 +85,7 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
         if pred_ans.strip() == gold_ans.strip() and gold_ans.strip() != "":
             correct += 1
 
-    return (correct / total) * 100.0
+    return correct, total
 
 
 def _drop_layers(model, drop_indices):
@@ -91,16 +95,13 @@ def _drop_layers(model, drop_indices):
     model.config.num_hidden_layers = len(model.model.layers)
 
 
-def compute_bootstrap_ci(values, n_iterations=2000, seed=42):
-    rng = np.random.RandomState(seed)
-    means = []
-    n = len(values)
-    for _ in range(n_iterations):
-        sample = rng.choice(values, size=n, replace=True)
-        means.append(np.mean(sample))
-    lower = np.percentile(means, 2.5)
-    upper = np.percentile(means, 97.5)
-    return lower, upper
+def compute_clopper_pearson_ci(k, n, alpha=0.05):
+    """Compute Clopper-Pearson 95% confidence interval for accuracy proportion."""
+    if n == 0:
+        return 0.0, 0.0
+    lower = beta.ppf(alpha / 2, k, n - k + 1) if k > 0 else 0.0
+    upper = beta.ppf(1 - alpha / 2, k + 1, n - k) if k < n else 1.0
+    return float(lower * 100.0), float(upper * 100.0)
 
 
 def run_location_sweep(args):
@@ -122,6 +123,8 @@ def run_location_sweep(args):
         print(f"{'=' * 50}")
         loc_results = {"location": loc_info["name"], "drop_indices": loc_info["drop"], "seeds": {}}
 
+        total_correct = 0
+        total_evaluated = 0
         for seed_idx in range(args.num_seeds):
             seed = args.seed_base + seed_idx
             print(f"\n  Seed {seed} ...")
@@ -136,20 +139,22 @@ def run_location_sweep(args):
             )
             _drop_layers(model, loc_info["drop"])
 
-            acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
-            print(f"    GSM8K accuracy: {acc:.2f}%")
+            correct, total = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, seed=seed)
+            acc = (correct / total) * 100.0
+            print(f"    GSM8K accuracy: {acc:.2f}% ({correct}/{total})")
             loc_results["seeds"][str(seed)] = acc
+            total_correct += correct
+            total_evaluated += total
 
             del model
             torch.cuda.empty_cache()
 
-        acc_values = list(loc_results["seeds"].values())
-        mean_acc = np.mean(acc_values)
-        std_acc = np.std(acc_values, ddof=1) if len(acc_values) > 1 else 0.0
-        ci_low, ci_high = compute_bootstrap_ci(acc_values, seed=args.seed_base)
+        mean_acc = (total_correct / total_evaluated) * 100.0
+        ci_low, ci_high = compute_clopper_pearson_ci(total_correct, total_evaluated)
         loc_results["mean"] = mean_acc
-        loc_results["std"] = std_acc
-        loc_results["bootstrap_ci_95"] = [float(ci_low), float(ci_high)]
+        loc_results["total_correct"] = total_correct
+        loc_results["total_evaluated"] = total_evaluated
+        loc_results["clopper_pearson_ci_95"] = [ci_low, ci_high]
         all_results[loc_key] = loc_results
 
     out = {
@@ -166,8 +171,8 @@ def run_location_sweep(args):
     print("P4 LOCATION SWEEP COMPLETE. SUMMARY:")
     print("=" * 60)
     for loc_key, loc_res in all_results.items():
-        print(f"  {loc_res['location']}: {loc_res['mean']:.2f}% ± {loc_res['std']:.2f}% "
-              f"[95% CI: {loc_res['bootstrap_ci_95'][0]:.2f}, {loc_res['bootstrap_ci_95'][1]:.2f}]")
+        print(f"  {loc_res['location']}: {loc_res['mean']:.2f}% "
+              f"[95% CI: {loc_res['clopper_pearson_ci_95'][0]:.2f}, {loc_res['clopper_pearson_ci_95'][1]:.2f}]")
     return out
 
 

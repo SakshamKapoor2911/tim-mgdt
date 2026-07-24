@@ -36,8 +36,8 @@ def _drop_layers(model, drop_indices):
 
 def compute_principal_angles(H_teacher, H_student, top_m=10):
     Bs, Ss, Ds = H_teacher.shape
-    H_t = H_teacher.reshape(-1, Ds).cpu().numpy()
-    H_s = H_student.reshape(-1, Ds).cpu().numpy()
+    H_t = H_teacher.detach().float().reshape(-1, Ds).cpu().numpy()
+    H_s = H_student.detach().float().reshape(-1, Ds).cpu().numpy()
     _, _, Vt_t = np.linalg.svd(H_t, full_matrices=False)
     _, _, Vt_s = np.linalg.svd(H_s, full_matrices=False)
     V_t = Vt_t[:top_m].T
@@ -75,7 +75,7 @@ def compute_attention_entropy(model, tokenizer, text, device, layer_idx):
 
     handle = model.model.layers[layer_idx].self_attn.register_forward_hook(hook_fn)
     with torch.no_grad():
-        model(**inputs)
+        model(**inputs, output_attentions=True)
     handle.remove()
 
     if "weights" in attention_outputs:

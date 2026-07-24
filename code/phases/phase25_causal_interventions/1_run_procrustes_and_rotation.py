@@ -17,7 +17,6 @@ from datasets import load_dataset
 from tqdm import tqdm
 from code.phases.phase25_causal_interventions.causal_hooks import (
     compute_procrustes_rotation,
-    synthetic_rotation_matrix,
     register_collector,
     register_intervention,
 )
@@ -202,9 +201,9 @@ def run_procrustes_recovery(args):
     return result
 
 
-def run_artificial_rotation_sweep(args):
+def run_sufficiency_intervention(args):
     print("\n" + "=" * 60)
-    print("EXP 1B: Artificial Rotation Sweep on Intact Model")
+    print("EXP 1B: Causal Sufficiency Intervention (R_inv = (R*)^T) on Intact Model")
     print("=" * 60)
 
     device = get_device()
@@ -212,38 +211,48 @@ def run_artificial_rotation_sweep(args):
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    angles = args.rotation_angles
+    r_star_path = os.path.join(args.output_dir, "R_star.pt")
+    if not os.path.exists(r_star_path):
+        print(f"Error: R_star.pt not found at {r_star_path}. Run Exp 1A first.")
+        return {}
+
+    print(f"Loading R_star from {r_star_path}...")
+    R_star = torch.load(r_star_path)
+    R_inv = R_star.T
+    print(f"  R_inv shape: {R_inv.shape}")
 
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True
     )
 
-    if args.rotation_layer < 0:
-        args.rotation_layer = model.config.num_hidden_layers + args.rotation_layer
+    rotation_layer = args.post_incision_layer
+    print(f"Registering intervention hook at intact model Layer {rotation_layer}...")
+    hook, handle = register_intervention(model, rotation_layer)
 
-    hidden_dim = model.config.hidden_size
-    hook, handle = register_intervention(model, args.rotation_layer)
-
+    print("Evaluating dense intact model WITHOUT rotation baseline...")
     dense_baseline_acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Dense baseline (no rotation): {dense_baseline_acc:.2f}%")
 
-    results = {"dense_baseline": dense_baseline_acc, "angles": {}}
-    results["num_eval_samples"] = args.num_eval_samples
-    results["rotation_layer"] = args.rotation_layer
+    print(f"Applying (R*)^T rotation at Layer {rotation_layer}...")
+    hook.set_rotation(R_inv)
 
-    for angle in angles:
-        print(f"\n  Testing rotation θ = {angle}° ...")
-        R = synthetic_rotation_matrix(angle, hidden_dim)
-        hook.set_rotation(R)
-        acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
-        print(f"    GSM8K accuracy at {angle}°: {acc:.2f}%")
-        results["angles"][str(angle)] = acc
+    acc_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    print(f"  Intact model with (R*)^T rotation GSM8K accuracy: {acc_rotated:.2f}%")
 
     handle.remove()
     del model, hook
     torch.cuda.empty_cache()
 
+    results = {
+        "experiment": "1B_causal_sufficiency",
+        "model": args.model_name,
+        "rotation_layer": rotation_layer,
+        "dense_baseline": dense_baseline_acc,
+        "acc_rotated_sufficiency": acc_rotated,
+        "num_eval_samples": args.num_eval_samples,
+    }
+    save_json(os.path.join(args.output_dir, "exp_1b_sufficiency.json"), results)
     save_json(os.path.join(args.output_dir, "exp_1b_rotation_sweep.json"), results)
     return results
 
@@ -280,7 +289,7 @@ def main():
     if args.skip_exp_1b:
         print("Skipping Exp 1B (Artificial Rotation).")
     else:
-        result_1b = run_artificial_rotation_sweep(args)
+        result_1b = run_sufficiency_intervention(args)
         overall["exp_1b"] = result_1b
 
     save_json(os.path.join(args.output_dir, "_checkpoint_1_complete.json"),

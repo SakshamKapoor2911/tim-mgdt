@@ -13,6 +13,7 @@ import json
 import argparse
 import torch
 import torch.nn as nn
+import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import load_dataset
 from tqdm import tqdm
@@ -180,51 +181,50 @@ def run_wrong_layer_repair(args):
     pruned_post_layer = args.post_incision_layer - args.skip_depth
     n_layers = 32
 
+    dataset = load_dataset("c4", "en", split="validation", streaming=True)
+    prompts = []
+    for i, example in enumerate(dataset):
+        if len(prompts) >= args.num_calibration:
+            break
+        text = example["text"].strip()
+        if text and len(text.split()) > 50:
+            prompts.append(text)
+
+    # 1. Collect Intact hidden states
+    print("  Collecting intact model hidden states...")
     intact_collector = HiddenStateCollector()
-    handle_intact = None
-    try:
-        intact_model = AutoModelForCausalLM.from_pretrained(
-            args.model_name, torch_dtype=torch.float16, device_map="auto",
-            low_cpu_mem_usage=True
-        )
-        handle_intact = intact_model.model.layers[args.post_incision_layer].register_forward_hook(intact_collector)
-        pruned_model = load_model_with_drop(args.model_name, drop_set)
-        pruned_collector = HiddenStateCollector()
-        handle_pruned = pruned_model.model.layers[pruned_post_layer].register_forward_hook(pruned_collector)
+    intact_model = AutoModelForCausalLM.from_pretrained(
+        args.model_name, torch_dtype=torch.float16, device_map="auto",
+        low_cpu_mem_usage=True
+    )
+    handle_intact = intact_model.model.layers[args.post_incision_layer].register_forward_hook(intact_collector)
+    intact_hidden_list = []
+    for text in tqdm(prompts, desc="Intact (Wrong-Layer Collect)", leave=False):
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        with torch.no_grad():
+            intact_model(**inputs)
+        intact_hidden_list.append(intact_collector.hidden)
+    handle_intact.remove()
+    del intact_model, intact_collector
+    torch.cuda.empty_cache()
 
-        dataset = load_dataset("c4", "en", split="validation", streaming=True)
-        prompts = []
-        for i, example in enumerate(dataset):
-            if len(prompts) >= args.num_calibration:
-                break
-            text = example["text"].strip()
-            if text and len(text.split()) > 50:
-                prompts.append(text)
+    # 2. Collect Pruned hidden states
+    print("  Collecting pruned model hidden states...")
+    pruned_collector = HiddenStateCollector()
+    pruned_model = load_model_with_drop(args.model_name, drop_set)
+    handle_pruned = pruned_model.model.layers[pruned_post_layer].register_forward_hook(pruned_collector)
+    pruned_hidden_list = []
+    for text in tqdm(prompts, desc="Pruned (Wrong-Layer Collect)", leave=False):
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
+        with torch.no_grad():
+            pruned_model(**inputs)
+        pruned_hidden_list.append(pruned_collector.hidden)
+    handle_pruned.remove()
+    del pruned_model, pruned_collector
+    torch.cuda.empty_cache()
 
-        intact_hidden_list = []
-        pruned_hidden_list = []
-        for text in tqdm(prompts, desc="Collecting both models", leave=False):
-            inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512).to(device)
-            with torch.no_grad():
-                intact_model(**inputs)
-            intact_hidden_list.append(intact_collector.hidden)
-            with torch.no_grad():
-                pruned_model(**inputs)
-            pruned_hidden_list.append(pruned_collector.hidden)
-
-        intact_hidden = torch.cat(intact_hidden_list, dim=1)
-        pruned_hidden = torch.cat(pruned_hidden_list, dim=1)
-
-        if handle_intact is not None:
-            handle_intact.remove()
-        handle_pruned.remove()
-        del intact_model, pruned_model, intact_collector, pruned_collector
-        torch.cuda.empty_cache()
-    except Exception as e:
-        if handle_intact is not None:
-            handle_intact.remove()
-        torch.cuda.empty_cache()
-        raise e
+    intact_hidden = torch.cat(intact_hidden_list, dim=1)
+    pruned_hidden = torch.cat(pruned_hidden_list, dim=1)
 
     R_star = compute_procrustes_rotation(intact_hidden, pruned_hidden)
     torch.save(R_star, os.path.join(args.output_dir, "R_star_for_wrong_layer.pt"))
@@ -276,13 +276,18 @@ def run_wrong_pc_repair(args):
     drop_set = list(range(args.incision_start, args.incision_start + args.skip_depth))
     pruned_post_layer = args.post_incision_layer - args.skip_depth
 
-    intact_hidden = collect_hidden_states(
-        AutoModelForCausalLM.from_pretrained(
-            args.model_name, torch_dtype=torch.float16, device_map="auto",
-            low_cpu_mem_usage=True
-        ),
-        tokenizer, args.post_incision_layer, args.num_calibration
+    print("  Collecting intact model hidden states...")
+    intact_model = AutoModelForCausalLM.from_pretrained(
+        args.model_name, torch_dtype=torch.float16, device_map="auto",
+        low_cpu_mem_usage=True
     )
+    intact_hidden = collect_hidden_states(
+        intact_model, tokenizer, args.post_incision_layer, args.num_calibration
+    )
+    del intact_model
+    torch.cuda.empty_cache()
+
+    print("  Collecting pruned model hidden states...")
     pruned_model = load_model_with_drop(args.model_name, drop_set)
     pruned_hidden = collect_hidden_states(
         pruned_model, tokenizer, pruned_post_layer, args.num_calibration
@@ -290,8 +295,8 @@ def run_wrong_pc_repair(args):
     del pruned_model
     torch.cuda.empty_cache()
 
-    intact_np = intact_hidden.reshape(-1, intact_hidden.shape[-1]).cpu().numpy()
-    pruned_np = pruned_hidden.reshape(-1, pruned_hidden.shape[-1]).cpu().numpy()
+    intact_np = intact_hidden.detach().float().reshape(-1, intact_hidden.shape[-1]).cpu().numpy()
+    pruned_np = pruned_hidden.detach().float().reshape(-1, pruned_hidden.shape[-1]).cpu().numpy()
 
     U_i, S_i, Vt_i = np.linalg.svd(intact_np, full_matrices=False)
     U_p, S_p, Vt_p = np.linalg.svd(pruned_np, full_matrices=False)
