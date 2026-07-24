@@ -22,8 +22,8 @@
    - Launched: July 24, 2026, 10:00 AM EDT (restarted after bug fixes).
    - Script: [`run_all.sh`](file:///home/skapoor/tim-mgdt/code/phases/phase25_causal_interventions/run_all.sh)
    - Active logs: [`p1_procrustes_rotation.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/p1_procrustes_rotation.log), [`run_all.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/run_all.log)
-   - **Current progress (as of last check)**: P1 Exp 1A GSM8K eval at 22/100 (~3.8s/it). R* computed and saved.
-   - **Stability**: Stable. All 6 critical+medium bugs fixed (see below). No crashes expected.
+   - **Current progress (as of last check)**: P1 is complete (Exp 1A healed = 3.00%; Exp 1B intact baseline = 34.00%). P3 is 100% complete (metrics saved). P2 is running (~9% on placebo).
+   - **Stability**: Stable. All 14 critical+medium bugs fixed (see below). No crashes expected.
 
 ---
 
@@ -45,6 +45,8 @@ All bugs were identified during code audit before launch and fixed iteratively:
 | 10 | KV cache layer_idx mismatch after dropping layers | All `_drop_layers()` | Re-assign `layer.self_attn.layer_idx = idx` | `model.generate()` running without cache errors |
 | 11 | `cat(dim=1)` on 2D tensors | P1, P2 collection | Changed to `cat(dim=0)` | Shape correctly `[25600, 4096]` |
 | 12 | Hook assumed tuple output | `causal_hooks.py` | Added `_get_hidden()` helper | `model.generate()` hook fires without TypeError |
+| 13 | P3 CPU SVD FP16 crash | `3_run_*.py:94` | Cast hidden state to `.float()` before CPU SVD | P3 runs CPU SVD successfully without LAPACK error |
+| 14 | P3 SDPA ignores attention hooks | `3_run_*.py` model load | Set `attn_implementation="eager"` to materialize matrix | Hook retrieves attention weights, entropy calculated |
 
 ---
 
@@ -62,14 +64,14 @@ An active pipeline run is executing in `tmux` session `phase25` on GPU 0. To pre
 
 ## ✅ Stability Confirmation
 
-**All 6 critical and medium bugs have been fixed.** The pipeline has been tested through every previous crash point:
-- ✅ Model loading via venv
-- ✅ C4 dataset streaming (with `allenai/c4`)
-- ✅ Hidden state collection (50/50 intact + 50/50 pruned, [25600, 4096])
-- ✅ Procrustes SVD (4096×4096 matrix computed successfully)
-- ✅ `model.generate()` with re-indexed KV cache (GSM8K eval running, 22/100 at 3.8s/it)
+**All 14 critical and medium bugs have been fixed.** The pipeline has successfully completed:
+- ✅ Model loading via venv and streaming on C4 (`allenai/c4`)
+- ✅ Hidden state collection and Procrustes alignment ($R^*$)
+- ✅ P1 Exp 1A (GSM8K realigned accuracy = 3.00%) & Exp 1B (Sufficiency baseline = 34.00%)
+- ✅ P3 fixed-depth correlation metrics (computed eager attention and effective ranks)
+- ✅ Currently running P2 on GPU 0 without crashes
 
-P1 Exp 1A completed: Procrustes-intervened GSM8K = 3.00%. Exp 1B (sufficiency, R*^T) running now. **No remaining known failure modes.**
+P1 and P3 completed successfully. P2 is running now. **No remaining known failure modes.**
 
 ## 🚀 Dual-GPU Parallel Execution
 
@@ -82,12 +84,10 @@ P2-P4 now use **both GPUs** (run_all.sh rewritten for parallelism):
 
 | Phase | Description | Expected Duration | Status Tracker |
 | :--- | :--- | :---: | :--- |
-| **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **~1h** | `_checkpoint_1_complete.json` |
-| **P2** (GPU 0) | Negative Controls parallel with P3 | **~3h** | `_checkpoint_2_complete.json` |
-| **P3** (GPU 1) | Competing Metrics parallel with P2 | **~1h** | `_checkpoint_3_complete.json` |
-| **P4** | Early+Late (GPU 0) + Middle (GPU 1) | **~4.5h** | `_checkpoint_4_complete.json` |
-| **Total** | **Dual-GPU Phase 25** | **~8.5h** | `phase25` tmux session exits |
+| **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **43 min** (Done) | `_checkpoint_1_complete.json` |
+| **P2** (GPU 0) | Negative Controls parallel with P3 | **~1.5 hours** | `_checkpoint_2_complete.json` |
+| **P3** (GPU 1) | Competing Metrics parallel with P2 | **2 min** (Done) | `_checkpoint_3_complete.json` |
+| **P4** | Early+Late (GPU 0) + Middle (GPU 1) | **~4.5 hours** | `_checkpoint_4_complete.json` |
+| **Total** | **Dual-GPU Phase 25** | **~7 hours** | `phase25` tmux session exits |
 
-*(Note: If `NUM_EVAL=50` is specified, all evaluation phase durations are halved, leading to ~7.5 hours total runtime).*
-
-
+*(Note: If `NUM_EVAL=50` is specified, all evaluation phase durations are halved, leading to ~3.5 hours total runtime).*
