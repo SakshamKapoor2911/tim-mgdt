@@ -13,7 +13,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
-export PYTHONPATH="$REPO:$PYTHONPATH"
+export PYTHONPATH="$REPO:${PYTHONPATH:-}"
 
 MODEL="${MODEL:-mistralai/Mistral-7B-v0.1}"
 OUTPUT_DIR="${OUTPUT_DIR:-experiments/phase25_causal_interventions}"
