@@ -82,7 +82,7 @@ def compute_attention_entropy(model, tokenizer, text, device, layer_idx):
     handle.remove()
 
     if "weights" in attention_outputs:
-        A = attention_outputs["weights"]
+        A = attention_outputs["weights"].float()
         A = A.clamp(min=1e-10)
         entropy = -(A * A.log()).sum(dim=-1).mean().item()
         return entropy
