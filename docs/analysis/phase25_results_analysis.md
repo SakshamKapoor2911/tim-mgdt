@@ -2,7 +2,7 @@
 
 **Date**: 2026-07-24
 **Branch**: `feature/subspace-suturing-improvements`
-**Pipeline Status**: P2 Control 2A complete, Control 2B running (44/100), P3 complete, P4 queued
+**Pipeline Status**: P2 Control 2A complete, Control 2B running (44/100), P3 complete, P4 queued, P5 (PC₁ un-rotation) designed and ready to run after pipeline completes
 
 ---
 
@@ -245,7 +245,60 @@ All experiments use n=100 GSM8K.
 
 ---
 
-## 6. Recommendations for the Amended Paper
+## 6. Remaining Structural Weakness — The Recovery Gap
+
+### The Problem: Destruction-Only Causal Evidence
+
+The current Phase 25 results have a lopsided causal structure:
+
+| Direction | Claim | Evidence | Strength |
+|:---|:---|:---:|:---:|
+| Destructive | "Rotation destroys reasoning" | Sufficiency (34% → 10%) | ✅ Strong |
+| Destructive | "PC₁ destruction destroys reasoning" | Ablation (34% → 11%, paper Table 3) | ✅ Strong |
+| Constructive | "Un-rotating restores reasoning" | Procrustes (1% → 3%) | ❌ Weak |
+| Constructive | "PC₁ realignment restores reasoning" | **No experiment yet** | 🔴 Missing |
+
+A reviewer can argue: "You showed rotation breaks an intact model (sufficiency), but you couldn't show un-rotation fixes a broken model (recovery). The weak Procrustes recovery suggests the rotation signal, while statistically detectable, is not operationally meaningful for repair. Maybe both rotation and reasoning collapse are co-effects of layer removal without a direct causal link."
+
+### The Core Issue: Full-Space Procrustes Dilutes the PC₁ Signal
+
+Procrustes R* operates on all 4096 dimensions. The paper's Table 3 shows PC₁ is uniquely causal (23% drop vs 0% for PC₂). By rotating the FULL 4096-dim space, R* distributes the correction across ALL singular vectors, not just PC₁. This dilutes the PC₁-specific correction by a factor of ~1/4096.
+
+| Method | Dimensions affected | GSM8K recovery |
+|:---|:---:|:---:|
+| Random rotation (placebo) | 4096 (full space) | 0.00% |
+| Full Procrustes R* | 4096 (full space) | +2% (1% → 3%) |
+| PC₁-specific Givens rotation | 2 (PC₁ plane only) | **Not yet tested** |
+
+### P5: PC₁-Specific Un-Rotation — The Missing Experiment
+
+The script `code/phases/phase25_causal_interventions/5_pc1_unrotation.py` implements this:
+
+1. **Compute SVD** of intact hidden states and pruned hidden states at post-incision layer
+2. **Extract PC₁** direction from each
+3. **Build a Givens rotation** in the 2D plane spanned by (pruned PC₁, perpendicular component of intact PC₁)
+4. **Apply ONLY this rotation** via forward hook on pruned model at post-incision layer
+5. **Evaluate GSM8K**
+
+Unlike full Procrustes which affects ALL 4096 directions, the PC₁ rotation is geometrically precise: it rotates ONE pair of dimensions (the PC₁ plane) while leaving the other 4094 dimensions completely unchanged. If the paper's claim is true — that PC₁ is the causally dominant component — this single-plane rotation should produce substantially more recovery than full Procrustes.
+
+**Expected outcomes:**
+
+| Outcome | Interpretation | Paper Impact |
+|:---|:---|:---:|
+| PC₁ recovers to ≈20-34% | Rotation of PC₁ IS the causal mechanism | 🟢 Strong — directly proves current paper claim in line 220 |
+| PC₁ recovers to ≈3-10% | PC₁ is PART of the mechanism but other components matter | 🟡 Mixed — partial support |
+| PC₁ shows no recovery (<3%) | PC₁ rotation is NOT the causal mechanism | 🔴 Paper claim in line 220 unsupported |
+
+**GPU time estimate**: ~1 hour total (collect hidden both models: 2 min, SVD: 1 min, 1 GSM8K eval: ~7 min, baselines: 14 min = ~25 min total plus overhead)
+
+### When to Run P5
+
+After the main pipeline (P2+P3+P4) completes. Either:
+- Standalone: `CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.5_pc1_unrotation`
+- Via `run_next.sh` orchestrator
+
+---
 
 ### New Content to Add
 
@@ -292,19 +345,20 @@ All experiments use n=100 GSM8K.
 | P2 2C: Wrong-PC repair | Queued | 🟢 Expected to show PC₁ specificity | ⏳ Queued |
 | P3: Competing metrics | 7 metrics × 50 passages | 🟢 θ unique vs scalar metrics | ✅ Complete |
 | P4: Early/Mid/Late sweep | Queued after P2 | 🟢 Expected to show robustness | ⏳ Queued |
+| P5: PC₁-specific un-rotation | Designed, ready to run | 🟢 Would close the recovery gap | ⏳ After pipeline |
 
 ---
-
-## 8. Data Files & Artifacts
 
 | File | Description |
 |:---|:---|
 | `exp_1a_procrustes.json` | P1 Procrustes intervention: 1% → 3% |
 | `exp_1b_sufficiency.json` | P1 Sufficiency test: baseline 34%, rotated 10% |
+| `exp_2a_random_rotation.json` | P2 Random rotation placebo: 0.00% (3 seeds) |
 | `exp_3_competing_metrics.json` | P3 Full correlation matrix (50 passages × 7 metrics) |
 | `R_star.pt` | Procrustes rotation matrix [4096, 4096] |
+| `code/phases/phase25_causal_interventions/5_pc1_unrotation.py` | P5 PC₁-specific un-rotation (ready to run) |
 | `_checkpoint_1_complete.json` | Stage 1 completion marker |
 
 ---
 
-*Document generated during Phase 25 pipeline execution. P2 2A complete, P2 2B-C and P4 pending completion.*
+*Document generated during Phase 25 pipeline execution. P2 2A complete, P2 2B-C, P4, P5 pending.*
