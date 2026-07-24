@@ -12,6 +12,7 @@
 - **Review Log**: [`main_BlackboxNLP2026_review.txt`](file:///home/skapoor/tim-mgdt/main_BlackboxNLP2026_review.txt)
 - **Collaboration Plan**: [`docs/COLLABORATION.md`](file:///home/skapoor/tim-mgdt/docs/COLLABORATION.md)
 - **Future ICLR 2027 Roadmap**: [`docs/FUTURE_EXPANSION_ICLR2027.md`](file:///home/skapoor/tim-mgdt/docs/FUTURE_EXPANSION_ICLR2027.md)
+- **Phase 25 Results Analysis**: [`docs/analysis/phase25_results_analysis.md`](file:///home/skapoor/tim-mgdt/docs/analysis/phase25_results_analysis.md)
 
 ---
 
