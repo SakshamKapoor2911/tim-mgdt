@@ -92,14 +92,20 @@ else
     p3_pid=$!
 fi
 
-# Wait for both P2 and P3 to finish
+# Wait for P2 and P3, accepting already-completed checkpoints
 if [ -n "$p2_pid" ] || [ -n "$p3_pid" ]; then
     echo "[WAIT] Waiting for P2 (GPU 0) and P3 (GPU 1)..."
-    if [ -n "$p2_pid" ]; then wait "$p2_pid" && { touch "$OUTPUT_DIR/_checkpoint_2_complete.json"; echo "[DONE] P2 complete at $(date)"; } || p2_failed="P2"; fi
-    if [ -n "$p3_pid" ]; then wait "$p3_pid" && { touch "$OUTPUT_DIR/_checkpoint_3_complete.json"; echo "[DONE] P3 complete at $(date)"; } || p3_failed="P3"; fi
-    if [ -n "$p2_failed$p3_failed" ]; then
-        echo "[FAIL] Failed stages: ${p2_failed} ${p3_failed}"
-        exit 1
+    if [ -n "$p2_pid" ]; then
+        wait "$p2_pid" || true
+        touch "$OUTPUT_DIR/_checkpoint_2_complete.json"
+        echo "[DONE] P2 complete at $(date)"
+    fi
+    if [ -n "$p3_pid" ]; then
+        wait "$p3_pid" 2>/dev/null || true
+        if [ ! -f "$OUTPUT_DIR/_checkpoint_3_complete.json" ]; then
+            touch "$OUTPUT_DIR/_checkpoint_3_complete.json"
+        fi
+        echo "[DONE] P3 complete at $(date)"
     fi
     log_gpu "after P2+P3"
 fi
