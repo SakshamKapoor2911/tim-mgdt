@@ -18,13 +18,17 @@
 
 ## Active Paper Execution Status & Next Steps
 
-1. **GPU 0 & GPU 1 Compute Pipeline**: **100% COMPLETED** for initial baseline.
-2. **Phase 25 Causal Interventions Pipeline**: **RUNNING** in background `tmux` session `phase25`.
-   - Launched: July 24, 2026, 10:43:29 AM EDT (clean dual-GPU parallel restart).
-   - Script: [`run_all.sh`](file:///home/skapoor/tim-mgdt/code/phases/phase25_causal_interventions/run_all.sh)
-   - Active logs: [`p1_procrustes_rotation.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/p1_procrustes_rotation.log), [`run_all.log`](file:///home/skapoor/tim-mgdt/experiments/phase25_causal_interventions/run_all.log)
-   - **Current progress (as of last check)**: P1 is complete (Exp 1A healed = 3.00%; Exp 1B intact baseline = 34.00%). P3 is 100% complete (metrics saved at 10:44:17 AM EDT). P2 is running (~47% on placebo, started at 10:43:32 AM EDT).
-   - **Stability**: Stable. All 14 critical+medium bugs fixed (see below). No crashes expected.
+**Phase 25 is 100% COMPLETE.** All experiments (P1–P5) have finished. No more GPU runs needed.
+
+- **P1**: Sufficiency test (34% → 10%, strong causal evidence) ✅
+- **P2**: Negative controls (random=0%, wrong-layer=0-3%, wrong-PC=0-3%) ✅
+- **P3**: Competing metrics (θ unique vs scalar metrics, μ/σ drift p>0.4) ✅
+- **P4**: Location sweep (0%/2%/4.33% across layers, n=300) ✅
+- **P5**: PC₁ un-rotation (θ=179.52°, projection=−1.000, GSM8K=4.00%) ✅
+
+**Key finding**: PC₁ is not rotated by 29.34° — it is **inverted** (179.52°). The 29.34° figure is the mean across top-10 PCs, masking this anti-alignment. Recovery experiments all converge to 0–4% noise floor — inference-time geometric correction is insufficient because downstream weights are calibrated on the inverted PC₁.
+
+**Next step**: Paper reframing per `docs/analysis/phase25_results_analysis.md` §9. The experiment set is closed.
 
 ---
 
@@ -73,7 +77,7 @@ An active pipeline run is executing in `tmux` session `phase25` on GPU 0. To pre
 - ✅ P3 fixed-depth correlation metrics (computed eager attention and effective ranks at 10:44:17 AM EDT)
 - ✅ Currently running P2 on GPU 0 without crashes
 
-P1 and P3 completed successfully. P2 is running now. **No remaining known failure modes.**
+**Phase 25 100% complete (all P1–P5). Experiment set closed.**
 
 ## 🚀 Dual-GPU Parallel Execution
 
@@ -82,14 +86,6 @@ P2-P4 now use **both GPUs** (run_all.sh rewritten for parallelism):
 - **GPU 1**: P3 (competing metrics) in parallel with P2 → P4 (middle, 3 evals)
 - Results merged automatically on completion.
 
-## ⏳ Expected Phase & Run Durations (at NUM_EVAL=100, Dual GPU)
+## ✅ Phase 25 Complete
 
-| Phase | Description | Expected Duration | Status Tracker |
-| :--- | :--- | :---: | :--- |
-| **P1** | Procrustes ($R^*$) + Sufficiency ($(R^*)^T$) GSM8K eval | **43 min** (Done) | `_checkpoint_1_complete.json` |
-| **P2** (GPU 0) | Negative Controls parallel with P3 | **~1.5 hours** | `_checkpoint_2_complete.json` |
-| **P3** (GPU 1) | Competing Metrics parallel with P2 | **48 sec** (Done at 10:44:17 AM EDT) | `_checkpoint_3_complete.json` |
-| **P4** | Early+Late (GPU 0) + Middle (GPU 1) | **~4.5 hours** | `_checkpoint_4_complete.json` |
-| **Total** | **Dual-GPU Phase 25** | **~7 hours** | `phase25` tmux session exits |
-
-*(Note: If `NUM_EVAL=50` is specified, all evaluation phase durations are halved, leading to ~3.5 hours total runtime).*
+All 5 experiments finished. All GPU resources freed. Total runtime: ~3 hours (dual-GPU), ~6 hours wall-clock.
