@@ -72,9 +72,11 @@ gantt
 3. **Complexity & Architecture**:
    - **Forward Hook Injection**: Intercept hidden state tensor $H \in \mathbb{R}^{B \times S \times D}$ at Layer 10 (pre-incision) and Layer 15 (post-incision).
    - **Procrustes Realignment Operator ($R^*$)**:
-     $$\min_{R \in \text{SO}(D)} \| H_{\text{student}} R - H_{\text{teacher}} \|_F^2 \implies R^* = U \det(U V^T) V^T \quad \text{where } H_{\text{teacher}}^T H_{\text{student}} = U \Sigma V^T$$
+     We compute $R^*$ such that student hidden states map to teacher hidden states:
+     $$\min_{R^* \in \text{SO}(D)} \| H_{\text{student}} R^* - H_{\text{teacher}} \|_F^2 \implies \text{scipy.linalg.orthogonal_procrustes}(H_{\text{student}}, H_{\text{teacher}})$$
+     This is critical: $H_{\text{student}}$ must be the first argument, and $H_{\text{teacher}}$ the second, so $R^*$ maps student $\to$ teacher.
    - **Causal Sufficiency (Artificial Rotation) Operator**:
-     Instead of synthetic 2D or arbitrary Givens rotation sweeps, apply the inverse/transpose of the real computed Procrustes matrix $R_{\text{inv}} = (R^*)^T$ to the **intact** model at Layer 15. This transforms the intact representation $h_{\text{teacher}}$ into a rotated state matching the student representation $h_{\text{student}}$:
+     Apply the inverse/transpose of the real computed Procrustes matrix $R_{\text{inv}} = (R^*)^T$ to the **intact** model at Layer 15. This transforms the intact representation $h_{\text{teacher}}$ into a rotated state matching the student representation $h_{\text{student}}$:
      $$h_{\text{intervened}} = h_{\text{teacher}} \cdot (R^*)^T \approx h_{\text{student}}$$
      This directly isolates and evaluates whether the representation rotation *alone* is sufficient to cause reasoning collapse.
 
@@ -96,6 +98,7 @@ gantt
 2. **P2 Wrong-PC SVD NameError & OOM**: Import `numpy` explicitly at the file top. Wrap intact model in `run_wrong_pc_repair` in a bound variable and explicitly free it (`del model`, `torch.cuda.empty_cache()`) before loading the student model.
 3. **P3 Attention Entropy NaN Fix**: Pass `output_attentions=True` to the model forward pass call inside `compute_attention_entropy` to populate attention weight tensors.
 4. **P1 Causal Sufficiency Rotation Sweep Refactoring**: Replace the synthetic rotation matrix sweep with the $(R^*)^T$ intervention on the intact model at Layer 15, matching the $29.34^\circ$ shift.
+5. **Procrustes Direction Fix**: Set $A = H_{\text{student}}$ and $B = H_{\text{teacher}}$ in `orthogonal_procrustes(student_np, teacher_np)` to ensure the rotation maps student $\to$ teacher.
 
 ### Medium Defect Mitigations
 1. **P3 Principal Angle FP16 NumPy Conversion**: Add `.float()` cast before `.cpu().numpy()` conversion in `3_run_competing_metrics.py`.
