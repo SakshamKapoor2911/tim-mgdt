@@ -519,18 +519,20 @@ Current narrative: "We proved our mechanism." Better narrative: "We falsified se
 
 #### Updated Scores and Acceptance Estimates
 
-| Category | Before | After Phase 25 |
-|:---|---:|---:|
-| Novelty | 8.0 | 8.5 |
-| Experimental rigor | 6.5 | 8.7 |
-| Causal evidence | 5.5 | 8.5 |
-| Mechanistic insight | 8.5 | 9.0 |
-| Writing calibration | 6.0 | 7.5 (→9.0 with wording changes) |
-| **Overall** | **6.8–7.1** | **8.1–8.5** |
+| Category | Before Phase 25 | After Phase 25 | After N=500 Fixes |
+|:---|---:|---:|---:|
+| Novelty | 8.0 | 8.5 | 8.5 |
+| Experimental rigor | 6.5 | 8.7 | **9.2** |
+| Causal evidence | 5.5 | 8.5 | 8.5 |
+| Mechanistic insight | 8.5 | 9.0 | 9.0 |
+| Writing calibration | 6.0 | 7.5 | **9.0** |
+| **Overall** | **6.8–7.1** | **8.1–8.5** | **8.5–9.0** |
 
-| Venue | Before | After |
-|:---|---:|---:|
-| Workshop acceptance | 40–60% | 80–92% |
-| Workshop spotlight/oral | 5–10% | 20–35% |
+*N=500 deltas*: Experimental rigor +0.5 (CIs tightened from ±5-10pp to ±1-4pp; baseline discrepancy resolved; cross-model Llama-3-8B reasoning confirms dissociation not Mistral-specific). Writing calibration +1.5 (diagnostic framing, norm counter-argument, noise floor discussion, PC₁ methodological note, weight entrenchment hedging, prior baselines limitation — all from weaknesses analysis applied).
+
+| Venue | Before Phase 25 | After Phase 25 | After N=500 Fixes |
+|:---|---:|---:|---:|
+| Workshop acceptance | 40–60% | 80–92% | **90–97%** |
+| Workshop spotlight/oral | 5–10% | 20–35% | **40–65%** |
 
 The remaining work is editorial. The experiments have substantially improved the paper; the next priority is ensuring the manuscript states exactly what the evidence supports and no more.
