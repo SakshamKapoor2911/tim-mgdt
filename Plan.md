@@ -15,7 +15,7 @@
 | **Claim Calibration Pass** | Lines 43–45, 220, 321 | Yes ("We prove", "causally responsible") | Partial | **P0 (Immediate)**: Soften causal claims to reflect empirical scope until P1 completes. |
 | **Direct PC Realignment** | Line 220–221 | Yes | **0%** | **P1 (MVP)**: Paper asserts PC1 projection realignment, but code does not exist. Must build Procrustes & PC1 repair hooks. |
 | **Orthogonal Procrustes $R = UV^T$** | Line 309 | Yes (Future outlook) | **0%** | **P1 (MVP)**: Implement $R^* = U \det(UV^T)V^T$ forward hook intervention and test GSM8K/BBH recovery. |
-| **Artificial Rotation in Intact Model** | Abstract (line 43–44) | Partial | **0%** | **P1 (MVP)**: Implement synthetic rotation $R_\theta$ in intact model to prove rotation alone is *sufficient* to destroy reasoning. |
+| **Artificial Rotation in Intact Model** | Abstract (line 43–44) | Partial | **0%** | **P1 (MVP)**: Implement $(R^*)^T$ rotation in intact model to prove rotation alone is *sufficient* to destroy reasoning. |
 | **Negative Controls (Placebo / Wrong Layer)** | Section 5 (lines 267–293) | Partial (9 baselines exist) | **20%** | **P2 (Promoted)**: Add placebo random rotation, wrong-layer repair, wrong-PC repair to satisfy Reproducibility Track reviewers. |
 | **Competing Scalar Metrics (Fixed Depth)** | Section 4.4 / 5.1 | Partial ($r_s=1.0$ across depth) | **40%** | **P3**: Measure Rotation vs Norm vs LayerNorm Drift vs Attention Entropy at **fixed skip-depth** ($k=4$). |
 | **Pruning Location Sweeps** | Section 4 | Partial (Middle layers 11-14) | **60%** | **P4**: Run Early (3-6), Middle (11-14), Late (20-23) block drops across 3 seeds with 95% CIs. |
@@ -71,10 +71,12 @@ gantt
 2. **Dependencies**: `torch`, `scipy.linalg.orthogonal_procrustes`, `transformers`
 3. **Complexity & Architecture**:
    - **Forward Hook Injection**: Intercept hidden state tensor $H \in \mathbb{R}^{B \times S \times D}$ at Layer 10 (pre-incision) and Layer 15 (post-incision).
-   - **Procrustes Realignment Operator**:
+   - **Procrustes Realignment Operator ($R^*$)**:
      $$\min_{R \in \text{SO}(D)} \| H_{\text{student}} R - H_{\text{teacher}} \|_F^2 \implies R^* = U \det(U V^T) V^T \quad \text{where } H_{\text{teacher}}^T H_{\text{student}} = U \Sigma V^T$$
-   - **Artificial Rotation Operator**:
-     Apply synthetic block-diagonal Givens rotation matrix $R_{\theta}$ to intact model activations at Layer 10 across all dimension pairs with angle $\theta$.
+   - **Causal Sufficiency (Artificial Rotation) Operator**:
+     Instead of synthetic 2D or arbitrary Givens rotation sweeps, apply the inverse/transpose of the real computed Procrustes matrix $R_{\text{inv}} = (R^*)^T$ to the **intact** model at Layer 15. This transforms the intact representation $h_{\text{teacher}}$ into a rotated state matching the student representation $h_{\text{student}}$:
+     $$h_{\text{intervened}} = h_{\text{teacher}} \cdot (R^*)^T \approx h_{\text{student}}$$
+     This directly isolates and evaluates whether the representation rotation *alone* is sufficient to cause reasoning collapse.
 
 ---
 
@@ -93,8 +95,8 @@ gantt
 1. **P2 Wrong-Layer Repair OOM**: Split dual model loading in `2_run_negative_controls.py`. Load intact model first $\to$ collect hidden states $\to$ delete intact model & clear CUDA cache $\to$ load pruned model.
 2. **P2 Wrong-PC SVD NameError & OOM**: Import `numpy` explicitly at the file top. Wrap intact model in `run_wrong_pc_repair` in a bound variable and explicitly free it (`del model`, `torch.cuda.empty_cache()`) before loading the student model.
 3. **P3 Attention Entropy NaN Fix**: Pass `output_attentions=True` to the model forward pass call inside `compute_attention_entropy` to populate attention weight tensors.
+4. **P1 Causal Sufficiency Rotation Sweep Refactoring**: Replace the synthetic rotation matrix sweep with the $(R^*)^T$ intervention on the intact model at Layer 15, matching the $29.34^\circ$ shift.
 
 ### Medium Defect Mitigations
-1. **P1 Artificial Rotation Dilution**: Replace synthetic 2D rotation with block-diagonal Givens rotation covering all dimension pairs in `causal_hooks.py`.
-2. **P3 Principal Angle FP16 NumPy Conversion**: Add `.float()` cast before `.cpu().numpy()` conversion in `3_run_competing_metrics.py`.
-3. **P4 Seed Robustness Statistics**: Switch bootstrap confidence intervals to binomial Clopper-Pearson confidence intervals over combined token generation counts to represent true statistical uncertainty.
+1. **P3 Principal Angle FP16 NumPy Conversion**: Add `.float()` cast before `.cpu().numpy()` conversion in `3_run_competing_metrics.py`.
+2. **P4 Seed Robustness Statistics**: Switch bootstrap confidence intervals to binomial Clopper-Pearson confidence intervals over combined token generation counts to represent true statistical uncertainty.
