@@ -1,80 +1,76 @@
 {
   "metadata": {
-    "timestamp": "2026-07-07T11:14:24.722160"
+    "timestamp": "2026-07-25T09:54:30.778589"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
       {
-        "title": "Don't Go Breaking My LLM: The Impact of Pruning Attention Layers on Explanation Faithfulness and Confidence Calibration",
-        "published_date": "2026-06-23",
+        "title": "CoCurve: Cross-Module Co-Pruning Curvature for Training-Free Structured LLM Pruning",
+        "published_date": "2026-07-20",
         "authors": [
-          "Pietro Tropeano",
-          "Maria Maistro",
-          "Tuukka Ruotsalo",
-          "Christina Lioma"
+          "Zhiren Gong",
+          "Zihao Zeng",
+          "Zijie Wang",
+          "Tiantong Wang",
+          "Chau Yuen",
+          "Wei Yang Bryan Lim"
         ],
-        "summary": "Pruning Large Language Models (LLMs) reduces memory and inference costs by removing parts of the network, producing smaller models that retain most of their accuracy. As attention layers are the most resource-intensive parts of LLMs, pruning them is a promising compression strategy. Prior work shows that up to 33% of attention layers can be pruned with minimal accuracy loss. Nevertheless, the impact of attention pruning on model interpretability, specifically faithfulness and confidence calibration, remains unstudied. To address this gap, we study how pruning attention layers affects explanation faithfulness and confidence calibration across five LLMs and eight datasets. While the pruned models often maintain high accuracy, we find that their faithfulness and calibration often degrade. Notably, faithfulness and calibration can fluctuate significantly, even when accuracy remains stable, highlighting a misalignment between model confidence, interpretability, and accuracy. Our findings suggest that layer pruning can affect LLMs' interpretability and reliability in ways not captured by accuracy and efficiency measures alone. We recommend including explainability and calibration metrics when evaluating pruned models.",
-        "url": "http://arxiv.org/abs/2606.24970v1"
+        "summary": "Structured pruning compresses large language models (LLMs) by removing whole computational units, such as attention heads and feed-forward (FFN) channel groups. Most training-free methods, however, rank these units independently, implicitly treating the loss from pruning a set as the sum of its individual losses. This view fails for Transformers, whose sublayers are coupled through a shared residual stream. Two individually weak units can thus be jointly indispensable, yet independent scoring is blind to such dependence and removes them together. We introduce CoCurve (Cross-Module Co-Pruning Curvature), a calibration-only, fine-tuning-free method that prunes attention and FFN units jointly. A second-order Taylor expansion of the token-level KL between the frozen model and its masked copy yields a single Fisher matrix whose diagonal is classical node saliency and whose off-diagonal entries are co-pruning curvature edges: the extra damage of removing two units together. Under a single-ablation additivity approximation this matrix reduces to a Gram product of single-unit ablation features, so the full M x M interaction is recovered from M forward passes, with no pairwise sweeps or gradients. Pruning then reduces to one budgeted quadratic program, solved in a single shot under a shared attention--FFN budget, with no labels, fine-tuning, or recovery.",
+        "url": "http://arxiv.org/abs/2607.17568v1"
       },
       {
-        "title": "UniRank: Unified Rank Allocation for Low-Rank LLM Compression",
-        "published_date": "2026-06-20",
+        "title": "PALS: Percentile-Aware Layerwise Sparsity for LLM Pruning",
+        "published_date": "2026-07-08",
+        "authors": [
+          "Yazdan Jamshidi",
+          "Alexey Shvets"
+        ],
+        "summary": "One-shot pruning methods like Wanda and SparseGPT apply the same sparsity ratio to every layer of a transformer, ignoring known variation in layer importance. We propose PALS (Percentile-Aware Layerwise Sparsity), which adjusts per-layer sparsity based on the 99th percentile of activation magnitudes, bounded to $\\pm 5\\%$ around the target ratio. On LLaMA-2-7B at 50\\% sparsity, PALS achieves 10.96 WikiText-2 perplexity versus 12.92 for uniform Wanda (mean over 9 runs, $p < 0.001$). The benefit is architecture-dependent: LLaMA-3-8B shows marginal gains and Mistral-7B shows none. We also find that gradient-based allocation -- the seemingly more principled approach -- produces results worse than random, suggesting that gradient magnitude does not predict the impact of discrete weight removal. PALS adds negligible cost to the pruning pipeline and requires no fine-tuning.",
+        "url": "http://arxiv.org/abs/2607.07557v1"
+      },
+      {
+        "title": "Beyond Single-Dimensional Compression: The Compound Sparsity Frontier of Large Language Models",
+        "published_date": "2026-06-29",
         "authors": [
           "Chao Han",
           "Haozhe Hu",
-          "Fei Ma",
-          "Wei Zhang",
           "Xiaoyu Shen"
         ],
-        "summary": "Low-rank decomposition serves as a promising compression paradigm for large language models, however, rank allocation remains challenging: manual rules lack generalizability, and learning-based approaches incur heavy computational overhead. To address these issues, we formulate global low-rank allocation as a sorting-and-truncation pipeline, and score each singular component via dual criteria: \\textbf{Local} singular energy ratio that quantifies the intrinsic importance within the decomposed parameter matrix and \\textbf{Global} functional importance (measured by input-output cosine similarity) that evaluates the functional significance of decomposed modules. We verify the strong correlation between high input-output cosine similarity and low effective rank through geometric interpretation and experimental validation. Furthermore, we propose rank-preserving fine-tuning, which performs direct LoRA tuning on decomposed weights and avoids extra information loss caused by re-truncation in conventional merging pipelines. Empirical results confirm that our method delivers sustained performance enhancements when combined with models featuring distinct decomposition schemes, model sizes and architectural designs, e.g. in one-shot compression without further fine-tuning, our method reduces perplexity by up to 50\\% compared with uniform and heuristic allocation baselines. Code will be available at https://github.com/EIT-NLP/LLM-Pruning.",
-        "url": "http://arxiv.org/abs/2606.21847v1"
-      },
-      {
-        "title": "Persona-Pruner: Sculpting Lightweight Models for Role-Playing",
-        "published_date": "2026-06-12",
-        "authors": [
-          "Jinsu Kim",
-          "Jihoon Tack",
-          "Noah Lee",
-          "Jongheon Jeong"
-        ],
-        "summary": "Language Models (LMs) have shown remarkable potential as role-playing chatbots, delivering consistent, stylized interactions when given a specification of a character or user persona. However, applying these capabilities to real-world applications (e.g., ecosystems with numerous NPCs interacting simultaneously) exposes a critical inefficiency due to the excessive computational cost. In this paper, we question the necessity of dedicating a full, generalist model to a single persona, hypothesizing that a specific character identity relies on only a fraction of the model's total capacity. We observe that naively pruning LMs often severely degrades the role-playing performance for a specific persona; it does not distinguish between redundant knowledge and essential character traits. We propose Persona-Pruner, a framework that sculpts a lightweight role-playing model by isolating persona-specific sub-networks from a single description. Our experiments consistently show that Persona-Pruner preserves role-playing performance substantially more effectively than existing state-of-the-art LLM pruning techniques, reducing the performance drop from the dense model by up to 93.8% over the strongest baseline on RoleBench in LLM-as-a-judge score, while still maintaining general LLM capabilities. Code is available at https://github.com/jsu-kim/Persona-Pruner.",
-        "url": "http://arxiv.org/abs/2606.14695v1"
+        "summary": "Large language models (LLMs) are often compressed through static parameter pruning or dynamic token-level computation, yet aggressive sparsification can trigger rapid performance degradation beyond an essential sparsity boundary. This work asks \\emph{whether combining these two mechanisms can delay such degradation by distributing the compression burden}. We study a minimalist compound sparsity framework that first applies low-rank approximation and channel pruning to obtain a statically compressed backbone, and then introduces lightweight routers for per-token dynamic layer skipping. This design enables independent control of parameter sparsity and token-level computation sparsity. Experiments across language understanding and modeling benchmarks show that compound sparsity consistently outperforms single-mechanism compression under the same total sparsity, delaying the decay point on understanding tasks and preserving stronger modeling performance. Further analysis reveals cross-dimensional interference between parameter pruning and token skipping, and shows that near-balanced allocation is most effective under a fixed sparsity budget. These results demonstrate that compound compression provides a practical way to improve LLM compression, while revealing a broader cross-dimensional sparsity boundary that ultimately limits further compression. Code will be available at https://github.com/EIT-NLP/LLM-Pruning.",
+        "url": "http://arxiv.org/abs/2607.18280v1"
       }
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
-        "title": "Individual Parameters in Weight-Sparse Transformers Appear Interpretable",
-        "published_date": "2026-07-03",
+        "title": "Where Animacy Lives in Large Language Models: Tracing the Circuits of the Animacy Concept",
+        "published_date": "2026-07-23",
         "authors": [
-          "Arnau Marin-Llobet",
-          "Stefan Heimersheim"
+          "Samuele Punzo",
+          "Giovanni Cin\u00e0",
+          "Sandro Pezzelle"
         ],
-        "summary": "A central goal of mechanistic interpretability is to understand how neural networks work and what each individual component does. Dominant circuit-finding approaches focus on a specific behavior and reverse-engineer the role of components on the associated sub-distribution. However, past work has shown that components can have different functions that are active on different subsets of the input distribution. In this work we ask whether a single weight can be understood globally across the full training distribution by characterizing when it matters (the inputs on which ablating it changes the model's predictions). We introduce an automated LLM pipeline that writes a short, human-readable description of when a weight matters and verifies it on held-out text, crediting a weight only if its description generalizes. Across two sparse and two dense transformers, the fraction of weights that are interpretable (in this sense) is higher in sparse transformers than in dense ones, a gap that widens once unreliable descriptions are discarded. Our results show that a meaningful fraction of a sparse transformer model's weights can be interpreted: 12 to 31% of weights have a single short description that identifies what the weight is used for.",
-        "url": "http://arxiv.org/abs/2607.02964v1"
+        "summary": "Distinguishing animate from inanimate concepts in written language requires more than shallow text processing, as it involves recognizing complex selectional constraints and contextual cues, such as verb-argument interactions. Yet, current large language models (LLMs) appear to be capable of doing it. We investigate whether this animacy-sensitive behavior of LLMs can be traced to a localized set of causally relevant components and connections. To do so, we construct a controlled dataset of minimal pairs and perform circuit discovery on four open-weight models. Through in-depth experiments and ablations, we show that a causal mechanism responsible for handling animacy in these models does exist, thus discovering an animacy circuit. At the same time, this circuit appears to be less localized compared to other known ones and generalizes only partially across models and animacy tasks, confirming the distributed, context-dependent, and somewhat graded nature of the animacy concept.",
+        "url": "http://arxiv.org/abs/2607.20995v1"
       },
       {
-        "title": "Fast Multi-dimensional Refusal Subspaces via RFM-AGOP",
-        "published_date": "2026-07-02",
+        "title": "Are Arithmetic Heuristic Neurons Form-Invariant? A Mechanistic Analysis of Symbols, Text, and Code in LLMs",
+        "published_date": "2026-07-18",
         "authors": [
-          "Thomas Winninger"
+          "Sharath Naganna",
+          "Tanvir Ahmed Sijan",
+          "Uddipta Kalita"
         ],
-        "summary": "Steering and monitoring activations in Large Language Models (LLMs) are increasingly used for both safety and interpretability. Early work assumed behaviours are encoded along single linear directions, but recent findings suggest complex behaviours, such as the refusal to answer harmful queries, live in multi-dimensional subspaces. However, existing methods for extracting these subspaces are computationally expensive, which becomes prohibitive on reasoning models who produce long reasoning traces. By adapting the Recursive Feature Machine (RFM) algorithm -- which can be computed efficiently -- with a probe-informed initialization, we are able to identify the multi-dimensional refusal subspace in seconds, on reasoning (Qwen 3) and non-reasoning (Qwen 2.5) models. While RFM allows for faster subspace identification, it also showed better performances on the ablation task than its alternatives. More work is planned to better understand the relations between subspaces found by different methods. If confirmed, RFM could be a cheap and scalable complement to existing subspace-extraction methods in LLMs.",
-        "url": "http://arxiv.org/abs/2607.02396v1"
+        "summary": "Large language models often succeed on one formulation of a problem while failing on an equivalent formulation. Whether these failures arise from distinct internal circuits or different activation states of a shared circuit remains unknown. Recent mechanistic interpretability studies suggest that arithmetic in LLMs emerges from a \"bag of heuristics,\" encoded by a sparse set of MLP neurons that represent distinct arithmetic strategies. We investigate whether arithmetic heuristic neurons are form-invariant across symbolic arithmetic, natural language word problems, and Python code in three Llama-3 models. In each format, we identify arithmetic heuristic neurons using a two-stage pipeline combining attribution patching and activation patching. A compact set of neurons is shared across all three formats, and targeted interventions show this shared circuit is both necessary and sufficient for late-layer arithmetic computation. Transferring the shared neurons' activations from a successful execution in one format to a failed execution in another recovers most incorrect predictions, exceeding 97% for addition and subtraction, indicating that cross-format failures arise from activation states rather than distinct circuits. Moreover, shared neurons consistently belong to the same heuristic families across formats, demonstrating that arithmetic computation in LLMs is largely form-invariant at the neuron level.",
+        "url": "http://arxiv.org/abs/2607.16693v1"
       },
       {
-        "title": "Distill to Detect: Exposing Stealth Biases in LLMs through Cartridge Distillation",
-        "published_date": "2026-07-01",
+        "title": "Tracing LLM Behavior to the Training Data with Empirical Next-Token Distributions",
+        "published_date": "2026-07-15",
         "authors": [
-          "Shayan Talaei",
-          "Abhinav Chinta",
-          "Devvrit Khatri",
-          "Amin Karbasi",
-          "Azalia Mirhoseini",
-          "Amin Saberi"
+          "Zachary Izzo"
         ],
-        "summary": "Language models deployed in high-stakes roles can potentially favor certain entities, brands, or viewpoints, steering user decisions at scale. Such preferential biases can be introduced by any actor in the model's supply chain and are most dangerous when the model reveals its preference only on the relevant topic while behaving identically to its unmodified base on all other inputs. Recent work has shown that these biases can transfer through context distillation on semantically unrelated data, with the signal residing entirely in the soft logit distribution and remaining invisible to text-based inspection. However, the defender faces a fundamental asymmetry: without knowing the bias topic, no detection method can reliably surface a stealth preferential bias, regardless of whether it examines generated text, internal representations, or model weights. Here we introduce Distill to Detect (D2D), a method that surfaces hidden biases by distilling the distributional shift between a suspected model and its base into a cartridge (a KV-cache prefix adapter), concentrating the dominant divergence and amplifying the bias signal into generated text. We show that D2D successfully amplifies the hidden biases of stealth models to the extent that they can be reliably detected across multiple bias types. We also propose a theoretical framework that explains the efficacy of D2D through the lens of Fisher-weighted projection of the logit distribution shift, supported by empirical observations. By turning the capacity bottleneck of prefix-tuning adapters into a detection tool, D2D provides a practical building block for auditing hidden behaviors in deployed language models.",
-        "url": "http://arxiv.org/abs/2607.01208v1"
+        "summary": "In this paper, we study the connection between an LLM's output distribution and the data used to train it. Specifically, we study the degree to which an LLM's next-token distribution agrees with the empirical next-token distribution (ENTD) given the context in the training data. The ENTD is an appealing target because it is the unrestricted global minimizer of the next-token cross entropy loss used for pretraining, as well as an easily interpretable function of the pretraining corpus. We find that for a significant fraction of inputs, the LLM's distribution agrees with the ENTD almost perfectly, and the average agreement increases with model scale and training compute. Nevertheless, there is a long tail of input sequences where the LLM and ENTD differ significantly, and we examine several possible sources of this discrepancy across the transformer architecture, training procedure, and finite-sample noise in the ENTD estimate itself. More broadly, we hope our findings will encourage more work on ``data-centric mechanistic interpretability,'' a complement to standard mechanistic interpretability that opens the black box of how model behaviors arise from the data, rather than how they are encoded in the learned weights.",
+        "url": "http://arxiv.org/abs/2607.14306v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -115,37 +111,36 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
-        "title": "Pretraining Curricula Enable Selective Fine-tuning",
-        "published_date": "2026-07-06",
+        "title": "Test-Time Training for Modality Order Consistency in Vision-Language Models",
+        "published_date": "2026-07-22",
         "authors": [
-          "Sebastian A. Bruijns",
-          "Jirko Rubruck",
-          "Mia H. Whitefield",
-          "Kai J. Sandbrink",
-          "Fazl Barez",
-          "Christopher Summerfield"
+          "Aditi Gupta",
+          "Yossi Gandelsman"
         ],
-        "summary": "Transformers follow implicit curricula whereby some tasks are learned before others. However, how explicit pretraining curricula influence learning, generalization, and the selectivity of fine-tuning is unclear. This is important for AI safety, where fine-tuning is used to selectively suppress misaligned behaviors. Here, we compare curricula that pretrain tasks in a balanced (sampled uniformly) or an imbalanced (one task early, the other late) fashion. We show that imbalanced learning of two conflicting copy tasks promotes in-context learning and improves the selectivity of refusal fine-tuning. Ablations and activation patching show that this occurs because imbalanced pretraining encourages tasks to be disentangled in separable neural circuits, whereas balanced training routes both tasks through a common pathway. We extend these findings to a synthetic language learning task involving rule-consistent and rule-violating data, where imbalanced curricula similarly lead to more localized, less entangled rule representations, resulting in more robust rule-following behavior. Together, these results suggest that imbalanced pretraining curricula may be an important tool for promoting disentangled representations, with direct consequences for the precision and reliability of safety fine-tuning.",
-        "url": "http://arxiv.org/abs/2607.04846v1"
+        "summary": "We find that vision-language models are sensitive to a specific semantically irrelevant change: the order in which the image and question are presented. Across three models and three benchmarks, image first prompting consistently outperforms question-first prompting, revealing a repeatable modality order failure. We use this gap to design an order-consistent test-time training method. Our method substantially closes the modality-order gap across all evaluated settings. Surprisingly, it also yields consistent improvements in the stronger image-first branch over the baseline, hence bootstrapping both orderings toward mutual consistency. Activation patching localizes the ordering failure to a narrow mid-network region where representations diverge sharply between prompt orders. We find that the test-time training method repairs this misalignment across layers. Together, our results identify modality-order sensitivity as a circuit-level failure in VLMs and demonstrate that simple, asymmetric test-time adaptation can effectively mitigate it and even improve performance over the baseline.",
+        "url": "http://arxiv.org/abs/2607.20351v1"
       },
       {
-        "title": "Geometry of Ordinal Representations in Language Models",
-        "published_date": "2026-07-05",
+        "title": "Understanding the Impact of Linguistic Realization Choices on LLM Stance with Causal Tracing",
+        "published_date": "2026-07-22",
         "authors": [
-          "Saksham Bassi",
-          "Sharvi Tomar"
+          "Langchen Huang",
+          "Sebastian Pad\u00f3",
+          "Franziska Weeber"
         ],
-        "summary": "Recent work showed that language models represent character counts on curved 1D manifolds, with attention heads performing geometric transformations to enable computation. We test whether this generalizes across four ordinal tasks (bracket depth, indentation, table position, numeric magnitude) in Gemma-2-2B, Gemma-2-9B, and Qwen3-4B. We find that 1D manifolds with place-cell feature tiling emerge for tasks where the ordinal variable is locally computable from token identity, while tasks requiring cross-position integration or semantic extraction produce higher-dimensional or incoherent representations. Geometric computation is architecture-dependent: Qwen3-4B shows substantially stronger twisting than Gemma models for indentation, and its twisters preserve ordinal order, unlike its numeric twisters. Activation patching confirms that the identified manifold subspaces concentrate task-relevant information, with manifold-direction ablation causing dramatically larger probe accuracy drops than random-direction controls.",
-        "url": "http://arxiv.org/abs/2607.04167v1"
+        "summary": "Large language models (LLMs) are known to be sensitive to prompt and input formulations. However, existing studies have focused on lexical realization and largely ignored constructional choice. This paper studies whether linguistic construction can systematically shift LLM decisions and where these shifts can be causally localized inside the model. We use political stance judgment as a meaning-sensitive case study and extend an English political statements dataset, resulting in six controlled linguistic rewrite types that preserve or invert the meaning of a statement. Experiments on four open-weight models show that stance instability affect both meaning-preserving and meaning-inversing rewrites. Because output shifts reveal that rewrites affect stance, but not where in the model, we apply activation patching, where activations from the original statement are substituted into the forward pass for the rewritten statement and measure which components recover the original stance distribution. The results show that mid-to-late decoder layers, especially block outputs at the final prompt position, provide the strongest restoration signal.",
+        "url": "http://arxiv.org/abs/2607.20115v1"
       },
       {
-        "title": "Robust for the Wrong Reasons: The Representational Geometry of LLM Robustness to Science Skepticism",
-        "published_date": "2026-07-02",
+        "title": "Are Arithmetic Heuristic Neurons Form-Invariant? A Mechanistic Analysis of Symbols, Text, and Code in LLMs",
+        "published_date": "2026-07-18",
         "authors": [
-          "Minjong Cheon"
+          "Sharath Naganna",
+          "Tanvir Ahmed Sijan",
+          "Uddipta Kalita"
         ],
-        "summary": "Large language models (LLMs) are increasingly consulted on contested scientific questions, raising the concern that they will sycophantically retreat from established consensus when a user signals doubt -- drifting toward a false balance that treats settled science as one view among several. We test this across three open instruction-tuned models (Llama-3.1-8B, Qwen2.5-7B, Mistral-7B), three consensus-science domains (climate, vaccines, evolution), and single- and multi-turn settings, combining behavioral measurement with linear probing and activation patching. We do not observe sycophantic retreat. Instead, models show three distinct policies under the same skeptical pressure: reactive assertion, where consensus assertion increases rather than decreases (Llama); surface hedging, where tone softens while the position holds (Qwen); and non-response (Mistral). Pairwise judgments confirm the reactive shift is stance, not style (63.6%, p=.007), and a decomposition identifies increased consensus assertion, not false balance, as its driver (beta=+0.042 per dose, p<1e-77). Linear probes localize the divergence to middle layers -- perfect separation in Llama and Qwen versus 72% in Mistral, with non-overlapping confidence intervals -- indicating the non-responsive model does not linearly represent the skepticism signal at all. Crucially, this robustness does not transfer: it attenuates across domains and, in the safety-critical vaccine domain, can reverse, with myth-rebuttal weakening under skeptical pressure. We synthesize these into a four-way taxonomy separating active from accidental robustness, and argue that behavioral evaluation alone cannot distinguish a model that resists skepticism because it understands the signal from one that only appears to resist because it fails to perceive it.",
-        "url": "http://arxiv.org/abs/2607.01951v1"
+        "summary": "Large language models often succeed on one formulation of a problem while failing on an equivalent formulation. Whether these failures arise from distinct internal circuits or different activation states of a shared circuit remains unknown. Recent mechanistic interpretability studies suggest that arithmetic in LLMs emerges from a \"bag of heuristics,\" encoded by a sparse set of MLP neurons that represent distinct arithmetic strategies. We investigate whether arithmetic heuristic neurons are form-invariant across symbolic arithmetic, natural language word problems, and Python code in three Llama-3 models. In each format, we identify arithmetic heuristic neurons using a two-stage pipeline combining attribution patching and activation patching. A compact set of neurons is shared across all three formats, and targeted interventions show this shared circuit is both necessary and sufficient for late-layer arithmetic computation. Transferring the shared neurons' activations from a successful execution in one format to a failed execution in another recovers most incorrect predictions, exceeding 97% for addition and subtraction, indicating that cross-format failures arise from activation states rather than distinct circuits. Moreover, shared neurons consistently belong to the same heuristic families across formats, demonstrating that arithmetic computation in LLMs is largely form-invariant at the neuron level.",
+        "url": "http://arxiv.org/abs/2607.16693v1"
       }
     ]
   }
