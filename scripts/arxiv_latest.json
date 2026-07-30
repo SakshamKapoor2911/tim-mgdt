@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-07-29T10:44:37.272198"
+    "timestamp": "2026-07-30T10:30:01.805688"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -118,6 +118,21 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Seeing or Knowing? Visual Context Sensitivity in Multimodal Large Language Models",
+        "published_date": "2026-07-28",
+        "authors": [
+          "Jiaang Li",
+          "Chengzu Li",
+          "Zhaochong An",
+          "Yifei Yuan",
+          "Xi Liu",
+          "Serge Belongie",
+          "V\u00e9steinn Sn\u00e6bjarnarson"
+        ],
+        "summary": "Multimodal Large Language Models (MLLMs) achieve strong performance by integrating visual inputs with the rich priors of pretrained language models. However, they often fail on vision-centric tasks, especially when visual evidence conflicts with pretrained knowledge. We explore these failures separately using two diagnostic paradigms: (1) probing whether visual information is available, via image reconstruction, and (2) measuring multimodal context sensitivity, the extent to which the model follows visual context versus the language prior. To support the second, we introduce the WhatIfVis, a benchmark spanning five coarse-grained dimensions (spatial-temporal, color, count, size, and weight) whose questions admit answers from either the image or the prior. Our analysis yields three findings: (i) Coarse-grained visual evidence is preserved, as these attributes can be reconstructed from the final-layer image tokens of frozen MLLMs. Failures on questions about these attributes therefore point to post-perceptual utilization, rather than to degraded visual encoding during perception. (ii) Even when explicitly instructed to use or ignore visual evidence, vanilla models (without supervised fine-tuning on the WhatIfVis) show unstable visual context sensitivity. Supervised fine-tuning (SFT) improves this controllability and generalizes across domains, and activation patching further localizes the vision-versus-prior trade-off at architecture-specific depths across all six models. (iii) The vision-versus-prior trade-off is controllable along a learned vector. Applying this steering vector, even without any intent instruction, improves controllability over the vanilla model. Together, these results relocate the bottleneck, indicating that for the coarse attributes we study, MLLMs encode the visual evidence but cannot reliably control their reliance on it.",
+        "url": "http://arxiv.org/abs/2607.26326v1"
+      },
+      {
         "title": "Grounding latent algorithm routing in transformer reasoning",
         "published_date": "2026-07-27",
         "authors": [
@@ -136,16 +151,6 @@
         ],
         "summary": "Large language models place structured concepts on geometrically faithful manifolds: weekdays lie on a circle, months on another, usually taken to be a fixed world-model the network stores and looks up. We show that context is king: the structure a model actually uses is set by the in-context specification. A declarative rule fixes not only which relations the geometry encodes but its topology type: the same tokens form a cycle or a branching tree on command, built even on arbitrary, meaning-free tokens with no prior to inherit, which a relabeled stored shape cannot do. When the specification conflicts with a strong pretrained prior, the context-set geometry dominates it in capable models, read from the same activations (representational similarity 0.6--0.9 to the imposed structure versus near-zero to the prior), across the priors we test and both families we study (Gemma, Qwen). Activation patching shows the map is causally used, not a probe correlate: swapping one entity's activation for another's makes the model answer with the other entity's successor under the imposed order. A rough map forms readily, present even in small and base models; what scale gates is using it cleanly: clean dominance and the causal crossover emerge only in the larger models (up to Gemma-31B and Qwen-27B) and weaken or reverse below, so a mechanism present in a large model can be absent in a smaller one of the same family. Whether the model builds this geometry anew or reconfigures a stored one we leave open; operationally, the geometry it uses is the one the context specifies.",
         "url": "http://arxiv.org/abs/2607.24425v1"
-      },
-      {
-        "title": "Test-Time Training for Modality Order Consistency in Vision-Language Models",
-        "published_date": "2026-07-22",
-        "authors": [
-          "Aditi Gupta",
-          "Yossi Gandelsman"
-        ],
-        "summary": "We find that vision-language models are sensitive to a specific semantically irrelevant change: the order in which the image and question are presented. Across three models and three benchmarks, image first prompting consistently outperforms question-first prompting, revealing a repeatable modality order failure. We use this gap to design an order-consistent test-time training method. Our method substantially closes the modality-order gap across all evaluated settings. Surprisingly, it also yields consistent improvements in the stronger image-first branch over the baseline, hence bootstrapping both orderings toward mutual consistency. Activation patching localizes the ordering failure to a narrow mid-network region where representations diverge sharply between prompt orders. We find that the test-time training method repairs this misalignment across layers. Together, our results identify modality-order sensitivity as a circuit-level failure in VLMs and demonstrate that simple, asymmetric test-time adaptation can effectively mitigate it and even improve performance over the baseline.",
-        "url": "http://arxiv.org/abs/2607.20351v1"
       }
     ]
   }
