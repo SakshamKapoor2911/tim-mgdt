@@ -1,9 +1,23 @@
 {
   "metadata": {
-    "timestamp": "2026-07-30T10:30:01.805688"
+    "timestamp": "2026-07-31T10:44:55.574584"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "WIDE: Boosting Adaptive LLM Inference via Token-level Dynamic Width Pruning",
+        "published_date": "2026-07-30",
+        "authors": [
+          "Haozhe Hu",
+          "Hao Wu",
+          "Peiran Yin",
+          "Chao Han",
+          "Yunpu Ma",
+          "Xiaoyu Shen"
+        ],
+        "summary": "Pruning is a promising approach for improving the efficiency of LLMs. Existing static structured pruning methods are hardware-friendly and can deliver practical throughput gains, but their input-agnostic computation allocation often causes substantial accuracy degradation under aggressive sparsity. Recent dynamic sparsity methods improve quality retention by adapting computation to individual inputs, yet they remain largely limited to coarse-grained structural decisions and their practical acceleration under real-world inference scenarios remains challenging. To address these challenges, we present WIDE, the first end-to-end differentiable token-level dynamic width pruning framework designed for both prefill and decode scenarios. WIDE enables fine-grained computation allocation by allowing each token to dynamically select attention-head groups and FFN-channel groups, extending dynamic pruning beyond layer-level decisions to neuron-block-level granularity. Through a two-stage training pipeline, WIDE learns effective token-wise sparse execution patterns and achieves substantially better quality retention than existing approaches. To make such fine-grained dynamic pruning practical, we further propose a pruning--kernel co-design framework that decomposes dynamic sparsity acceleration into mask reordering, hardware-agnostic block-level skipping, and hardware-dependent intra-block skipping, enabling efficient execution across different granularities. At 50% sparsity, WIDE provides 55.1% performance boost when compared to the state-of-the-art dynamic depth pruning under calibration-only settings. Under prefill and decoding inference workloads, WIDE achieves close-to-theoretical kernel-level speedups of up to 1.98x for prefill and 4.95x for decoding, as well as 1.68x and 1.55x end-to-end acceleration. Our code is available at https://github.com/EIT-NLP/LLM-Pruning/tree/main/WIDE.",
+        "url": "http://arxiv.org/abs/2607.28418v1"
+      },
       {
         "title": "CoCurve: Cross-Module Co-Pruning Curvature for Training-Free Structured LLM Pruning",
         "published_date": "2026-07-20",
@@ -27,17 +41,6 @@
         ],
         "summary": "One-shot pruning methods like Wanda and SparseGPT apply the same sparsity ratio to every layer of a transformer, ignoring known variation in layer importance. We propose PALS (Percentile-Aware Layerwise Sparsity), which adjusts per-layer sparsity based on the 99th percentile of activation magnitudes, bounded to $\\pm 5\\%$ around the target ratio. On LLaMA-2-7B at 50\\% sparsity, PALS achieves 10.96 WikiText-2 perplexity versus 12.92 for uniform Wanda (mean over 9 runs, $p < 0.001$). The benefit is architecture-dependent: LLaMA-3-8B shows marginal gains and Mistral-7B shows none. We also find that gradient-based allocation -- the seemingly more principled approach -- produces results worse than random, suggesting that gradient magnitude does not predict the impact of discrete weight removal. PALS adds negligible cost to the pruning pipeline and requires no fine-tuning.",
         "url": "http://arxiv.org/abs/2607.07557v1"
-      },
-      {
-        "title": "Beyond Single-Dimensional Compression: The Compound Sparsity Frontier of Large Language Models",
-        "published_date": "2026-06-29",
-        "authors": [
-          "Chao Han",
-          "Haozhe Hu",
-          "Xiaoyu Shen"
-        ],
-        "summary": "Large language models (LLMs) are often compressed through static parameter pruning or dynamic token-level computation, yet aggressive sparsification can trigger rapid performance degradation beyond an essential sparsity boundary. This work asks \\emph{whether combining these two mechanisms can delay such degradation by distributing the compression burden}. We study a minimalist compound sparsity framework that first applies low-rank approximation and channel pruning to obtain a statically compressed backbone, and then introduces lightweight routers for per-token dynamic layer skipping. This design enables independent control of parameter sparsity and token-level computation sparsity. Experiments across language understanding and modeling benchmarks show that compound sparsity consistently outperforms single-mechanism compression under the same total sparsity, delaying the decay point on understanding tasks and preserving stronger modeling performance. Further analysis reveals cross-dimensional interference between parameter pruning and token skipping, and shows that near-balanced allocation is most effective under a fixed sparsity budget. These results demonstrate that compound compression provides a practical way to improve LLM compression, while revealing a broader cross-dimensional sparsity boundary that ultimately limits further compression. Code will be available at https://github.com/EIT-NLP/LLM-Pruning.",
-        "url": "http://arxiv.org/abs/2607.18280v1"
       }
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
