@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-03T11:32:17.602670"
+    "timestamp": "2026-08-04T10:44:46.800959"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -121,38 +121,42 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
-        "title": "Evidence-Type Competition: When Can Interventional Data Teach Language Models Causal Direction?",
-        "published_date": "2026-07-31",
+        "title": "Cultural Awareness is Represented but Not Decoded: Tracing Mythological Knowledge across 18 Open-Source LLMs",
+        "published_date": "2026-08-03",
         "authors": [
-          "Xining Xun"
+          "Iaroslav Chelombitko",
+          "Ekaterina Chelombitko",
+          "Mika H\u00e4m\u00e4l\u00e4inen"
         ],
-        "summary": "Interventional data is widely regarded as the gold standard for teaching models causal reasoning. We test this assumption in a fully controlled synthetic environment pitting observational correlation against causal effect, and find it fails instructively. In Simpson's-paradox worlds, where the two have systematically opposite signs, increasing the fraction of interventional samples in pretraining does not improve causal direction: the magnitude of the model's do()-response grows monotonically, yet its sign is copied from the observational context. What governs whether interventional evidence is used is not the training mixture but the evidence type present in the context at inference time. Under an identical training recipe, a purely observational context induces systematic sign reversal in 29/50 worlds, a mixed context in 19/50, while aligned interventional probes alone yield 41/50 correct. Erasing observational evidence from the context immediately releases the suppressed causal interpolation ability (ratio_true = +0.56); a four-state content manipulation shows the switch is content-mediated and graded. The suppression is stable across training seeds (11/11 strong reversals persist on a matched-protocol second seed) and robust as a rate at 0.93B parameters (31.8% vs. 6% reversals in the matched probe-only arm), even as absolute gains shrink four-fold. An external audit on CLadder exposes a learned positive-effect prior with a two-layer structure: sign-randomized retraining removes it in-distribution but not out-of-distribution. We summarize: the capability lives in the weights; the switch lives in the context, and activation patching localizes the switch to the middle layers' observational rows. We further quantify the sampling noise floor of probe-based causal evaluation and an evidence-averaging protocol that cuts sign errors from 26% to 9%.",
-        "url": "http://arxiv.org/abs/2607.29484v1"
+        "summary": "Open-source LLMs reliably name Zeus, Jupiter, and Thor, but recover their counterparts in less-represented traditions like Finnish, Slavic, Egyptian, or Chinese mythology far less consistently. We ask where inside the model this cultural default is produced. On a parallel cross-cultural substrate of Thompson-motif entities, we instrument 18 open-source LLMs from 8 architecture families with linear probing, logit lens, activation patching, and output extraction. The residual stream cleanly distinguishes cultures, well above a name-string baseline, yet the decoder collapses culturally-specific tokens onto dominant-tradition ones. The failure is at readout, not at representation. Asking the same question in the target culture's native language versus English produces failures that cluster within language but decouple across language: the decoder is gated on prompt language. We release a per-entity (probe, output) decomposition framework, a citation-anchored cross-cultural ground truth, a within- versus cross-mode correlation test for language-conditioned readout, and per-entity predictions for all 18 models.",
+        "url": "http://arxiv.org/abs/2608.02486v1"
       },
       {
-        "title": "Seeing or Knowing? Visual Context Sensitivity in Multimodal Large Language Models",
-        "published_date": "2026-07-28",
+        "title": "Divergent large language model predictions from convergent representations in ambiguous word pairs",
+        "published_date": "2026-08-03",
         "authors": [
-          "Jiaang Li",
-          "Chengzu Li",
-          "Zhaochong An",
-          "Yifei Yuan",
-          "Xi Liu",
-          "Serge Belongie",
-          "V\u00e9steinn Sn\u00e6bjarnarson"
+          "K. Jack Scott",
+          "Narun Pat",
+          "Veronica Liesaputra"
         ],
-        "summary": "Multimodal Large Language Models (MLLMs) achieve strong performance by integrating visual inputs with the rich priors of pretrained language models. However, they often fail on vision-centric tasks, especially when visual evidence conflicts with pretrained knowledge. We explore these failures separately using two diagnostic paradigms: (1) probing whether visual information is available, via image reconstruction, and (2) measuring multimodal context sensitivity, the extent to which the model follows visual context versus the language prior. To support the second, we introduce the WhatIfVis, a benchmark spanning five coarse-grained dimensions (spatial-temporal, color, count, size, and weight) whose questions admit answers from either the image or the prior. Our analysis yields three findings: (i) Coarse-grained visual evidence is preserved, as these attributes can be reconstructed from the final-layer image tokens of frozen MLLMs. Failures on questions about these attributes therefore point to post-perceptual utilization, rather than to degraded visual encoding during perception. (ii) Even when explicitly instructed to use or ignore visual evidence, vanilla models (without supervised fine-tuning on the WhatIfVis) show unstable visual context sensitivity. Supervised fine-tuning (SFT) improves this controllability and generalizes across domains, and activation patching further localizes the vision-versus-prior trade-off at architecture-specific depths across all six models. (iii) The vision-versus-prior trade-off is controllable along a learned vector. Applying this steering vector, even without any intent instruction, improves controllability over the vanilla model. Together, these results relocate the bottleneck, indicating that for the coarse attributes we study, MLLMs encode the visual evidence but cannot reliably control their reliance on it.",
-        "url": "http://arxiv.org/abs/2607.26326v1"
+        "summary": "In this work we investigate how decoder-only transformers resolve lexical ambiguity through layer-by-layer analysis of three models spanning three parameter sizes (GPT-2-Small-117M, Llama-3.2-3B, Qwen2.5-32B). For both homonyms and polysemes, we find that representations become maximally distinct in middle layers, then partially reconverge in late layers, while the KL divergence between their next-token predictions reaches its maximum in the final layers. The activation patching experiment provides causal evidence that late-layer representational differences directly determine outputs despite apparent increased similarity in embedding space. Our single-layer ablation experiment indicates that models achieve equivalent disambiguation despite qualitatively different layer-wise vulnerabilities. These findings offer a mechanism for recent observations where models' internal embedding similarities show low correlation with their behavioural outputs despite strong performance. The semantic distinctions therefore remain present but become increasingly invisible to similarity measures over the embeddings, with implications for embedding-based methods such as semantic search, retrieval, and clustering that rely on late-layer cosine similarity.",
+        "url": "http://arxiv.org/abs/2608.01816v1"
       },
       {
-        "title": "Grounding latent algorithm routing in transformer reasoning",
-        "published_date": "2026-07-27",
+        "title": "Toward Fine-Grained Forgetting:Attribute Unlearning for Multimodal Large Language Models",
+        "published_date": "2026-08-02",
         "authors": [
-          "Xiangbo Zhang",
-          "Xiaoxu Ma"
+          "Junkai Lin",
+          "Junkai Chen",
+          "Siqi Hou",
+          "Yuhao He",
+          "Ruiqi Liu",
+          "Chenhan Jin",
+          "Shengze Xu",
+          "Tieyong Zeng"
         ],
-        "summary": "A central question in the in-context learning literature is whether transformers can organize episode-level adaptation around different inductive-bias families. We study this question in a controlled setting through latent algorithm routing: route-like behavior in which the solver-family preference changes with the latent data-generating regime while prompt form is held fixed, remains stable under nuisance perturbations, and is selectively influenced by targeted activation interventions without large losses in answer quality. We introduce ROUTEBENCH, a diagnostic benchmark whose regimes differentially favor global shrinkage, sparsity, robustness, and locality, operationalized by ridge-like, lasso-like, Huber-like, and kNN-like family representatives. Across dense decoder-only transformers trained from scratch at 44M-612M parameters, a 306M model closes 80.9 percent of the oracle-routing gap and achieves route F1 of 84.1. The effect remains substantial under natural-language renderings, shuffled supports, lexical paraphrases, and a unified four-way routing setting. Stronger adaptive alternatives, including an input-conditioned soft mixture and an unsupervised Gumbel router, narrow the gap but remain below the 306M and 612M models on route F1 and OOD performance. Probe controls and matched activation-patching controls further show that route-relevant internal directions are decodable and functionally involved in solver-family-consistent output behavior. These results provide controlled evidence that dense transformers trained on ROUTEBENCH can develop route-like internal variables, but they do not establish universal routing in pretrained language models or unrestricted natural-language reasoning.",
-        "url": "http://arxiv.org/abs/2607.24471v1"
+        "summary": "Multimodal large language models (MLLMs) exhibit strong vision--language capabilities but may also memorize and disclose sensitive information. Machine unlearning seeks to remove designated knowledge without retraining from scratch while preserving general utility. Existing privacy-oriented benchmarks primarily adopt profile-level deletion, whereas practical requests are often finer grained: a model should forget a specified attribute while retaining non-sensitive information about the same identity. We therefore introduce attribute-level MLLM unlearning as a finer-grained task and construct a benchmark spanning long-text, numeric, and short-text targets, multiple forget ratios, and diverse question types. Our evaluation reveals that target and retained attributes share identity-specific and visual evidence, making selective forgetting susceptible to residual leakage or collateral degradation; accordingly, existing methods exhibit unstable forgetting--retention trade-offs in this setting. To address this challenge, we propose Causal Localization and Retain-Aware Projection (CLRP), a lightweight training-free framework. CLRP uses activation patching to identify the layer that causally mediates target-attribute disclosure, then applies a retain-aware projection that removes the target-attribute subspace while preserving same-identity evidence. Experiments across multiple widely used MLLMs with distinct architectures and parameter scales demonstrate the effectiveness of CLRP.",
+        "url": "http://arxiv.org/abs/2608.01008v1"
       }
     ]
   }
