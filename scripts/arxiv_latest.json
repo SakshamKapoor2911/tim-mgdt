@@ -1,9 +1,18 @@
 {
   "metadata": {
-    "timestamp": "2026-08-04T10:44:46.800959"
+    "timestamp": "2026-08-05T10:41:58.986889"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "When Compression Scores Cannot Decide: Information Boundaries for Group-Robust LLM Pruning",
+        "published_date": "2026-08-03",
+        "authors": [
+          "Andrew Zhang"
+        ],
+        "summary": "A reproducible compression statistic can still select the wrong candidate. A dense pruning score with 0.906 split-half reliability predicted a 16.1% gain. Its selected endpoint was 6.0% and 7.7% worse than two controls. We model the gap through information interfaces that delimit which distinctions each statistic supports. For equal-weight groups, a conic law gives the exact pooling price for positive linear fixed-candidate damage, including diagonal and full PSD second moments. Three two-world constructions and an exact observation-fiber radius characterize what pooled moments, group-local moments, and reference-path curvature leave unresolved. A group-resolved diagonal recovers broad damage order (Spearman 0.9239) while fine order remains weak. Relative to balanced uniform allocation, a coarse depth allocation cuts worst-group perplexity inflation by 12.6--20.9% across three dense LLMs. Model-specific complete-mask endpoint selection improves over those references by 2.7--8.0%. In OLMoE, router traces predict singleton direction (114/192 versus 81/192 under the strongest relabeling). Finite-menu decisions on one layer yield held-out worst-group KL reductions of 13.7% and 7.2%. Local measurements construct candidates. Selection is licensed by complete candidate endpoints or a validated uniform guarantee, with uncertainty calibrated to every comparison.",
+        "url": "http://arxiv.org/abs/2608.02940v1"
+      },
       {
         "title": "WIDE: Boosting Adaptive LLM Inference via Token-level Dynamic Width Pruning",
         "published_date": "2026-07-30",
@@ -31,19 +40,20 @@
         ],
         "summary": "Structured pruning compresses large language models (LLMs) by removing whole computational units, such as attention heads and feed-forward (FFN) channel groups. Most training-free methods, however, rank these units independently, implicitly treating the loss from pruning a set as the sum of its individual losses. This view fails for Transformers, whose sublayers are coupled through a shared residual stream. Two individually weak units can thus be jointly indispensable, yet independent scoring is blind to such dependence and removes them together. We introduce CoCurve (Cross-Module Co-Pruning Curvature), a calibration-only, fine-tuning-free method that prunes attention and FFN units jointly. A second-order Taylor expansion of the token-level KL between the frozen model and its masked copy yields a single Fisher matrix whose diagonal is classical node saliency and whose off-diagonal entries are co-pruning curvature edges: the extra damage of removing two units together. Under a single-ablation additivity approximation this matrix reduces to a Gram product of single-unit ablation features, so the full M x M interaction is recovered from M forward passes, with no pairwise sweeps or gradients. Pruning then reduces to one budgeted quadratic program, solved in a single shot under a shared attention--FFN budget, with no labels, fine-tuning, or recovery.",
         "url": "http://arxiv.org/abs/2607.17568v1"
-      },
-      {
-        "title": "PALS: Percentile-Aware Layerwise Sparsity for LLM Pruning",
-        "published_date": "2026-07-08",
-        "authors": [
-          "Yazdan Jamshidi",
-          "Alexey Shvets"
-        ],
-        "summary": "One-shot pruning methods like Wanda and SparseGPT apply the same sparsity ratio to every layer of a transformer, ignoring known variation in layer importance. We propose PALS (Percentile-Aware Layerwise Sparsity), which adjusts per-layer sparsity based on the 99th percentile of activation magnitudes, bounded to $\\pm 5\\%$ around the target ratio. On LLaMA-2-7B at 50\\% sparsity, PALS achieves 10.96 WikiText-2 perplexity versus 12.92 for uniform Wanda (mean over 9 runs, $p < 0.001$). The benefit is architecture-dependent: LLaMA-3-8B shows marginal gains and Mistral-7B shows none. We also find that gradient-based allocation -- the seemingly more principled approach -- produces results worse than random, suggesting that gradient magnitude does not predict the impact of discrete weight removal. PALS adds negligible cost to the pruning pipeline and requires no fine-tuning.",
-        "url": "http://arxiv.org/abs/2607.07557v1"
       }
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
+      {
+        "title": "LLMs Can Annotate Attribution Graphs",
+        "published_date": "2026-07-28",
+        "authors": [
+          "Ameen Patel",
+          "Max Zhang",
+          "Nathan Hu"
+        ],
+        "summary": "Circuit tracing is an exciting technique for revealing the internal computation of language models, but it requires a time-intensive manual step of grouping individual features or MLP neurons into supernodes. We present a simple pipeline for automating this step: directly presenting feature descriptions to a language model that groups them into supernodes. Using automated interpretability metrics, we confirm that supernodes generated by our pipeline are as interpretable as those generated by human annotators. On a two-hop Capitals task, our pipeline recovers a supernode corresponding to the intermediate hop in 97 of 100 prompts. Finally, we present a simple proof of concept using our pipeline for open-ended exploration, where we automatically annotate 1000 attribution graphs from Wikipedia prompt completions and then use an LLM judge to flag interesting graphs worth human review. We hope this work demonstrates that even simple automation can produce meaningful attribution graph annotations, motivating further work on automated circuit tracing.",
+        "url": "http://arxiv.org/abs/2608.02632v1"
+      },
       {
         "title": "Do LLMs Know Their Vulnerable Scenarios?",
         "published_date": "2026-07-26",
@@ -70,17 +80,6 @@
         ],
         "summary": "Distinguishing animate from inanimate concepts in written language requires more than shallow text processing, as it involves recognizing complex selectional constraints and contextual cues, such as verb-argument interactions. Yet, current large language models (LLMs) appear to be capable of doing it. We investigate whether this animacy-sensitive behavior of LLMs can be traced to a localized set of causally relevant components and connections. To do so, we construct a controlled dataset of minimal pairs and perform circuit discovery on four open-weight models. Through in-depth experiments and ablations, we show that a causal mechanism responsible for handling animacy in these models does exist, thus discovering an animacy circuit. At the same time, this circuit appears to be less localized compared to other known ones and generalizes only partially across models and animacy tasks, confirming the distributed, context-dependent, and somewhat graded nature of the animacy concept.",
         "url": "http://arxiv.org/abs/2607.20995v1"
-      },
-      {
-        "title": "Are Arithmetic Heuristic Neurons Form-Invariant? A Mechanistic Analysis of Symbols, Text, and Code in LLMs",
-        "published_date": "2026-07-18",
-        "authors": [
-          "Sharath Naganna",
-          "Tanvir Ahmed Sijan",
-          "Uddipta Kalita"
-        ],
-        "summary": "Large language models often succeed on one formulation of a problem while failing on an equivalent formulation. Whether these failures arise from distinct internal circuits or different activation states of a shared circuit remains unknown. Recent mechanistic interpretability studies suggest that arithmetic in LLMs emerges from a \"bag of heuristics,\" encoded by a sparse set of MLP neurons that represent distinct arithmetic strategies. We investigate whether arithmetic heuristic neurons are form-invariant across symbolic arithmetic, natural language word problems, and Python code in three Llama-3 models. In each format, we identify arithmetic heuristic neurons using a two-stage pipeline combining attribution patching and activation patching. A compact set of neurons is shared across all three formats, and targeted interventions show this shared circuit is both necessary and sufficient for late-layer arithmetic computation. Transferring the shared neurons' activations from a successful execution in one format to a failed execution in another recovers most incorrect predictions, exceeding 97% for addition and subtraction, indicating that cross-format failures arise from activation states rather than distinct circuits. Moreover, shared neurons consistently belong to the same heuristic families across formats, demonstrating that arithmetic computation in LLMs is largely form-invariant at the neuron level.",
-        "url": "http://arxiv.org/abs/2607.16693v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -121,6 +120,24 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Cross-Layer Interaction under Weight-Space Ablation: A Closed-Form Attention Jacobian Bound and a Test on a Real Pretrained Model",
+        "published_date": "2026-08-04",
+        "authors": [
+          "Abdallah Khemais"
+        ],
+        "summary": "A companion paper studies when activation patching and weight-space ablation agree, inside an idealized model where a conditional computation is carried additively through a residual stream. For the one composition in that model where two carriers are architecturally dependent, an attention head and its own layer's normalization-MLP composition, it derives an exact first-order interaction formula, zero when only the MLP is ablated and second-order bounded when the head is also ablated. That result is confined to a single residual block and checked only on small transformers on a synthetic task.   This paper extends the result past both limits. First, the interaction from ablating carriers spanning several layers decomposes exactly into same-block terms, one per touched layer, plus a cross-layer remainder on which the decomposition makes no claim of smallness. Second, we isolate that remainder exactly, for two layers, as a double integral of a mixed second derivative, and name the missing ingredient needed to bound it: a Jacobian bound for the attention sub-block. We derive this bound in closed form and verify it, without a single violation, against Qwen2.5-1.5B-Instruct's real weights, though we do not yet chain it across layers. We also give, in closed form, the curvature constant the companion paper's bound leaves unexhibited.   Third, on that same model, we search for and find an emergent circuit for indirect object identification, never designed into it, using the original activation-patching method for this task, and test collapse, dissociation, and interaction on it. The result is mixed: a shared carrier emerges across all five tested instances, collapse and dissociation hold on most but not all, and a nonzero interaction is measurable on three of five, at layer pairs outside the same-block case the companion theorem covers.",
+        "url": "http://arxiv.org/abs/2608.03629v1"
+      },
+      {
+        "title": "A Theory of Conditional Collapse under Low-Rank Weight-Space Ablations: I. The Single-Block Theory and Synthetic Validation",
+        "published_date": "2026-08-04",
+        "authors": [
+          "Abdallah Khemais"
+        ],
+        "summary": "Activation patching and weight-space ablation both claim a component is causally responsible for a behavior, yet they act on different objects: one forward pass versus the parameters behind every forward pass. We ask when they agree.   We study an idealized model where a conditional computation is carried additively through a residual stream, $F(x)=F_0(x)+\\sum_i\u03b1_i(x)v_i$, read out by a linear functional, and prove three exact results. First, deleting a subset of carriers collapses a matched input pair onto the same unconditional output \\emph{if and only if} the removal is symmetric on the pair and leaves no outside contrast; the error is deterministic, and we give its exact form even when the two conditions hold only approximately. Second, patching a carrier moves the readout by its donor-receiver \\emph{contrast}, while ablating it moves the readout by its \\emph{absolute level}; neither bounds the other, and we construct pairs where every single-carrier patch flips the decision while no single-carrier ablation does. Third, for an attention head composed with its own layer's normalization and MLP, we derive an exact first-order interaction formula with a provably second-order remainder, vanishing identically when only the MLP is ablated but not, in general, when a head is.   Small transformers trained on a synthetic conditional task illustrate all three predictions: across thirty-nine ablation configurations the measured interaction is strongly rank-correlated with the idealized model's predictive accuracy (Spearman $-0.83$), and a second task and architecture reproduces the same pattern, including a further polarity reversal.   The single-block interaction result extends past one residual block, and the synthetic validation is tested against a real pretrained model, in a companion paper that takes this theory further along both axes.",
+        "url": "http://arxiv.org/abs/2608.03620v1"
+      },
+      {
         "title": "Cultural Awareness is Represented but Not Decoded: Tracing Mythological Knowledge across 18 Open-Source LLMs",
         "published_date": "2026-08-03",
         "authors": [
@@ -130,33 +147,6 @@
         ],
         "summary": "Open-source LLMs reliably name Zeus, Jupiter, and Thor, but recover their counterparts in less-represented traditions like Finnish, Slavic, Egyptian, or Chinese mythology far less consistently. We ask where inside the model this cultural default is produced. On a parallel cross-cultural substrate of Thompson-motif entities, we instrument 18 open-source LLMs from 8 architecture families with linear probing, logit lens, activation patching, and output extraction. The residual stream cleanly distinguishes cultures, well above a name-string baseline, yet the decoder collapses culturally-specific tokens onto dominant-tradition ones. The failure is at readout, not at representation. Asking the same question in the target culture's native language versus English produces failures that cluster within language but decouple across language: the decoder is gated on prompt language. We release a per-entity (probe, output) decomposition framework, a citation-anchored cross-cultural ground truth, a within- versus cross-mode correlation test for language-conditioned readout, and per-entity predictions for all 18 models.",
         "url": "http://arxiv.org/abs/2608.02486v1"
-      },
-      {
-        "title": "Divergent large language model predictions from convergent representations in ambiguous word pairs",
-        "published_date": "2026-08-03",
-        "authors": [
-          "K. Jack Scott",
-          "Narun Pat",
-          "Veronica Liesaputra"
-        ],
-        "summary": "In this work we investigate how decoder-only transformers resolve lexical ambiguity through layer-by-layer analysis of three models spanning three parameter sizes (GPT-2-Small-117M, Llama-3.2-3B, Qwen2.5-32B). For both homonyms and polysemes, we find that representations become maximally distinct in middle layers, then partially reconverge in late layers, while the KL divergence between their next-token predictions reaches its maximum in the final layers. The activation patching experiment provides causal evidence that late-layer representational differences directly determine outputs despite apparent increased similarity in embedding space. Our single-layer ablation experiment indicates that models achieve equivalent disambiguation despite qualitatively different layer-wise vulnerabilities. These findings offer a mechanism for recent observations where models' internal embedding similarities show low correlation with their behavioural outputs despite strong performance. The semantic distinctions therefore remain present but become increasingly invisible to similarity measures over the embeddings, with implications for embedding-based methods such as semantic search, retrieval, and clustering that rely on late-layer cosine similarity.",
-        "url": "http://arxiv.org/abs/2608.01816v1"
-      },
-      {
-        "title": "Toward Fine-Grained Forgetting:Attribute Unlearning for Multimodal Large Language Models",
-        "published_date": "2026-08-02",
-        "authors": [
-          "Junkai Lin",
-          "Junkai Chen",
-          "Siqi Hou",
-          "Yuhao He",
-          "Ruiqi Liu",
-          "Chenhan Jin",
-          "Shengze Xu",
-          "Tieyong Zeng"
-        ],
-        "summary": "Multimodal large language models (MLLMs) exhibit strong vision--language capabilities but may also memorize and disclose sensitive information. Machine unlearning seeks to remove designated knowledge without retraining from scratch while preserving general utility. Existing privacy-oriented benchmarks primarily adopt profile-level deletion, whereas practical requests are often finer grained: a model should forget a specified attribute while retaining non-sensitive information about the same identity. We therefore introduce attribute-level MLLM unlearning as a finer-grained task and construct a benchmark spanning long-text, numeric, and short-text targets, multiple forget ratios, and diverse question types. Our evaluation reveals that target and retained attributes share identity-specific and visual evidence, making selective forgetting susceptible to residual leakage or collateral degradation; accordingly, existing methods exhibit unstable forgetting--retention trade-offs in this setting. To address this challenge, we propose Causal Localization and Retain-Aware Projection (CLRP), a lightweight training-free framework. CLRP uses activation patching to identify the layer that causally mediates target-attribute disclosure, then applies a retain-aware projection that removes the target-attribute subspace while preserving same-identity evidence. Experiments across multiple widely used MLLMs with distinct architectures and parameter scales demonstrate the effectiveness of CLRP.",
-        "url": "http://arxiv.org/abs/2608.01008v1"
       }
     ]
   }
