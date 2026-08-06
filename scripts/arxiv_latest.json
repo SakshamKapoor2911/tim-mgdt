@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-05T10:41:58.986889"
+    "timestamp": "2026-08-06T10:44:34.916811"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -84,6 +84,19 @@
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
       {
+        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
+        "published_date": "2026-08-05",
+        "authors": [
+          "Sajib Hossain",
+          "Md Kamrus Samad",
+          "Anan Ghosh",
+          "Labib Imam Chowdhury",
+          "Nabeel Mohammed"
+        ],
+        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
+        "url": "http://arxiv.org/abs/2608.05104v1"
+      },
+      {
         "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
         "published_date": "2025-07-23",
         "authors": [
@@ -104,21 +117,19 @@
         ],
         "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
         "url": "http://arxiv.org/abs/2402.02801v2"
-      },
-      {
-        "title": "The Emergence of Essential Sparsity in Large Pre-trained Models: The Weights that Matter",
-        "published_date": "2023-06-06",
-        "authors": [
-          "Ajay Jaiswal",
-          "Shiwei Liu",
-          "Tianlong Chen",
-          "Zhangyang Wang"
-        ],
-        "summary": "Large pre-trained transformers are show-stealer in modern-day deep learning, and it becomes crucial to comprehend the parsimonious patterns that exist within them as they grow in scale. With exploding parameter counts, Lottery Ticket Hypothesis (LTH) and its variants, have lost their pragmatism in sparsifying them due to high computation and memory bottleneck of repetitive train-prune-retrain routine of iterative magnitude pruning (IMP) which worsens with increasing model size. This paper comprehensively studies induced sparse patterns across multiple large pre-trained vision and language transformers. We propose the existence of -- essential sparsity defined with a sharp dropping point beyond which the performance declines much faster w.r.t the rise of sparsity level, when we directly remove weights with the smallest magnitudes in one-shot without re-training. We also find essential sparsity to hold valid for N:M sparsity patterns as well as on modern-scale large language models (Vicuna-7B). We also present an intriguing emerging phenomenon of abrupt sparsification during the pre-training of BERT, i.e., BERT suddenly becomes heavily sparse in pre-training after certain iterations. Moreover, our observations also indicate a counter-intuitive finding that BERT trained with a larger amount of pre-training data tends to have a better ability to condense knowledge in comparatively relatively fewer parameters. Lastly, we investigate the effect of the pre-training loss on essential sparsity and discover that self-supervised learning (SSL) objectives trigger stronger emergent sparsification properties than supervised learning (SL). Our codes are available at \\url{https://github.com/VITA-Group/essential_sparsity}.",
-        "url": "http://arxiv.org/abs/2306.03805v2"
       }
     ],
     "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "Test, then Route: How Language Models Execute In-Context Conditional Rules Across Models and Languages",
+        "published_date": "2026-08-04",
+        "authors": [
+          "Luxshan Thavarasa",
+          "Sivasuthan Sukumar"
+        ],
+        "summary": "When a language model follows an in-context conditional rule such as \"if P(x) then A else B,\" does it assemble a runtime circuit with one module that tests the predicate and another that routes the answer? We probe this with activation patching under a four-donor design whose two swapped-rule donors make the condition and the answer word disagree, so each layer reveals which of the two it carries. Across three open models from two families and six languages sharing one fixed item bank, a mid-stack residual band carries the predicate's truth value: patching it reroutes the answer with predicate-outcome flip near 1.0 and mapping flip near 0.0, meeting a strict pre-specified isolation criterion in 17 of 18 cells, and the same localization holds across five predicate families. The router shows the opposite profile. A learned subspace flips A and B near-perfectly within the trained pair yet transfers to a new pair at approximately 0 in every model, while in Gemma-3-4B (the only model probed cross-lingually) it transfers at approximately 0.98 to the same pair in other languages. Under every probe we ran, the router direction is token-bound and non-transferable (largely answer-readout in Gemma, pair-specific in Qwen) rather than an abstract routing module. Test is modular; under these probes, route is not.",
+        "url": "http://arxiv.org/abs/2608.04183v1"
+      },
       {
         "title": "Cross-Layer Interaction under Weight-Space Ablation: A Closed-Form Attention Jacobian Bound and a Test on a Real Pretrained Model",
         "published_date": "2026-08-04",
@@ -136,17 +147,6 @@
         ],
         "summary": "Activation patching and weight-space ablation both claim a component is causally responsible for a behavior, yet they act on different objects: one forward pass versus the parameters behind every forward pass. We ask when they agree.   We study an idealized model where a conditional computation is carried additively through a residual stream, $F(x)=F_0(x)+\\sum_i\u03b1_i(x)v_i$, read out by a linear functional, and prove three exact results. First, deleting a subset of carriers collapses a matched input pair onto the same unconditional output \\emph{if and only if} the removal is symmetric on the pair and leaves no outside contrast; the error is deterministic, and we give its exact form even when the two conditions hold only approximately. Second, patching a carrier moves the readout by its donor-receiver \\emph{contrast}, while ablating it moves the readout by its \\emph{absolute level}; neither bounds the other, and we construct pairs where every single-carrier patch flips the decision while no single-carrier ablation does. Third, for an attention head composed with its own layer's normalization and MLP, we derive an exact first-order interaction formula with a provably second-order remainder, vanishing identically when only the MLP is ablated but not, in general, when a head is.   Small transformers trained on a synthetic conditional task illustrate all three predictions: across thirty-nine ablation configurations the measured interaction is strongly rank-correlated with the idealized model's predictive accuracy (Spearman $-0.83$), and a second task and architecture reproduces the same pattern, including a further polarity reversal.   The single-block interaction result extends past one residual block, and the synthetic validation is tested against a real pretrained model, in a companion paper that takes this theory further along both axes.",
         "url": "http://arxiv.org/abs/2608.03620v1"
-      },
-      {
-        "title": "Cultural Awareness is Represented but Not Decoded: Tracing Mythological Knowledge across 18 Open-Source LLMs",
-        "published_date": "2026-08-03",
-        "authors": [
-          "Iaroslav Chelombitko",
-          "Ekaterina Chelombitko",
-          "Mika H\u00e4m\u00e4l\u00e4inen"
-        ],
-        "summary": "Open-source LLMs reliably name Zeus, Jupiter, and Thor, but recover their counterparts in less-represented traditions like Finnish, Slavic, Egyptian, or Chinese mythology far less consistently. We ask where inside the model this cultural default is produced. On a parallel cross-cultural substrate of Thompson-motif entities, we instrument 18 open-source LLMs from 8 architecture families with linear probing, logit lens, activation patching, and output extraction. The residual stream cleanly distinguishes cultures, well above a name-string baseline, yet the decoder collapses culturally-specific tokens onto dominant-tradition ones. The failure is at readout, not at representation. Asking the same question in the target culture's native language versus English produces failures that cluster within language but decouple across language: the decoder is gated on prompt language. We release a per-entity (probe, output) decomposition framework, a citation-anchored cross-cultural ground truth, a within- versus cross-mode correlation test for language-conditioned readout, and per-entity predictions for all 18 models.",
-        "url": "http://arxiv.org/abs/2608.02486v1"
       }
     ]
   }
