@@ -1,0 +1,26 @@
+{
+  "experiment": "1A_procrustes_realignment",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "intact_hidden_shape": [
+    25600,
+    4096
+  ],
+  "pruned_hidden_shape": [
+    25600,
+    4096
+  ],
+  "R_star_shape": [
+    4096,
+    4096
+  ],
+  "acc_procrustes_intervened": 3.0,
+  "acc_pruned_baseline": 1.0,
+  "num_eval_samples": 100,
+  "num_calibration_prompts": 50
+}

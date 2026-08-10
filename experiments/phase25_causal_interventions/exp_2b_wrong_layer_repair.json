@@ -1,0 +1,22 @@
+{
+  "experiment": "2B_wrong_layer_repair",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "correct_layer": 11,
+  "wrong_layers_tested": [
+    0,
+    5,
+    25
+  ],
+  "results": {
+    "0": 0.0,
+    "5": 3.0,
+    "25": 3.0,
+    "correct_layer_11": 3.0
+  }
+}

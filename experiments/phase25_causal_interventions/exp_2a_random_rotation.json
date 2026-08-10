@@ -1,0 +1,16 @@
+{
+  "experiment": "2A_random_rotation_placebo",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "rotation_layer": 11,
+  "results_per_seed": {
+    "0": 0.0,
+    "1": 0.0,
+    "2": 0.0
+  }
+}
