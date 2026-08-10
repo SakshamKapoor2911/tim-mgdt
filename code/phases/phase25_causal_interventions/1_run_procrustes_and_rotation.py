@@ -57,6 +57,7 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
     model.eval()
     correct = 0
     total = min(num_samples, len(dataset))
+    per_prompt_results = []
 
     for i in tqdm(range(total), desc="GSM8K", leave=False):
         item = dataset[i]
@@ -80,11 +81,31 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
         )
         pred_ans = extract_strict_answer(gen_text)
 
-        if pred_ans.strip() == gold_ans.strip() and gold_ans.strip() != "":
-            correct += 1
+        is_correct = int(pred_ans.strip() == gold_ans.strip() and gold_ans.strip() != "")
+        correct += is_correct
+        per_prompt_results.append(is_correct)
 
     accuracy = (correct / total) * 100.0
-    return accuracy
+    return accuracy, per_prompt_results
+
+
+def compute_mcnemar(vec_a, vec_b):
+    if not vec_a or not vec_b or len(vec_a) != len(vec_b):
+        return {"p_value": None, "b": 0, "c": 0}
+    from scipy.stats import mcnemar
+    b = sum(1 for x, y in zip(vec_a, vec_b) if x == 1 and y == 0)
+    c = sum(1 for x, y in zip(vec_a, vec_b) if x == 0 and y == 1)
+    a = sum(1 for x, y in zip(vec_a, vec_b) if x == 1 and y == 1)
+    d = sum(1 for x, y in zip(vec_a, vec_b) if x == 0 and y == 0)
+    table = [[a, b], [c, d]]
+    res = mcnemar(table, exact=True)
+    return {
+        "p_value": float(res.pvalue),
+        "both_correct": a,
+        "a_only": b,
+        "b_only": c,
+        "both_incorrect": d,
+    }
 
 
 def collect_hidden_at_layer(
@@ -170,7 +191,7 @@ def run_procrustes_recovery(args):
     hook, handle = register_intervention(model, pruned_post_layer)
     hook.set_rotation(R_star)
 
-    acc_procrustes = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_procrustes, vec_procrustes = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Procrustes R* GSM8K accuracy: {acc_procrustes:.2f}%")
 
     handle.remove()
@@ -183,7 +204,7 @@ def run_procrustes_recovery(args):
         low_cpu_mem_usage=True
     )
     _drop_layers(model, drop_set)
-    acc_pruned_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_pruned_baseline, vec_pruned_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Pruned unhealed GSM8K accuracy: {acc_pruned_baseline:.2f}%")
 
     del model
@@ -198,6 +219,8 @@ def run_procrustes_recovery(args):
         "R_star_shape": list(R_star.shape),
         "acc_procrustes_intervened": acc_procrustes,
         "acc_pruned_baseline": acc_pruned_baseline,
+        "vec_procrustes_intervened": vec_procrustes,
+        "vec_pruned_baseline": vec_pruned_baseline,
         "num_eval_samples": args.num_eval_samples,
         "num_calibration_prompts": args.num_calibration,
     }
@@ -235,13 +258,13 @@ def run_sufficiency_intervention(args):
     hook, handle = register_intervention(model, rotation_layer)
 
     print("Evaluating dense intact model WITHOUT rotation baseline...")
-    dense_baseline_acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    dense_baseline_acc, vec_dense_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Dense baseline (no rotation): {dense_baseline_acc:.2f}%")
 
     print(f"Applying (R*)^T rotation at Layer {rotation_layer}...")
     hook.set_rotation(R_inv)
 
-    acc_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_rotated, vec_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Intact model with (R*)^T rotation GSM8K accuracy: {acc_rotated:.2f}%")
 
     handle.remove()
@@ -254,6 +277,8 @@ def run_sufficiency_intervention(args):
         "rotation_layer": rotation_layer,
         "dense_baseline": dense_baseline_acc,
         "acc_rotated_sufficiency": acc_rotated,
+        "vec_dense_baseline": vec_dense_baseline,
+        "vec_rotated_sufficiency": vec_rotated,
         "num_eval_samples": args.num_eval_samples,
     }
     save_json(os.path.join(args.output_dir, "exp_1b_sufficiency.json"), results)
@@ -284,6 +309,9 @@ def main():
     save_json(os.path.join(args.output_dir, "_checkpoint_1_started.json"),
               {"status": "started", "args": vars(args)})
 
+    result_1a = {}
+    result_1b = {}
+
     if args.skip_exp_1a:
         print("Skipping Exp 1A (Procrustes).")
     else:
@@ -295,6 +323,15 @@ def main():
     else:
         result_1b = run_sufficiency_intervention(args)
         overall["exp_1b"] = result_1b
+
+    if "vec_dense_baseline" in result_1b and "vec_rotated_sufficiency" in result_1b:
+        overall["mcnemar_dense_vs_rotated"] = compute_mcnemar(
+            result_1b["vec_dense_baseline"], result_1b["vec_rotated_sufficiency"]
+        )
+    if "vec_dense_baseline" in result_1b and "vec_pruned_baseline" in result_1a:
+        overall["mcnemar_dense_vs_pruned"] = compute_mcnemar(
+            result_1b["vec_dense_baseline"], result_1a["vec_pruned_baseline"]
+        )
 
     save_json(os.path.join(args.output_dir, "_checkpoint_1_complete.json"),
               {"status": "complete", "overall": overall})

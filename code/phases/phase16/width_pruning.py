@@ -192,7 +192,7 @@ def main():
         torch.cuda.manual_seed_all(args.seed)
         
     device = get_device()
-    out_dir = "experiments/phase16"
+    out_dir = args.output_dir
     os.makedirs(out_dir, exist_ok=True)
     
     print(f"Loading {args.model}...")

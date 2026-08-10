@@ -6,9 +6,9 @@
 #   1. Backup existing N=100 results to *_n100.json
 #   2. Multi-GPU FIM Pre-Pruning (CUDA_VISIBLE_DEVICES=0,1) for Ceil and Floor strategies
 #   3. Dual-GPU Split Execution:
-#      - GPU 0: Full Phase 25 (1A+1B + P4 Location Sweeps) at N=500 + McNemar Test
+#      - GPU 0: Full Phase 25 (1A+1B + P4 Location Sweeps) at N=500 + 4-way McNemar
 #      - GPU 1: lm_eval GSM8K 8-shot (N=512 limit) for Baseline, Ceil, Floor
-#   4. Post-Execution Copy & Rename to *_n500.json
+#   4. Selective Post-Execution Copy to *_n500.json
 # =====================================================================
 
 set -euo pipefail
@@ -49,10 +49,9 @@ echo ""
 # Step 1: Backup existing N=100 JSON result files
 # ---------------------------------------------------------------------------
 echo "[STEP 1] Backing up existing N=100 result JSON files..."
-for f in "$OUTPUT_DIR"/exp_*.json; do
-    if [ -f "$f" ] && [[ "$f" != *"_n100.json" ]] && [[ "$f" != *"_n500.json" ]]; then
-        base="$(basename "$f" .json)"
-        cp -v "$f" "$OUTPUT_DIR/${base}_n100.json"
+for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep; do
+    if [ -f "$OUTPUT_DIR/${f}.json" ]; then
+        cp -v "$OUTPUT_DIR/${f}.json" "$OUTPUT_DIR/${f}_n100.json"
     fi
 done
 
@@ -71,7 +70,8 @@ else
         --model "$MODEL" \
         --sparsity 0.20 \
         --strategy "ceil" \
-        --eval_samples 128 2>&1 | tee "$REPO/logs/width_pruning_ceil_$(date +%Y%m%d).log"
+        --eval_samples 128 \
+        --output_dir "$PHASE16_DIR" 2>&1 | tee "$REPO/logs/width_pruning_ceil_$(date +%Y%m%d).log"
 fi
 
 if [ -d "$PHASE16_DIR/Mistral-7B-v0.1_pruned_floor" ]; then
@@ -82,7 +82,8 @@ else
         --model "$MODEL" \
         --sparsity 0.20 \
         --strategy "floor" \
-        --eval_samples 128 2>&1 | tee "$REPO/logs/width_pruning_floor_$(date +%Y%m%d).log"
+        --eval_samples 128 \
+        --output_dir "$PHASE16_DIR" 2>&1 | tee "$REPO/logs/width_pruning_floor_$(date +%Y%m%d).log"
 fi
 
 log_gpu "after pruning"
@@ -113,8 +114,7 @@ echo "[GPU 0] Launching Phase 25 (Full 1A+1B + P4 Location Sweeps)..."
         --output_dir "$OUTPUT_DIR" \
         --num_eval_samples "$NUM_EVAL" \
         --num_seeds 3 --seed_base 0 \
-        --locations early middle late \
-        --output_suffix "_gpu0" 2>&1 | tee "$REPO/logs/p4_location_sweep_n500.log"
+        --locations early middle late 2>&1 | tee "$REPO/logs/p4_location_sweep_n500.log"
 
     touch "$OUTPUT_DIR/_checkpoint_phase25_n500_complete.json"
     echo "[GPU 0] Phase 25 N=500 complete!"
@@ -166,14 +166,13 @@ wait $PID_GPU0
 wait $PID_GPU1
 
 # ---------------------------------------------------------------------------
-# Step 4: Copy/Rename N=500 outputs to *_n500.json
+# Step 4: Selective copy of regenerated N=500 outputs to *_n500.json
 # ---------------------------------------------------------------------------
 echo ""
-echo "[STEP 4] Renaming/copying N=500 outputs to explicit *_n500.json files..."
-for f in "$OUTPUT_DIR"/exp_*.json; do
-    if [ -f "$f" ] && [[ "$f" != *"_n100.json" ]] && [[ "$f" != *"_n500.json" ]]; then
-        base="$(basename "$f" .json)"
-        cp -v "$f" "$OUTPUT_DIR/${base}_n500.json"
+echo "[STEP 4] Copying regenerated N=500 outputs to explicit *_n500.json files..."
+for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep; do
+    if [ -f "$OUTPUT_DIR/${f}.json" ]; then
+        cp -v "$OUTPUT_DIR/${f}.json" "$OUTPUT_DIR/${f}_n500.json"
     fi
 done
 
