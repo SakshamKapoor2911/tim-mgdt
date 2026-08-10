@@ -92,15 +92,19 @@ def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
 def compute_mcnemar(vec_a, vec_b):
     if not vec_a or not vec_b or len(vec_a) != len(vec_b):
         return {"p_value": None, "b": 0, "c": 0}
-    from scipy.stats import mcnemar
+    from scipy.stats import binom
     b = sum(1 for x, y in zip(vec_a, vec_b) if x == 1 and y == 0)
     c = sum(1 for x, y in zip(vec_a, vec_b) if x == 0 and y == 1)
     a = sum(1 for x, y in zip(vec_a, vec_b) if x == 1 and y == 1)
     d = sum(1 for x, y in zip(vec_a, vec_b) if x == 0 and y == 0)
-    table = [[a, b], [c, d]]
-    res = mcnemar(table, exact=True)
+    n = b + c
+    if n > 0:
+        p_val = float(2.0 * binom.cdf(min(b, c), n, 0.5))
+        p_val = min(p_val, 1.0)
+    else:
+        p_val = 1.0
     return {
-        "p_value": float(res.pvalue),
+        "p_value": p_val,
         "both_correct": a,
         "a_only": b,
         "b_only": c,
