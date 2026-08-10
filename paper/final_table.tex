@@ -1,0 +1,18 @@
+
+\begin{table}[h]
+\centering
+\caption{Empirical Capability Recovery and Hardware Alignment Penalty}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model Pipeline} & \textbf{Theoretical MAC Red.} & \textbf{Native PyTorch TPS} & \textbf{MMLU} & \textbf{GSM8K} & \textbf{ASDiv} \\
+\midrule
+Meta-Llama-3-8B (Dense Base) & - & 40.08 \text{t/s} & 65.5\% & 50.5\% & 54.2\% \\
+\midrule
+Layer-Dropped (Unhealed) & -15.84\% & +21.4\% & 26.5\% & 1.1\% & 2.5\% \\
+Layer-Dropped (Boundary Healed) & -15.84\% & +21.4\% & 31.5\% & 0.9\% & 3.2\% \\
+\midrule
+\textbf{Subnetwork Pruned (Sparse LoRA)} & -20.06\% & +0.00\% (39.94 \text{t/s}) & 64.16\% & 40.56\% & TBD \\
+\bottomrule
+\end{tabular}
+\label{tab:pareto_recovery}
+\end{table}
