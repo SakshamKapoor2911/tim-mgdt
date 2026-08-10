@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-09T08:50:28.889197"
+    "timestamp": "2026-08-10T09:38:48.070886"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,6 +44,16 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
+        "published_date": "2026-08-06",
+        "authors": [
+          "Jakub Po\u0107wiardowski",
+          "Mateusz Modrzejewski"
+        ],
+        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
+        "url": "http://arxiv.org/abs/2608.06638v1"
+      },
+      {
         "title": "LLMs Can Annotate Attribution Graphs",
         "published_date": "2026-07-28",
         "authors": [
@@ -69,17 +79,6 @@
         ],
         "summary": "Safety-aligned large language models are trained to refuse harmful requests, yet embedding the same requests in particular scenarios can bypass their safeguards. Existing red-teaming methods empirically identify effective scenarios through observed attack outcomes, but why particular scenarios weaken refusal remains mechanistically unclear. Meanwhile, mechanistic interpretability studies have characterized both refusal directions and jailbreak-associated features, without explaining the relationship between the two representations. In this work, we show that scenario-wrapped prompts activate internal scenario directions whose causal steering consistently reduces refusal scores. Building on this finding, we propose \\textsc{Concept2Scenario}, a concept-based attribution framework for vulnerable scenario discovery. It instantiates a broad concept space with a sparse autoencoder, attributes refusal suppression to individual concepts, translates the identified concepts into interpretable natural-language scenarios, and identifies synergistic scenario combinations through interaction attribution. Across three open-source models, two safety benchmarks, and six black-box jailbreak methods, the discovered scenarios serve as reusable priors that improve average attack success rates by up to $18.2$ percentage points. They also transfer to GPT-5, Claude-Haiku-4.5, and Gemini-3-Flash, suggesting that some scenario-level refusal vulnerabilities are shared across model families. Moreover, the identified combinations outperform their individual constituents and enable iterative attacks to succeed in fewer turns.",
         "url": "http://arxiv.org/abs/2607.23496v1"
-      },
-      {
-        "title": "Where Animacy Lives in Large Language Models: Tracing the Circuits of the Animacy Concept",
-        "published_date": "2026-07-23",
-        "authors": [
-          "Samuele Punzo",
-          "Giovanni Cin\u00e0",
-          "Sandro Pezzelle"
-        ],
-        "summary": "Distinguishing animate from inanimate concepts in written language requires more than shallow text processing, as it involves recognizing complex selectional constraints and contextual cues, such as verb-argument interactions. Yet, current large language models (LLMs) appear to be capable of doing it. We investigate whether this animacy-sensitive behavior of LLMs can be traced to a localized set of causally relevant components and connections. To do so, we construct a controlled dataset of minimal pairs and perform circuit discovery on four open-weight models. Through in-depth experiments and ablations, we show that a causal mechanism responsible for handling animacy in these models does exist, thus discovering an animacy circuit. At the same time, this circuit appears to be less localized compared to other known ones and generalizes only partially across models and animacy tasks, confirming the distributed, context-dependent, and somewhat graded nature of the animacy concept.",
-        "url": "http://arxiv.org/abs/2607.20995v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -121,6 +120,16 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
+        "published_date": "2026-08-06",
+        "authors": [
+          "Jakub Po\u0107wiardowski",
+          "Mateusz Modrzejewski"
+        ],
+        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
+        "url": "http://arxiv.org/abs/2608.06638v1"
+      },
+      {
         "title": "Test, then Route: How Language Models Execute In-Context Conditional Rules Across Models and Languages",
         "published_date": "2026-08-04",
         "authors": [
@@ -137,16 +146,7 @@
           "Abdallah Khemais"
         ],
         "summary": "A companion paper studies when activation patching and weight-space ablation agree, inside an idealized model where a conditional computation is carried additively through a residual stream. For the one composition in that model where two carriers are architecturally dependent, an attention head and its own layer's normalization-MLP composition, it derives an exact first-order interaction formula, zero when only the MLP is ablated and second-order bounded when the head is also ablated. That result is confined to a single residual block and checked only on small transformers on a synthetic task.   This paper extends the result past both limits. First, the interaction from ablating carriers spanning several layers decomposes exactly into same-block terms, one per touched layer, plus a cross-layer remainder on which the decomposition makes no claim of smallness. Second, we isolate that remainder exactly, for two layers, as a double integral of a mixed second derivative, and name the missing ingredient needed to bound it: a Jacobian bound for the attention sub-block. We derive this bound in closed form and verify it, without a single violation, against Qwen2.5-1.5B-Instruct's real weights, though we do not yet chain it across layers. We also give, in closed form, the curvature constant the companion paper's bound leaves unexhibited.   Third, on that same model, we search for and find an emergent circuit for indirect object identification, never designed into it, using the original activation-patching method for this task, and test collapse, dissociation, and interaction on it. The result is mixed: a shared carrier emerges across all five tested instances, collapse and dissociation hold on most but not all, and a nonzero interaction is measurable on three of five, at layer pairs outside the same-block case the companion theorem covers.",
-        "url": "http://arxiv.org/abs/2608.03629v1"
-      },
-      {
-        "title": "A Theory of Conditional Collapse under Low-Rank Weight-Space Ablations: I. The Single-Block Theory and Synthetic Validation",
-        "published_date": "2026-08-04",
-        "authors": [
-          "Abdallah Khemais"
-        ],
-        "summary": "Activation patching and weight-space ablation both claim a component is causally responsible for a behavior, yet they act on different objects: one forward pass versus the parameters behind every forward pass. We ask when they agree.   We study an idealized model where a conditional computation is carried additively through a residual stream, $F(x)=F_0(x)+\\sum_i\u03b1_i(x)v_i$, read out by a linear functional, and prove three exact results. First, deleting a subset of carriers collapses a matched input pair onto the same unconditional output \\emph{if and only if} the removal is symmetric on the pair and leaves no outside contrast; the error is deterministic, and we give its exact form even when the two conditions hold only approximately. Second, patching a carrier moves the readout by its donor-receiver \\emph{contrast}, while ablating it moves the readout by its \\emph{absolute level}; neither bounds the other, and we construct pairs where every single-carrier patch flips the decision while no single-carrier ablation does. Third, for an attention head composed with its own layer's normalization and MLP, we derive an exact first-order interaction formula with a provably second-order remainder, vanishing identically when only the MLP is ablated but not, in general, when a head is.   Small transformers trained on a synthetic conditional task illustrate all three predictions: across thirty-nine ablation configurations the measured interaction is strongly rank-correlated with the idealized model's predictive accuracy (Spearman $-0.83$), and a second task and architecture reproduces the same pattern, including a further polarity reversal.   The single-block interaction result extends past one residual block, and the synthetic validation is tested against a real pretrained model, in a companion paper that takes this theory further along both axes.",
-        "url": "http://arxiv.org/abs/2608.03620v1"
+        "url": "http://arxiv.org/abs/2608.03629v2"
       }
     ]
   }
