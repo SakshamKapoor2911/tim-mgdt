@@ -324,14 +324,23 @@ def main():
         result_1b = run_sufficiency_intervention(args)
         overall["exp_1b"] = result_1b
 
+    mcnemar_out = {}
     if "vec_dense_baseline" in result_1b and "vec_rotated_sufficiency" in result_1b:
-        overall["mcnemar_dense_vs_rotated"] = compute_mcnemar(
+        mcnemar_dense_vs_rotated = compute_mcnemar(
             result_1b["vec_dense_baseline"], result_1b["vec_rotated_sufficiency"]
         )
+        overall["mcnemar_dense_vs_rotated"] = mcnemar_dense_vs_rotated
+        mcnemar_out["mcnemar_dense_vs_rotated"] = mcnemar_dense_vs_rotated
+
     if "vec_dense_baseline" in result_1b and "vec_pruned_baseline" in result_1a:
-        overall["mcnemar_dense_vs_pruned"] = compute_mcnemar(
+        mcnemar_dense_vs_pruned = compute_mcnemar(
             result_1b["vec_dense_baseline"], result_1a["vec_pruned_baseline"]
         )
+        overall["mcnemar_dense_vs_pruned"] = mcnemar_dense_vs_pruned
+        mcnemar_out["mcnemar_dense_vs_pruned"] = mcnemar_dense_vs_pruned
+
+    if mcnemar_out:
+        save_json(os.path.join(args.output_dir, "exp_mcnemar.json"), mcnemar_out)
 
     save_json(os.path.join(args.output_dir, "_checkpoint_1_complete.json"),
               {"status": "complete", "overall": overall})

@@ -184,6 +184,7 @@ def main():
     parser.add_argument("--sparsity", type=float, default=0.20)
     parser.add_argument("--strategy", type=str, choices=["ceil", "floor"], default="ceil")
     parser.add_argument("--eval_samples", type=int, default=128)
+    parser.add_argument("--output_dir", type=str, default="experiments/phase16")
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     

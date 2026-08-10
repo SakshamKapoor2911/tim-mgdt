@@ -49,7 +49,7 @@ echo ""
 # Step 1: Backup existing N=100 JSON result files
 # ---------------------------------------------------------------------------
 echo "[STEP 1] Backing up existing N=100 result JSON files..."
-for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep; do
+for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep exp_mcnemar; do
     if [ -f "$OUTPUT_DIR/${f}.json" ]; then
         cp -v "$OUTPUT_DIR/${f}.json" "$OUTPUT_DIR/${f}_n100.json"
     fi
@@ -170,7 +170,7 @@ wait $PID_GPU1
 # ---------------------------------------------------------------------------
 echo ""
 echo "[STEP 4] Copying regenerated N=500 outputs to explicit *_n500.json files..."
-for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep; do
+for f in exp_1a_procrustes exp_1b_sufficiency exp_1b_rotation_sweep exp_4_location_sweep exp_mcnemar; do
     if [ -f "$OUTPUT_DIR/${f}.json" ]; then
         cp -v "$OUTPUT_DIR/${f}.json" "$OUTPUT_DIR/${f}_n500.json"
     fi
