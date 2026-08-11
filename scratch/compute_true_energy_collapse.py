@@ -10,8 +10,9 @@ from scipy.linalg import orthogonal_procrustes
 
 # Import hook definitions
 import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/../../.."))
-from code.phases.phase25_causal_interventions.causal_hooks import register_collector
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../code/phases/phase25_causal_interventions")))
+from causal_hooks import register_collector
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
