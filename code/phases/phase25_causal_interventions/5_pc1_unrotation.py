@@ -154,13 +154,22 @@ def compute_pc1_rotation(intact_hidden, pruned_hidden):
     v_i = V_i[:, 0]
     v_p = V_p[:, 0]
 
-    u_a = v_p / np.linalg.norm(v_p)
+    # Resolve SVD sign ambiguity by aligning v_p to the same half-space as v_i
+    proj_raw = np.dot(v_p, v_i)
+    if proj_raw < 0:
+        v_p_sync = -v_p
+        proj_sync = -proj_raw
+    else:
+        v_p_sync = v_p
+        proj_sync = proj_raw
+
+    u_a = v_p_sync / np.linalg.norm(v_p_sync)
     proj = np.dot(u_a, v_i)
     perp = v_i - proj * u_a
     norm_perp = np.linalg.norm(perp)
 
     if norm_perp < 1e-12:
-        return torch.eye(d).float(), 0.0, 0.0
+        return torch.eye(d).float(), 0.0, proj_raw
 
     u_b = perp / norm_perp
     cos_theta = np.clip(proj, -1.0, 1.0)
@@ -172,7 +181,8 @@ def compute_pc1_rotation(intact_hidden, pruned_hidden):
     Q_rot = np.outer(u_b, u_a) - np.outer(u_a, u_b)
     R = np.eye(d) + (cos_theta - 1.0) * P_plane + sin_theta * Q_rot
 
-    return torch.from_numpy(R).float(), theta_deg, proj
+    # Return sign-synchronized R, acute angle theta_deg, and raw projection proj_raw
+    return torch.from_numpy(R).float(), theta_deg, proj_raw
 
 
 def main():

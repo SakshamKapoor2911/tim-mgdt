@@ -230,8 +230,6 @@ def run_procrustes_recovery(args):
     }
     save_json(os.path.join(args.output_dir, "exp_1a_procrustes.json"), result)
     return result
-
-
 def run_sufficiency_intervention(args):
     print("\n" + "=" * 60)
     print("EXP 1B: Causal Sufficiency Intervention (R_inv = (R*)^T) on Intact Model")
@@ -252,18 +250,39 @@ def run_sufficiency_intervention(args):
     R_inv = R_star.T
     print(f"  R_inv shape: {R_inv.shape}")
 
+    # --- Phase 1: Dense Baseline & Random SO(d) Control ---
+    print("\n--- Phase 1: Dense Baseline & Random SO(d) Control on Intact Model ---")
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name, torch_dtype=torch.float16, device_map="auto",
         low_cpu_mem_usage=True
     )
-
     rotation_layer = args.post_incision_layer
-    print(f"Registering intervention hook at intact model Layer {rotation_layer}...")
     hook, handle = register_intervention(model, rotation_layer)
 
     print("Evaluating dense intact model WITHOUT rotation baseline...")
     dense_baseline_acc, vec_dense_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
     print(f"  Dense baseline (no rotation): {dense_baseline_acc:.2f}%")
+
+    from code.phases.phase25_causal_interventions.causal_hooks import random_orthogonal_matrix
+    hidden_dim = R_star.shape[0]
+    R_rand = random_orthogonal_matrix(hidden_dim, seed=42)
+    print(f"Applying random SO(d) placebo rotation at Layer {rotation_layer}...")
+    hook.set_rotation(R_rand)
+
+    acc_random_rotated, vec_random_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    print(f"  Intact model with random SO(d) rotation GSM8K accuracy: {acc_random_rotated:.2f}%")
+
+    handle.remove()
+    del model, hook
+    torch.cuda.empty_cache()
+
+    # --- Phase 2: Causal Sufficiency (R*)^T Rotation ---
+    print("\n--- Phase 2: Causal Sufficiency (R*)^T Rotation on Intact Model ---")
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model_name, torch_dtype=torch.float16, device_map="auto",
+        low_cpu_mem_usage=True
+    )
+    hook, handle = register_intervention(model, rotation_layer)
 
     print(f"Applying (R*)^T rotation at Layer {rotation_layer}...")
     hook.set_rotation(R_inv)
@@ -280,8 +299,10 @@ def run_sufficiency_intervention(args):
         "model": args.model_name,
         "rotation_layer": rotation_layer,
         "dense_baseline": dense_baseline_acc,
+        "acc_random_rotated_control": acc_random_rotated,
         "acc_rotated_sufficiency": acc_rotated,
         "vec_dense_baseline": vec_dense_baseline,
+        "vec_random_rotated_control": vec_random_rotated,
         "vec_rotated_sufficiency": vec_rotated,
         "num_eval_samples": args.num_eval_samples,
     }
