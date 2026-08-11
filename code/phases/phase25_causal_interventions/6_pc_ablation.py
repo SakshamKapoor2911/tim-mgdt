@@ -51,7 +51,7 @@ def compute_pc_directions(hidden, top_m=10):
 
 
 def collect_hidden_at_layer(model, layer_idx, tokenizer, num_prompts=50, seq_len=512):
-    device = next(model.parameters()).device
+    device = get_device()
     model.config.use_cache = False
     collector = HiddenStateCollector()
     handle = model.model.layers[layer_idx].register_forward_hook(collector)
