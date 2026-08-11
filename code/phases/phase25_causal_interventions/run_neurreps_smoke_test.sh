@@ -39,7 +39,7 @@ CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interven
     --num_calibration 10
 
 # 3. Smoke test lm_eval harness flags
-echo "[3/3] Smoke testing lm_eval harness..."
+echo "[3/7] Smoke testing lm_eval harness..."
 "$VENV/bin/lm_eval" --model hf \
     --model_args pretrained="$MODEL" \
     --tasks gsm8k \
@@ -47,6 +47,39 @@ echo "[3/3] Smoke testing lm_eval harness..."
     --limit 10 \
     --batch_size auto:4 \
     --output_path "$SMOKE_EVAL"
+
+# 4. Smoke test P5 PC1 sign-sync + un-rotation
+echo "[4/7] Smoke testing P5 PC1 un-rotation..."
+CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.5_pc1_unrotation \
+    --model_name "$MODEL" \
+    --output_dir "$SMOKE_DIR" \
+    --num_eval_samples 10 \
+    --num_calibration 10 \
+    --skip_full_procrustes \
+    --skip_random_rotation
+
+# 5. Smoke test P6 causal PC ablation
+echo "[5/7] Smoke testing P6 causal PC ablation..."
+CUDA_VISIBLE_DEVICES=1 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.6_pc_ablation \
+    --model_name "$MODEL" \
+    --output_dir "$SMOKE_DIR" \
+    --num_eval_samples 10 \
+    --num_calibration 10
+
+# 6. Smoke test P7 skip-depth rotation curve
+echo "[6/7] Smoke testing P7 rotation curve (k=0..1)..."
+CUDA_VISIBLE_DEVICES=1 "$VENV/bin/python" -m code.phases.phase25_causal_interventions.7_rotation_curve \
+    --model_name "$MODEL" \
+    --output_dir "$SMOKE_DIR" \
+    --num_eval_samples 10 \
+    --num_calibration 10 \
+    --max_skip_depth 1
+
+# 7. Smoke test energy collapse measurement (1 prompt per model)
+echo "[7/7] Smoke testing energy collapse (1 prompt, 3 models)..."
+CUDA_VISIBLE_DEVICES=0 "$VENV/bin/python" -u "$REPO/scratch/compute_true_energy_collapse.py" \
+    --num_prompts 1 \
+    --output_dir "$SMOKE_DIR"
 
 echo "====================================================================="
 echo "  Pre-Flight Smoke Test Cleanly Completed! No production files touched."
