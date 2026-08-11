@@ -21,72 +21,8 @@ from code.phases.phase25_causal_interventions.causal_hooks import (
     register_intervention,
 )
 from code.phases.phase11.utils import get_device, save_json
+from code.phases.phase25_causal_interventions.gsm8k_eval_shared import evaluate_gsm8k
 
-GSM8K_PROMPT_TEMPLATE = """Q: There are 15 trees in the park. Park workers will plant trees in the park today. After they are done, there will be 21 trees in the park. How many trees did the park workers plant today?
-A: There are 15 trees originally. Then more trees were planted. It total there are 21 trees. So the number of trees planted must be 21 - 15 = 6. The answer is 6.
-
-Q: If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in the parking lot?
-A: There are originally 3 cars. 2 more arrive. 3 + 2 = 5. The answer is 5.
-
-Q: Leah had 32 chocolates and her sister had 42. If they ate 35, how many pieces do they have left in total?
-A: Originally, Leah had 32 chocolates. Her sister had 42. So in total they had 32 + 42 = 74. After eating 35, they had 74 - 35 = 39. The answer is 39.
-
-Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops. How many lollipops did Jason give to Denny?
-A: Jason had 20 lollipops. Since he has 12 now, he must have given Denny 20 - 12 = 8. The answer is 8.
-
-Q: Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How many toys does he have now?
-A: Shawn has 5 toys. He got 2 from mom and 2 from dad. 5 + 2 + 2 = 9. The answer is 9.
-
-Q: {question}
-A:"""
-
-
-def extract_strict_answer(text):
-    text = text.split("Q:")[0].strip()
-    match = re.search(r"[Tt]he answer is\s*(-?\d+(?:\.\d+)?)", text)
-    if match:
-        return match.group(1)
-    numbers = re.findall(r"-?\d+(?:\.\d+)?", text)
-    if numbers:
-        return numbers[-1]
-    return ""
-
-
-def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
-    dataset = load_dataset("gsm8k", "main", split="test")
-    model.eval()
-    correct = 0
-    total = min(num_samples, len(dataset))
-    per_prompt_results = []
-
-    for i in tqdm(range(total), desc="GSM8K", leave=False):
-        item = dataset[i]
-        question = item["question"]
-        gold_text = item["answer"]
-        gold_ans = extract_strict_answer(gold_text)
-
-        prompt = GSM8K_PROMPT_TEMPLATE.format(question=question)
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=128,
-                do_sample=False,
-                pad_token_id=tokenizer.pad_token_id,
-            )
-
-        gen_text = tokenizer.decode(
-            outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=True
-        )
-        pred_ans = extract_strict_answer(gen_text)
-
-        is_correct = int(pred_ans.strip() == gold_ans.strip() and gold_ans.strip() != "")
-        correct += is_correct
-        per_prompt_results.append(is_correct)
-
-    accuracy = (correct / total) * 100.0
-    return accuracy, per_prompt_results
 
 
 def compute_mcnemar(vec_a, vec_b):
@@ -195,7 +131,7 @@ def run_procrustes_recovery(args):
     hook, handle = register_intervention(model, pruned_post_layer)
     hook.set_rotation(R_star)
 
-    acc_procrustes, vec_procrustes = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_procrustes, vec_procrustes, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
     print(f"  Procrustes R* GSM8K accuracy: {acc_procrustes:.2f}%")
 
     handle.remove()
@@ -208,7 +144,7 @@ def run_procrustes_recovery(args):
         low_cpu_mem_usage=True
     )
     _drop_layers(model, drop_set)
-    acc_pruned_baseline, vec_pruned_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_pruned_baseline, vec_pruned_baseline, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
     print(f"  Pruned unhealed GSM8K accuracy: {acc_pruned_baseline:.2f}%")
 
     del model
@@ -260,17 +196,25 @@ def run_sufficiency_intervention(args):
     hook, handle = register_intervention(model, rotation_layer)
 
     print("Evaluating dense intact model WITHOUT rotation baseline...")
-    dense_baseline_acc, vec_dense_baseline = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    dense_baseline_acc, vec_dense_baseline, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
     print(f"  Dense baseline (no rotation): {dense_baseline_acc:.2f}%")
 
     from code.phases.phase25_causal_interventions.causal_hooks import random_orthogonal_matrix
     hidden_dim = R_star.shape[0]
-    R_rand = random_orthogonal_matrix(hidden_dim, seed=42)
-    print(f"Applying random SO(d) placebo rotation at Layer {rotation_layer}...")
-    hook.set_rotation(R_rand)
-
-    acc_random_rotated, vec_random_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
-    print(f"  Intact model with random SO(d) rotation GSM8K accuracy: {acc_random_rotated:.2f}%")
+    
+    accs_random = []
+    vecs_random = []
+    for seed in [42, 43, 44]:
+        R_rand = random_orthogonal_matrix(hidden_dim, seed=seed)
+        print(f"Applying random SO(d) placebo rotation at Layer {rotation_layer} (seed {seed})...")
+        hook.set_rotation(R_rand)
+        acc_r, vec_r, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
+        accs_random.append(acc_r)
+        vecs_random.append(vec_r)
+    
+    acc_random_rotated = float(np.mean(accs_random))
+    vec_random_rotated = vecs_random[0]
+    print(f"  Intact model with random SO(d) rotation GSM8K accuracy (mean of 3 seeds): {acc_random_rotated:.2f}%")
 
     handle.remove()
     del model, hook
@@ -287,7 +231,7 @@ def run_sufficiency_intervention(args):
     print(f"Applying (R*)^T rotation at Layer {rotation_layer}...")
     hook.set_rotation(R_inv)
 
-    acc_rotated, vec_rotated = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_rotated, vec_rotated, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
     print(f"  Intact model with (R*)^T rotation GSM8K accuracy: {acc_rotated:.2f}%")
 
     handle.remove()
@@ -363,6 +307,20 @@ def main():
         )
         overall["mcnemar_dense_vs_pruned"] = mcnemar_dense_vs_pruned
         mcnemar_out["mcnemar_dense_vs_pruned"] = mcnemar_dense_vs_pruned
+
+    if "vec_dense_baseline" in result_1b and "vec_random_rotated_control" in result_1b:
+        mcnemar_dense_vs_random = compute_mcnemar(
+            result_1b["vec_dense_baseline"], result_1b["vec_random_rotated_control"]
+        )
+        overall["mcnemar_dense_vs_random"] = mcnemar_dense_vs_random
+        mcnemar_out["mcnemar_dense_vs_random"] = mcnemar_dense_vs_random
+
+    if "vec_random_rotated_control" in result_1b and "vec_rotated_sufficiency" in result_1b:
+        mcnemar_random_vs_rotated = compute_mcnemar(
+            result_1b["vec_random_rotated_control"], result_1b["vec_rotated_sufficiency"]
+        )
+        overall["mcnemar_random_vs_rotated"] = mcnemar_random_vs_rotated
+        mcnemar_out["mcnemar_random_vs_rotated"] = mcnemar_random_vs_rotated
 
     if mcnemar_out:
         save_json(os.path.join(args.output_dir, "exp_mcnemar.json"), mcnemar_out)

@@ -25,68 +25,8 @@ from code.phases.phase25_causal_interventions.causal_hooks import (
     HiddenStateCollector,
 )
 from code.phases.phase11.utils import get_device, save_json
+from code.phases.phase25_causal_interventions.gsm8k_eval_shared import evaluate_gsm8k
 
-GSM8K_PROMPT_TEMPLATE = """Q: There are 15 trees in the park. Park workers will plant trees in the park today. After they are done, there will be 21 trees in the park. How many trees did the park workers plant today?
-A: There are 15 trees originally. Then more trees were planted. It total there are 21 trees. So the number of trees planted must be 21 - 15 = 6. The answer is 6.
-
-Q: If there are 3 cars in the parking lot and 2 more cars arrive, how many cars are in the parking lot?
-A: There are originally 3 cars. 2 more arrive. 3 + 2 = 5. The answer is 5.
-
-Q: Leah had 32 chocolates and her sister had 42. If they ate 35, how many pieces do they have left in total?
-A: Originally, Leah had 32 chocolates. Her sister had 42. So in total they had 32 + 42 = 74. After eating 35, they had 74 - 35 = 39. The answer is 39.
-
-Q: Jason had 20 lollipops. He gave Denny some lollipops. Now Jason has 12 lollipops. How many lollipops did Jason give to Denny?
-A: Jason had 20 lollipops. Since he has 12 now, he must have given Denny 20 - 12 = 8. The answer is 8.
-
-Q: Shawn has five toys. For Christmas, he got two toys each from his mom and dad. How many toys does he have now?
-A: Shawn has 5 toys. He got 2 from mom and 2 from dad. 5 + 2 + 2 = 9. The answer is 9.
-
-Q: {question}
-A:"""
-
-
-def extract_strict_answer(text):
-    text = text.split("Q:")[0].strip()
-    match = re.search(r"[Tt]he answer is\s*(-?\d+(?:\.\d+)?)", text)
-    if match:
-        return match.group(1)
-    numbers = re.findall(r"-?\d+(?:\.\d+)?", text)
-    if numbers:
-        return numbers[-1]
-    return ""
-
-
-def evaluate_gsm8k(model, tokenizer, device, num_samples=100):
-    dataset = load_dataset("gsm8k", "main", split="test")
-    model.eval()
-    correct = 0
-    total = min(num_samples, len(dataset))
-
-    for i in tqdm(range(total), desc="GSM8K", leave=False):
-        item = dataset[i]
-        question = item["question"]
-        gold_text = item["answer"]
-        gold_ans = extract_strict_answer(gold_text)
-        prompt = GSM8K_PROMPT_TEMPLATE.format(question=question)
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=128,
-                do_sample=False,
-                pad_token_id=tokenizer.pad_token_id,
-            )
-
-        gen_text = tokenizer.decode(
-            outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=True
-        )
-        pred_ans = extract_strict_answer(gen_text)
-
-        if pred_ans.strip() == gold_ans.strip() and gold_ans.strip() != "":
-            correct += 1
-
-    return (correct / total) * 100.0
 
 
 def _drop_layers(model, drop_indices):
@@ -157,7 +97,7 @@ def run_random_rotation_control(args):
         R_rand = random_orthogonal_matrix(hidden_dim, seed=seed)
         hook, handle = register_intervention(model, pruned_post_layer)
         hook.set_rotation(R_rand)
-        acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+        acc, _, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
         print(f"      Random rotation (seed={seed}) GSM8K: {acc:.2f}%")
         results[str(seed)] = acc
         handle.remove()
@@ -244,7 +184,7 @@ def run_wrong_layer_repair(args):
         model = load_model_with_drop(args.model_name, drop_set)
         hook, handle = register_intervention(model, wrong_lyr)
         hook.set_rotation(R_star)
-        acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+        acc, _, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
         print(f"    Wrong-layer ({wrong_lyr}) GSM8K: {acc:.2f}%")
         results[str(wrong_lyr)] = acc
         handle.remove()
@@ -254,7 +194,7 @@ def run_wrong_layer_repair(args):
     model = load_model_with_drop(args.model_name, drop_set)
     hook, handle = register_intervention(model, pruned_post_layer)
     hook.set_rotation(R_star)
-    acc_correct = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+    acc_correct, _, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
     print(f"    Correct-layer ({pruned_post_layer}) GSM8K: {acc_correct:.2f}%")
     results[f"correct_layer_{pruned_post_layer}"] = acc_correct
     handle.remove()
@@ -340,7 +280,7 @@ def run_wrong_pc_repair(args):
         model = load_model_with_drop(args.model_name, drop_set)
         hook, handle = register_intervention(model, pruned_post_layer)
         hook.set_rotation(R_k)
-        acc = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples)
+        acc, _, _, _, _, _ = evaluate_gsm8k(model, tokenizer, device, args.num_eval_samples, num_shots=8)
         print(f"    PC{k} realign GSM8K: {acc:.2f}%")
         results[f"PC_{k}"] = acc
         handle.remove()
