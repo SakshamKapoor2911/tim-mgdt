@@ -8,7 +8,7 @@ import torch.nn as nn
 from tqdm import tqdm
 
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../code/phases/phase25_causal_interventions")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../code/phases/phase25_causal_interventions")))
 from causal_hooks import register_collector
 
 def get_device():
