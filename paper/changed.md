@@ -13,13 +13,13 @@ All five Phase 25 experimental sub-pipelines (P1–P5) completed 100% cleanly on
 
 1. **Causal Sufficiency Test (P1 1B)**:
    - **Method**: Computed the Orthogonal Procrustes transformation $R^* \in \text{SO}(4096)$ mapping student representations to teacher representations at Layer 15. Applied $(R^*)^T$ (the inverse rotation) to the post-incision layer of an **intact, unpruned model** (no layers removed, no weights modified).
-   - **Result**: GSM8K accuracy collapsed from **`34.0%` $\to$ `10.0%`** (70% relative drop, accounting for ~85% of the total pruning collapse).
-   - **Impact**: Directly proves that representational subspace rotation alone is **causally sufficient** to destroy multi-step reasoning.
+   - **Result**: GSM8K accuracy collapsed from **`34.0%` $\to$ `10.0%`** (N=100, 5-shot). **Re-run under the unified 8-shot protocol at N=500** (see §5) with a new **random SO(4096) placebo control on the intact model** (3 seeds) to distinguish pruning-derived geometry from generic perturbation.
+   - **Impact**: Directly proves that representational subspace disruption alone is **causally sufficient** to destroy multi-step reasoning.
 
-2. **$\mathrm{PC}_1$ Sign Inversion Discovery (P5)**:
-   - **Method**: Extracted $\mathrm{PC}_1$ eigenvectors at the post-incision layer and analyzed individual principal directions.
-   - **Result**: $\mathrm{PC}_1$ (the primary reasoning component) has an alignment projection of **`-1.0000`** ($\theta_{\mathrm{PC}_1} = \mathbf{179.52^\circ}$).
-   - **Impact**: Uncovers that $\mathrm{PC}_1$ is not slightly rotated by $29^\circ$—it is **completely sign-flipped ($180^\circ$)**. This explains why average canonical subspace angles masked the true extent of the damage.
+2. **$\mathrm{PC}_1$ Sign-Inversion Correction \& Energy Collapse (P5)**:
+   - **Method**: Extracted $\mathrm{PC}_1$ eigenvectors at the post-incision layer and resolved the arbitrary SVD sign convention by aligning singular vectors to the same half-space.
+   - **Result**: The raw projection `-1.0000` ($\theta = 179.52^\circ$) is an **SVD sign-convention artifact**; after sign synchronization the acute angle is **≈ 0.48°**, i.e. $\mathrm{PC}_1$ is **directionally preserved**. The real damage is a **per-passage energy (variance) collapse** along the preserved $\mathrm{PC}_1$ direction (measured with 95% CIs; see `energy_collapse.json`).
+   - **Impact**: Depth pruning does NOT rotate the leading reasoning direction; it compresses its variance. The manuscript was re-framed accordingly (title no longer references rotation/inversion).
 
 3. **Competing Metrics Falsification (P3)**:
    - **Method**: Computed per-passage ($N=50$) correlations between rotation angle $\theta$ and scalar metrics.
@@ -68,3 +68,29 @@ A critical component of Phase 25 was establishing statistical rigor by distingui
 4. **Directory Cleanup**:
    - Promoted `main_phase25_neurreps.tex` to `paper/main.tex`.
    - Removed obsolete files (`main_archived_pre_phase25.tex`, `main_archived_pre_n500_fixes.tex`, `main_phase25_reframed.tex`, `final_table.tex`, `colm2026_conference.bib`, `blackboxnlp2026_overleaf.zip`).
+
+---
+
+## 4. Protocol Unification & Full-Scope N=500 Re-Run (Aug 11)
+
+**Key correction**: all Phase 25 intervention scripts previously used a hardcoded **5-shot** GSM8K template, while the paper's headline baselines (39.6 / 1.8 / 6.2) were measured with the **8-shot** template in `fixes/run_evals.py`. This mixed protocol invalidated cross-condition comparisons.
+
+### Code changes
+- Created `code/phases/phase25_causal_interventions/gsm8k_eval_shared.py`: single source of truth for the 8-shot template, strict-answer extraction, and Clopper-Pearson CIs. `1_run_procrustes_and_rotation.py`, `2_run_negative_controls.py`, `4_run_multi_location_sweep.py`, and `5_pc1_unrotation.py` now import it.
+- `1_run_procrustes_and_rotation.py`: added a **random SO(4096) placebo control applied to the intact model** at L15 (3 seeds) and two new paired McNemar pairs (dense-vs-random, random-vs-rotated).
+- `5_pc1_unrotation.py`: sign-synchronization resolves the SVD sign ambiguity; outputs `theta_acute` (≈0.5°), `theta_obtuse` (≈179.5°), `projection_synced`, `projection_raw`.
+- New `6_pc_ablation.py`: causal PC ablation at Layer 10 under 8-shot N=500 (refresh of Table `causal_pc`).
+- New `7_rotation_curve.py`: skip-depth rotation curve k=0..4 under 8-shot N=500 (refresh of Table `rotation_curve`).
+- `scratch/compute_true_energy_collapse.py`: per-passage (N=50) PC1 energy-collapse with 95% CIs, 3 model families, saves `energy_collapse.json`.
+- New `run_neurreps_full_pipeline.sh`: GPU0 = P1→P4→P5→energy; GPU1 = P6→P7.
+- Smoke test extended to cover P5, P6, P7, and the energy measurement.
+
+### Manuscript changes
+- Title changed to *The Fluency--Reasoning Dissociation in Depth-Pruned LLMs: A Representational Geometry Perspective* (no "Rotating"/"Inverting").
+- PC1 story re-framed from "sign inversion" to "directionally preserved + energy collapse".
+- Bibliography: corrected author lists (`wang2025resp`, `wang2026gisp` → Ziyan Wang; `qian2026rku` → Tianhao Qian), removed duplicate entries (`Vaswani+2017`, `sun2023wanda`), renamed `yaolu2026reassessing` → `yaolu2024reassessing`, added BBH (`srivastava2022beyond`) and Procrustes (`schonemann1966generalized`).
+- Added "Post-Pruning Recovery" related-work differentiation paragraph, a residual-norm rebuttal in the competing-metrics section, a "Limitations & Future Work" section, hedged the PC2 zero-effect claim, and corrected the recovery-paradigm count from 9 to 8.
+
+### Pending after the N=500 run
+- Fill measured values into `main.tex`: energy collapse (per-passage mean ± CI), sufficiency dense/random/rotated (8-shot), P6 PC-ablation table, P7 rotation-curve table, P4 location sweep (now 8-shot), P5 acute/obtuse.
+- Compile against the 9-page NeurReps proceedings limit and rebuild `neurips2026_neurreps_overleaf.zip`.
