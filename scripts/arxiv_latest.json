@@ -1,41 +1,11 @@
 {
   "metadata": {
-    "timestamp": "2026-08-11T09:06:47.000136"
+    "timestamp": "2026-08-12T09:17:26.465355"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
     "\"lottery ticket hypothesis\" AND \"language models\"": [],
-    "\"activation patching\" OR \"causal tracing\"": [
-      {
-        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
-        "published_date": "2026-08-06",
-        "authors": [
-          "Jakub Po\u0107wiardowski",
-          "Mateusz Modrzejewski"
-        ],
-        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
-        "url": "http://arxiv.org/abs/2608.06638v1"
-      },
-      {
-        "title": "Test, then Route: How Language Models Execute In-Context Conditional Rules Across Models and Languages",
-        "published_date": "2026-08-04",
-        "authors": [
-          "Luxshan Thavarasa",
-          "Sivasuthan Sukumar"
-        ],
-        "summary": "When a language model follows an in-context conditional rule such as \"if P(x) then A else B,\" does it assemble a runtime circuit with one module that tests the predicate and another that routes the answer? We probe this with activation patching under a four-donor design whose two swapped-rule donors make the condition and the answer word disagree, so each layer reveals which of the two it carries. Across three open models from two families and six languages sharing one fixed item bank, a mid-stack residual band carries the predicate's truth value: patching it reroutes the answer with predicate-outcome flip near 1.0 and mapping flip near 0.0, meeting a strict pre-specified isolation criterion in 17 of 18 cells, and the same localization holds across five predicate families. The router shows the opposite profile. A learned subspace flips A and B near-perfectly within the trained pair yet transfers to a new pair at approximately 0 in every model, while in Gemma-3-4B (the only model probed cross-lingually) it transfers at approximately 0.98 to the same pair in other languages. Under every probe we ran, the router direction is token-bound and non-transferable (largely answer-readout in Gemma, pair-specific in Qwen) rather than an abstract routing module. Test is modular; under these probes, route is not.",
-        "url": "http://arxiv.org/abs/2608.04183v1"
-      },
-      {
-        "title": "Cross-Layer Interaction under Weight-Space Ablation: A Closed-Form Attention Jacobian Bound and a Test on a Real Pretrained Model",
-        "published_date": "2026-08-04",
-        "authors": [
-          "Abdallah Khemais"
-        ],
-        "summary": "A companion paper studies when activation patching and weight-space ablation agree, inside an idealized model where a conditional computation is carried additively through a residual stream. For the one composition in that model where two carriers are architecturally dependent, an attention head and its own layer's normalization-MLP composition, it derives an exact first-order interaction formula, zero when only the MLP is ablated and second-order bounded when the head is also ablated. That result is confined to a single residual block and checked only on small transformers on a synthetic task.   This paper extends the result past both limits. First, the interaction from ablating carriers spanning several layers decomposes exactly into same-block terms, one per touched layer, plus a cross-layer remainder on which the decomposition makes no claim of smallness. Second, we isolate that remainder exactly, for two layers, as a double integral of a mixed second derivative, and name the missing ingredient needed to bound it: a Jacobian bound for the attention sub-block. We derive this bound in closed form and verify it, without a single violation, against Qwen2.5-1.5B-Instruct's real weights, though we do not yet chain it across layers. We also give, in closed form, the curvature constant the companion paper's bound leaves unexhibited.   Third, on that same model, we search for and find an emergent circuit for indirect object identification, never designed into it, using the original activation-patching method for this task, and test collapse, dissociation, and interaction on it. The result is mixed: a shared carrier emerges across all five tested instances, collapse and dissociation hold on most but not all, and a nonzero interaction is measurable on three of five, at layer pairs outside the same-block case the companion theorem covers.",
-        "url": "http://arxiv.org/abs/2608.03629v2"
-      }
-    ]
+    "\"activation patching\" OR \"causal tracing\"": []
   }
 }
