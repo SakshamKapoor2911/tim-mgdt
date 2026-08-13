@@ -1,11 +1,154 @@
 {
   "metadata": {
-    "timestamp": "2026-08-12T09:17:26.465355"
+    "timestamp": "2026-08-13T09:17:46.083490"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [],
-    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
-    "\"lottery ticket hypothesis\" AND \"language models\"": [],
-    "\"activation patching\" OR \"causal tracing\"": []
+    "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "When Compression Scores Cannot Decide: Information Boundaries for Group-Robust LLM Pruning",
+        "published_date": "2026-08-03",
+        "authors": [
+          "Andrew Zhang"
+        ],
+        "summary": "A stable compression score can still select the worse model. In our dense study, a split-half reliable path-quadratic score predicted a 16.1\\% gain, while the selected endpoints were 6.0--7.7% worse than two controls. We ask what a compression statistic can justify when deployment cares about the worst supplied group. We treat each statistic as an information interface. Its observation leaves a fiber of compatible endpoint-risk tables, and only orders fixed across that fiber are identified. Cone and fiber identities quantify the remaining uncertainty, while matched observations reverse endpoint order for pooled moments, group-local moments, and reference-path curvature. Sequential composition adds one state variable: the slack from each group risk to the current maximum. This vector determines every unrestricted one-step response, and a margin condition keeps the active group fixed along paths with bounded relative drift. The experiments follow the same ladder. Across three dense LLMs, an early-preserving allocation reduces worst-group perplexity inflation by 12.6--20.9%; target-matched complete-menu selection improves over its references by 2.7--8.0%. Across all 16 routed layers of OLMoE, pooled endpoint refresh lowers held-out worst-group teacher KL by 15.8% over the best static score. A compute-matched hard-max trajectory ends 32.7% worse than pooled, and neither adaptive trajectory improves excess NLL. Local evidence can narrow a menu. Complete endpoints rank that menu, while multistep claims also require control of the evolving active face and future candidates.",
+        "url": "http://arxiv.org/abs/2608.02940v2"
+      },
+      {
+        "title": "WIDE: Boosting Adaptive LLM Inference via Token-level Dynamic Width Pruning",
+        "published_date": "2026-07-30",
+        "authors": [
+          "Haozhe Hu",
+          "Hao Wu",
+          "Peiran Yin",
+          "Chao Han",
+          "Yunpu Ma",
+          "Xiaoyu Shen"
+        ],
+        "summary": "Pruning is a promising approach for improving the efficiency of LLMs. Existing static structured pruning methods are hardware-friendly and can deliver practical throughput gains, but their input-agnostic computation allocation often causes substantial accuracy degradation under aggressive sparsity. Recent dynamic sparsity methods improve quality retention by adapting computation to individual inputs, yet they remain largely limited to coarse-grained structural decisions and their practical acceleration under real-world inference scenarios remains challenging. To address these challenges, we present WIDE, the first end-to-end differentiable token-level dynamic width pruning framework designed for both prefill and decode scenarios. WIDE enables fine-grained computation allocation by allowing each token to dynamically select attention-head groups and FFN-channel groups, extending dynamic pruning beyond layer-level decisions to neuron-block-level granularity. Through a two-stage training pipeline, WIDE learns effective token-wise sparse execution patterns and achieves substantially better quality retention than existing approaches. To make such fine-grained dynamic pruning practical, we further propose a pruning--kernel co-design framework that decomposes dynamic sparsity acceleration into mask reordering, hardware-agnostic block-level skipping, and hardware-dependent intra-block skipping, enabling efficient execution across different granularities. At 50% sparsity, WIDE provides 55.1% performance boost when compared to the state-of-the-art dynamic depth pruning under calibration-only settings. Under prefill and decoding inference workloads, WIDE achieves close-to-theoretical kernel-level speedups of up to 1.98x for prefill and 4.95x for decoding, as well as 1.68x and 1.55x end-to-end acceleration. Our code is available at https://github.com/EIT-NLP/LLM-Pruning/tree/main/WIDE.",
+        "url": "http://arxiv.org/abs/2607.28418v1"
+      },
+      {
+        "title": "CoCurve: Cross-Module Co-Pruning Curvature for Training-Free Structured LLM Pruning",
+        "published_date": "2026-07-20",
+        "authors": [
+          "Zhiren Gong",
+          "Zihao Zeng",
+          "Zijie Wang",
+          "Tiantong Wang",
+          "Chau Yuen",
+          "Wei Yang Bryan Lim"
+        ],
+        "summary": "Structured pruning compresses large language models (LLMs) by removing whole computational units, such as attention heads and feed-forward (FFN) channel groups. Most training-free methods, however, rank these units independently, implicitly treating the loss from pruning a set as the sum of its individual losses. This view fails for Transformers, whose sublayers are coupled through a shared residual stream. Two individually weak units can thus be jointly indispensable, yet independent scoring is blind to such dependence and removes them together. We introduce CoCurve (Cross-Module Co-Pruning Curvature), a calibration-only, fine-tuning-free method that prunes attention and FFN units jointly. A second-order Taylor expansion of the token-level KL between the frozen model and its masked copy yields a single Fisher matrix whose diagonal is classical node saliency and whose off-diagonal entries are co-pruning curvature edges: the extra damage of removing two units together. Under a single-ablation additivity approximation this matrix reduces to a Gram product of single-unit ablation features, so the full M x M interaction is recovered from M forward passes, with no pairwise sweeps or gradients. Pruning then reduces to one budgeted quadratic program, solved in a single shot under a shared attention--FFN budget, with no labels, fine-tuning, or recovery.",
+        "url": "http://arxiv.org/abs/2607.17568v1"
+      }
+    ],
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
+      {
+        "title": "Who Bridges Safety? Identifying and Targeting Cross-Lingual Shared Safety Pathways",
+        "published_date": "2026-08-10",
+        "authors": [
+          "Shuyi Miao",
+          "Wangjie Qiu",
+          "Pengyang Shao",
+          "Canran Xiao",
+          "Fei Shen",
+          "Zhiming Zheng",
+          "Tat-Seng Chua"
+        ],
+        "summary": "Uncovering the internal mechanisms underlying the safety capabilities of large language models (LLMs) is crucial for developing trustworthy artificial intelligence. Currently, mechanistic interpretability studies on multilingual safety are largely confined to local components, such as isolated neurons. However, this static and fragmented perspective overlooks the synergy among components and fails to elucidate how safety signals dynamically propagate within the model to drive safety decisions ultimately. In this work, we move beyond isolated neurons to identify and target the cross-layer functional pathways formed during safety signal propagation, thereby uncovering the mechanisms driving the cross-lingual safety gap. Specifically, we first identify monolingual safety pathways and validate their impact on refusing harmful requests. Subsequent cross-lingual analyses reveal a sparse subset of cross-lingual shared safety pathways, confirming that this intersection acts as the internal bridge transferring safety capabilities from high-resource (HR) languages to non-high-resource (NHR) languages. Building on these mechanistic findings, we propose a pathways-targeted alignment method based on the cross-lingual shared safety pathways. Experimental results show that updating only a small fraction of pathway parameters significantly improves safety in NHR languages while largely preserving the model's general capabilities.",
+        "url": "http://arxiv.org/abs/2608.09095v1"
+      },
+      {
+        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
+        "published_date": "2026-08-06",
+        "authors": [
+          "Jakub Po\u0107wiardowski",
+          "Mateusz Modrzejewski"
+        ],
+        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
+        "url": "http://arxiv.org/abs/2608.06638v1"
+      },
+      {
+        "title": "LLMs Can Annotate Attribution Graphs",
+        "published_date": "2026-07-28",
+        "authors": [
+          "Ameen Patel",
+          "Max Zhang",
+          "Nathan Hu"
+        ],
+        "summary": "Circuit tracing is an exciting technique for revealing the internal computation of language models, but it requires a time-intensive manual step of grouping individual features or MLP neurons into supernodes. We present a simple pipeline for automating this step: directly presenting feature descriptions to a language model that groups them into supernodes. Using automated interpretability metrics, we confirm that supernodes generated by our pipeline are as interpretable as those generated by human annotators. On a two-hop Capitals task, our pipeline recovers a supernode corresponding to the intermediate hop in 97 of 100 prompts. Finally, we present a simple proof of concept using our pipeline for open-ended exploration, where we automatically annotate 1000 attribution graphs from Wikipedia prompt completions and then use an LLM judge to flag interesting graphs worth human review. We hope this work demonstrates that even simple automation can produce meaningful attribution graph annotations, motivating further work on automated circuit tracing.",
+        "url": "http://arxiv.org/abs/2608.02632v1"
+      }
+    ],
+    "\"lottery ticket hypothesis\" AND \"language models\"": [
+      {
+        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
+        "published_date": "2026-08-05",
+        "authors": [
+          "Sajib Hossain",
+          "Md Kamrus Samad",
+          "Anan Ghosh",
+          "Labib Imam Chowdhury",
+          "Nabeel Mohammed"
+        ],
+        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
+        "url": "http://arxiv.org/abs/2608.05104v1"
+      },
+      {
+        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
+        "published_date": "2025-07-23",
+        "authors": [
+          "Andrii Balashov"
+        ],
+        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
+        "url": "http://arxiv.org/abs/2507.17107v2"
+      },
+      {
+        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
+        "published_date": "2024-02-05",
+        "authors": [
+          "Fei Yuan",
+          "Chang Ma",
+          "Shuai Yuan",
+          "Qiushi Sun",
+          "Lei Li"
+        ],
+        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
+        "url": "http://arxiv.org/abs/2402.02801v2"
+      }
+    ],
+    "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "Where To Look? : Causal Tracing of Vision Encoders in VLM",
+        "published_date": "2026-08-11",
+        "authors": [
+          "Naren Kumar S",
+          "Tirth Bhatt",
+          "Mayank Singh"
+        ],
+        "summary": "Vision-language models can describe an image with remarkable accuracy, yet a more fundamental question remains unanswered: what visual information actually drives their answers? In this work, we investigate this question through causal tracing, and we observe that highly causal vision tokens often lie outside the target region. Extending the analysis to larger vision-language models reveals a similar pattern across models and corruption settings, suggesting that strong multimodal performance does not necessarily imply spatially localized causal representations. We further investigate: can these models preserve visual structure when appearance cues are removed? and find that visual cues are exploited to understand visual structures. Together, our experiments expose a gap between seeing, using, and reasoning over visual structure, and provide a causal framework for studying how visual information is transformed, preserved, and ultimately used by modern vision-language models.",
+        "url": "http://arxiv.org/abs/2608.10758v1"
+      },
+      {
+        "title": "Actionable Hallucination Detection: Translating Latent Uncertainty into Agentic Critique",
+        "published_date": "2026-08-11",
+        "authors": [
+          "Sanidhya Vijayvargiya",
+          "Rahul Lokesh"
+        ],
+        "summary": "Large Language Models (LLMs) deployed as AI agents frequently exhibit user specification-grounding failures, executing hallucinated, undesired actions to force a resolution rather than expressing uncertainty. Existing detection methods fail to provide actionable, real-time correction as they either do not localize the hallucinations, or incur prohibitive inference latency. We introduce the Latent Critic, a lightweight low-rank adapter (LoRA) that operates concurrently with a frozen base LLM's generation to actively restructure the transformer's residual stream---amplifying latent grounding signals and translating them into localized, natural language feedback within a single sequence. By refining the base model's native uncertainty signals, this manipulation of the latent space enables reliable, granular detection without the overhead of secondary inference loops. Mechanistic analysis via activation patching and layer-wise probing shows that this rank-invariant behavior restructures pre-existing uncertainty geometry into a linearly separable representation that transfers more reliably than base model representations alone. Using tool-calling as an instantiation of granular hallucinations, we validate the detection and downstream improvements enabled by the Latent Critic architecture across Qwen and Llama-based models. Demonstrating superior real-time efficacy, our approach significantly outperforms equivalent-scale fine-tuned external detectors, semantic entropy baselines, and passive internal probes in isolating hallucinations, achieving 0.966 AUROC and >80% accuracy in localization (e.g., ungrounded: date). When deployed in a closed-loop ReAct environment, the Critic acts as a negligible latency guardrail, intercepting hallucinations before execution to prevent undesired actions while simultaneously leveraging this specific localized feedback to enable efficient agent self-correction.",
+        "url": "http://arxiv.org/abs/2608.10430v1"
+      },
+      {
+        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
+        "published_date": "2026-08-06",
+        "authors": [
+          "Jakub Po\u0107wiardowski",
+          "Mateusz Modrzejewski"
+        ],
+        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
+        "url": "http://arxiv.org/abs/2608.06638v1"
+      }
+    ]
   }
 }
