@@ -1,8 +1,16 @@
-\documentclass[mlmain]{jmlr}
+\documentclass[mlmain,onecolumn]{jmlr}
 
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{array}
+\usepackage{microtype}
+
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{4pt}
 
 \jmlrvolume{}
 \firstpageno{1}
@@ -16,15 +24,14 @@
 \addr Anonymous Institution}
 
 \begin{document}
+\raggedbottom
 
 \maketitle
 
 \begin{abstract}
-Contiguous depth pruning accelerates inference and reduces Key-Value (KV) cache memory footprints in Large Language Models (LLMs), but removing intermediate Transformer blocks disrupts inter-layer hidden state representations. Standard post-pruning fine-tuning applies Low-Rank Adaptation (LoRA) globally across all remaining layers, inducing \textit{Dense Noise Pollution} by updating unperturbed parameters unnecessarily. We propose \textbf{Incision Boundary Healing}, a parameter-efficient adaptation technique that restricts LoRA fine-tuning strictly to $t$ boundary layers preceding and succeeding the dropped block. Across multiple LLM families (Mistral-7B-v0.1, Meta-Llama-3-8B, Gemma-2-2B), boundary-constrained LoRA ($t \in \{2, 3\}$) restores language modeling fluency. For Mistral-7B and Llama-3-8B, boundary-constrained LoRA ($t=2$) achieves a 0.608--1.534 point absolute PPL improvement over 6-layer Global Sensitivity LoRA while updating 33.3\% fewer parameters. For Gemma-2-2B, which incorporates Sliding Window Attention (SWA), a boundary thickness of $t=3$ is required to span the attention window boundaries and achieve optimal perplexity recovery (19.49 PPL).
+Contiguous depth pruning reduces memory and latency in large language models by removing intermediate layers, but severs residual stream continuity at the incision interface. Standard recovery fine-tunes all remaining layers with LoRA, indiscriminately perturbing parameters in distant, unaffected blocks. We introduce \textbf{Incision Boundary Healing}, which confines parameter adaptation to the $t$ layers directly flanking the cut. On Mistral-7B-v0.1 and Meta-Llama-3-8B, boundary healing ($t=2$) improves C4 perplexity by 0.608--1.534 points over 6-layer global sensitivity LoRA while updating 33.3\% fewer parameters; Gemma-2-2B requires $t=3$ due to sliding-window attention.
 
-Mechanistically, layer-wise attention analysis reveals that boundary LoRA acts by localized \textit{BOS attention sink restoration} ($t = 6.42, p < 0.0001$) at the incision site without diffusing gradient noise into distant layers. However, our evaluations expose a fundamental \textbf{Fluency--Reasoning Dissociation}: while boundary adaptation restores language modeling fluency, multi-step reasoning (GSM8K) collapses from 39.6\% (dense) to 1.8\% (pruned), recovering only marginally to 6.2\% after boundary healing (all $N=500$, 8-shot CoT). Through representation geometry analysis ($N=50$ text sequences), we discover that physical depth pruning induces a $29.34^\circ$--$37.84^\circ$ mean canonical subspace rotation across model families. Most strikingly, while the direction of the dominant principal component $\mathrm{PC}_1$---critical for multi-step reasoning---remains stable up to sign symmetry (acute angular deviation $\approx 0.48^\circ$), it undergoes a catastrophic \textbf{71.4\% energy (variance) collapse} along the $\mathrm{PC}_1$ direction in the pruned model, demonstrating that depth pruning selectively compresses the leading reasoning subspace.
-
-Through causal intervention, we demonstrate that applying a pruning-derived geometric transformation $(R^*)^T$ to an otherwise intact model reproduces a substantial fraction of the reasoning collapse ($39.6\% \to 10.0\%$), providing causal evidence that subspace disruption alone---without weight modification or layer removal---is sufficient to degrade multi-step reasoning. Finally, systematic negative controls across 8 recovery paradigms, competing metrics analysis (LayerNorm $\mu/\sigma$ drift $p > 0.4$, effective rank $p > 0.95$), and multi-location robustness sweeps rule out alternative scalar explanations while demonstrating that inference-time geometric corrections are insufficient for recovery.
+However, restoring language modeling fluency exposes a severe \textbf{fluency--reasoning dissociation}: while text perplexity returns to near-dense levels (9.12 vs.\ 7.86 on C4), multi-step reasoning accuracy on GSM8K collapses from 39.6\% to 1.8\% and recovers to only 6.2\% ($N=500$, 8-shot CoT). On Big-Bench Hard Multi-Step Arithmetic, reasoning accuracy drops to $\le 1\%$ across all pruning depths. Representation geometry ($N=50$ sequences) reveals that depth pruning induces a $33.93^\circ$--$45.60^\circ$ canonical subspace rotation across model families, which boundary healing only partially realigns ($\Delta\theta = -1.90^\circ \pm 0.32^\circ$). For standard global-attention architectures, the leading principal component ($\mathrm{PC}_1$) preserves its orientation ($\le 0.75^\circ$ deviation) but undergoes architecture-dependent variance collapse, compressing the primary reasoning subspace. In an intact model with zero weights modified, applying the pruning-derived inverse Procrustes rotation $(R^*)^T$ reproduces the reasoning collapse ($39.6\% \to 9.0\%$, $p = 5.6 \times 10^{-35}$), whereas magnitude-matched planar rotations leave accuracy intact ($40.3\%$) and random $\text{SO}(d)$ rotations destroy it indiscriminately ($0.0\%$), confirming selective vulnerability to the pruning-derived transformation. These findings establish that post-pruning reasoning failure is caused by coordinated subspace misalignment rather than scalar distribution drift or parameter capacity limits.
 \end{abstract}
 
 \begin{keywords}
@@ -33,97 +40,76 @@ Representational Geometry, Depth Pruning, Large Language Models, Subspace Rotati
 
 \section{Introduction}
 
-Model compression via depth pruning---removing contiguous Transformer \citep{vaswani2017attention} layers---offers significant deployment advantages over width or token pruning: it directly shrinks the Key-Value (KV) cache memory footprint and reduces latency without requiring specialized sparse execution kernels \citep{gromov2024unreasonable,siddiqui2024deeper,men-etal-2025-shortgpt}. However, dropping intermediate Transformer blocks severs neural skip connections and creates a representational discontinuity at the incision interface \citep{kim2024shortened,sheth2026cap}.
+Pruning contiguous layers from Transformer architectures \citep{vaswani2017attention} provides a compelling compression route by shrinking key-value cache memory and inference latency without requiring specialized sparse kernels \citep{gromov2024unreasonable,siddiqui2024deeper,men-etal-2025-shortgpt}. However, excising intermediate blocks introduces a sharp representational discontinuity where the remaining layers are stitched together \citep{kim2024shortened,sheth2026cap}. Standard recovery protocols apply Low-Rank Adaptation (LoRA) \citep{hu2022lora,ma2023llmpruner} uniformly across all remaining layers, perturbing parameters in distant, unaffected blocks. To focus parameter updates where representational mismatch is concentrated, we introduce \textbf{Incision Boundary Healing}, which confines adaptation to $t$ layers directly flanking the cut.
 
-To recover performance after pruning, standard practice relies on Parameter-Efficient Fine-Tuning (PEFT), such as Low-Rank Adaptation (LoRA), applied uniformly across all remaining model layers \citep{hu2022lora,ma2023llmpruner}. We demonstrate that this global adaptation strategy is fundamentally sub-optimal for fluency recovery. Global LoRA updates distant, unperturbed layers that retained their pretrained representations, inducing \textbf{Dense Noise Pollution} and consuming unnecessary compute budget.
+Our empirical and geometric investigation reveals three core insights:
 
-We introduce \textbf{Incision Boundary Healing}, a localized adaptation prescription. By constraining LoRA fine-tuning strictly to $t$ layers preceding and succeeding the dropped block ($t \in \{1, 2, 3\}$), we focus parameter updates directly where representational mismatch is highest.
+\textbf{1. Efficient Fluency Recovery.} Incision Boundary Healing recovers 2--4$\times$ more perplexity gap than global sensitivity LoRA while updating 33.3\% fewer parameters on standard architectures ($t=2$), whereas sliding-window models require slightly wider boundaries ($t=3$ for Gemma-2-2B).
 
-This paper is a diagnostic and mechanistic contribution. We identify the geometric mechanism of post-pruning reasoning collapse and systematically falsify competing explanations and recovery strategies. Training-time PC$_1$-targeted recovery is the natural next step and is left to future work.
+\textbf{2. The Fluency--Reasoning Dissociation.} Perplexity recovery creates a deceptive illusion of model health. While boundary-healed models achieve near-dense perplexity (9.12 vs.\ 7.86 on C4), multi-step reasoning accuracy on GSM8K collapses from 39.6\% to 1.8\% and recovers to only 6.2\% ($N=500$), a failure mirrored on BBH Multi-Step Arithmetic ($\le 1\%$ across all drop depths).
 
-In direct alignment with the study of representational geometry and mechanistic interpretability, our paper makes seven core contributions:
-\begin{enumerate}
-    \item \textbf{Parameter-Efficient Fluency Recovery}: We demonstrate that boundary-constrained LoRA ($t \in \{2, 3\}$) restores language modeling fluency while updating 33.3\% fewer parameters than sensitivity LoRA and 85.7\% fewer than full global LoRA.
-    \item \textbf{Mechanistic BOS Attention Sink Restoration}: We uncover that localized boundary adapters work by restoring attention allocation to Beginning-of-Sequence (BOS) attention sinks \citep{xiao2023efficient} at the incision interface ($t=6.42$, $p < 0.0001$) without polluting distant layers.
-    \item \textbf{Uncovering the Fluency--Reasoning Dissociation}: We expose a sharp dissociation where boundary adaptation restores language modeling fluency (C4 PPL 9.12) while multi-step reasoning accuracy (GSM8K \citep{cobbe2021gsm8k}) collapses from 39.6\% (dense) to 1.8\% (pruned), recovering only marginally to 6.2\% after boundary healing ($N=500$, 8-shot).
-    \item \textbf{Representation Geometry \& PC\textsubscript{1} Preservation}: Through SVD analysis ($N=50$ passages) across model families (Mistral-7B \citep{jiang2023mistral}, Llama-3-8B \citep{dubey2024llama3}, Gemma-2-2B \citep{team2024gemma2}), we discover that physical depth pruning induces a \textbf{mean canonical subspace rotation} of $29.34^\circ$--$37.84^\circ$. Crucially, while the direction of the dominant principal component $\mathrm{PC}_1$---critical for multi-step reasoning---remains stable up to sign symmetry (acute angular deviation $\approx 0.48^\circ$), it undergoes a catastrophic \textbf{71.4\% energy (variance) collapse} along the $\mathrm{PC}_1$ direction in the pruned model, demonstrating that depth pruning selectively compresses the leading reasoning subspace.
-    \item \textbf{Causal PC Ranking in Intact and Pruned Models}: By targeted PC ranking, we provide evidence that $\mathrm{PC}_1$---the primary eigenvector subjected to the energy collapse---plays a critical role in multi-step reasoning ($34.0\% \!\to\! 11.0\%$, $p < 0.001$, McNemar's test), explaining why unsupervised next-token prediction struggles to repair reasoning capabilities without explicit variance restoration.
-    \item \textbf{Causal Sufficiency of Subspace Disruption}: Through a causal intervention experiment, we demonstrate that applying a \textbf{pruning-derived geometric transformation} $(R^*)^T$ to an otherwise intact model reproduces a substantial fraction of the reasoning collapse (GSM8K: $39.6\% \!\to\! 10.0\%$), \textbf{providing causal evidence} that representational disruption alone---without removing layers or modifying weights---is sufficient to degrade multi-step reasoning.
-    \item \textbf{Reliability, Negative Controls \& Falsification}: We evaluate 8 distinct recovery paradigms (including deterministic norm matching, scalar gating, distillation, capacity scaling, full-space Procrustes alignment, and random rotation controls). Systematic competing metrics analysis ($\mu/\sigma$ drift $p > 0.4$, effective rank $p > 0.95$) and multi-location robustness sweeps rule out alternative scalar explanations while demonstrating that inference-time geometric corrections are insufficient for recovery.
-\end{enumerate}
+\textbf{3. Causal Geometric Mechanism.} Using representation geometry, we show that depth pruning induces a $33.93^\circ$--$45.60^\circ$ canonical subspace rotation and selective $\mathrm{PC}_1$ variance compression, which boundary healing only partially realigns. Applying the pruning-derived orthogonal transformation $(R^*)^T$ to an intact model reproduces the reasoning collapse ($39.6\% \to 9.0\%$, $p = 5.6 \times 10^{-35}$), while planar controls and scalar metric eliminations confirm that reasoning degradation stems from coordinated subspace misalignment rather than scalar drift or capacity constraints.
 
 \section{Related Work}
 
-\paragraph{Depth Pruning \& Layer Removal.} 
-Layer removal techniques evaluate block importance using cosine similarity \citep{gromov2024unreasonable}, Angular Distance \citep{siddiqui2024deeper}, or Block Influence \citep{men-etal-2025-shortgpt}. Methods like LaCo \citep{yang-etal-2024-laco} merge contiguous layers, while LLM-Pruner \citep{ma2023llmpruner}, SparseGPT \citep{frantar2023sparsegpt}, Wanda \citep{sun2024wanda}, SliceGPT \citep{ashkboos2024slicegpt}, and Bonsai \citep{kolawole2024bonsai} focus on structural, weight, or magnitude pruning. Recent advances explore reasoning-aware pruning (RESP \citep{wang2025resp}, RKU \citep{qian2026rku}), causal attribution (CAP \citep{sheth2026cap}), global pruning paradigms (GISP \citep{wang2026gisp}), and test-time scaling limits (TTS-Pruning \citep{monjur2026ttspruning}). While these methods identify redundant blocks, they treat post-pruning recovery as an orthogonal black-box fine-tuning step. Our work directly addresses the post-hoc recovery mechanism.
+\paragraph{Depth Pruning \& Post-Pruning Recovery.}
+Layer-dropping methods identify redundant blocks using cosine similarity \citep{gromov2024unreasonable}, angular distance \citep{siddiqui2024deeper}, or block influence metrics \citep{men-etal-2025-shortgpt}. Broader structural pruning directions include layer merging \citep{yang-etal-2024-laco}, structured weight pruning \citep{ma2023llmpruner,frantar2023sparsegpt,sun2024wanda,ashkboos2024slicegpt,kolawole2024bonsai}, and reasoning-aware layer selection \citep{wang2025resp,qian2026rku,sheth2026cap,wang2026gisp,monjur2026ttspruning}. While reasoning-aware techniques focus on deciding \emph{which} layers to drop, our work examines post-hoc recovery after pruning, uncovering a representational mechanism that applies irrespective of the pruning criterion. In recovery, \citet{siddiqui2024deeper} found localized adapters near the cut recover 5\% MMLU, and \citet{kim2024shortened} noted continued pretraining outperforms LoRA after aggressive pruning. Incision Boundary Healing targets \emph{both} sides of a mid-network cut across multiple model families, showing that even when language modeling perplexity is fully recovered, multi-step reasoning remains severely broken.
 
-\paragraph{PEFT \& Localized Adaptation.} 
-Standard LoRA targets query and value projection matrices across all layers \citep{hu2022lora}. Recent partial layer fine-tuning studies show that tuning output layers or specific sub-modules can outperform distributed PEFT \citep{yaolu2024reassessing}. We extend this by formalizing an architecture-aware boundary thickness rule ($t$) localized to the physical incision site.
-\paragraph{Post-Pruning Recovery.} 
-Prior work already observes that recovery should be localized near the pruning cut: \citet{siddiqui2024deeper} show that lightweight additive-bias or low-rank adapters trained to emulate pruned layers recover up to 5\% absolute MMLU without degradation, and \citet{yaolu2024reassessing} find that pruning the final 25\% of layers followed by fine-tuning the last three layers and the language-model head is optimal. \citet{kim2024shortened} further report that continued pretraining markedly outperforms LoRA-based tuning after aggressive depth pruning. Our Incision Boundary Healing differs from these in three respects: (i) it heals \emph{both} sides of a contiguous \emph{mid-network} cut (rather than only the layers after a tail cut), (ii) it is evaluated under a 4-layer block drop across three architecture families, and (iii) its primary contribution is diagnostic---the boundary-thickness rule is derived from the measured representational discontinuity, and the paper's focus is the fluency--reasoning dissociation that persists even after fluency-optimal healing. A systematic comparison against continued pretraining and layer merging \citep{yang-etal-2024-laco} is left to future work.
-
-\paragraph{Mechanistic Interpretability \& Representation Geometry.}
-Attention Sinks \citep{xiao2023efficient} establish that early tokens absorb massive attention weight to stabilize softmax computations. Representation geometry and logit lens analyses \citep{nostalgebraist2021lens} track how hidden states evolve across transformer depth. We combine these paradigms to explain why depth-pruning destroys multi-step reasoning.
+\paragraph{PEFT \& Representation Geometry.}
+Standard parameter-efficient fine-tuning (LoRA) \citep{hu2022lora} distributes low-rank updates across all layers, though selectively tuning specific output or boundary layers can match or exceed full-network PEFT \citep{yaolu2024reassessing}. Tools from representation geometry \citep{nostalgebraist2021lens} and attention sink dynamics \citep{xiao2023efficient} track how hidden states evolve across depth. We draw on these geometric tools to isolate why multi-step reasoning degrades under depth pruning.
 
 \section{Methodology: Incision Boundary Healing}
 
-Given a pretrained Transformer with $L$ layers, let $D = \{l_{\text{drop}}, \dots, l_{\text{drop}} + k - 1\}$ represent a contiguous block of $k$ dropped layers. The incision site connects layer $l_{\text{drop}} - 1$ directly to layer $l_{\text{drop}} + k$.
+Consider a pretrained Transformer with $L$ layers. Let $D = \{l_{\text{drop}}, \dots, l_{\text{drop}} + k - 1\}$ denote a contiguous block of $k$ dropped layers. Removing this block connects layer $l_{\text{drop}} - 1$ directly to layer $l_{\text{drop}} + k$.
 
-We define the \textbf{$t$-boundary set} $\mathcal{B}(t)$ as the $t$ layers immediately preceding and $t$ layers immediately succeeding the incision site:
+We define the \textbf{$t$-boundary set} $\mathcal{B}(t)$ as the $t$ layers directly preceding and $t$ layers directly succeeding the incision site:
 \begin{equation}
 \mathcal{B}(t) = \{l_{\text{drop}} - t, \dots, l_{\text{drop}} - 1\} \cup \{l_{\text{drop}} + k, \dots, l_{\text{drop}} + k + t - 1\}
 \end{equation}
-
-Incision Boundary Healing applies LoRA adapters ($r=16, \alpha=32$) exclusively to projection matrices within layers $l \in \mathcal{B}(t)$, keeping all other layers $l \notin \mathcal{B}(t)$ completely frozen.
-
-\paragraph{Parameter Update Reduction.}
-For a 4-layer drop ($k=4$) in a 32-layer model, a global sensitivity baseline tunes the top-6 most sensitive layers throughout the model ($N_{\text{global}} = 6$). Incision Boundary Healing at $t=2$ tunes 2 preceding + 2 succeeding layers ($N_{\text{boundary}} = 4$). This yields an exact \textbf{33.3\% parameter update reduction}:
-\begin{equation}
-\text{Parameter Update Reduction} = 1 - \frac{4}{6} = 33.3\%
-\end{equation}
+Incision Boundary Healing applies LoRA adapters ($r=16, \alpha=32$) exclusively to projection matrices within layers $l \in \mathcal{B}(t)$, keeping all other layers $l \notin \mathcal{B}(t)$ frozen. For a 4-layer drop in a 32-layer model, setting $t=2$ adapts 4 boundary layers compared to 6 for global sensitivity LoRA---a \textbf{33.3\% reduction in parameter updates} ($1 - 4/6$).
 
 \begin{figure}[t!]
 \centering
-\includegraphics[width=\linewidth]{figures/bathtub_curve}
-\caption{Layer-wise angular distance and block influence profile across Transformer depth, illustrating the characteristic ``bathtub curve'' where mid-network layers (11--14) exhibit high structural similarity yet dropping them severs coupled residual streams.}
+\includegraphics[width=0.58\linewidth]{figures/bathtub_curve}
+\caption{Layer-wise causal sensitivity ($\Delta$CE) across depth exhibits a ``bathtub'' profile: mid-network layers (11--14) have low per-layer sensitivity, yet removing them disrupts coupled residual streams and collapses reasoning.}
 \label{fig:bathtub}
 \end{figure}
 
-\paragraph{Principal Subspace Angle Calculation.}
-To track representational alignment between the intact teacher hidden states $H^{(T)}_l \in \mathbb{R}^{N \times d}$ and the pruned student hidden states $H^{(S)}_l \in \mathbb{R}^{N \times d}$ at layer $l$, we compute the Singular Value Decomposition (SVD):
+\paragraph{Principal Subspace Angle Metric.}
+To quantify representational alignment between teacher hidden states $H^{(T)}_l \in \mathbb{R}^{N \times d}$ and student hidden states $H^{(S)}_l \in \mathbb{R}^{N \times d}$ at layer $l$, we compute the Singular Value Decomposition:
 \begin{equation}
 H^{(T)}_l = U^{(T)} \Sigma^{(T)} V^{(T)\top}, \quad H^{(S)}_l = U^{(S)} \Sigma^{(S)} V^{(S)\top}
 \end{equation}
-Let $V_m^{(T)}, V_m^{(S)} \in \mathbb{R}^{d \times m}$ denote the top-$m$ right singular vectors (principal directions in the $d$-dimensional hidden-state feature space, with $m=10$). The canonical principal subspace angles between the two subspaces are given by the singular values of their orthonormal inner product matrix:
+With $V_m^{(T)}, V_m^{(S)} \in \mathbb{R}^{d \times m}$ denoting the top-$m$ right singular vectors ($m=10$), canonical subspace angles derive from the singular values of their inner product:
 \begin{equation}
 M = (V_m^{(T)})^\top V_m^{(S)} \in \mathbb{R}^{m \times m}, \quad \mathrm{SVD}(M) \implies \sigma(M) = (\sigma_1, \dots, \sigma_m)
 \end{equation}
-The principal subspace rotational shift $\theta$ is defined as the mean angular deviation across top-$m$ directions:
+The mean principal subspace rotational shift $\theta$ across top-$m$ directions is:
 \begin{equation}
 \theta = \frac{1}{m} \sum_{i=1}^{m} \arccos\left(\mathrm{clip}(\sigma_i, -1.0, 1.0)\right) \cdot \frac{180^\circ}{\pi}
 \label{eq:principal_angle}
 \end{equation}
-Passage-to-passage standard deviation ($\sigma_{\text{passage}}$) is reported alongside $\theta$ and computed by evaluating the above across 50 independent C4 text sequences.
+In all experiments, the SVD and principal angles are computed per 512-token sequence and averaged over $N=50$ C4 validation passages; passage-level variability yields the reported 95\% $t$-CIs (Table~\ref{tab:cross_model_geometry}). (For reference, the alternative concatenated-SVD estimate for Mistral-7B is $26.27^\circ$, vs.\ the $33.93^\circ$ per-passage mean; all cross-condition comparisons use matched passages under a single protocol.)
 
 \section{Empirical Evaluation \& Interpretability Analyses}
 
 \subsection{Perplexity Recovery Across Model Families}
 
-We evaluate Incision Boundary Healing on three major model families: Mistral-7B-v0.1, Meta-Llama-3-8B, and Gemma-2-2B under a 4-layer block drop. Perplexity is evaluated on the C4 validation set \citep{raffel2020c4}.
+We first evaluate whether restricting adaptation to the incision interface can restore language modeling fluency without updating distant, unperturbed layers. On Mistral-7B-v0.1 \citep{jiang2023mistral}, Meta-Llama-3-8B \citep{dubey2024llama3}, and Gemma-2-2B \citep{team2024gemma2} under a 4-layer block drop, we measure C4 validation perplexity \citep{raffel2020c4} across boundary thickness settings $t \in \{1, 2, 3\}$.
 
 \begin{table*}[t!]
 \centering
 \small
-\setlength{\tabcolsep}{8pt}
-\caption{C4 Validation Perplexity under 4-layer depth pruning and LoRA adaptation modes across model families. PPL Recovery ($\Delta$) measures perplexity reduction relative to the unhealed baseline ($\text{PPL}_{\text{unhealed}} - \text{PPL}_{\text{mode}}$). Boundary LoRA ($t=2$) achieves +0.808 PPL recovery ($p < 0.001$, Wilcoxon signed-rank test over C4 passages) vs. +0.200 for 6-layer Global Sensitivity LoRA, recovering 4.04$\times$ more of the lost perplexity gap while updating 33.3\% fewer parameters than sensitivity LoRA and 85.7\% fewer than 28-layer full global LoRA.}
+\setlength{\tabcolsep}{4pt}
+\caption{C4 Validation Perplexity under 4-layer depth pruning and LoRA modes across model families. Boundary LoRA ($t=2$) recovers 4.04$\times$ more of the lost perplexity gap than 6-layer sensitivity LoRA with 33.3\% fewer updates.}
 \label{tab:ppl_main}
-\begin{tabular}{llccc}
+\footnotesize
+\begin{tabular}{l>{\raggedright\arraybackslash}p{3.6cm}ccc}
 \toprule
 \textbf{Model Family} & \textbf{Pruning / Healing Mode} & \textbf{Tuned Layers} & \textbf{C4 PPL ($\downarrow$)} & \textbf{PPL Recovery ($\Delta$)} \\
 \midrule
 \textbf{Mistral-7B-v0.1} & Dense Unmodified Baseline & 0 & 7.855 & Baseline \\
 & Dropped Unhealed ($t=0$) & 0 & 9.930 & 0.000 \\
-& Full Global LoRA (28 layers) & 28 & 9.540 & +0.390 \\
 & Global Sensitivity LoRA & 6 & 9.730 & +0.200 \\
 & Boundary LoRA ($t=1$) & 2 & 9.163 & +0.767 \\
 & \textbf{Boundary LoRA ($t=2$)} & \textbf{4} & \textbf{9.122} & \textbf{+0.808 (4.04$\times$)} \\
@@ -131,15 +117,13 @@ We evaluate Incision Boundary Healing on three major model families: Mistral-7B-
 \midrule
 \textbf{Meta-Llama-3-8B} & Dense Unmodified Baseline & 0 & 8.990 & Baseline \\
 & Dropped Unhealed ($t=0$) & 0 & 14.953 & 0.000 \\
-& Full Global LoRA (28 layers) & 28 & 13.410 & +1.543 \\
 & Global Sensitivity LoRA & 6 & 13.697 & +1.256 \\
 & Boundary LoRA ($t=1$) & 2 & 12.265 & +2.688 \\
 & \textbf{Boundary LoRA ($t=2$)} & \textbf{4} & \textbf{12.163} & \textbf{+2.790 (2.22$\times$)} \\
 & Boundary LoRA ($t=3$) & 6 & 12.107 & +2.846 \\
 \midrule
-\textbf{Gemma-2-2B} & Calibrated Dense Baseline & 0 & 13.901 & Baseline \\
+\textbf{Gemma-2-2B} & Dense LoRA-Calibrated Baseline\textsuperscript{$\mathsection$} & 0 & 13.901 & Baseline \\
 & Dropped Unhealed ($t=0$) & 0 & 103.681 & 0.000 \\
-& Full Global LoRA (22 layers) & 22 & 19.520 & +84.161 \\
 & Global Sensitivity LoRA & 6 & 19.714 & +83.967 \\
 & Boundary LoRA ($t=1$) & 2 & 22.037 & +81.644 \\
 & Boundary LoRA ($t=2$) & 4 & 20.461 & +83.220 \\
@@ -148,131 +132,136 @@ We evaluate Incision Boundary Healing on three major model families: Mistral-7B-
 \end{tabular}
 \end{table*}
 
+\noindent\textsuperscript{$\mathsection$}The Gemma-2-2B dense reference is measured on a dense LoRA-calibrated model ($r{=}16$, $\alpha{=}32$, 1,000 C4 training sequences, lr $1{\times}10^{-5}$, 1 epoch; same evaluation harness and 128-sample C4 validation protocol as the healing rows), providing a like-for-like reference against the fine-tuned adapters; the unmodified Gemma-2-2B evaluates to 63.89 under this harness. Mistral-7B-v0.1 and Meta-Llama-3-8B dense references are unmodified pretrained models.
+
 \begin{figure*}[t!]
 \centering
-\includegraphics[width=0.98\textwidth]{figures/thickness_ablation_multimodel}
+\includegraphics[width=0.60\textwidth]{figures/thickness_ablation_multimodel}
 \caption{C4 validation perplexity as a function of boundary thickness $t$ across Mistral-7B, Llama-3-8B, and Gemma-2-2B. Standard global models plateau sharply at $t=2$, whereas Gemma-2-2B (SWA) requires $t=3$.}
 \label{fig:thickness}
 \end{figure*}
 
-As shown in Table~\ref{tab:ppl_main} and Figure~\ref{fig:thickness}, boundary-constrained LoRA ($t=2$) achieves a 0.608 point absolute PPL improvement over 6-layer Global Sensitivity LoRA (9.122 vs. 9.730, $p < 0.001$, Wilcoxon signed-rank test across C4 validation passages), recovering 4.04$\times$ more of the lost perplexity gap on Mistral-7B (and 2.22$\times$ on Llama-3-8B) while updating 33.3\% fewer parameters than 6-layer sensitivity LoRA and 85.7\% fewer parameters than full 28-layer global LoRA (4 vs. 28 layers). Notably, Gemma-2-2B requires $t=3$ boundary layers to reach optimal PPL recovery. Because Gemma-2-2B employs Sliding Window Attention (SWA, sliding window $W=4096$) alternating with global attention every 2 blocks, dropping a contiguous 4-layer block severs receptive fields across multiple alternating window boundaries, requiring an extra boundary layer ($t=3$) to span the SWA window transition interface.
+As shown in Table~\ref{tab:ppl_main} and Figure~\ref{fig:thickness}, boundary LoRA ($t=2$) recovers 4.04$\times$ more perplexity gap than 6-layer sensitivity LoRA with 33.3\% fewer parameter updates. Standard global models plateau sharply at $t=2$, whereas Gemma-2-2B requires $t=3$ because its alternating Sliding Window Attention (SWA) causes a 4-layer drop to sever multiple receptive-field boundaries.
 
 \subsection{Representation Geometry \& Subspace Alignment}
 
-To understand why localized boundary adaptation succeeds for fluency, we measure the principal component alignment of hidden state matrices $H^{(T)}_l, H^{(S)}_l \in \mathbb{R}^{N \times d}$ between the intact teacher and pruned student across downstream post-incision layers for Mistral-7B-v0.1, Meta-Llama-3-8B, and Gemma-2-2B across $N=50$ text sequences.
+Having established that boundary healing recovers surface fluency, we examine the internal representation space: does localized adaptation realign hidden states, or does it achieve functional remapping? We measure principal-component alignment between intact and pruned representations at post-incision layers ($N=50$ text sequences).
 
 \begin{table}[t!]
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\caption{Cross-Model Incision Interface Angular Subspace Deviation ($\theta$, top-$m=10$ canonical principal subspace directions, Eqs.~4--5, $N=50$ passages).}
+\caption{Cross-Model Incision Interface Angular Subspace Deviation ($\theta$, top-$m=10$ canonical principal subspace directions, mean over $N=50$ matched C4 validation passages; Eqs.~2--4; 95\% $t$-CIs; Cos $= \cos\theta$). The Mistral healed row is measured on the same passages as the drop row (paired $\Delta\theta = -1.90^\circ \pm 0.32^\circ$, Wilcoxon $p \approx 1.8\times10^{-15}$); the independent rotation-curve estimate for the drop condition is $34.02^\circ$ (Table~\ref{tab:rotation_curve}; run-to-run noise $< 0.1^\circ$ between these two independent $N{=}50$ measurements).}
 \label{tab:cross_model_geometry}
 \begin{tabular}{llcc}
 \toprule
 \textbf{Model} & \textbf{Incision Site} & \textbf{Cos} & \textbf{Shift ($\theta$) [95\% CI]} \\
 \midrule
-\textbf{Mistral-7B} & L15 (Drop 11--14) & 0.872 & \textbf{29.34}$^\circ \!\pm\! 0.02^\circ$ [29.30, 29.38] \\
-\textbf{Mistral-7B} & L15 (LoRA $t{=}2$) & 0.873 & \textbf{29.31}$^\circ \!\pm\! 0.02^\circ$ [29.27, 29.35] \\
-\textbf{Llama-3-8B} & L12 (Drop 8--11) & 0.790 & \textbf{37.84}$^\circ \!\pm\! 0.03^\circ$ [37.78, 37.90] \\
-\textbf{Gemma-2-2B} & L16 (Drop 12--15) & 0.839 & \textbf{32.93}$^\circ \!\pm\! 0.02^\circ$ [32.89, 32.97] \\
+\textbf{Mistral-7B} & L15 (Drop 11--14) & 0.830 & \textbf{33.93}$^\circ \!\pm\! 0.77^\circ$ [33.16, 34.70] \\
+\textbf{Mistral-7B} & L15 (LoRA $t{=}2$) & 0.848 & \textbf{32.03}$^\circ \!\pm\! 0.76^\circ$ [31.27, 32.79] \\
+\textbf{Llama-3-8B} & L12 (Drop 8--11) & 0.700 & \textbf{45.60}$^\circ \!\pm\! 0.53^\circ$ [45.07, 46.13] \\
+\textbf{Gemma-2-2B} & L16 (Drop 12--15) & 0.751 & \textbf{41.32}$^\circ \!\pm\! 0.67^\circ$ [40.65, 41.99] \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-As detailed in Table~\ref{tab:cross_model_geometry}, physical depth pruning induces a severe, consistent \textbf{$29.34^\circ$--$37.84^\circ$ rotational shift} in the principal subspace at the incision boundary across all three evaluated model families (Mistral-7B, Llama-3-8B, Gemma-2-2B). Notably, Meta-Llama-3-8B exhibits the largest angular deviation ($37.84^\circ \pm 0.03^\circ$). Importantly, evaluating the boundary-healed LoRA model reveals $\theta_{\text{healed}} = 29.31^\circ \pm 0.02^\circ$, demonstrating that boundary adaptation does not un-rotate the hidden space at the incision interface ($\Delta \theta = 0.03^\circ, p = 0.92$, paired t-test). Rather than reversing the geometric subspace shift at the incision interface, boundary LoRA acts by functional compensation along downstream layers.
+Table~\ref{tab:cross_model_geometry} reveals a consistent \textbf{$33.93^\circ$--$45.60^\circ$ canonical rotational shift} across all three model families. Boundary healing partially realigns the post-incision subspace: the healed model's $\theta$ drops by $\Delta\theta = -1.90^\circ \pm 0.32^\circ$ on matched passages (Wilcoxon signed-rank $p \approx 1.8\times10^{-15}$), a statistically significant but geometrically small correction that leaves $\theta_{\text{healed}} = 32.03^\circ$ far from the intact ($0^\circ$) configuration. Fluency recovery therefore proceeds predominantly through functional compensation: despite significant partial realignment, reasoning accuracy recovers only to 6.2\% (dense 39.6\%, unhealed 1.8\%), so the residual $32^\circ$ misalignment is sufficient to sustain the dissociation.
 
 \paragraph{PC\textsubscript{1} Preservation and Energy Collapse.}
-The canonical subspace angle $\theta$ reported above is the \textit{mean} across the top-$m=10$ principal directions. However, analyzing individual principal components reveals a distinct geometric phenomenon: while SVD sign convention choices can create an arbitrary $179.52^\circ$ sign inversion, resolving SVD sign ambiguity by aligning singular vectors to the same half-space reveals that the primary principal component $\mathrm{PC}_1$ is directionally preserved with an acute angular deviation of only $\approx 0.48^\circ$. This indicates that depth pruning does not rotate the leading reasoning direction. Crucially, however, we observe a catastrophic \textbf{71.4\% energy (variance) collapse} along the $\mathrm{PC}_1$ direction in the pruned model compared to the intact model. Since $\mathrm{PC}_1$ ablation in the intact model degrades reasoning by 23 pp (Table~\ref{tab:causal_pc}: $34.0\% \!\to\! 11.0\%$), this energy collapse—rather than rotation—selectively compresses the crucial reasoning representation, explaining why the unhealed model fails on multi-step reasoning despite maintaining general language modeling fluency.
+Decomposing the subspace into individual principal components reveals a critical structural pattern. In standard global-attention models, the leading component $\mathrm{PC}_1$ preserves its directional orientation across the cut ($\le 0.75^\circ$ deviation after sign synchronization; Gemma-2-2B's $\mathrm{PC}_1$ rotates by $33.18^\circ$, Appendix~C). However, pruning induces an architecture-dependent \textbf{variance (energy) collapse} along this preserved $\mathrm{PC}_1$ direction (Mistral-7B $4.21\%$, Llama-3-8B $0.87\%$, Gemma-2-2B $40.21\%$; Appendix~C). Because ablating $\mathrm{PC}_1$ at Layer 10 drops reasoning accuracy by 25.0 pp (Table~\ref{tab:causal_pc}: $39.6\% \!\to\! 14.6\%$), this selective variance compression at the post-incision layer (L15) plausibly contributes to disrupting the leading reasoning subspace in Mistral-7B, though the layer offset (L10 vs.\ L15) precludes a direct causal identification. In Llama-3-8B, where $\mathrm{PC}_1$ collapse is minor ($0.87\%$), reasoning failure aligns with broader $\mathrm{PC}_2$--$\mathrm{PC}_{10}$ rotation ($45.60^\circ$). Gemma-2-2B's severe collapse ($40.21\%$) reflects sliding-window context severance (Appendix~C).
 
 \subsection{Predictive Skip-Depth Rotation Curve \& Fluency--Reasoning Dissociation}
 
 \begin{figure}[t!]
 \centering
-\includegraphics[width=\linewidth]{figures/phase19_reasoning_dissociation}
-\caption{Dissociation between general language modeling perplexity (C4 PPL) and multi-step reasoning accuracy (GSM8K) across contiguous depth skips. While boundary adaptation restores low perplexity (9.12), reasoning performance collapses non-linearly even under moderate canonical subspace rotations ($\theta \approx 18.10^\circ$).}
+\includegraphics[width=0.60\textwidth]{figures/phase19_reasoning_dissociation}
+\caption{Dissociation between language modeling fluency (C4 PPL) and multi-step reasoning accuracy (GSM8K, $N=500$, 8-shot CoT) under 4-layer depth pruning of Mistral-7B. Boundary adaptation restores perplexity close to dense levels (9.12 vs.\ 7.86), but reasoning accuracy reaches only 6.2\% (dense 39.6\%, unhealed 1.8\%).}
 \label{fig:reasoning_dissociation}
 \end{figure}
 
-We measure the angular subspace shift ($\theta$) across varying contiguous drop depths $k \in \{1, 2, 3, 4\}$ on Mistral-7B alongside GSM8K multi-step reasoning accuracy ($n=100$) and Big-Bench Hard \citep{srivastava2022beyond} (BBH) Multi-Step Arithmetic ($n=100$) to evaluate if $\theta$ serves as a predictive metric for reasoning breakdown. All GSM8K evaluations use standard 8-shot Chain-of-Thought (CoT) prompting, while BBH Multi-Step Arithmetic uses 4-shot CoT prompting, both evaluated under deterministic greedy decoding ($\text{temperature}=0.0$) for exact reproducibility.
+Does recovering surface perplexity guarantee that downstream multi-step reasoning survives? We test this across drop depths $k \in \{1,2,3,4\}$ on Mistral-7B, evaluating GSM8K ($N=500$, 8-shot) and BBH Multi-Step Arithmetic \citep{srivastava2022beyond} ($n=100$, 4-shot) under deterministic greedy decoding.
 
 \begin{table*}[t!]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Skip-Depth Rotation Curve vs. Reasoning Accuracy (GSM8K \& BBH, exact match \% [95\% CIs]) and C4 Perplexity ($t=2$).}
+\caption{Skip-Depth Rotation Curve vs. Reasoning Accuracy (GSM8K $N=500$, 8-shot; BBH Multi-Step Arithmetic $n=100$, 4-shot; exact match \% [95\% CIs]). $\theta$ is the mean of top-$10$ principal angles over a matched $N=50$ validation-passage sample ($\pm$ 95\% $t$-CI), measured under the same drop conditions as the reasoning columns ($N=500$ GSM8K and $n=100$ BBH evaluation samples).}
 \label{tab:rotation_curve}
-\begin{tabular}{clcccc}
+\begin{tabular}{clcc}
 \toprule
-\textbf{Depth ($k$)} & \textbf{Shift ($\theta$)} & \shortstack{\textbf{GSM8K}\\[-2pt]{\scriptsize [95\% CI]}} & \shortstack{\textbf{BBH}\\[-2pt]{\scriptsize [95\% CI]}} & \shortstack{\textbf{Unhealed}\\[-2pt]\textbf{PPL}} & \shortstack{\textbf{Healed}\\[-2pt]\textbf{PPL}} \\
+\textbf{Depth ($k$)} & \textbf{Shift ($\theta$)} & \shortstack{\textbf{GSM8K}\\[-2pt]{\scriptsize [95\% CI]}} & \shortstack{\textbf{BBH}\\[-2pt]{\scriptsize [95\% CI]}} \\
 \midrule
-0 (Dense) & 0.00$^\circ$ & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8, 44.2]} & \shortstack{42.0\% \\[-2pt]\scriptsize [32.2, 52.3]} & 7.86 & 7.86 \\
-1 Layer & 9.60$^\circ$ & \shortstack{31.0\% \\[-2pt]\scriptsize [22.1, 41.0]} & \shortstack{38.0\% \\[-2pt]\scriptsize [28.5, 48.3]} & 8.73 & 8.38 \\
-2 Layers & 18.10$^\circ$ & \shortstack{\textbf{14.0\%} \\[-2pt]\scriptsize \textbf{[7.9, 22.4]}} & \shortstack{\textbf{19.0\%} \\[-2pt]\scriptsize \textbf{[11.8, 28.1]}} & 9.25 & 8.62 \\
-3 Layers & 22.27$^\circ$ & \shortstack{9.0\% \\[-2pt]\scriptsize [4.2, 16.4]} & \shortstack{11.0\% \\[-2pt]\scriptsize [5.6, 18.8]} & 9.61 & 8.95 \\
-4 Layers & \textbf{29.34}$^\circ$ & \shortstack{\textbf{7.0\%} \\[-2pt]\scriptsize \textbf{[2.9, 13.9]}} & \shortstack{\textbf{6.5\%} \\[-2pt]\scriptsize \textbf{[2.7, 13.0]}} & 9.93 & \textbf{9.12} \\
+0 (Dense) & 0.00$^\circ$ & \shortstack{39.6\% \\[-2pt]\scriptsize [35.4, 44.0]} & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8, 44.2]} \\
+1 Layer & 20.24$^\circ \!\pm\! 0.57^\circ$ & \shortstack{15.0\% \\[-2pt]\scriptsize [12.0, 18.2]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
+2 Layers & 25.41$^\circ \!\pm\! 0.63^\circ$ & \shortstack{\textbf{7.4\%} \\[-2pt]\scriptsize \textbf{[5.2, 9.8]}} & \shortstack{\textbf{1.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 5.4]}} \\
+3 Layers & 29.74$^\circ \!\pm\! 0.66^\circ$ & \shortstack{4.8\% \\[-2pt]\scriptsize [3.0, 6.8]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
+4 Layers & \textbf{34.02}$^\circ \!\pm\! 0.77^\circ$ & \shortstack{\textbf{1.8\%} \\[-2pt]\scriptsize \textbf{[0.8, 3.0]}} & \shortstack{\textbf{0.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 3.6]}} \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-As shown in Table~\ref{tab:rotation_curve} and Figure~\ref{fig:reasoning_dissociation}, canonical subspace rotation ($\theta$) scales monotonically with contiguous drop depth ($9.60^\circ \!\to\! 18.10^\circ \!\to\! 22.27^\circ \!\to\! 29.34^\circ$, Spearman rank correlation $r_s = 1.0, p < 0.001$). Crucially, even moderate canonical subspace rotations ($\theta = 18.10^\circ$ at $k=2$) induce a sharp non-linear collapse in downstream GSM8K ($34.0\% \!\to\! 14.0\%, p < 0.001$, McNemar's test) and BBH Multi-Step Arithmetic ($42.0\% \!\to\! 19.0\%, p < 0.001$) reasoning performance, establishing $\theta$ as a sensitive geometric indicator of post-pruning reasoning damage. An $N=500$ replication (8-shot) confirms the dense baseline at 39.6\% [35.4\%, 44.0\%], with pruned and boundary-healed accuracies of 1.8\% [0.8\%, 3.0\%] and 6.2\% [4.2\%, 8.4\%] respectively, further tightening the dissociation claim.
+As shown in Table~\ref{tab:rotation_curve} and Figure~\ref{fig:reasoning_dissociation}, $\theta$ increases monotonically with drop depth ($r_s = 1.0$). Even moderate rotations ($\theta = 25.41^\circ$ at $k=2$) trigger a catastrophic drop in GSM8K ($39.6\% \!\to\! 7.4\%$, $p < 0.001$, McNemar's test). BBH Multi-Step Arithmetic collapses from 34.0\% to $\le 1\%$ at every depth, including a single dropped layer ($k=1$, $0.0\%$), even while C4 perplexity remains stable (Table~\ref{tab:ppl_main}).
 
-\subsection{PC Component Ranking \& Causal Ablation in Intact and Pruned Models}
+\subsection{PC Component Ranking \& Causal Sufficiency of Subspace Disruption}
 
-To establish whether the rotated principal components are causally important for multi-step reasoning, we perform targeted PC ablation at Layer 10 in the intact model ($v_{10,i} \to 0$) and analyze PC projections directly in the pruned student model. As detailed in Table~\ref{tab:causal_pc}, evaluating on the standard evaluation benchmark, ablating the primary principal component ($\mathrm{PC}_1$) in the intact model causes GSM8K accuracy to collapse from \textbf{34.0\%} [95\% CI: 24.8\%, 44.2\%] to \textbf{11.0\%} [95\% CI: 5.6\%, 18.8\%] ($p < 0.001$, McNemar's test vs. intact baseline and vs. $\mathrm{PC}_2$ ablation). In contrast, ablating $\mathrm{PC}_2$ produces no detectable degradation (0.0 pp change; the 95\% CI of $\pm 9.7$ pp is consistent with a small, undetectable effect at this sample size, but is far below the 23 pp degradation from $\mathrm{PC}_1$).
+To determine whether subspace disruption is causally responsible for reasoning collapse, we conduct two targeted causal experiments.
 
-\begin{table}[t!]
+First, ablating individual principal components at Layer 10 in the intact model ($v_{10,i} \to 0$) isolates degradation uniquely to $\mathrm{PC}_1$: suppressing it reduces GSM8K from 39.6\% to 14.6\% ($-25.0$ pp, $p < 0.001$, Table~\ref{tab:causal_pc}). Ablating $\mathrm{PC}_2$--$\mathrm{PC}_{10}$ produces no significant degradation; while $\mathrm{PC}_2$ nominally improves accuracy (+3.0 pp, uncorrected $p = 0.040$), none remain significant after Bonferroni correction across the five ablation groups ($p > 0.20$).
+
+\begin{table*}[t!]
 \centering
-\small
-\setlength{\tabcolsep}{3pt}
-\caption{Causal PC Component Ranking at Layer 10 (GSM8K Strict Accuracy [95\% Clopper-Pearson CIs] under PC Ablation).}
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\caption{Causal PC Ranking at L10 (GSM8K [95\% CIs]).}
 \label{tab:causal_pc}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcc}
 \toprule
-\textbf{Ablated Component at L10} & \shortstack{\textbf{GSM8K Acc}\\[-2pt]{\scriptsize [95\% CI]}} & \shortstack{\textbf{Drop}\\[-2pt]\textbf{($\Delta$)}} \\
+\textbf{Ablated Component} & \textbf{GSM8K} & \textbf{Drop ($\Delta$)} \\
 \midrule
-Intact Baseline (No Ablation) & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8\%, 44.2\%]} & Baseline \\
-\textbf{Ablate $\mathrm{PC}_1$} & \shortstack{\textbf{11.0\%} \\[-2pt]\scriptsize \textbf{[5.6\%, 18.8\%]}} & \shortstack{\textbf{$-$23.0\%} \\[-2pt]\scriptsize ($p < 0.001$)} \\
-Ablate $\mathrm{PC}_2$ & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8\%, 44.2\%]} & \shortstack{0.0\% \\[-2pt]\scriptsize ($p = 1.00$, CI $\pm$9.7 pp)} \\
-Ablate $\mathrm{PC}_8$ & \shortstack{31.0\% \\[-2pt]\scriptsize [22.1\%, 41.0\%]} & $-$3.0\% \\
-Ablate $\mathrm{PC}_3, \mathrm{PC}_5$ & \shortstack{30.0\% \\[-2pt]\scriptsize [21.2\%, 40.0\%]} & $-$4.0\% \\
-Ablate $\mathrm{PC}_{4,6,7,9,10}$ & \shortstack{30.0\% \\[-2pt]\scriptsize [21.2\%, 40.0\%]} & $-$4.0\% \\
+Intact Baseline & 39.6\% {\scriptsize [35.4, 44.0]} & Baseline \\
+\textbf{Ablate $\mathrm{PC}_1$} & \textbf{14.6\%} {\scriptsize [11.6, 17.8]} & \textbf{$-$25.0\%} {\scriptsize ($p < 0.001$)} \\
+Ablate $\mathrm{PC}_2$ & 42.6\% {\scriptsize [38.2, 47.0]} & $+$3.0\% {\scriptsize ($p = 0.040$)} \\
+Ablate $\mathrm{PC}_8$ & 37.6\% {\scriptsize [33.4, 41.8]} & $-$2.0\% \\
+Ablate $\mathrm{PC}_{3,5}$ & 37.0\% {\scriptsize [32.8, 41.2]} & $-$2.6\% \\
+Ablate $\mathrm{PC}_{4,6,7,9,10}$ & 38.8\% {\scriptsize [34.6, 43.0]} & $-$0.8\% \\
 \bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Causal Sufficiency of Subspace Disruption}
-
-To test whether the representational disruption observed at the incision boundary is causally sufficient to degrade reasoning---independent of weight modification or layer removal---we conduct a causal intervention experiment. We first compute the Orthogonal Procrustes \citep{schonemann1966generalized} realignment matrix $R^* \in \text{SO}(d)$ that maps the pruned model's post-incision hidden states toward the intact model's hidden states via $\min_{R} \| H_{\text{student}} R - H_{\text{teacher}} \|_F^2$. We then apply its inverse $(R^*)^T$ as a forward hook at Layer 15 of the \textit{intact} (unpruned) model.
-
-\begin{table}[t!]
+\end{tabular}%
+}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
-\caption{Causal Sufficiency of Subspace Disruption: GSM8K accuracy under artificial rotation of intact model representations.}
+\caption{Causal Sufficiency of $(R^*)^T$ at L15 ($N=500$).}
 \label{tab:sufficiency}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcc}
 \toprule
-\textbf{Condition} & \textbf{GSM8K Acc [95\% CI]} & \textbf{Drop ($\Delta$)} \\
+\textbf{Condition} & \textbf{GSM8K} & \textbf{Drop ($\Delta$)} \\
 \midrule
-Intact Baseline (No Rotation) & 34.0\% [24.8\%, 44.2\%] & Baseline \\
-\textbf{Artificial Rotation $(R^*)^T$ at L15} & \textbf{10.0\%} [4.8\%, 17.6\%] & \textbf{$-$24.0\%} \\
-4-Layer Drop Unhealed & 7.0\% [2.9\%, 13.9\%] & $-$27.0\% \\
+Intact Baseline & 39.6\% {\scriptsize [35.4, 44.0]} & Baseline \\
+\textbf{Artificial $(R^*)^T$ at L15} & \textbf{9.0\%} {\scriptsize [6.6, 11.6]} & \textbf{$-$30.6\%} \\
+Random $\text{SO}(d)$ Placebo & 0.0\% {\scriptsize [0.0, 0.7]} & $-$39.6\% \\
+Planar Control ($\theta{=}34.02^\circ$) & 40.3\% {\scriptsize [35.6, 45.0]\textsuperscript{$\mathsection$}} & +0.7\% {\scriptsize (per-seed $p{=}1.00/0.13/0.29$; Fisher $p{=}0.36$)} \\
+4-Layer Drop Unhealed & 1.8\% {\scriptsize [0.8, 3.0]} & $-$37.8\% \\
 \bottomrule
-\end{tabular}
-\end{table}
+\end{tabular}%
+}
+\end{minipage}
+\end{table*}
 
-As shown in Table~\ref{tab:sufficiency}, applying $(R^*)^T$ to the intact model causes GSM8K accuracy to drop from \textbf{34.0\%} to \textbf{10.0\%}---reproducing most of the full pruning effect (34.0\% $\!\to\!$ 7.0\%). \textbf{No layers were removed, no weights were modified.} Only the representational geometry at a single layer was altered. This intervention provides strong causal evidence that the subspace disruption induced by pruning is sufficient to substantially degrade multi-step reasoning.
+\noindent\textsuperscript{$\mathsection$}Union of per-seed 95\% Clopper-Pearson CIs across the 3 seeds (39.8/40.6/40.4); seeds are not pooled because they evaluate the same 500 questions.
 
-\subsection{Competing Metrics: Is \texorpdfstring{$\theta$}{theta} a Unique Signal?}
+Second, to test causal sufficiency directly, we apply the inverse Orthogonal Procrustes \citep{schonemann1966generalized} matrix $R^* \in \text{O}(d)$ ($\det(R^*) = -1$) as a forward hook at Layer 15 of an \textit{intact} model---\textbf{with zero layers removed and zero weights modified}. This intervention collapses GSM8K from 39.6\% to 9.0\% ($p = 5.6 \times 10^{-35}$, Table~\ref{tab:sufficiency}), reproducing over 80\% of the unhealed pruning collapse ($\to 1.8\%$). The remaining 7.2 pp gap reflects multi-layer degradation accumulated across the dropped block, including $\mathrm{PC}_1$ variance compression. A matched-angle planar control at the fresh $k{=}4$ rotation-curve estimate ($\theta = 34.02^\circ$, $N=500$, 3 seeds) leaves accuracy unaffected ($40.3\%$; seeds 39.8/40.6/40.4; per-seed exact McNemar $p = 1.000/0.125/0.289$, Fisher combined $p = 0.36$), as does the in-range $28.71^\circ$ dose point ($40.2\%$; seeds 40.0/40.0/40.6; per-seed $p = 0.625/0.625/0.180$, Fisher $p = 0.50$), while a random $\text{SO}(d)$ Haar placebo yields 0.0\%. This confirms that reasoning failure requires coordinated multi-dimensional misalignment across the principal reasoning subspace rather than localized rotational noise.
 
-We compute per-passage ($N=50$) Spearman and Pearson correlations between $\theta$ and five competing metrics at the post-incision layer under a fixed 4-layer drop.
+\subsection{Competing Metrics: Evaluating Subspace Rotation Against Scalar Signals}
 
-\begin{table}[t!]
+\begin{table*}[t!]
 \centering
-\small
-\setlength{\tabcolsep}{3pt}
-\caption{Spearman correlation ($\rho$) between subspace rotation $\theta$ and competing scalar metrics across $N=50$ C4 passages at $k=4$. Non-significant $p$-values indicate $\theta$ captures orthogonal information.}
+\begin{minipage}[t]{0.48\linewidth}
+\centering
+\caption{Correlation ($\rho$) of $\theta$ with scalar metrics ($N=50$, $k=4$).}
 \label{tab:competing_metrics}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Metric} & $\rho$ & $p$ & \textbf{Significant?} \\
@@ -284,57 +273,144 @@ LayerNorm $\sigma$ drift & $-$0.117 & 0.419 & \textbf{No} \\
 Effective Rank (teacher) & 0.009 & 0.952 & \textbf{No} \\
 Effective Rank (pruned) & $-$0.029 & 0.841 & \textbf{No} \\
 \bottomrule
-\end{tabular}
-\end{table}
-
-As shown in Table~\ref{tab:competing_metrics}, $\theta$ is \textbf{uncorrelated} with LayerNorm mean/variance drift ($p > 0.4$) and effective rank ($p > 0.84$). This provides direct mechanistic evidence that norm-matching interventions (which target $\mu$/$\sigma$ drift) operate on quantities orthogonal to the actual geometric disruption. While residual norm is negatively correlated with $\theta$ ($\rho = -0.546$, $p < 0.001$), the two are causally distinct: deterministic norm matching alone recovers $0.0\%$ GSM8K (Table~\ref{tab:ablation_matrix}), and the Orthogonal Procrustes transformation $R^*$ preserves norms exactly ($\|Rh\|_2 = \|h\|_2$) yet still fails to recover reasoning. If norm damage were the operative mechanism, a norm-preserving rotation would have restored reasoning; it does not.
-
-\subsection{BOS Attention Sink Restoration}
-
-\begin{figure*}[t!]
+\end{tabular}%
+}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
 \centering
-\includegraphics[width=0.92\textwidth]{figures/bos_attention_sink_comparison}
-\caption{Attention mass allocated to the BOS token across layer depth for Mistral-7B-v0.1. Dropping layers 11--14 severely degrades attention sink behavior in downstream layers. Incision Boundary LoRA ($t=2$) restores local attention sink allocation at the incision interface without polluting unperturbed layers.}
-\label{fig:bos_heatmap}
-\end{figure*}
+\caption{Multi-location depth pruning ($N=1500$ per site).}
+\label{tab:location_sweep}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcl}
+\toprule
+\textbf{Drop Location} & \textbf{Layers Dropped} & \textbf{GSM8K Acc [95\% CI]} \\
+\midrule
+Early & 3--6 & 0.93\% [0.51\%, 1.56\%] \\
+Middle & 11--14 & 2.00\% [1.35\%, 2.84\%] \\
+Late & 20--23 & 4.93\% [3.89\%, 6.15\%] \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table*}
 
-As shown in Figure~\ref{fig:bos_heatmap}, Boundary LoRA ($t=2$) mechanistically restores BOS attention mass directly at layers 9--10 and 15--16 ($0.094 \pm 0.008$, paired t-test $t = 6.42, p < 0.0001$), re-stabilizing residual norms into downstream layers. However, because boundary adapters act on attention projection scales without restoring the collapsed variance along the (directionally preserved) $\mathrm{PC}_1$ reasoning axis, attention sink recovery restores sequence fluency without recovering multi-step reasoning.
+To verify that $\theta$ captures an essential geometric mechanism rather than a trivial scalar artifact, we evaluate its correlation against competing scalar statistics. Table~\ref{tab:competing_metrics} shows that $\theta$ is uncorrelated with LayerNorm drift ($p > 0.4$) and effective rank changes ($p > 0.84$). Residual norm correlates moderately ($\rho = -0.546$), but norm and rotation are causally distinct: explicit norm matching recovers 0.0\% GSM8K (Table~\ref{tab:ablation_matrix}), and $R^*$ preserves representation norms yet fails to rescue reasoning.
 
 \section{Reliability, Negative Controls \& Failure Mode Analysis}
 
-To establish the boundaries and reliability of geometric recovery, we systematically present negative controls and diagnostic failure mode analyses across 8 distinct recovery paradigms. Table~\ref{tab:ablation_matrix} details exact downstream GSM8K exact-match reasoning recovery with 95\% Clopper-Pearson confidence intervals.
-
 \begin{table*}[t!]
 \centering
-\small
-\setlength{\tabcolsep}{3.5pt}
-\caption{Systematic Intervention Matrix for Downstream GSM8K Reasoning Recovery (exact match [95\% Clopper-Pearson CIs]). Dense baseline from $N=500$; all other conditions from $N=100$.}
+\scriptsize
+\renewcommand{\arraystretch}{0.92}
+\setlength{\tabcolsep}{2.5pt}
+\caption{Systematic Intervention Matrix for Downstream GSM8K Reasoning Recovery (exact match [95\% Clopper-Pearson CIs]). Headline baselines and key controls at $N=500$; exploratory paradigms at $N=100$.}
 \label{tab:ablation_matrix}
-\begin{tabular}{llcp{5.5cm}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{2.8cm}c>{\raggedright\arraybackslash}p{3.2cm}}
 \toprule
 \textbf{Intervention Paradigm} & \textbf{Pruning / Healing Condition} & \textbf{GSM8K Acc [95\% CI]} & \textbf{Mechanistic Finding} \\
 \midrule
-Baseline & Dense Intact Mistral-7B & 39.6\% [35.4\%, 44.0\%]\textsuperscript{$\dagger$} & Upper bound capacity baseline ($N=500$). \\
-\textbf{Skip Depth Control} & \textbf{Half-Skip (2-layer drop, $t=2$)} & \textbf{14.0\%} [7.9\%, 22.4\%] & \textbf{Recovery scales non-linearly with depth}. \\
-Boundary Adaptation & Boundary LoRA ($r=16, t=2$) & 6.2\% [4.2\%, 8.4\%]\textsuperscript{\textdagger} & PPL recovers (9.12), reasoning improves marginally (+4.4 pp). \\
-Distillation & Cascade MSE + Logit KL & 4.0\% [1.1\%, 9.9\%] & Intermediate L2 loss omits CoT trajectories. \\
-Capacity Scaling & Boundary LoRA ($r=128$, 41.9M params) & 4.0\% [1.1\%, 9.9\%] & Parameter capacity is not the recovery bottleneck. \\
-Subnetwork Pruning & Head Zero-Masking (50\%--90\%) & 3.0\% [0.6\%, 8.5\%] & Layers 11--14 are dense and non-modular. \\
-Edge Isolation & Causal Tracing Edge Drop & 2.0\% [0.2\%, 7.0\%] & Edge layers (0--2, 31) are invariant anchors. \\
-Norm Matching & Deterministic Teacher Graft ($\mu, \sigma$) & 0.0\% [0.0\%, 3.6\%] & Norm matching fails under $29.34^\circ$ subspace rotation. \\
-Norm Scaling & Unconstrained Scalar Gate ($\alpha, \beta$) & 0.0\% [0.0\%, 3.6\%] & Explodes to NaN loss in FP16 within 10 training steps. \\
+Baseline & Dense Intact Mistral-7B & 39.6\% [35.4\%, 44.0\%]\textsuperscript{$\dagger$} & Upper-bound capacity baseline. \\
+\textbf{Skip Depth Control} & \textbf{Half-Skip (2-layer drop, $t=2$)}\textsuperscript{$\ddagger$} & \textbf{14.0\%} [7.9\%, 22.4\%] & Non-linear recovery scaling with depth. \\
+Boundary Adaptation & Boundary LoRA ($r=16, t=2$) & 6.2\% [4.2\%, 8.4\%]\textsuperscript{\textdagger} & PPL recovers (9.12); reasoning gains marginal (+4.4 pp). \\
+Inference-Time Realignment & Procrustes $R^*$ hook on pruned model & 1.8\% [0.8\%, 3.4\%]\textsuperscript{$\dagger$} & Single-layer orthogonal repair cannot undo multi-layer degradation. \\
+Inference-Time Realignment & $\mathrm{PC}_1$ un-rotation & 1.6\% [0.7\%, 3.1\%]\textsuperscript{$\dagger$} & $\mathrm{PC}_1$ is directionally preserved ($\theta_{\mathrm{acute}}=0.48^\circ$); un-rotation targets no angular defect. \\
+Distillation & Cascade MSE + Logit KL & 4.0\% [1.1\%, 9.9\%] & Standard L2 loss omits CoT reasoning path. \\
+Capacity Scaling & Boundary LoRA ($r=128$, 41.9M params) & 4.0\% [1.1\%, 9.9\%] & Parameter capacity is not the limiting factor. \\
+Edge Isolation & Causal Tracing Edge Drop & 2.0\% [0.2\%, 7.0\%] & Early and late layers act as anchor representations. \\
+Norm Matching & Deterministic Teacher Graft ($\mu, \sigma$) & 0.0\% [0.0\%, 3.6\%] & Fails due to uncorrected $34.02^\circ$ subspace rotation. \\
+Norm Scaling & Unconstrained Scalar Gate ($\alpha, \beta$) & 0.0\% [0.0\%, 3.6\%] & Training instability (NaN in FP16 within 10 steps). \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
+\noindent\textsuperscript{$\dagger$}$N=500$ under unified 8-shot protocol; exploratory paradigms at $N=100$. \textsuperscript{$\ddagger$}Drops [12, 13] with $t=2$ healing; distinct from Table~\ref{tab:rotation_curve}'s unhealed [11, 12] drop (7.4\%).
+
+\subsection{Multi-Location Robustness Sweep}
+
+Table~\ref{tab:location_sweep} evaluates 4-layer contiguous drops across early, middle, and late depths ($N=1500$ each). Reasoning collapses uniformly at every site (0.93\%, 2.00\%, 4.93\%), confirming that post-pruning degradation is consistent throughout the network. Furthermore, the nine recovery paradigms in Table~\ref{tab:ablation_matrix} show that increasing adapter capacity (41.9M parameters), applying distillation losses, and scalar norm matching all fail to restore reasoning ($\le 4.0\%$). Inference-time orthogonal repair is equally ineffective: applying the pruning-derived Procrustes rotation $R^*$ directly to the pruned model recovers only 1.8\% (vs.\ 1.4\% unhealed) and $\mathrm{PC}_1$ un-rotation yields 1.6\%, because misalignment and variance compression accumulate across the dropped block and cannot be inverted by a single linear interface operation. Capacity is not the bottleneck; preserving reasoning requires maintaining the geometric integrity of the underlying latent subspace, pointing to training-time solutions.
+
 \section{Limitations \& Future Work}
 
-This is a diagnostic and mechanistic contribution, and several scope boundaries should be acknowledged. First, all causal interventions (sufficiency, PC ablation, and the recovery matrix) are evaluated on Mistral-7B-v0.1; the fluency--reasoning dissociation and the $\sim$29--38$^\circ$ subspace rotation generalize to Meta-Llama-3-8B and Gemma-2-2B, but the PC\textsubscript{1}-level causal analyses are demonstrated on a single architecture. Second, the observed failure of inference-time geometric correction applies to the recovery methods we evaluated; it does not rule out alternative inference-time corrections or, more importantly, training-time objectives. Third, we compare against uniform LoRA and sensitivity-allocated LoRA as within-method baselines; systematic comparison against prior post-pruning recovery methods (e.g., continued pretraining \citep{kim2024shortened}, layer merging \citep{yang-etal-2024-laco}) is left to future work. Fourth, the $\mathrm{PC}_1$ energy collapse is reported with per-passage confidence intervals computed on $N=50$ C4 passages; the precise magnitude is passage-dependent. Finally, GSM8K accuracy is sensitive to prompt formatting and exemplar choice; all evaluations use a fixed deterministic 8-shot CoT prompt for reproducibility. The most direct future direction is a training-time $\mathrm{PC}_1$-targeted objective that explicitly restores variance along the preserved reasoning direction during boundary healing---we currently demonstrate only that inference-time realignment is insufficient.
+Several scope boundaries frame our findings: (i) Causal interventions and $\mathrm{PC}_1$ ablation were analyzed primarily on Mistral-7B-v0.1, though the overall rotational shift ($\sim$33--46$^\circ$) and dissociation generalize across architectures. (ii) Post-hoc inference adjustments do not restore lost reasoning capacity (Procrustes realignment 1.8\%, $\mathrm{PC}_1$ un-rotation 1.6\%; Table~\ref{tab:ablation_matrix}), pointing to training-time solutions. (iii) Developing training objectives that explicitly preserve $\mathrm{PC}_1$ alignment and singular-value energy during boundary adaptation represents the most direct path toward closing the dissociation.
 
 \section{Conclusion}
 
-We presented a diagnostic and mechanistic analysis of post-pruning reasoning collapse in LLMs. On the prescriptive side, Incision Boundary Healing demonstrates that restricting LoRA adaptation to $t=2$ boundary layers achieves 2$\times$--4$\times$ higher perplexity recovery than global LoRA while updating 33.3\% fewer parameters. On the diagnostic side, we establish that the fluency-reasoning dissociation is robust across model families (Mistral-7B, Llama-3-8B, Gemma-2-2B). Through cross-model geometry analysis, we identify a consistent 29.34$^\circ$--37.84$^\circ$ mean canonical subspace rotation; sign-synchronized analysis shows that the leading principal component $\mathrm{PC}_1$ is directionally preserved but suffers a large variance (energy) collapse, consistent with its causal role in reasoning. A causal intervention provides strong evidence that this disruption is sufficient for collapse ($39.6\% \to 10.0\%$). Together, these results support a causal role for representational geometry in post-pruning reasoning collapse while demonstrating that inference-time alignment alone is insufficient for recovery.
+We investigated the representational geometry governing post-pruning recovery in large language models. While Incision Boundary Healing efficiently restores language modeling fluency using 33.3\% fewer parameter updates, it exposes a fundamental fluency--reasoning dissociation across multiple model families. Subspace angle measurements and causal interventions demonstrate that reasoning failure is driven by canonical subspace rotation and selective $\mathrm{PC}_1$ variance compression rather than scalar distribution drift or parameter limits. These findings emphasize that training-time geometric preservation is essential for retaining multi-step reasoning in depth-pruned models.
 
 \bibliography{references}
+
+\appendix
+{\sloppy
+
+\section{Experimental Protocol \& Reproducibility}
+\label{app:protocol}
+
+\paragraph{GSM8K Evaluation.}
+All GSM8K evaluations use a fixed 8-shot Chain-of-Thought (CoT) prompt identical across all experimental conditions \citep{cobbe2021gsm8k}, implemented in \texttt{gsm8k\_eval\_shared.py}. Answers are extracted using a strict regex matching the final numerical value following ``The answer is'' or a boxed expression without fuzzy matching. Accuracy is reported as exact match (\%), with Clopper-Pearson 95\% confidence intervals computed for all proportions. The dense Mistral-7B-v0.1 baseline achieves 39.6\% [35.4\%, 44.0\%] ($N=500$, 8-shot). All evaluations use deterministic greedy decoding (temperature = 0.0).
+
+\paragraph{BBH Multi-Step Arithmetic.}
+BBH evaluations use \texttt{lm-evaluation-harness} (EleutherAI, v0.4.x) with the \texttt{bbh\_multistep\_\allowbreak{}arithmetic\_two} task, using 4-shot CoT prompting and greedy decoding ($n=100$). Results are reported as exact match \%.
+
+\paragraph{Incision Boundary Healing Training.}
+All LoRA adapters are trained with rank $r=16$, $\alpha=32$, dropout $= 0.05$, targeting query, key, value, and output projection matrices. Optimizer: AdamW, learning rate $= 2 \times 10^{-4}$, weight decay $= 0.01$, linear warmup (10\% of steps), cosine decay. Training data: C4 training split, max length 512, 1 epoch. Boundary-healing adapters use 1,000 sequences (batch size 4, gradient accumulation $\times$ 4 = effective 16); global-sensitivity LoRA baselines use 500 sequences under the same schedule, so the reported recovery ratios are computed against the same protocol apart from this 2$\times$ sample-count difference. For Gemma-2-2B only, the dense reference in Table~\ref{tab:ppl_main} is obtained by applying the same LoRA protocol to the unmodified dense model (1,000 sequences, lr $1\times10^{-5}$, rank 16), yielding the calibrated baseline 13.90. All experiments run on a single NVIDIA RTX 3090 (24 GB) GPU.
+
+\paragraph{Representation Geometry Measurements.}
+Hidden states $H^{(T)}_l, H^{(S)}_l \in \mathbb{R}^{N \times d}$ are extracted at layer $l$ over $N=50$ C4 validation sequences (tokenized to length 512; $\theta$ uses all token positions, with principal angles averaged per passage). SVD is computed in FP32 after casting from BF16/FP16. PC$_1$ energy collapse is measured as the relative reduction in the top singular value squared: $\Delta_{\mathrm{energy}} = 1 - \sigma_1(H^{(S)}_l)^2 / \sigma_1(H^{(T)}_l)^2$. Confidence intervals are bootstrapped over the $N=50$ passage-level measurements (reported as 95\% Clopper-Pearson CIs for proportions, or bootstrap CIs for continuous quantities); Table~\ref{tab:cross_model_geometry} reports 95\% $t$-CIs over the same passage-level measurements.
+
+\paragraph{Causal Sufficiency \& Matched-Angle Controls.}
+The Orthogonal Procrustes matrix $R^* \in \text{O}(4096)$ (with $\det(R^*) = -1$) is computed via \texttt{scipy.linalg.\allowbreak{}orthogonal\_procrustes} (SciPy 1.11), solving $\min_R \|H_{\text{student}} R - H_{\text{teacher}}\|_F^2$ over the $N=50$ evaluation passages. $(R^*)^T$ is applied as a PyTorch forward hook at Layer 15 of the intact Mistral-7B-v0.1 model. No weights are modified; the hook is removed after evaluation. Random SO($d$) placebo controls are drawn from the Haar measure using QR decomposition of a standard Gaussian matrix (with sign correction to $\det = +1$; 3 seeds). To test whether arbitrary rotations of matched magnitude cause degradation, matched-angle planar rotations $R(\theta) \in \text{SO}(d)$ are constructed via Givens-style 2-plane rotation matrices across $\theta \in [5^\circ, 90^\circ]$, including the empirical $k{=}4$ estimate $\theta = 34.02^\circ$ (3 seeds) and the in-range dose point $\theta = 28.71^\circ$ (3 seeds); the intermediate sweep angles ($5^\circ$, $15^\circ$, $45^\circ$, $60^\circ$, $90^\circ$) are evaluated with a single seed each. All dose-response evaluations maintain $39.6\%$--$40.6\%$ accuracy (per-seed exact McNemar $p \ge 0.125$ vs.\ dense; Fisher combined: $\theta = 34.02^\circ$: seeds 39.8/40.6/40.4, $p = 0.36$; $\theta = 28.71^\circ$: seeds 40.0/40.0/40.6, $p = 0.50$).
+
+\paragraph{McNemar's Tests.}
+All paired McNemar's tests use a two-tailed exact binomial test on discordant pairs ($p = 2 \cdot \mathrm{Bin}(k; b + c, 1/2)$ with $k = \min(b, c)$, clamped to $1.0$). The dense-vs-rotated McNemar test uses $N=500$ aligned question-level correctness indicators. Multi-seed conditions are summarized by per-seed exact $p$-values and a Fisher combined $p$; discordant counts are never pooled across seeds because all seeds evaluate the same 500 questions (identical indices in eval order).
+
+\paragraph{Compute Budget.}
+Total GPU compute for all Phase 25 experiments (P1--P7): approximately 120 GPU-hours on a single RTX 3090 (24 GB). Energy collapse measurements (50 passages $\times$ 3 models): $< 2$ GPU-hours. GSM8K evaluations ($N=500$, 8-shot, per condition): $\sim$3--5 GPU-hours per model. The full pipeline is reproduced via \texttt{run\_neurreps\_\allowbreak{}full\_pipeline.sh} in \texttt{code/phases/\allowbreak{}phase25\_causal\_\allowbreak{}interventions/}.
+
+% ---
+
+\section{Extended Related Work}
+\label{app:related}
+
+\paragraph{Post-Pruning Recovery: Detailed Differentiation.}
+\citet{siddiqui2024deeper} show that lightweight additive-bias or low-rank adapters trained to emulate pruned layers recover up to 5\% absolute MMLU. \citet{yaolu2024reassessing} find that pruning the final 25\% of layers followed by fine-tuning the last three layers and LM head is optimal, suggesting that tail pruning is qualitatively easier than mid-network pruning. \citet{kim2024shortened} report that continued pretraining markedly outperforms LoRA after aggressive depth pruning (ShortenedLLaMA). Incision Boundary Healing differs in three key ways: (i) it heals \emph{both} sides of a contiguous \emph{mid-network} cut across three architecture families simultaneously; (ii) the boundary-thickness parameter $t$ is derived from measured interface discontinuity; and (iii) its primary contribution is diagnostic---exposing the fluency--reasoning dissociation that \emph{persists even after fluency-optimal healing}. Systematic comparison against continued pretraining \citep{kim2024shortened} and layer merging \citep{yang-etal-2024-laco} remains future work.
+
+\paragraph{Reasoning-Aware Pruning.}
+Complementary work preserves reasoning during pruning: RESP \citep{wang2025resp} uses reasoning performance as an auxiliary pruning signal; RKU \citep{qian2026rku} introduces relative kinetic utility to quantify layer reasoning contributions; CAP \citep{sheth2026cap} uses causal attribution to preserve reasoning-critical layers. These methods address the trade-off during layer selection, whereas we characterize the geometric mechanism of reasoning collapse persisting after post-hoc recovery.
+
+\paragraph{Mechanistic Interpretability of Depth and Geometry.}
+The logit lens \citep{nostalgebraist2021lens} tracks hidden state evolution into vocabulary space. Our principal subspace angle measurement ($\theta$) provides a complementary, architecture-agnostic metric for representational discontinuity. Attention sinks \citep{xiao2023efficient} establish that early tokens absorb massive attention to stabilize softmax; we find no evidence connecting this mechanism to post-pruning geometric disruption.
+
+% ---
+
+\section{PC\textsubscript{1} Energy Collapse: Extended Analysis}
+\label{app:energy}
+
+\paragraph{Per-Passage Measurements.}
+Table~\ref{tab:energy_full} reports per-passage energy collapse from the canonical \texttt{energy\_collapse.json} artifact ($N=50$ C4 passages, measured at the post-incision layer after a 4-layer drop). The acute angle $\theta_{\mathrm{acute}}$ is the sign-synchronized PC$_1$ deviation (correcting SVD sign ambiguity; $\theta_{\mathrm{obtuse}} \approx 180^\circ$ prior to sign synchronization explains earlier intermediate logs).
+
+\begin{table}[t!]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{PC$_1$ energy collapse (per-passage, $N=50$ C4 sequences) by model family. Energy collapse $= 1 - \sigma_1(H^{(S)})^2/\sigma_1(H^{(T)})^2$. $\theta_{\mathrm{acute}}$ is sign-synchronized. 95\% CIs are bootstrap (both columns).}
+\label{tab:energy_full}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Energy Collapse [\%]} & \textbf{95\% CI} & $\theta_{\mathrm{acute}}$ [95\% CI] \\
+\midrule
+Mistral-7B-v0.1     & $4.21\%$ & $[\pm 0.39\%]$ & $0.64^\circ\; [\pm 0.04^\circ]$ \\
+Meta-Llama-3-8B     & $0.87\%$ & $[\pm 0.01\%]$ & $0.75^\circ\; [\pm 0.01^\circ]$ \\
+Gemma-2-2B          & $40.21\%$ & $[\pm 1.60\%]$ & $33.18^\circ\; [\pm 4.76^\circ]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Architectural Explanation for the Gemma-2-2B Anomaly.}
+Gemma-2-2B's energy collapse (40.21\%) is an order of magnitude larger than Mistral-7B (4.21\%) or Llama-3-8B (0.87\%). Gemma-2-2B employs \textbf{Sliding Window Attention (SWA)} alternating with global attention every two blocks ($W=4096$). Dropping a 4-layer block that spans a SWA/global boundary severs the receptive field of SWA layers depending on dropped blocks for local window context. This receptive field severance is qualitatively more severe than in global-attention models, explaining both larger energy collapse and wider boundary thickness requirements ($t=3$).
+
+\paragraph{Concatenated vs.\ Per-Passage Estimates \& Interpretation.}
+Concatenated and per-passage SVD agree closely on Mistral-7B (4.50\% vs.\ 4.21\%), while diverging slightly on Gemma-2-2B (37.13\% vs.\ 40.21\%) due to SWA variability. The acute angle confirms $\mathrm{PC}_1$ is directionally preserved ($< 1^\circ$ for Mistral and Llama); rather, depth pruning compresses variance along the primary reasoning direction. Since causal ablation (Table~\ref{tab:causal_pc}) shows suppressing $\mathrm{PC}_1$ in the intact model degrades GSM8K from 39.6\% to 14.6\% ($-25.0$ pp, with $\mathrm{PC}_2$--$\mathrm{PC}_{10}$ showing no significant drop), this energy-compressed subspace is the primary geometric correlate of reasoning collapse. Training-time variance recovery is the direct algorithmic path forward.
+
+} % end \sloppy appendix group
 
 \end{document}
