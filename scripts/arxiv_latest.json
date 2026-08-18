@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-17T08:50:01.200223"
+    "timestamp": "2026-08-18T08:42:39.637746"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -127,6 +127,19 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Broken Symmetry in LLM Refusal: Answer Release Is More Local Than Refusal Restoration",
+        "published_date": "2026-08-16",
+        "authors": [
+          "Yiqi Liu",
+          "Yang Wang",
+          "Songxin Wang",
+          "Chenghao Xiao",
+          "Chenghua Lin"
+        ],
+        "summary": "When a language model refuses to answer a prompt, it is unclear whether the correct answer is erased from its internal representations, or merely suppressed at the output layer. We investigate this mechanism using a controlled withhold setting, which yields perfectly matched answering and refusal trajectories for bidirectional activation patching. We uncover a causal asymmetry in intervention locality under matched causal interventions, which we term broken symmetry. Even when a model generates a clean refusal, the correct answer remains linearly recoverable from its hidden states. Furthermore, releasing this withheld answer is a highly local operation, requiring only a single-position patch. Conversely, the reverse operation is not equally local: reimposing suppression requires broader interventions across multiple positions, and assembling a coherent refusal sequence is more difficult still. We further demonstrate that while an average answer-to-refusal displacement vector marks the geometric difference between these states, it fails to act as a reliable, reversible linear control toggle between behaviours. Taken together, our findings show that refusal does not function as a simple symmetric switch. For safety and auditing, this implies that probe recoverability can overestimate true behavioural control, and locating refusal-relevant directions does not reliably grant the ability to steer a model from answering to coherent refusal.",
+        "url": "http://arxiv.org/abs/2608.15772v1"
+      },
+      {
         "title": "Where To Look? : Causal Tracing of Vision Encoders in VLM",
         "published_date": "2026-08-11",
         "authors": [
@@ -146,16 +159,6 @@
         ],
         "summary": "Large Language Models (LLMs) deployed as AI agents frequently exhibit user specification-grounding failures, executing hallucinated, undesired actions to force a resolution rather than expressing uncertainty. Existing detection methods fail to provide actionable, real-time correction as they either do not localize the hallucinations, or incur prohibitive inference latency. We introduce the Latent Critic, a lightweight low-rank adapter (LoRA) that operates concurrently with a frozen base LLM's generation to actively restructure the transformer's residual stream---amplifying latent grounding signals and translating them into localized, natural language feedback within a single sequence. By refining the base model's native uncertainty signals, this manipulation of the latent space enables reliable, granular detection without the overhead of secondary inference loops. Mechanistic analysis via activation patching and layer-wise probing shows that this rank-invariant behavior restructures pre-existing uncertainty geometry into a linearly separable representation that transfers more reliably than base model representations alone. Using tool-calling as an instantiation of granular hallucinations, we validate the detection and downstream improvements enabled by the Latent Critic architecture across Qwen and Llama-based models. Demonstrating superior real-time efficacy, our approach significantly outperforms equivalent-scale fine-tuned external detectors, semantic entropy baselines, and passive internal probes in isolating hallucinations, achieving 0.966 AUROC and >80% accuracy in localization (e.g., ungrounded: date). When deployed in a closed-loop ReAct environment, the Critic acts as a negligible latency guardrail, intercepting hallucinations before execution to prevent undesired actions while simultaneously leveraging this specific localized feedback to enable efficient agent self-correction.",
         "url": "http://arxiv.org/abs/2608.10430v1"
-      },
-      {
-        "title": "MI-MIDI: Mechanistic Interpretability of Text-to-MIDI Generation Models via Probing, Lenses and Steering",
-        "published_date": "2026-08-06",
-        "authors": [
-          "Jakub Po\u0107wiardowski",
-          "Mateusz Modrzejewski"
-        ],
-        "summary": "Mechanistic interpretability of music generation has concentrated on audio models, leaving symbolic models largely unexplored. We analyze two public text-to-MIDI systems of contrasting design: the purpose-built encoder--decoder text2midi and MIDI-LLM, a Llama~3.2~1B model extended with MIDI tokens using linear probing, the logit and tuned lenses, activation patching and difference-in-means steering. Across these methods, we recover musically meaningful structure and show how architecture shapes its formation and control. Pitch, instrumentation, harmony and texture are linearly decodable in both models. text2midi refines predictions gradually across depth, whereas MIDI-LLM works largely in its inherited textual basis before a sharp late rotation into the musical vocabulary; patching identifies a matching late attenuation of prompt-driven instrument transfer. Steering produces bidirectional changes in register and polyphony in both systems, and in tempo/energy in MIDI-LLM. Our two-orientation protocol isolates directional control and shows that all-layer interventions are robust in text2midi but accumulate disruptively in MIDI-LLM. Together, the results provide a practical toolkit for tracing and controlling musical concepts in symbolic generators. Audio examples are available on a demo website.",
-        "url": "http://arxiv.org/abs/2608.06638v1"
       }
     ]
   }
