@@ -1,4 +1,6 @@
 {
-  "theta_deg": 179.5162404359104,
-  "projection": -0.9999643564224243
+  "theta_acute": 0.48375956408961207,
+  "theta_obtuse": 179.5162404359104,
+  "projection_raw": -0.9999643564224243,
+  "projection_synced": 0.9999643564224243
 }

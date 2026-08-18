@@ -1,0 +1,72 @@
+{
+  "experiment": "P4_multi_location_seed_sweep",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "num_seeds": 3,
+  "seed_base": 0,
+  "num_eval_samples": 500,
+  "locations": {
+    "early": {
+      "location": "Early (3-6)",
+      "drop_indices": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "seeds": {
+        "0": 1.4000000000000001,
+        "1": 1.0,
+        "2": 1.4000000000000001
+      },
+      "mean": 1.2666666666666666,
+      "total_correct": 19,
+      "total_evaluated": 1500,
+      "clopper_pearson_ci_95": [
+        0.7642918539229586,
+        1.9710167820817697
+      ]
+    },
+    "middle": {
+      "location": "Middle (11-14)",
+      "drop_indices": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "seeds": {
+        "0": 1.6,
+        "1": 2.4,
+        "2": 2.1999999999999997
+      },
+      "mean": 2.0666666666666664,
+      "total_correct": 31,
+      "total_evaluated": 1500,
+      "clopper_pearson_ci_95": [
+        1.4084139620778016,
+        2.9207287267849926
+      ]
+    },
+    "late": {
+      "location": "Late (20-23)",
+      "drop_indices": [
+        20,
+        21,
+        22,
+        23
+      ],
+      "seeds": {
+        "0": 5.0,
+        "1": 4.2,
+        "2": 5.4
+      },
+      "mean": 4.866666666666666,
+      "total_correct": 73,
+      "total_evaluated": 1500,
+      "clopper_pearson_ci_95": [
+        3.833788096969376,
+        6.080486056085254
+      ]
+    }
+  }
+}

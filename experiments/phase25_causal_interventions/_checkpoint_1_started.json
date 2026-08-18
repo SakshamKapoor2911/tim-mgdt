@@ -1,0 +1,23 @@
+{
+  "status": "started",
+  "args": {
+    "model_name": "mistralai/Mistral-7B-v0.1",
+    "output_dir": "/home/skapoor/tim-mgdt/experiments/phase25_causal_interventions",
+    "incision_start": 11,
+    "skip_depth": 4,
+    "post_incision_layer": 15,
+    "rotation_layer": -1,
+    "rotation_angles": [
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0
+    ],
+    "num_calibration": 50,
+    "num_eval_samples": 500,
+    "skip_exp_1a": false,
+    "skip_exp_1b": false
+  }
+}

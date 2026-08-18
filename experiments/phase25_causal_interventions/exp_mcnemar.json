@@ -1,0 +1,30 @@
+{
+  "mcnemar_dense_vs_rotated": {
+    "p_value": 5.631232991785635e-35,
+    "both_correct": 32,
+    "a_only": 166,
+    "b_only": 13,
+    "both_incorrect": 289
+  },
+  "mcnemar_dense_vs_pruned": {
+    "p_value": 6.315025396439285e-51,
+    "both_correct": 4,
+    "a_only": 194,
+    "b_only": 5,
+    "both_incorrect": 297
+  },
+  "mcnemar_dense_vs_random": {
+    "p_value": 4.9784122222889134e-60,
+    "both_correct": 0,
+    "a_only": 198,
+    "b_only": 0,
+    "both_incorrect": 302
+  },
+  "mcnemar_random_vs_rotated": {
+    "p_value": 5.684341886080802e-14,
+    "both_correct": 0,
+    "a_only": 0,
+    "b_only": 45,
+    "both_incorrect": 455
+  }
+}

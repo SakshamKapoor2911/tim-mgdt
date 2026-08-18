@@ -1,0 +1,16 @@
+{
+  "mcnemar_dense_vs_rotated": {
+    "p_value": 1.8522117048441984e-30,
+    "both_correct": 31,
+    "a_only": 152,
+    "b_only": 14,
+    "both_incorrect": 303
+  },
+  "mcnemar_dense_vs_pruned": {
+    "p_value": 3.2786849070771346e-49,
+    "both_correct": 4,
+    "a_only": 179,
+    "b_only": 3,
+    "both_incorrect": 314
+  }
+}

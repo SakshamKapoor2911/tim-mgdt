@@ -1,0 +1,53 @@
+{
+  "experiment": "P7_rotation_curve",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "incision_start": 11,
+  "num_eval_samples": 10,
+  "k0_dense": {
+    "theta_deg": 0.0,
+    "gsm8k": 30.0,
+    "ci_95": [
+      0.0,
+      60.0
+    ],
+    "correct": 3,
+    "total": 10,
+    "per_prompt": [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "k1": {
+    "drop_set": [
+      11
+    ],
+    "theta_deg": 21.434724807739258,
+    "gsm8k": 0.0,
+    "ci_95": [
+      0.0,
+      0.0
+    ],
+    "correct": 0,
+    "total": 10,
+    "per_prompt": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

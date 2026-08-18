@@ -1,0 +1,134 @@
+{
+  "experiment": "P6_pc_ablation",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "layer": 10,
+  "num_eval_samples": 10,
+  "intact_baseline": {
+    "accuracy": 30.0,
+    "ci_95": [
+      0.0,
+      60.0
+    ],
+    "correct": 3,
+    "total": 10
+  },
+  "ablate_pc1": {
+    "accuracy": 10.0,
+    "ci_95": [
+      0.0,
+      30.0
+    ],
+    "correct": 1,
+    "total": 10
+  },
+  "ablate_pc2": {
+    "accuracy": 20.0,
+    "ci_95": [
+      0.0,
+      50.0
+    ],
+    "correct": 2,
+    "total": 10
+  },
+  "ablate_pc8": {
+    "accuracy": 30.0,
+    "ci_95": [
+      0.0,
+      60.0
+    ],
+    "correct": 3,
+    "total": 10
+  },
+  "ablate_pc3_pc5": {
+    "accuracy": 40.0,
+    "ci_95": [
+      10.0,
+      70.0
+    ],
+    "correct": 4,
+    "total": 10
+  },
+  "ablate_pc4_6_7_9_10": {
+    "accuracy": 30.0,
+    "ci_95": [
+      0.0,
+      60.0
+    ],
+    "correct": 3,
+    "total": 10
+  },
+  "per_prompt_vectors": {
+    "intact_baseline": [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ablate_pc1": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ablate_pc2": [
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ablate_pc8": [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ablate_pc3_pc5": [
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ablate_pc4_6_7_9_10": [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

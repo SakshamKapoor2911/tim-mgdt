@@ -1,0 +1,10 @@
+{
+  "experiment": "rotation_curve_bbh",
+  "results": {
+    "k0": 0.34,
+    "k1": 0.0,
+    "k2": 0.01,
+    "k3": 0.0,
+    "k4": 0.0
+  }
+}

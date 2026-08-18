@@ -1,0 +1,20 @@
+{
+  "experiment": "P5_PC1_unrotation",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "num_eval_samples": 10,
+  "num_calibration_prompts": 10,
+  "baseline_dense": 30.0,
+  "baseline_pruned": 0.0,
+  "pc1_alignment_projection": -0.9999633431434631,
+  "pc1_projection_synced": 0.9999633431434631,
+  "pc1_theta_degrees": 0.4905875999576624,
+  "pc1_theta_acute": 0.4905875999576624,
+  "pc1_theta_obtuse": 179.50941240004235,
+  "pc1_unrotation_gsm8k": 0.0
+}

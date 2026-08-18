@@ -1,0 +1,30 @@
+{
+  "mcnemar_dense_vs_rotated": {
+    "p_value": 0.25,
+    "both_correct": 0,
+    "a_only": 3,
+    "b_only": 0,
+    "both_incorrect": 7
+  },
+  "mcnemar_dense_vs_pruned": {
+    "p_value": 0.25,
+    "both_correct": 0,
+    "a_only": 3,
+    "b_only": 0,
+    "both_incorrect": 7
+  },
+  "mcnemar_dense_vs_random": {
+    "p_value": 0.25,
+    "both_correct": 0,
+    "a_only": 3,
+    "b_only": 0,
+    "both_incorrect": 7
+  },
+  "mcnemar_random_vs_rotated": {
+    "p_value": 1.0,
+    "both_correct": 0,
+    "a_only": 0,
+    "b_only": 0,
+    "both_incorrect": 10
+  }
+}

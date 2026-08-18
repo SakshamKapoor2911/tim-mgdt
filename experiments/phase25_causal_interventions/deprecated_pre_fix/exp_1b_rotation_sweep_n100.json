@@ -1,0 +1,8 @@
+{
+  "experiment": "1B_causal_sufficiency",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "rotation_layer": 15,
+  "dense_baseline": 34.0,
+  "acc_rotated_sufficiency": 10.0,
+  "num_eval_samples": 100
+}
