@@ -286,3 +286,11 @@ Closing the two named reviewer vulnerabilities (L10-vs-L15 layer offset; Mistral
 - **Llama sufficiency replication** (`scratch/llama_sufficiency_n100.py`, `exp_1b_llama_sufficiency_n100.json`): (R*)^T at L12 of intact Meta-Llama-3-8B (drop 8–11, N=100 8-shot) collapses GSM8K from 56.0% [45.7, 65.9] to 2.0% [0.2, 7.0] (exact McNemar p = 1.6×10⁻¹⁵). Added to Appendix A and Limitations (i).
 - Abstract reframed to foreground the geometric/causal contribution with Incision Boundary Healing as the controlled experimental vehicle; Limitations (i) now names the Mistral-centrism of Tables 4/5/8 explicitly.
 - Recompiled (main text ends p.9, 15 pages); zip rebuilt.
+
+---
+
+## 12. Final Polish (Aug 19, 2026)
+
+- The Llama sufficiency replication is now surfaced in §4.4 main text (56.0% → 2.0%, N=100, McNemar p = 1.6×10⁻¹⁵), not only in Appendix A.
+- Limitations (i) reworded to confident framing: the full causal battery executes on Mistral-7B, sufficiency replicates on Meta-Llama-3-8B, extending the remaining arms to Gemma-2-2B is future work.
+- Recompiled (main text ends p.9); zip rebuilt. Ready for submission.
