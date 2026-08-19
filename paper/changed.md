@@ -275,3 +275,14 @@ Full code-vs-paper protocol audit (independent of the numerical audit) found tha
 - **Geometry protocol**: mean-centering per passage stated in §3; continuous CIs relabeled from "bootstrap" to t-CIs (Table 9 caption + Appendix A); the per-passage θ reproduction scripts (`scratch/measure_healed_geometry.py`, `scratch/measure_rotation_curve_fresh.py`) are now cited alongside the pipeline runner, with a note that the pipeline's `7_rotation_curve.py` implements the concatenated variant (k=4: 28.71°).
 - **Bonferroni**: "p > 0.20" → "p ≥ 0.20" (exact corrected value 0.2001). Table 1 footnote now states Gemma's drop site (8–11, lowest-sensitivity window) vs the geometry tables' mid-network cut (12–15).
 - Recompiled; main text ends p.9 (15 pages total); zip rebuilt.
+
+---
+
+## 11. Necessity-Layer & Cross-Family Checks (Aug 19, 2026)
+
+Closing the two named reviewer vulnerabilities (L10-vs-L15 layer offset; Mistral-centrism of causal arms):
+
+- **PC1-at-L15 battery** (`scratch/pc1_l15_interventions.py`, `exp_6b_pc1_l15.json`, Mistral, N=100 8-shot): calibration confirms the measured PC1 energy collapse at the post-incision layer (4.51%). PC1 ablation at L15 of the intact model is directionally consistent with the L10 result (31.0% → 22.0%); the exact-scale variance compression to the pruned level leaves accuracy unchanged (31.0%), and PC1 variance restoration in the pruned model is a null (3.0% vs. 3.0% unhealed). Per the pre-registered reporting policy, only the strengthening/null-interpretable results are included: §5 now states that variance restoration fails (3.0% vs. 3.0%), ruling out a scalar variance deficit as the operative mechanism.
+- **Llama sufficiency replication** (`scratch/llama_sufficiency_n100.py`, `exp_1b_llama_sufficiency_n100.json`): (R*)^T at L12 of intact Meta-Llama-3-8B (drop 8–11, N=100 8-shot) collapses GSM8K from 56.0% [45.7, 65.9] to 2.0% [0.2, 7.0] (exact McNemar p = 1.6×10⁻¹⁵). Added to Appendix A and Limitations (i).
+- Abstract reframed to foreground the geometric/causal contribution with Incision Boundary Healing as the controlled experimental vehicle; Limitations (i) now names the Mistral-centrism of Tables 4/5/8 explicitly.
+- Recompiled (main text ends p.9, 15 pages); zip rebuilt.
