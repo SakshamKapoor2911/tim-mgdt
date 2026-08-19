@@ -6,7 +6,7 @@ import numpy as np
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import load_dataset
 from tqdm import tqdm
-from scipy.stats import binom
+from scipy.stats import beta as _beta_dist
 
 # 8-shot GSM8K prompt (standard CoT exemplars)
 GSM8K_PROMPT_8SHOT = """Q: There are 15 trees in the park. Park workers will plant trees in the park today. After they are done, there will be 21 trees in the park. How many trees did the park workers plant today?
@@ -62,9 +62,10 @@ def extract_strict_answer(text):
     return ""
 
 def clopper_pearson_ci(correct, total, alpha=0.05):
-    """Two-sided Clopper-Pearson 95% CI."""
-    low = binom.ppf(alpha / 2, total, correct / total) / total if correct > 0 else 0.0
-    high = binom.ppf(1 - alpha / 2, total, correct / total) / total if correct < total else 1.0
+    """Two-sided Clopper-Pearson 95% CI (Beta-distribution quantiles)."""
+    p = correct / total
+    low = _beta_dist.ppf(alpha / 2, correct, total - correct + 1) if correct > 0 else 0.0
+    high = _beta_dist.ppf(1 - alpha / 2, correct + 1, total - correct) if correct < total else 1.0
     return low * 100, high * 100
 
 def evaluate_gsm8k(model, tokenizer, device, num_samples=100, num_shots=8, seed=None):

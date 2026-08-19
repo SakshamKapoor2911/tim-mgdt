@@ -89,7 +89,7 @@ The mean principal subspace rotational shift $\theta$ across top-$m$ directions 
 \theta = \frac{1}{m} \sum_{i=1}^{m} \arccos\left(\mathrm{clip}(\sigma_i, -1.0, 1.0)\right) \cdot \frac{180^\circ}{\pi}
 \label{eq:principal_angle}
 \end{equation}
-In all experiments, the SVD and principal angles are computed per 512-token sequence and averaged over $N=50$ C4 validation passages; passage-level variability yields the reported 95\% $t$-CIs (Table~\ref{tab:cross_model_geometry}). (For reference, the alternative concatenated-SVD estimate for Mistral-7B is $26.27^\circ$, vs.\ the $33.93^\circ$ per-passage mean; all cross-condition comparisons use matched passages under a single protocol.)
+In all experiments, the SVD and principal angles are computed per 512-token sequence (hidden states mean-centered per passage before decomposition) and averaged over $N=50$ C4 validation passages; passage-level variability yields the reported 95\% $t$-CIs (Table~\ref{tab:cross_model_geometry}). (For reference, the concatenated-SVD estimate for Mistral-7B is $26.27^\circ$, vs.\ $33.93^\circ$ per-passage; all comparisons use matched passages under one protocol.)
 
 \section{Empirical Evaluation \& Interpretability Analyses}
 
@@ -132,7 +132,7 @@ We first evaluate whether restricting adaptation to the incision interface can r
 \end{tabular}
 \end{table*}
 
-\noindent\textsuperscript{$\mathsection$}The Gemma-2-2B dense reference is measured on a dense LoRA-calibrated model ($r{=}16$, $\alpha{=}32$, 1,000 C4 training sequences, lr $1{\times}10^{-5}$, 1 epoch; same evaluation harness and 128-sample C4 validation protocol as the healing rows), providing a like-for-like reference against the fine-tuned adapters; the unmodified Gemma-2-2B evaluates to 63.89 under this harness. Mistral-7B-v0.1 and Meta-Llama-3-8B dense references are unmodified pretrained models.
+\noindent\textsuperscript{$\mathsection$}The Gemma-2-2B dense reference is measured on a dense LoRA-calibrated model ($r{=}16$, $\alpha{=}32$, 1,000 WikiText-2 training chunks of 2,048 tokens, lr $1{\times}10^{-5}$, single pass; same evaluation harness and 128-sample C4 validation protocol as the healing rows), providing a like-for-like reference against the fine-tuned adapters; the unmodified Gemma-2-2B evaluates to 63.89 under this harness. Gemma-2-2B Table~\ref{tab:ppl_main} rows use its lowest-sensitivity 4-layer window (drop 8--11), while Table~\ref{tab:cross_model_geometry} geometry uses the mid-network cut (drop 12--15). Mistral-7B-v0.1 and Meta-Llama-3-8B dense references are unmodified pretrained models.
 
 \begin{figure*}[t!]
 \centering
@@ -151,7 +151,7 @@ Having established that boundary healing recovers surface fluency, we examine th
 \centering
 \small
 \setlength{\tabcolsep}{3pt}
-\caption{Cross-Model Incision Interface Angular Subspace Deviation ($\theta$, top-$m=10$ canonical principal subspace directions, mean over $N=50$ matched C4 validation passages; Eqs.~2--4; 95\% $t$-CIs; Cos $= \cos\theta$). The Mistral healed row is measured on the same passages as the drop row (paired $\Delta\theta = -1.90^\circ \pm 0.32^\circ$, Wilcoxon $p \approx 1.8\times10^{-15}$); the independent rotation-curve estimate for the drop condition is $34.02^\circ$ (Table~\ref{tab:rotation_curve}; run-to-run noise $< 0.1^\circ$ between these two independent $N{=}50$ measurements).}
+\caption{Cross-Model Incision Interface Angular Subspace Deviation ($\theta$, top-$m=10$ canonical principal subspace directions, mean over $N=50$ matched C4 validation passages; Eqs.~2--4; 95\% $t$-CIs; Cos $= \cos\theta$). The Mistral healed row is measured on the same passages as the drop row (paired $\Delta\theta = -1.90^\circ \pm 0.32^\circ$, Wilcoxon $p \approx 1.8\times10^{-15}$); the independent rotation-curve estimate for the drop condition is $34.02^\circ$ (Table~\ref{tab:rotation_curve}; run-to-run noise $< 0.1^\circ$).}
 \label{tab:cross_model_geometry}
 \begin{tabular}{llcc}
 \toprule
@@ -179,23 +179,23 @@ Decomposing the subspace into individual principal components reveals a critical
 \label{fig:reasoning_dissociation}
 \end{figure}
 
-Does recovering surface perplexity guarantee that downstream multi-step reasoning survives? We test this across drop depths $k \in \{1,2,3,4\}$ on Mistral-7B, evaluating GSM8K ($N=500$, 8-shot) and BBH Multi-Step Arithmetic \citep{srivastava2022beyond} ($n=100$, 4-shot) under deterministic greedy decoding.
+Does recovering surface perplexity guarantee that downstream multi-step reasoning survives? We test this across drop depths $k \in \{1,2,3,4\}$ on Mistral-7B, evaluating GSM8K ($N=500$, 8-shot) and BBH Multi-Step Arithmetic \citep{srivastava2022beyond} ($n=100$, 3-shot) under deterministic greedy decoding.
 
 \begin{table*}[t!]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Skip-Depth Rotation Curve vs. Reasoning Accuracy (GSM8K $N=500$, 8-shot; BBH Multi-Step Arithmetic $n=100$, 4-shot; exact match \% [95\% CIs]). $\theta$ is the mean of top-$10$ principal angles over a matched $N=50$ validation-passage sample ($\pm$ 95\% $t$-CI), measured under the same drop conditions as the reasoning columns ($N=500$ GSM8K and $n=100$ BBH evaluation samples).}
+\caption{Skip-Depth Rotation Curve vs. Reasoning Accuracy (GSM8K $N=500$, 8-shot; BBH Multi-Step Arithmetic $n=100$, 3-shot; exact match \% [95\% CIs]). $\theta$ is the mean of top-$10$ principal angles over a matched $N=50$ validation-passage sample ($\pm$ 95\% $t$-CI), measured under the same drop conditions as the reasoning columns ($N=500$ GSM8K and $n=100$ BBH evaluation samples).}
 \label{tab:rotation_curve}
 \begin{tabular}{clcc}
 \toprule
 \textbf{Depth ($k$)} & \textbf{Shift ($\theta$)} & \shortstack{\textbf{GSM8K}\\[-2pt]{\scriptsize [95\% CI]}} & \shortstack{\textbf{BBH}\\[-2pt]{\scriptsize [95\% CI]}} \\
 \midrule
-0 (Dense) & 0.00$^\circ$ & \shortstack{39.6\% \\[-2pt]\scriptsize [35.4, 44.0]} & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8, 44.2]} \\
-1 Layer & 20.24$^\circ \!\pm\! 0.57^\circ$ & \shortstack{15.0\% \\[-2pt]\scriptsize [12.0, 18.2]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
-2 Layers & 25.41$^\circ \!\pm\! 0.63^\circ$ & \shortstack{\textbf{7.4\%} \\[-2pt]\scriptsize \textbf{[5.2, 9.8]}} & \shortstack{\textbf{1.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 5.4]}} \\
-3 Layers & 29.74$^\circ \!\pm\! 0.66^\circ$ & \shortstack{4.8\% \\[-2pt]\scriptsize [3.0, 6.8]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
-4 Layers & \textbf{34.02}$^\circ \!\pm\! 0.77^\circ$ & \shortstack{\textbf{1.8\%} \\[-2pt]\scriptsize \textbf{[0.8, 3.0]}} & \shortstack{\textbf{0.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 3.6]}} \\
+0 (Dense) & 0.00$^\circ$ & \shortstack{39.6\% \\[-2pt]\scriptsize [35.3, 44.0]} & \shortstack{34.0\% \\[-2pt]\scriptsize [24.8, 44.2]} \\
+1 Layer & 20.24$^\circ \!\pm\! 0.57^\circ$ & \shortstack{15.0\% \\[-2pt]\scriptsize [12.0, 18.4]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
+2 Layers & 25.41$^\circ \!\pm\! 0.63^\circ$ & \shortstack{\textbf{7.4\%} \\[-2pt]\scriptsize \textbf{[5.3, 10.1]}} & \shortstack{\textbf{1.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 5.4]}} \\
+3 Layers & 29.74$^\circ \!\pm\! 0.66^\circ$ & \shortstack{4.8\% \\[-2pt]\scriptsize [3.1, 7.1]} & \shortstack{0.0\% \\[-2pt]\scriptsize [0.0, 3.6]} \\
+4 Layers & \textbf{34.02}$^\circ \!\pm\! 0.77^\circ$ & \shortstack{\textbf{1.8\%} \\[-2pt]\scriptsize \textbf{[0.8, 3.4]}} & \shortstack{\textbf{0.0\%} \\[-2pt]\scriptsize \textbf{[0.0, 3.6]}} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -206,7 +206,7 @@ As shown in Table~\ref{tab:rotation_curve} and Figure~\ref{fig:reasoning_dissoci
 
 To determine whether subspace disruption is causally responsible for reasoning collapse, we conduct two targeted causal experiments.
 
-First, ablating individual principal components at Layer 10 in the intact model ($v_{10,i} \to 0$) isolates degradation uniquely to $\mathrm{PC}_1$: suppressing it reduces GSM8K from 39.6\% to 14.6\% ($-25.0$ pp, $p < 0.001$, Table~\ref{tab:causal_pc}). Ablating $\mathrm{PC}_2$--$\mathrm{PC}_{10}$ produces no significant degradation; while $\mathrm{PC}_2$ nominally improves accuracy (+3.0 pp, uncorrected $p = 0.040$), none remain significant after Bonferroni correction across the five ablation groups ($p > 0.20$).
+First, ablating individual principal components at Layer 10 in the intact model ($v_{10,i} \to 0$) isolates degradation uniquely to $\mathrm{PC}_1$: suppressing it reduces GSM8K from 39.6\% to 14.6\% ($-25.0$ pp, $p < 0.001$, Table~\ref{tab:causal_pc}). Ablating $\mathrm{PC}_2$--$\mathrm{PC}_{10}$ produces no significant degradation; while $\mathrm{PC}_2$ nominally improves accuracy (+3.0 pp, uncorrected $p = 0.040$), none remain significant after Bonferroni correction across the five ablation groups ($p \ge 0.20$).
 
 \begin{table*}[t!]
 \centering
@@ -219,12 +219,12 @@ First, ablating individual principal components at Layer 10 in the intact model 
 \toprule
 \textbf{Ablated Component} & \textbf{GSM8K} & \textbf{Drop ($\Delta$)} \\
 \midrule
-Intact Baseline & 39.6\% {\scriptsize [35.4, 44.0]} & Baseline \\
-\textbf{Ablate $\mathrm{PC}_1$} & \textbf{14.6\%} {\scriptsize [11.6, 17.8]} & \textbf{$-$25.0\%} {\scriptsize ($p < 0.001$)} \\
-Ablate $\mathrm{PC}_2$ & 42.6\% {\scriptsize [38.2, 47.0]} & $+$3.0\% {\scriptsize ($p = 0.040$)} \\
-Ablate $\mathrm{PC}_8$ & 37.6\% {\scriptsize [33.4, 41.8]} & $-$2.0\% \\
-Ablate $\mathrm{PC}_{3,5}$ & 37.0\% {\scriptsize [32.8, 41.2]} & $-$2.6\% \\
-Ablate $\mathrm{PC}_{4,6,7,9,10}$ & 38.8\% {\scriptsize [34.6, 43.0]} & $-$0.8\% \\
+Intact Baseline & 39.6\% {\scriptsize [35.3, 44.0]} & Baseline \\
+\textbf{Ablate $\mathrm{PC}_1$} & \textbf{14.6\%} {\scriptsize [11.6, 18.0]} & \textbf{$-$25.0\%} {\scriptsize ($p < 0.001$)} \\
+Ablate $\mathrm{PC}_2$ & 42.6\% {\scriptsize [38.2, 47.1]} & $+$3.0\% {\scriptsize ($p = 0.040$)} \\
+Ablate $\mathrm{PC}_8$ & 37.6\% {\scriptsize [33.3, 42.0]} & $-$2.0\% \\
+Ablate $\mathrm{PC}_{3,5}$ & 37.0\% {\scriptsize [32.8, 41.4]} & $-$2.6\% \\
+Ablate $\mathrm{PC}_{4,6,7,9,10}$ & 38.8\% {\scriptsize [34.5, 43.2]} & $-$0.8\% \\
 \bottomrule
 \end{tabular}%
 }
@@ -238,20 +238,20 @@ Ablate $\mathrm{PC}_{4,6,7,9,10}$ & 38.8\% {\scriptsize [34.6, 43.0]} & $-$0.8\%
 \toprule
 \textbf{Condition} & \textbf{GSM8K} & \textbf{Drop ($\Delta$)} \\
 \midrule
-Intact Baseline & 39.6\% {\scriptsize [35.4, 44.0]} & Baseline \\
-\textbf{Artificial $(R^*)^T$ at L15} & \textbf{9.0\%} {\scriptsize [6.6, 11.6]} & \textbf{$-$30.6\%} \\
+Intact Baseline & 39.6\% {\scriptsize [35.3, 44.0]} & Baseline \\
+\textbf{Artificial $(R^*)^T$ at L15} & \textbf{9.0\%} {\scriptsize [6.6, 11.9]} & \textbf{$-$30.6\%} \\
 Random $\text{SO}(d)$ Placebo & 0.0\% {\scriptsize [0.0, 0.7]} & $-$39.6\% \\
-Planar Control ($\theta{=}34.02^\circ$) & 40.3\% {\scriptsize [35.6, 45.0]\textsuperscript{$\mathsection$}} & +0.7\% {\scriptsize (per-seed $p{=}1.00/0.13/0.29$; Fisher $p{=}0.36$)} \\
-4-Layer Drop Unhealed & 1.8\% {\scriptsize [0.8, 3.0]} & $-$37.8\% \\
+Planar Control ($\theta{=}34.02^\circ$) & 40.3\% {\scriptsize [35.5, 45.0]\textsuperscript{$\mathsection$}} & +0.7\% {\scriptsize (per-seed $p{=}1.00/0.13/0.29$; Fisher $p{=}0.36$)} \\
+4-Layer Drop Unhealed & 1.8\% {\scriptsize [0.8, 3.4]} & $-$37.8\% \\
 \bottomrule
 \end{tabular}%
 }
 \end{minipage}
 \end{table*}
 
-\noindent\textsuperscript{$\mathsection$}Union of per-seed 95\% Clopper-Pearson CIs across the 3 seeds (39.8/40.6/40.4); seeds are not pooled because they evaluate the same 500 questions.
+\noindent\textsuperscript{$\mathsection$}Union of per-seed 95\% Clopper-Pearson CIs (3 seeds); seeds are not pooled because they share the same 500 questions.
 
-Second, to test causal sufficiency directly, we apply the inverse Orthogonal Procrustes \citep{schonemann1966generalized} matrix $R^* \in \text{O}(d)$ ($\det(R^*) = -1$) as a forward hook at Layer 15 of an \textit{intact} model---\textbf{with zero layers removed and zero weights modified}. This intervention collapses GSM8K from 39.6\% to 9.0\% ($p = 5.6 \times 10^{-35}$, Table~\ref{tab:sufficiency}), reproducing over 80\% of the unhealed pruning collapse ($\to 1.8\%$). The remaining 7.2 pp gap reflects multi-layer degradation accumulated across the dropped block, including $\mathrm{PC}_1$ variance compression. A matched-angle planar control at the fresh $k{=}4$ rotation-curve estimate ($\theta = 34.02^\circ$, $N=500$, 3 seeds) leaves accuracy unaffected ($40.3\%$; seeds 39.8/40.6/40.4; per-seed exact McNemar $p = 1.000/0.125/0.289$, Fisher combined $p = 0.36$), as does the in-range $28.71^\circ$ dose point ($40.2\%$; seeds 40.0/40.0/40.6; per-seed $p = 0.625/0.625/0.180$, Fisher $p = 0.50$), while a random $\text{SO}(d)$ Haar placebo yields 0.0\%. This confirms that reasoning failure requires coordinated multi-dimensional misalignment across the principal reasoning subspace rather than localized rotational noise.
+Second, to test causal sufficiency directly, we apply the inverse Orthogonal Procrustes \citep{schonemann1966generalized} matrix $R^* \in \text{O}(d)$ ($\det(R^*) = -1$) as a forward hook at Layer 15 of an \textit{intact} model---\textbf{with zero layers removed and zero weights modified}. This intervention collapses GSM8K from 39.6\% to 9.0\% ($p = 5.6 \times 10^{-35}$, Table~\ref{tab:sufficiency}), reproducing over 80\% of the unhealed pruning collapse ($\to 1.8\%$). The remaining 7.2 pp gap reflects multi-layer degradation accumulated across the dropped block, including $\mathrm{PC}_1$ variance compression. A matched-angle planar control at the fresh $k{=}4$ estimate ($\theta = 34.02^\circ$, $N=500$, 3 seeds) leaves accuracy unaffected ($40.3\%$; seeds 39.8/40.6/40.4; per-seed exact McNemar $p = 1.000/0.125/0.289$, Fisher $p = 0.36$), as does the in-range $28.71^\circ$ dose point ($40.2\%$; per-seed $p \ge 0.18$, Fisher $p = 0.50$), while a random $\text{SO}(d)$ Haar placebo yields 0.0\%. This confirms that reasoning failure requires coordinated multi-dimensional misalignment across the principal reasoning subspace rather than localized rotational noise.
 
 \subsection{Competing Metrics: Evaluating Subspace Rotation Against Scalar Signals}
 
@@ -309,9 +309,9 @@ To verify that $\theta$ captures an essential geometric mechanism rather than a 
 \toprule
 \textbf{Intervention Paradigm} & \textbf{Pruning / Healing Condition} & \textbf{GSM8K Acc [95\% CI]} & \textbf{Mechanistic Finding} \\
 \midrule
-Baseline & Dense Intact Mistral-7B & 39.6\% [35.4\%, 44.0\%]\textsuperscript{$\dagger$} & Upper-bound capacity baseline. \\
+Baseline & Dense Intact Mistral-7B & 39.6\% [35.3\%, 44.0\%]\textsuperscript{$\dagger$} & Upper-bound capacity baseline. \\
 \textbf{Skip Depth Control} & \textbf{Half-Skip (2-layer drop, $t=2$)}\textsuperscript{$\ddagger$} & \textbf{14.0\%} [7.9\%, 22.4\%] & Non-linear recovery scaling with depth. \\
-Boundary Adaptation & Boundary LoRA ($r=16, t=2$) & 6.2\% [4.2\%, 8.4\%]\textsuperscript{\textdagger} & PPL recovers (9.12); reasoning gains marginal (+4.4 pp). \\
+Boundary Adaptation & Boundary LoRA ($r=16, t=2$) & 6.2\% [4.3\%, 8.7\%]\textsuperscript{\textdagger} & PPL recovers (9.12); reasoning gains marginal (+4.4 pp). \\
 Inference-Time Realignment & Procrustes $R^*$ hook on pruned model & 1.8\% [0.8\%, 3.4\%]\textsuperscript{$\dagger$} & Single-layer orthogonal repair cannot undo multi-layer degradation. \\
 Inference-Time Realignment & $\mathrm{PC}_1$ un-rotation & 1.6\% [0.7\%, 3.1\%]\textsuperscript{$\dagger$} & $\mathrm{PC}_1$ is directionally preserved ($\theta_{\mathrm{acute}}=0.48^\circ$); un-rotation targets no angular defect. \\
 Distillation & Cascade MSE + Logit KL & 4.0\% [1.1\%, 9.9\%] & Standard L2 loss omits CoT reasoning path. \\
@@ -327,7 +327,7 @@ Norm Scaling & Unconstrained Scalar Gate ($\alpha, \beta$) & 0.0\% [0.0\%, 3.6\%
 
 \subsection{Multi-Location Robustness Sweep}
 
-Table~\ref{tab:location_sweep} evaluates 4-layer contiguous drops across early, middle, and late depths ($N=1500$ each). Reasoning collapses uniformly at every site (0.93\%, 2.00\%, 4.93\%), confirming that post-pruning degradation is consistent throughout the network. Furthermore, the nine recovery paradigms in Table~\ref{tab:ablation_matrix} show that increasing adapter capacity (41.9M parameters), applying distillation losses, and scalar norm matching all fail to restore reasoning ($\le 4.0\%$). Inference-time orthogonal repair is equally ineffective: applying the pruning-derived Procrustes rotation $R^*$ directly to the pruned model recovers only 1.8\% (vs.\ 1.4\% unhealed) and $\mathrm{PC}_1$ un-rotation yields 1.6\%, because misalignment and variance compression accumulate across the dropped block and cannot be inverted by a single linear interface operation. Capacity is not the bottleneck; preserving reasoning requires maintaining the geometric integrity of the underlying latent subspace, pointing to training-time solutions.
+Table~\ref{tab:location_sweep} evaluates 4-layer contiguous drops across early, middle, and late depths ($N=1500$ each). Reasoning collapses uniformly at every site (0.93\%, 2.00\%, 4.93\%), confirming that post-pruning degradation is consistent throughout the network. Furthermore, the nine recovery paradigms in Table~\ref{tab:ablation_matrix} show that increasing adapter capacity (41.9M parameters), applying distillation losses, and scalar norm matching all fail to restore reasoning ($\le 4.0\%$). Inference-time repair is equally ineffective: applying $R^*$ directly to the pruned model recovers 1.8\% (vs.\ 1.4\% unhealed) and $\mathrm{PC}_1$ un-rotation yields 1.6\%---misalignment accumulated across the dropped block cannot be inverted by a single linear interface. Capacity is not the bottleneck; preserving reasoning requires maintaining the geometric integrity of the underlying latent subspace, pointing to training-time solutions.
 
 \section{Limitations \& Future Work}
 
@@ -346,16 +346,16 @@ We investigated the representational geometry governing post-pruning recovery in
 \label{app:protocol}
 
 \paragraph{GSM8K Evaluation.}
-All GSM8K evaluations use a fixed 8-shot Chain-of-Thought (CoT) prompt identical across all experimental conditions \citep{cobbe2021gsm8k}, implemented in \texttt{gsm8k\_eval\_shared.py}. Answers are extracted using a strict regex matching the final numerical value following ``The answer is'' or a boxed expression without fuzzy matching. Accuracy is reported as exact match (\%), with Clopper-Pearson 95\% confidence intervals computed for all proportions. The dense Mistral-7B-v0.1 baseline achieves 39.6\% [35.4\%, 44.0\%] ($N=500$, 8-shot). All evaluations use deterministic greedy decoding (temperature = 0.0).
+All GSM8K evaluations use a fixed 8-shot Chain-of-Thought (CoT) prompt identical across all experimental conditions \citep{cobbe2021gsm8k}, implemented in \texttt{gsm8k\_eval\_shared.py}. Answers are extracted deterministically: a regex match on the final numerical value following ``The answer is''; when that pattern is absent, the last numeric token in the generation is used. Accuracy is reported as exact match (\%). All 95\% proportion CIs in the tables are recomputed with the standard Clopper-Pearson formula (Beta-distribution quantiles) from the stored per-question correctness vectors; earlier stored artifact CIs use a previous inverse-binomial variant that differs by $\le 0.3$ pp. The dense Mistral-7B-v0.1 baseline achieves 39.6\% [35.3\%, 44.0\%] ($N=500$, 8-shot). All evaluations use deterministic greedy decoding (\texttt{do\_sample=False}).
 
 \paragraph{BBH Multi-Step Arithmetic.}
-BBH evaluations use \texttt{lm-evaluation-harness} (EleutherAI, v0.4.x) with the \texttt{bbh\_multistep\_\allowbreak{}arithmetic\_two} task, using 4-shot CoT prompting and greedy decoding ($n=100$). Results are reported as exact match \%.
+BBH evaluations use \texttt{lm-evaluation-harness} (EleutherAI, v0.4.x) with the \texttt{bbh\_multistep\_\allowbreak{}arithmetic\_two} task, using 3-shot CoT prompting and greedy decoding ($n=100$). Results are reported as exact match \%.
 
 \paragraph{Incision Boundary Healing Training.}
-All LoRA adapters are trained with rank $r=16$, $\alpha=32$, dropout $= 0.05$, targeting query, key, value, and output projection matrices. Optimizer: AdamW, learning rate $= 2 \times 10^{-4}$, weight decay $= 0.01$, linear warmup (10\% of steps), cosine decay. Training data: C4 training split, max length 512, 1 epoch. Boundary-healing adapters use 1,000 sequences (batch size 4, gradient accumulation $\times$ 4 = effective 16); global-sensitivity LoRA baselines use 500 sequences under the same schedule, so the reported recovery ratios are computed against the same protocol apart from this 2$\times$ sample-count difference. For Gemma-2-2B only, the dense reference in Table~\ref{tab:ppl_main} is obtained by applying the same LoRA protocol to the unmodified dense model (1,000 sequences, lr $1\times10^{-5}$, rank 16), yielding the calibrated baseline 13.90. All experiments run on a single NVIDIA RTX 3090 (24 GB) GPU.
+All LoRA adapters are trained with rank $r=16$, $\alpha=32$, dropout $= 0.0$, targeting the attention query/value and MLP gate/up/down projection matrices. Optimizer: AdamW, learning rate $= 1 \times 10^{-5}$, weight decay $= 0.01$ (AdamW default), linear warmup (10\% of steps) followed by linear decay. Training data: WikiText-2 training split, processed as 2,048-token chunks with one chunk per optimizer step (batch size 1, no gradient accumulation), a single pass over the first $N$ chunks. Boundary-healing adapters use $N=1{,}000$ chunks; global-sensitivity LoRA baselines use $N=500$ for Mistral-7B-v0.1 and Meta-Llama-3-8B and $N=1{,}000$ for Gemma-2-2B, so the reported recovery ratios are computed against the same protocol apart from the stated sample-count differences. For Gemma-2-2B only, the dense reference in Table~\ref{tab:ppl_main} is obtained by applying the same LoRA protocol to the unmodified dense model ($N=1{,}000$ chunks, lr $1\times10^{-5}$, rank 16), yielding the calibrated baseline 13.90. All experiments run on two NVIDIA RTX 3090 (24 GB) GPUs (one concurrent job per GPU).
 
 \paragraph{Representation Geometry Measurements.}
-Hidden states $H^{(T)}_l, H^{(S)}_l \in \mathbb{R}^{N \times d}$ are extracted at layer $l$ over $N=50$ C4 validation sequences (tokenized to length 512; $\theta$ uses all token positions, with principal angles averaged per passage). SVD is computed in FP32 after casting from BF16/FP16. PC$_1$ energy collapse is measured as the relative reduction in the top singular value squared: $\Delta_{\mathrm{energy}} = 1 - \sigma_1(H^{(S)}_l)^2 / \sigma_1(H^{(T)}_l)^2$. Confidence intervals are bootstrapped over the $N=50$ passage-level measurements (reported as 95\% Clopper-Pearson CIs for proportions, or bootstrap CIs for continuous quantities); Table~\ref{tab:cross_model_geometry} reports 95\% $t$-CIs over the same passage-level measurements.
+Hidden states $H^{(T)}_l, H^{(S)}_l \in \mathbb{R}^{N \times d}$ are extracted at layer $l$ over $N=50$ C4 validation sequences (tokenized to length 512; $\theta$ uses all token positions, with principal angles averaged per passage). SVD is computed in FP32 after casting from BF16/FP16. PC$_1$ energy collapse is measured as the relative reduction in the top singular value squared: $\Delta_{\mathrm{energy}} = 1 - \sigma_1(H^{(S)}_l)^2 / \sigma_1(H^{(T)}_l)^2$. Continuous quantities (energy collapse, $\theta$) use 95\% $t$-CIs over the $N=50$ passage-level measurements (Table~\ref{tab:cross_model_geometry} and Table~\ref{tab:energy_full}).
 
 \paragraph{Causal Sufficiency \& Matched-Angle Controls.}
 The Orthogonal Procrustes matrix $R^* \in \text{O}(4096)$ (with $\det(R^*) = -1$) is computed via \texttt{scipy.linalg.\allowbreak{}orthogonal\_procrustes} (SciPy 1.15), solving $\min_R \|H_{\text{student}} R - H_{\text{teacher}}\|_F^2$ over the $N=50$ evaluation passages. $(R^*)^T$ is applied as a PyTorch forward hook at Layer 15 of the intact Mistral-7B-v0.1 model. No weights are modified; the hook is removed after evaluation. Random SO($d$) placebo controls are drawn from the Haar measure using QR decomposition of a standard Gaussian matrix (with sign correction to $\det = +1$; 3 seeds). To test whether arbitrary rotations of matched magnitude cause degradation, matched-angle planar rotations $R(\theta) \in \text{SO}(d)$ are constructed via Givens-style 2-plane rotation matrices across $\theta \in [5^\circ, 90^\circ]$, including the empirical $k{=}4$ estimate $\theta = 34.02^\circ$ (3 seeds) and the in-range dose point $\theta = 28.71^\circ$ (3 seeds); the intermediate sweep angles ($5^\circ$, $15^\circ$, $45^\circ$, $60^\circ$, $90^\circ$) are evaluated with a single seed each. All dose-response evaluations maintain $39.6\%$--$40.6\%$ accuracy (per-seed exact McNemar $p \ge 0.125$ vs.\ dense; Fisher combined: $\theta = 34.02^\circ$: seeds 39.8/40.6/40.4, $p = 0.36$; $\theta = 28.71^\circ$: seeds 40.0/40.0/40.6, $p = 0.50$).
@@ -364,7 +364,7 @@ The Orthogonal Procrustes matrix $R^* \in \text{O}(4096)$ (with $\det(R^*) = -1$
 All paired McNemar's tests use a two-tailed exact binomial test on discordant pairs ($p = 2 \cdot \mathrm{Bin}(k; b + c, 1/2)$ with $k = \min(b, c)$, clamped to $1.0$). The dense-vs-rotated McNemar test uses $N=500$ aligned question-level correctness indicators. Multi-seed conditions are summarized by per-seed exact $p$-values and a Fisher combined $p$; discordant counts are never pooled across seeds because all seeds evaluate the same 500 questions (identical indices in eval order).
 
 \paragraph{Compute Budget.}
-Total GPU compute for all Phase 25 experiments (P1--P7): approximately 120 GPU-hours on a single RTX 3090 (24 GB). Energy collapse measurements (50 passages $\times$ 3 models): $< 2$ GPU-hours. GSM8K evaluations ($N=500$, 8-shot, per condition): $\sim$3--5 GPU-hours per model. The full pipeline is reproduced via \texttt{run\_neurreps\_\allowbreak{}full\_pipeline.sh} in \texttt{code/phases/\allowbreak{}phase25\_causal\_\allowbreak{}interventions/}.
+Total GPU compute for all Phase 25 experiments (P1--P7): approximately 120 GPU-hours on two RTX 3090 (24 GB) GPUs. Energy collapse measurements (50 passages $\times$ 3 models): $< 2$ GPU-hours. GSM8K evaluations ($N=500$, 8-shot, per condition): $\sim$3--5 GPU-hours per model. The full pipeline is reproduced via \texttt{run\_neurreps\_\allowbreak{}full\_pipeline.sh} in \texttt{code/phases/\allowbreak{}phase25\_causal\_\allowbreak{}interventions/}; the per-passage $\theta$ values in Tables~\ref{tab:cross_model_geometry} and~\ref{tab:rotation_curve} are reproduced by \texttt{scratch/measure\_healed\_geometry.py} and \texttt{scratch/measure\_rotation\_curve\_fresh.py} (the pipeline's \texttt{7\_rotation\_curve.py} implements the concatenated-SVD variant, whose $k{=}4$ estimate is $28.71^\circ$).
 
 % ---
 
@@ -392,7 +392,7 @@ Table~\ref{tab:energy_full} reports per-passage energy collapse from the canonic
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{PC$_1$ energy collapse (per-passage, $N=50$ C4 sequences) by model family. Energy collapse $= 1 - \sigma_1(H^{(S)})^2/\sigma_1(H^{(T)})^2$. $\theta_{\mathrm{acute}}$ is sign-synchronized. 95\% CIs are bootstrap (both columns).}
+\caption{PC$_1$ energy collapse (per-passage, $N=50$ C4 sequences) by model family. Energy collapse $= 1 - \sigma_1(H^{(S)})^2/\sigma_1(H^{(T)})^2$. $\theta_{\mathrm{acute}}$ is sign-synchronized. 95\% CIs are $t$-CIs over the $N=50$ passages (both columns).}
 \label{tab:energy_full}
 \begin{tabular}{lccc}
 \toprule
