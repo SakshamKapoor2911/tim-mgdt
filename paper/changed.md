@@ -294,3 +294,10 @@ Closing the two named reviewer vulnerabilities (L10-vs-L15 layer offset; Mistral
 - The Llama sufficiency replication is now surfaced in §4.4 main text (56.0% → 2.0%, N=100, McNemar p = 1.6×10⁻¹⁵), not only in Appendix A.
 - Limitations (i) reworded to confident framing: the full causal battery executes on Mistral-7B, sufficiency replicates on Meta-Llama-3-8B, extending the remaining arms to Gemma-2-2B is future work.
 - Recompiled (main text ends p.9); zip rebuilt. Ready for submission.
+
+---
+
+## 13. Necessity Arm Closed at the Incision Layer (Aug 19, 2026)
+
+- **PC₁ ablation at L15 (N=500)**: suppressing PC₁ at the post-incision layer of the intact Mistral-7B reduces GSM8K from 39.6% to 30.6% (−9.0 pp, exact McNemar p = 2.5×10⁻⁶, `exp_6b_pc1_l15_n500.json`, `scratch/pc1_l15_n500.py`). Added to §4.2, §4.4, and Appendix C; the former L10-vs-L15 layer-offset hedge is replaced by direct evidence that PC₁'s reasoning role persists at the incision interface (significant but smaller than the L10 effect, consistent with multi-layer accumulation).
+- Recompiled (main text ends p.9); zip rebuilt.
