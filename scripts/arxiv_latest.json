@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-25T08:49:57.820025"
+    "timestamp": "2026-08-26T08:50:53.417189"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,6 +44,33 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "RACE: Scalable Statistical Estimation of Functional Consistency in LLM Neurons",
+        "published_date": "2026-08-25",
+        "authors": [
+          "Runyu Wang",
+          "Bo Liu",
+          "Xiaxin Zhang",
+          "Yu Han",
+          "Jiawei Cao",
+          "Xiaoye Zhang",
+          "Zhe Zhang",
+          "Yifan Yang",
+          "Peng Ping"
+        ],
+        "summary": "Discovering stable neuron behavior across entire domains remains a challenge in mechanistic interpretability. Existing methods often rely on instance-level point estimates or computationally expensive procedures, which either obscure population-level variability or limit scalable domain-wide analysis. We present RACE (Residual Alignment for Consistency Estimation), a forward-pass statistical framework that evaluates the domain-wide functional consistency of Transformer neurons. Perturbation experiments demonstrate that RACE achieves superior domain specificity compared to gradient-based point estimates. Meanwhile, token-distribution-level results verify the association between the selected neurons and the target domain. Furthermore, its computational overhead is two orders of magnitude lower than that of gradient-based methods.",
+        "url": "http://arxiv.org/abs/2608.24758v1"
+      },
+      {
+        "title": "Discovering Cross-Language Reasoning Invariance in LLMs with Geometry-Invariant Sparse Autoencoders",
+        "published_date": "2026-08-24",
+        "authors": [
+          "Igor Bogdanov",
+          "Changcheng Huang"
+        ],
+        "summary": "Multilingual language models can solve the same mathematical problem in different languages, but it remains unclear whether they rely on shared features or on language-specific computations that only produce similar outputs. We study this question in five models from four families using the Multilingual Grade School Math (MGSM) dataset, with problems solved in English, German, French, Spanish, Russian, and Chinese, retaining problems with valid reasoning traces in all six languages and replaying those traces through the model to record representations at multiple layers. For each model, we first use Centered Kernel Alignment (CKA) to identify layers with cross-language alignment. At each selected layer, we train two sparse autoencoders (SAE): a baseline reconstruction-only model and a contrastive variant introduced in this work, the Geometry-Invariant SAE (GI-SAE). GI-SAE supplements the reconstruction loss with an Information Noise-Contrastive Estimation (InfoNCE) loss that trains the encoder to produce similar activations for traces of the same problem, regardless of language or token position. We then test whether the resulting shared features are functionally interchangeable by swapping their values between languages during the model's forward pass and measuring the resulting change in output, quantified by Kullback-Leibler (KL) divergence per feature. Although GI-SAE yields higher CKA and Jaccard similarity at nearly every layer, higher geometric similarity does not consistently imply greater functional interchangeability. We find that cross-language feature sharing is model- and architecture-dependent in this sample and appears at different depths in different models. GI-SAE primarily amplifies cross-language structure already present: the pattern is model-specific, with strengthening in Qwen, no functional benefit in Gemma, and mixed layer-dependent effects in Llama and Phi.",
+        "url": "http://arxiv.org/abs/2608.23809v1"
+      },
+      {
         "title": "What AstroPT knows about galaxies, and what that can teach us about LLMs",
         "published_date": "2026-08-23",
         "authors": [
@@ -56,33 +83,6 @@
         ],
         "summary": "Interpretability research increasingly asks when concepts emerge during training and whether linear probes recover real structure, but in language models these claims are hard to validate because language offers little ground-truth ordering of concepts or relationships among them. We propose the use of astronomical ground truth through AstroPT, a transformer trained on millions of galaxy images, as a calibration testbed. AstroPT is an LLM-like model trained within a domain where the difficulty ordering of concepts and the relations among them are known in advance. Probing frozen representations across checkpoints, layers, model sizes, and objective choices, we find that galaxy properties emerge in a fixed order that tracks their known difficulty---quantities written almost directly into the pixels (band magnitude) become decodable early in training and shallow in the network, while multiband/spectra based and inferred quantities (such as redshift and specific star formation rate) emerge later and deeper. This order is invariant to our tested training objectives, and scales in magnitude but not in sequence with capacity. Our linear probe directions further recover the known physical structure among galaxy properties. Our findings suggest that astronomy offers a controlled sandbox for calibrating mechanistic interpretability methods we otherwise apply to LLMs blind.",
         "url": "http://arxiv.org/abs/2608.22614v1"
-      },
-      {
-        "title": "Mechanistic Interpretability of Chain-of-Thought Reasoning via Sequential Activation Patching",
-        "published_date": "2026-08-23",
-        "authors": [
-          "Murat Dura",
-          "Serkan \u00d6zt\u00fcrk",
-          "Selma Tekir"
-        ],
-        "summary": "Large Language Models (LLMs) demonstrate remarkable problem-solving capabilities when guided by Chain-of-Thought (CoT) prompting, yet the internal mechanisms underlying these improvements remain poorly understood. In this work, we investigate where CoT-related causal effects emerge across the generated reasoning trajectory and which attention heads carry signals that contribute to final-answer computation. Because CoT reasoning unfolds over multiple generated tokens, standard activation patching at a single static token position is insufficient to characterize these temporally distributed effects. To address this limitation, we introduce a sequential activation patching framework that traces CoT-conditioned attention-head activations across token positions and aggregates their effects using Part-of-Speech-guided analysis. We further introduce Sequential Multi-Head Patching to evaluate the joint contribution of distributed head sets, together with cross-question and random activation controls. Targeted zero-ablation experiments show that the identified heads are functionally important for successful answer generation and affect several overlapping mechanisms, including reasoning-trajectory maintenance, answer anchoring, exemplar-target separation, and numerical generation. Overall, our results provide evidence for distributed reasoning-support sub-circuits associated with CoT-conditioned computation.",
-        "url": "http://arxiv.org/abs/2608.22332v1"
-      },
-      {
-        "title": "Mechanistic Interpretability of Structure-Aware Numerical Reasoning in LLaMA 3.1 8B",
-        "published_date": "2026-08-19",
-        "authors": [
-          "Rahul Chowdhury",
-          "Timothy A Rupprecht",
-          "Senhao Cao",
-          "Jiahao Liu",
-          "Octavia Camps",
-          "David Bau",
-          "Pu Zhao",
-          "Yanzhi Wang"
-        ],
-        "summary": "Recent work has shown that large language models (LLMs) exhibit strong numerical sequence modeling capabilities and show promise in time-series prediction. While LLMs display in-context learning capabilities, the mechanisms with which they accomplish time-series prediction remain unclear. Specifically, whether they truly understand the underlying structure, which at a minimum requires reasoning over first differences in the sequence of numbers. To study this, we investigate Llama 3.1-8B from a mechanistic interpretability point of view. Mechanistic interpretability is an emerging field concerned with the reverse engineering of the algorithms learned by neural networks such as LLMs. To assess Llamas' numerical sequence modeling capabilities and to facilitate our mechanistic interpretability analysis, we create a sequence modeling task that cannot be solved without picking up structural cues. Specifically, we sample n random numbers and repeat them with an offset. We find that Llama displays strong performance on our tasks suggesting that it can pick up on the underlying structure. To understand the mechanisms that allow it to do so, we perform probing experiments and activation patching based counterfactual analysis. Probing reveals that the model computes and stores first differences in its internal representations without explicit supervision, indicating that it tracks structural information about the sequence. Activation patching reveals that Llama retrieves the relevant first-difference with a mechanism similar to an induction circuit and subsequently adds it to the current value. Notably, our work represents one of the first studies to identify this form of concept induction in LLMs.",
-        "url": "http://arxiv.org/abs/2608.18419v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
