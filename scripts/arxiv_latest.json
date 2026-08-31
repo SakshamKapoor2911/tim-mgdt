@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-08-30T13:42:42.661292"
+    "timestamp": "2026-08-31T16:01:55.537214"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,42 +44,41 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
-        "title": "Interpreting Latent Protein Language Model Features with Geometric Annotations",
-        "published_date": "2026-08-26",
+        "title": "Compositional Failure in Audio-Visual LLMs: Late-Layer Prior Dominance Under Cross-modal Conflict",
+        "published_date": "2026-08-27",
         "authors": [
-          "Siddharth Setlur",
-          "Djordje Mihajlovic",
-          "Darrick Lee"
+          "Adarsh Sudheer",
+          "David Li",
+          "Omar Elbanna",
+          "Ishaan Kodarapu",
+          "Arjun Bahuguna",
+          "Vasu Sharma"
         ],
-        "summary": "Protein language models (pLMs) encode information about protein sequences which enable downstream tasks such as structure prediction, but their internal representations are not well understood. Sparse autoencoders (SAEs) provide a promising tool to disentangle latent pLM representations into interpretable features, but existing annotation pipelines largely rely on protein-level annotations derived from database labels and LLM annotations of top activating sequences. Such annotations can overlook the localized residue-level and geometric patterns encoded by sparse features. We introduce an automated and scalable method for interpreting SAE features in ESM-2 by using geometrically inspired features of the protein $\\text{C}_\u03b1$ backbone. Across ESM-2 8M layers, an FDR-controlled discovery analysis shows that local geometry is significantly associated with many SAE features, with varying levels of predictive strength, expanding coverage beyond database and sequence-based methods. In particular, geometry can distinguish SAE features sharing the same database annotation, revealing substructure within known biological labels. A significant portion of SAE features activate on unannotated metagenomic protein sequences enabling us to use our SAE annotations to better understand these sequences. In addition, ablation experiments at the level of contact prediction show that removing found geometric features shifts ESM-2's predicted contact maps in the direction of the descriptor. This provides a robust method of annotating proteins activated within SAE neurons at a residue level, providing a bridge between mechanistic interpretability and structural biology.",
-        "url": "http://arxiv.org/abs/2608.26419v1"
+        "summary": "We study audio-visual conflict as a compositional generalization test for AV-LLMs: the model must combine synchronized but semantically incompatible audio and video evidence and decide whether the pair matches. On VideoLLaMA 2-7B-AV, three alignment configurations remain nearchance on the scored exact-string Yes/No subset of AVHBench, even though their output priors shift substantially. Similarly, off-the-shelf InternVideo2 experienced a 32.3% accuracy decrease specifically under cross-modal conflict, accompanied by a 17.3% instruction-following failure. We call this failure mode prior dominance: late-layer commitment to an internally preferred answer pattern that is weakly grounded in the conflicting inputs. To explain this behavior, we conduct a mechanistic interpretability analysis and find that commitment remains concentrated at 25.5 $\\pm$ 1 layers. We show that stronger temporal alignment changes answer bias, but do not improve compositional conflict resolution. Code and data to reproduce our mechanistic audit and behavioral evaluations are available at https://github.com/AdarshSudheer09/AVHBench-dmai.",
+        "url": "http://arxiv.org/abs/2608.27785v1"
       },
       {
-        "title": "RACE: Scalable Statistical Estimation of Functional Consistency in LLM Neurons",
-        "published_date": "2026-08-25",
+        "title": "Load-Bearing Context: The Question Damage Score for Evaluating Context Reliance in Linguistic Reasoning",
+        "published_date": "2026-08-27",
         "authors": [
-          "Runyu Wang",
-          "Bo Liu",
-          "Xiaxin Zhang",
-          "Yu Han",
-          "Jiawei Cao",
-          "Xiaoye Zhang",
-          "Zhe Zhang",
-          "Yifan Yang",
-          "Peng Ping"
+          "Neh Majmudar",
+          "Elena Filatova"
         ],
-        "summary": "Discovering stable neuron behavior across entire domains remains a challenge in mechanistic interpretability. Existing methods often rely on instance-level point estimates or computationally expensive procedures, which either obscure population-level variability or limit scalable domain-wide analysis. We present RACE (Residual Alignment for Consistency Estimation), a forward-pass statistical framework that evaluates the domain-wide functional consistency of Transformer neurons. Perturbation experiments demonstrate that RACE achieves superior domain specificity compared to gradient-based point estimates. Meanwhile, token-distribution-level results verify the association between the selected neurons and the target domain. Furthermore, its computational overhead is two orders of magnitude lower than that of gradient-based methods.",
-        "url": "http://arxiv.org/abs/2608.24758v1"
+        "summary": "Determining whether large language models derive answers from context or prior knowledge remains a fundamental challenge. Self-contained linguistic olympiad puzzles provide a controlled setting where all answers derive solely from expert-designed context examples without external knowledge. Removing individual context examples can eliminate information needed for specific questions while leaving the rest of the puzzle unchanged. We leverage this to introduce a diagnostic framework for analyzing individual context examples. Using 53 UK Linguistics Olympiad puzzles, we generate two modified variants by deleting a single context example: (1) uniform random deletion, and (2) targeted deletion (inspired by error-correcting codes) to remove a structurally load-bearing example uniquely carrying necessary information. We formalize this impact using a Question Damage Score to classify puzzles as fragile or robust. Evaluating three frontier LLMs under instructions to abstain when information is insufficient, we find they rarely abstain, often continuing to produce correct answers after load-bearing context is removed. These findings motivate further investigation into context-based reasoning, prior knowledge, memorization, and linguistic inference. Beyond abstention, the framework enables fine-grained analyses of context reliance, including causal interventions, stopping-set analysis, targeted contamination studies, and mechanistic interpretability.",
+        "url": "http://arxiv.org/abs/2608.27756v1"
       },
       {
-        "title": "Discovering Cross-Language Reasoning Invariance in LLMs with Geometry-Invariant Sparse Autoencoders",
-        "published_date": "2026-08-24",
+        "title": "Circuit Discovery Helps Detect LLM Jailbreaking: A Mechanistic Interpretability Study",
+        "published_date": "2026-08-27",
         "authors": [
-          "Igor Bogdanov",
-          "Changcheng Huang"
+          "Paria Mehrbod",
+          "Boris Knyazev",
+          "Guy Wolf",
+          "Eugene Belilovsky",
+          "Geraldin Nanfack"
         ],
-        "summary": "Multilingual language models can solve the same mathematical problem in different languages, but it remains unclear whether they rely on shared features or on language-specific computations that only produce similar outputs. We study this question in five models from four families using the Multilingual Grade School Math (MGSM) dataset, with problems solved in English, German, French, Spanish, Russian, and Chinese, retaining problems with valid reasoning traces in all six languages and replaying those traces through the model to record representations at multiple layers. For each model, we first use Centered Kernel Alignment (CKA) to identify layers with cross-language alignment. At each selected layer, we train two sparse autoencoders (SAE): a baseline reconstruction-only model and a contrastive variant introduced in this work, the Geometry-Invariant SAE (GI-SAE). GI-SAE supplements the reconstruction loss with an Information Noise-Contrastive Estimation (InfoNCE) loss that trains the encoder to produce similar activations for traces of the same problem, regardless of language or token position. We then test whether the resulting shared features are functionally interchangeable by swapping their values between languages during the model's forward pass and measuring the resulting change in output, quantified by Kullback-Leibler (KL) divergence per feature. Although GI-SAE yields higher CKA and Jaccard similarity at nearly every layer, higher geometric similarity does not consistently imply greater functional interchangeability. We find that cross-language feature sharing is model- and architecture-dependent in this sample and appears at different depths in different models. GI-SAE primarily amplifies cross-language structure already present: the pattern is model-specific, with strengthening in Qwen, no functional benefit in Gemma, and mixed layer-dependent effects in Llama and Phi.",
-        "url": "http://arxiv.org/abs/2608.23809v1"
+        "summary": "Despite extensive safety alignment, large language models (LLMs) remain vulnerable to jailbreak attacks that bypass safeguards to elicit harmful content. While prior work attributes this vulnerability to safety training limitations, the internal mechanisms by which LLMs process adversarial prompts remain poorly understood. We present a mechanistic analysis of the jailbreaking behavior in a large-scale, safety-aligned LLM, focusing on LLaMA-2-7B-chat-hf. Leveraging edge attribution patching and subnetwork probing, we systematically identify computational circuits responsible for generating affirmative responses to jailbreak prompts. Ablating these circuits during the first token prediction can reduce attack success rates by up to 80\\%, demonstrating its critical role in safety bypass. Our analysis uncovers key attention heads and MLP pathways that mediate adversarial prompt exploitation, revealing how important tokens propagate through these components to override safety constraints. These findings advance the understanding of adversarial vulnerabilities in aligned LLMs and pave the way for targeted, interpretable defense mechanisms based on mechanistic interpretability.",
+        "url": "http://arxiv.org/abs/2608.27504v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
