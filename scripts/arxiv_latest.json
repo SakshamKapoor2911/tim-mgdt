@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-09-01T13:21:28.378104"
+    "timestamp": "2026-09-02T12:41:03.346013"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,6 +44,18 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "S^3martCirc: Self-supervised Smart Circuit Discovery",
+        "published_date": "2026-09-01",
+        "authors": [
+          "Wendy Zheng",
+          "Yinhan He",
+          "Liang Wu",
+          "Jundong Li"
+        ],
+        "summary": "Large Language Models (LLMs) have demonstrated remarkable performance across diverse tasks, from text summarization to question answering. Despite these capabilities, their black-box nature obscures internal decision-making processes. Mechanistic interpretability (MI) aims to address this by reverse-engineering neural networks into human-understandable algorithms. Current MI approaches for LLMs typically follow a two-stage paradigm: first identifying important components (circuit discovery), where components are typically individual nodes such as an attention head or feedforward neuron, and second determining the role they play in a certain task (functional interpretation). However, this sequential approach overlooks a fundamental insight: a component's importance and its functional role are inherently codependent. Unifying these stages presents two key challenges: (1) functional roles are often tied to specific nodes or components, limiting generalization, and (2) their identification relies on subjective interpretation rather than quantifiable metrics. To address these challenges, we propose S^3martCirc (Self-supervised Smart Circuit Discovery), a unified framework that simultaneously discovers circuits and interprets functionality. S^3martCirc abstracts node behavior into two general computational roles that generalize across tasks and defines a quantitative metric for assigning them, enabling importance and functional role to be discovered jointly rather than in sequence. Extensive experiments show that our framework outperforms existing methods in circuit discovery.",
+        "url": "http://arxiv.org/abs/2609.00755v1"
+      },
+      {
         "title": "Interpreting and Steering for Safe and Correct Code Generation",
         "published_date": "2026-08-30",
         "authors": [
@@ -54,28 +66,15 @@
         "url": "http://arxiv.org/abs/2608.30025v1"
       },
       {
-        "title": "A Unifying Perspective on Language Model Representations: From Filler-Role Structure to Mechanistic Interpretability",
-        "published_date": "2026-08-29",
+        "title": "From Detection to Refusal: Safer LLMs via Circuit-Guided Weight Scaling",
+        "published_date": "2026-08-30",
         "authors": [
-          "Zhang Enyan",
-          "R. Thomas McCoy"
+          "Kuan-Lin Chu",
+          "Chung-En Sun",
+          "Tsui-Wei Weng"
         ],
-        "summary": "A wide range of methods have been proposed for interpreting language models, delivering important insights into their inner workings. However, different methods and their resulting insights stand in relative isolation: what could the underlying structure of language models be, such that they give rise to all our interpretations? In this work, we propose using Tensor Product Representations (TPRs) as a unifying hypothesis. TPRs give a concrete proposal for how compositional structure could be represented in vector space --- as filler-role bindings. We show, both mathematically and empirically, that TPRs can unify several prior interpretability methods: additive analogies, linear probing, sparse autoencoders, and activation patching. Mathematically, we show that these methods can all be derived from TPRs. Empirically, we apply the derivations to a range of different models --- from small toy models to LLMs --- to construct instances of each of the above interpretability methods; these constructed variants perform comparably to their standard variants. We view this work as a step toward what interpretability will ideally provide: a unified account of the nature of neural networks, corroborated not just by individual observations but also by an explanation of the connections between them.",
-        "url": "http://arxiv.org/abs/2608.29034v1"
-      },
-      {
-        "title": "Compositional Failure in Audio-Visual LLMs: Late-Layer Prior Dominance Under Cross-modal Conflict",
-        "published_date": "2026-08-27",
-        "authors": [
-          "Adarsh Sudheer",
-          "David Li",
-          "Omar Elbanna",
-          "Ishaan Kodarapu",
-          "Arjun Bahuguna",
-          "Vasu Sharma"
-        ],
-        "summary": "We study audio-visual conflict as a compositional generalization test for AV-LLMs: the model must combine synchronized but semantically incompatible audio and video evidence and decide whether the pair matches. On VideoLLaMA 2-7B-AV, three alignment configurations remain nearchance on the scored exact-string Yes/No subset of AVHBench, even though their output priors shift substantially. Similarly, off-the-shelf InternVideo2 experienced a 32.3% accuracy decrease specifically under cross-modal conflict, accompanied by a 17.3% instruction-following failure. We call this failure mode prior dominance: late-layer commitment to an internally preferred answer pattern that is weakly grounded in the conflicting inputs. To explain this behavior, we conduct a mechanistic interpretability analysis and find that commitment remains concentrated at 25.5 $\\pm$ 1 layers. We show that stronger temporal alignment changes answer bias, but do not improve compositional conflict resolution. Code and data to reproduce our mechanistic audit and behavioral evaluations are available at https://github.com/AdarshSudheer09/AVHBench-dmai.",
-        "url": "http://arxiv.org/abs/2608.27785v1"
+        "summary": "Despite extensive alignment efforts, Large Language Models (LLMs) remain vulnerable to generating unsafe content under adversarial prompting, yet the internal mechanisms by which safety behaviors are implemented remain poorly understood. We study LLM safety from a mechanistic interpretability perspective and characterize a multi-stage *safety circuit* that organizes refusal behavior, consisting of (i) $\\textbf{Harmful Detection Heads}$ that respond to harmful inputs, (ii) $\\textbf{Safety Neurons}$ that mediate and stabilize safety signals in the residual stream, and (iii) $\\textbf{Refusal Heads}$ that translate these signals into safe response generation. Using targeted attention-head and neuron-level interventions, we provide causal evidence consistent with this circuit organization, showing that suppressing upstream Harmful Detection Heads disrupts downstream refusal behavior and that safety neurons mediate this interaction. We validate that this decomposition recurs across multiple LLM architectures and adversarial attack settings, and use simple, architecture-preserving weight scaling as a mechanistic probe to test its functional relevance. Across six LLMs, circuit-guided scaling improves safety rates under attacks by 26.5%, while incurring only a 1.7% accuracy drop across four standard benchmarks. Overall, our results support a circuit-level interpretation of LLM safety and suggest that mechanistic abstractions can reveal stable and transferable patterns underlying aligned behavior.",
+        "url": "http://arxiv.org/abs/2609.00051v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -117,6 +116,16 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Beyond Scores: Understanding LLM-as-a-Judge Mechanisms in Summarization Evaluation",
+        "published_date": "2026-09-01",
+        "authors": [
+          "Himil Vasava",
+          "Ming Jiang"
+        ],
+        "summary": "LLM-based evaluators of natural language generation (NLG) quality are widely deployed as scoring tools and as automated training signals, yet the internal procedure by which they assign a rating remains poorly understood. We investigate this procedure mechanistically through an eight-attack perturbation taxonomy across the Readability and Adequacy dimensions of NLG quality, a generation pipeline that produces paired clean and corrupt summaries with controlled error intensity and explicit token-level modification maps, and a four-experiment battery of causal tracing, logit-lens vocabulary projection, and attention-head knockout applied to Themis (Llama-3-8B) and Prometheus (Mistral-7B). Both evaluators implement a structured, coherent evaluation pipeline operating in two stages: below layer 15, attention performs local error comparison and routes the result to the final input position; above it, the MLP cascade integrates the signal and writes the rating, with the decision crystallizing in the residual stream at a sharp late layer (L = 26 on Themis, L = 25 on Prometheus). Furthermore, a base-model control at the same scale (Llama-3-8B) reproduces the routing architecture and crystallization but not the stage separation, isolating the two mechanisms that fine-tuning specifically installs, suppression of below-L15 MLP contribution at the last position and a two-layer advance of the crystallization depth, indicating that fine-tuning sculpts an existing substrate rather than building the pipeline from scratch. We release the source code and data at https://github.com/himil-v/judge-mech",
+        "url": "http://arxiv.org/abs/2609.01604v1"
+      },
+      {
         "title": "Where Identity Lives: Localized, Retain-Free Identity Unlearning in Multimodal Large Language Models",
         "published_date": "2026-08-31",
         "authors": [
@@ -138,25 +147,6 @@
         ],
         "summary": "A wide range of methods have been proposed for interpreting language models, delivering important insights into their inner workings. However, different methods and their resulting insights stand in relative isolation: what could the underlying structure of language models be, such that they give rise to all our interpretations? In this work, we propose using Tensor Product Representations (TPRs) as a unifying hypothesis. TPRs give a concrete proposal for how compositional structure could be represented in vector space --- as filler-role bindings. We show, both mathematically and empirically, that TPRs can unify several prior interpretability methods: additive analogies, linear probing, sparse autoencoders, and activation patching. Mathematically, we show that these methods can all be derived from TPRs. Empirically, we apply the derivations to a range of different models --- from small toy models to LLMs --- to construct instances of each of the above interpretability methods; these constructed variants perform comparably to their standard variants. We view this work as a step toward what interpretability will ideally provide: a unified account of the nature of neural networks, corroborated not just by individual observations but also by an explanation of the connections between them.",
         "url": "http://arxiv.org/abs/2608.29034v1"
-      },
-      {
-        "title": "Can We Read the Mind of an Audio LLM? A Verbalizable, Multilingual Middle-Layer Workspace",
-        "published_date": "2026-08-25",
-        "authors": [
-          "Jiajun Fan",
-          "Jingyuan Li",
-          "Prashanth Gurunath Shivakumar",
-          "Qi Luo",
-          "Jia-Hong Huang",
-          "M. Maruf",
-          "Roger Ren",
-          "Yile Gu",
-          "Rahul Pandey",
-          "Ge Liu",
-          "Ivan Bulyko"
-        ],
-        "summary": "An audio language model is a black box in a specific way: we see what it says, never what it works out on the way there, and chain-of-thought monitoring helps only if the model writes its reasoning down. Reading a base Qwen3-Omni with a logit lens at the audio-token positions, we find that the answer to a spoken question becomes legible - in words - in the model's middle layers, before it emits any token. Five findings follow. (1) The readout carries concepts in neither the question, the options, nor the model's own transcription: on a clip whose verbatim transcription is empty garbling, it reconstructs Watergate and scandal, passes through the role president, and resolves to Nixon - a hidden multi-hop chain, read with no chain-of-thought. (2) The content is language-agnostic: one audio-inferred concept surfaces in several scripts at once, and 38% of top-1 readouts are Chinese on English inputs. (3) It is paralinguistic: given the same clip as audio and as the model's own emotion-free caption, the audio mind forms the sound source, speaker role, or affect that the caption discards, and answers correctly more often. (4) The audio-driven signal is absent at the input, turns on about a tenth of the way into the network, separates most cleanly from the text prior in the middle band (35-80% of depth), and activation patching shows it is causally used and committed before the last fifth of the layers. (5) Deleting single layers maps the pipeline: reading the sound in is localized to the entry layers and answer delivery to the output layer, while retrieval is distributed across the interior. Throughout, a waveform-swap control - identical text, only the sound changed - isolates the audio-driven signal from a prior over the printed options. This is a qualitative account of what an audio model works out before it speaks: the quantities are controls, not benchmark scores.",
-        "url": "http://arxiv.org/abs/2608.24958v1"
       }
     ]
   }
