@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-09-02T12:41:03.346013"
+    "timestamp": "2026-09-03T12:43:30.072873"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,6 +44,20 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Interpretable Symptom Vectors for Depression in a Large Language Model",
+        "published_date": "2026-09-01",
+        "authors": [
+          "Fangyi Zhu",
+          "Ajay Subramanian",
+          "Allison Constant",
+          "Camille Wang",
+          "Ravish Gupta",
+          "Corey J. Keller"
+        ],
+        "summary": "Patients with depression present with diverse symptom profiles, yet clinical practice routinely reduces this variation to a single severity score. Large language models (LLMs) can potentially capture various symptoms and their severity from patient speech. However, how depressive symptoms are represented inside LLMs remains poorly understood, limiting clinical trust. To examine whether internal model activations match clinician judgment, we analyzed the residual stream of Gemma-3-27B-PT using mechanistic interpretability techniques. Recording activations across symptom descriptions drawn from validated clinical instruments, we found that symptom groups geometrically separated the most at layer 21 across multiple distance metrics. Using Semantic Projection, we then projected held-out naturalistic text onto Symptom Vectors constructed from these instruments. The resulting per-symptom coefficients preserved clinician-annotated rank ordering across mood, somatic, and suicidality axes. Furthermore, a single depression vector in Layer 21 separates held-out depressive from non-depressive text (AUC = 0.789), which can be used as an emotional valence gate that restricts symptom projection to depressive speech. These results reveal a decorrelated, clinician-aligned symptom signal readable directly from internal activations, offering a mechanistic foundation for interpretable depression-assessment tools.",
+        "url": "http://arxiv.org/abs/2609.01832v1"
+      },
+      {
         "title": "S^3martCirc: Self-supervised Smart Circuit Discovery",
         "published_date": "2026-09-01",
         "authors": [
@@ -64,17 +78,6 @@
         ],
         "summary": "Large language models (LLMs) frequently generate source code containing vulnerabilities, yet little work studies the internal mechanisms that distinguish safe from vulnerable generation in them. In this work, we systematically perform a mechanistic interpretation of LLMs, aiming at both understanding how code safety-vs-vulnerability is represented or driven by components in an LM and turning the insights into actionable steering strategies to encourage safer code generation. To this end, we introduce CodeSec-Pairs, a dataset of 9,342 Python safe-and-vulnerable contrastive code pairs, sampled from Llama-3.1-8B-Instruct. Utilizing the dataset, we explore approaches to localize layers and attention heads that relate to code safety, and further experiment with different steering strategies for inference-time vulnerability reduction. In particular, we propose DuoSteer, a double-steering approach that simultaneously applies safety and code-correctness steering to attention heads. In experiments over five vulnerability types, DuoSteer leads to an average of -26.9% vulnerability rate reduction and +7.5% functional correctness improvement, which outperforms not only other steering variants but also prompting and supervised fine-tuning baselines. The advantage also replicates on Qwen-2.5-Coder-7B-Instruct with another 2,500 contrastive pairs sampled from that model.",
         "url": "http://arxiv.org/abs/2608.30025v1"
-      },
-      {
-        "title": "From Detection to Refusal: Safer LLMs via Circuit-Guided Weight Scaling",
-        "published_date": "2026-08-30",
-        "authors": [
-          "Kuan-Lin Chu",
-          "Chung-En Sun",
-          "Tsui-Wei Weng"
-        ],
-        "summary": "Despite extensive alignment efforts, Large Language Models (LLMs) remain vulnerable to generating unsafe content under adversarial prompting, yet the internal mechanisms by which safety behaviors are implemented remain poorly understood. We study LLM safety from a mechanistic interpretability perspective and characterize a multi-stage *safety circuit* that organizes refusal behavior, consisting of (i) $\\textbf{Harmful Detection Heads}$ that respond to harmful inputs, (ii) $\\textbf{Safety Neurons}$ that mediate and stabilize safety signals in the residual stream, and (iii) $\\textbf{Refusal Heads}$ that translate these signals into safe response generation. Using targeted attention-head and neuron-level interventions, we provide causal evidence consistent with this circuit organization, showing that suppressing upstream Harmful Detection Heads disrupts downstream refusal behavior and that safety neurons mediate this interaction. We validate that this decomposition recurs across multiple LLM architectures and adversarial attack settings, and use simple, architecture-preserving weight scaling as a mechanistic probe to test its functional relevance. Across six LLMs, circuit-guided scaling improves safety rates under attacks by 26.5%, while incurring only a 1.7% accuracy drop across four standard benchmarks. Overall, our results support a circuit-level interpretation of LLM safety and suggest that mechanistic abstractions can reveal stable and transferable patterns underlying aligned behavior.",
-        "url": "http://arxiv.org/abs/2609.00051v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
