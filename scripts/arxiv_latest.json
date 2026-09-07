@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-09-06T12:03:01.802377"
+    "timestamp": "2026-09-07T14:07:58.004444"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -44,6 +44,20 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Beneath the Surface of Chains-of-Thought: A Mechanistic Interpretation of Reasoning Operations in LLMs",
+        "published_date": "2026-09-04",
+        "authors": [
+          "Seogyeong Jeong",
+          "Jaehui Hwang",
+          "Dongyoon Han",
+          "Geonmo Gu",
+          "Alice Oh",
+          "Taekyung Kim"
+        ],
+        "summary": "Reasoning in large language models unfolds through diverse functional operations, such as problem formulation, goal decomposition, and deduction. Although these operations are explicitly distinguished in text, little is known about how they are geometrically organized in representation spaces. To this end, we investigate whether distinct reasoning operations exhibit corresponding geometric structure in hidden representations. We find that operations are separable in held-out representations, with separability peaking in middle layers, and verify that this structure is not explained by lexical or positional confounds. Across layers, token-wise operation-alignment becomes more distributed over spans, while identical surface tokens are represented differently depending on the operation of its surrounding chunk. Attention-masking interventions further show that operation-aligned representations at chunk onset depend on preceding reasoning context. Consequently, our work demonstrates that language models maintain representational correspondence between linguistic reasoning expressions and their internal geometric structures. Code and project materials are available at https://github.com/naver-ai/beneath-cot.",
+        "url": "http://arxiv.org/abs/2609.04753v1"
+      },
+      {
         "title": "A Circuit for Plural Reference: How LLMs Represent and Retrieve Singular and Plural Entities",
         "published_date": "2026-09-03",
         "authors": [
@@ -68,18 +82,6 @@
         ],
         "summary": "Large Language Models (LLMs) demonstrate strong multilingual reasoning performance, yet their robustness to semantics-preserving structural variation remains underexplored, particularly for relatively free word-order languages. We investigate the structural sensitivity of multilingual LLMs using two linguistically grounded perturbation settings in Hindi and Malayalam: constrained constituent reordering and active-passive voice transformation. We introduce a benchmark dataset IndicReStruct, with two variants, GSM8K-Reordered and GSM8K-Voice, constructed from GSM8K while preserving semantic meaning. Across six state-of-the-art LLMs and multiple prompting strategies, we observe consistent and significant degradation in mathematical reasoning performance under structurally perturbed inputs. To further understand these failures, we perform qualitative error analysis and mechanistic interpretability experiments using residual-stream activation patching. Our analyses show that reasoning failures frequently arise from disruptions in entity-quantity alignment and that intermediate transformer layers contribute most strongly toward reasoning restoration. Overall, our findings suggest that current multilingual LLMs remain highly sensitive to surface syntactic realization and lack robust compositional invariance under structurally different but semantically equivalent inputs.",
         "url": "http://arxiv.org/abs/2609.03511v1"
-      },
-      {
-        "title": "Large Language Models in Resolving Contextual Knowledge Conflicts",
-        "published_date": "2026-09-02",
-        "authors": [
-          "Xinye Yang",
-          "Zhenyang Liu",
-          "Ruisi Li",
-          "Yuanyuan Lei"
-        ],
-        "summary": "Most prior works focused on conflicts between an LLM's internal parametric knowledge and externally provided context. In contrast, we investigate how LLMs handle conflicts that arise within contextual knowledge itself. We introduce a taxonomy of six types of contextual conflicts (factual, inferential, temporal, granularity, perspective, and ambiguity) and contribute a comprehensive dataset ContextConflict for this setting. The dataset contains 5,781 samples, covers both reasoning and summarization tasks, and includes both explicit contradictions and implicit conflicts that require multi-step reasoning. Experiments on nine LLMs show that current models still fall short in resolving contextual knowledge conflicts. We further provide mechanistic interpretability insights into how LLMs process such conflicts, revealing their latent awareness of conflicts and the representational geometry underlying conflict processing. In addition, our analysis uncovers a consistent model bias towards earlier evidence, and this positional preference serves as a key obstacle to effective conflict resolution. Motivated by these findings, we further propose a simple training-free, label-free steering method that steers activations to encourage a more comprehensive incorporation of evidences for better conflict resolution. On our dataset, the method consistently improves accuracy on reasoning tasks and generates higher-quality, more balanced summaries for summarization tasks.",
-        "url": "http://arxiv.org/abs/2609.03148v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
