@@ -1,9 +1,32 @@
 {
   "metadata": {
-    "timestamp": "2026-09-08T12:45:59.777295"
+    "timestamp": "2026-09-09T12:51:06.366452"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "Train Overcomplete, Deploy Compact: Scaling Recovery Capacity for Structured LLM Pruning",
+        "published_date": "2026-09-07",
+        "authors": [
+          "Seungmin Oh",
+          "Donggeon Lee",
+          "Jongbin Ryu"
+        ],
+        "summary": "Large language models achieve strong performance across diverse tasks, but deployment remains costly because of memory, latency, and energy demands. Structured pruning reduces these costs by removing architectural components, yet its recovery stage is often limited by a mismatch between the recovery module's representational capacity and the complexity of the removed knowledge. We call this bottleneck the capacity-knowledge asymmetry and propose OverRep, an Overcomplete Reparameterization framework for structured LLM pruning. Following the principle of \"train overcomplete, deploy compact\", OverRep temporarily overparameterizes the recovery module during training to absorb complex knowledge distilled from the original model. After recovery, the overcomplete re-parameterization is algebraically merged into a mathematically equivalent compact module, preserving the pruned model's inference-time architecture and computational cost. OverRep further introduces an annealed activation that enables nonlinear training dynamics while converging to a linear regime for exact algebraic merging. Across three backbone families, OverRep improves retained reasoning performance over strong recovery baselines by up to 5.5 and 8.4 points at 25% and 50% pruning, respectively, while keeping memory usage and TFLOPs comparable to existing recovery methods. Our code is available at https://github.com/mmai-laboratory/OverRep.",
+        "url": "http://arxiv.org/abs/2609.06974v1"
+      },
+      {
+        "title": "Hidden in Plain Sight: The Overlooked Significance of Canonical Elements for Extreme LLM Sparsity",
+        "published_date": "2026-09-06",
+        "authors": [
+          "Hyeondo Jang",
+          "Kwanhee Lee",
+          "Dongyeop Lee",
+          "Namhoon Lee"
+        ],
+        "summary": "Large language models (LLMs) are often considered fragile under aggressive sparsification, and maintaining reliable performance typically requires sticking to moderate sparsity levels. However, recent studies suggest that LLMs are more resilient to high sparsity than previously thought, reframing the problem as a design challenge rather than a fundamental limitation. In this work, we challenge the perceived limits of unstructured post-training LLM pruning by revisiting elementary pruning strategies that have remained relatively underexplored at this scale. Through a progressive sparsification framework with second-order saliency and continued training coordinated with sparsity progression, we show that pretrained LLMs can retain strong performance far beyond commonly studied sparsity regimes. Across LLaMA-2 and Qwen-3 model families, our approach improves perplexity and downstream accuracy up to 99\\% sparsity, surpassing both the current state-of-the-art and representative baselines. Precisely, on LLaMA-2-7B, our approach achieves WikiText-2 perplexities of 13.48 and 19.67 at 95\\% and 99\\% sparsity, respectively, while delivering 3.23$\\times$ decoding speedup and 6.21$\\times$ memory savings at 95\\% sparsity. Taken together, our results show that LLMs can be pushed into extreme sparsity while retaining strong performance, providing a foundation for further improving sparse models in this regime.",
+        "url": "http://arxiv.org/abs/2609.06557v1"
+      },
       {
         "title": "When Compression Scores Cannot Decide: Information Boundaries for Group-Robust LLM Pruning",
         "published_date": "2026-08-03",
@@ -12,34 +35,6 @@
         ],
         "summary": "A stable compression score can still select the worse model. In our dense study, a split-half reliable path-quadratic score predicted a 16.1\\% gain, while the selected endpoints were 6.0--7.7% worse than two controls. We ask what a compression statistic can justify when deployment cares about the worst supplied group. We treat each statistic as an information interface. Its observation leaves a fiber of compatible endpoint-risk tables, and only orders fixed across that fiber are identified. Cone and fiber identities quantify the remaining uncertainty, while matched observations reverse endpoint order for pooled moments, group-local moments, and reference-path curvature. Sequential composition adds one state variable: the slack from each group risk to the current maximum. This vector determines every unrestricted one-step response, and a margin condition keeps the active group fixed along paths with bounded relative drift. The experiments follow the same ladder. Across three dense LLMs, an early-preserving allocation reduces worst-group perplexity inflation by 12.6--20.9%; target-matched complete-menu selection improves over its references by 2.7--8.0%. Across all 16 routed layers of OLMoE, pooled endpoint refresh lowers held-out worst-group teacher KL by 15.8% over the best static score. A compute-matched hard-max trajectory ends 32.7% worse than pooled, and neither adaptive trajectory improves excess NLL. Local evidence can narrow a menu. Complete endpoints rank that menu, while multistep claims also require control of the evolving active face and future candidates.",
         "url": "http://arxiv.org/abs/2608.02940v2"
-      },
-      {
-        "title": "WIDE: Boosting Adaptive LLM Inference via Token-level Dynamic Width Pruning",
-        "published_date": "2026-07-30",
-        "authors": [
-          "Haozhe Hu",
-          "Hao Wu",
-          "Peiran Yin",
-          "Chao Han",
-          "Yunpu Ma",
-          "Xiaoyu Shen"
-        ],
-        "summary": "Pruning is a promising approach for improving the efficiency of LLMs. Existing static structured pruning methods are hardware-friendly and can deliver practical throughput gains, but their input-agnostic computation allocation often causes substantial accuracy degradation under aggressive sparsity. Recent dynamic sparsity methods improve quality retention by adapting computation to individual inputs, yet they remain largely limited to coarse-grained structural decisions and their practical acceleration under real-world inference scenarios remains challenging. To address these challenges, we present WIDE, the first end-to-end differentiable token-level dynamic width pruning framework designed for both prefill and decode scenarios. WIDE enables fine-grained computation allocation by allowing each token to dynamically select attention-head groups and FFN-channel groups, extending dynamic pruning beyond layer-level decisions to neuron-block-level granularity. Through a two-stage training pipeline, WIDE learns effective token-wise sparse execution patterns and achieves substantially better quality retention than existing approaches. To make such fine-grained dynamic pruning practical, we further propose a pruning--kernel co-design framework that decomposes dynamic sparsity acceleration into mask reordering, hardware-agnostic block-level skipping, and hardware-dependent intra-block skipping, enabling efficient execution across different granularities. At 50% sparsity, WIDE provides 55.1% performance boost when compared to the state-of-the-art dynamic depth pruning under calibration-only settings. Under prefill and decoding inference workloads, WIDE achieves close-to-theoretical kernel-level speedups of up to 1.98x for prefill and 4.95x for decoding, as well as 1.68x and 1.55x end-to-end acceleration. Our code is available at https://github.com/EIT-NLP/LLM-Pruning/tree/main/WIDE.",
-        "url": "http://arxiv.org/abs/2607.28418v1"
-      },
-      {
-        "title": "CoCurve: Cross-Module Co-Pruning Curvature for Training-Free Structured LLM Pruning",
-        "published_date": "2026-07-20",
-        "authors": [
-          "Zhiren Gong",
-          "Zihao Zeng",
-          "Zijie Wang",
-          "Tiantong Wang",
-          "Chau Yuen",
-          "Wei Yang Bryan Lim"
-        ],
-        "summary": "Structured pruning compresses large language models (LLMs) by removing whole computational units, such as attention heads and feed-forward (FFN) channel groups. Most training-free methods, however, rank these units independently, implicitly treating the loss from pruning a set as the sum of its individual losses. This view fails for Transformers, whose sublayers are coupled through a shared residual stream. Two individually weak units can thus be jointly indispensable, yet independent scoring is blind to such dependence and removes them together. We introduce CoCurve (Cross-Module Co-Pruning Curvature), a calibration-only, fine-tuning-free method that prunes attention and FFN units jointly. A second-order Taylor expansion of the token-level KL between the frozen model and its masked copy yields a single Fisher matrix whose diagonal is classical node saliency and whose off-diagonal entries are co-pruning curvature edges: the extra damage of removing two units together. Under a single-ablation additivity approximation this matrix reduces to a Gram product of single-unit ablation features, so the full M x M interaction is recovered from M forward passes, with no pairwise sweeps or gradients. Pruning then reduces to one budgeted quadratic program, solved in a single shot under a shared attention--FFN budget, with no labels, fine-tuning, or recovery.",
-        "url": "http://arxiv.org/abs/2607.17568v1"
       }
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
@@ -123,6 +118,15 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "We Built a Mirror and Mistook It for a Mind: Causal Liability and the Fallacy of AI Consciousness",
+        "published_date": "2026-09-06",
+        "authors": [
+          "Afshin Khadangi"
+        ],
+        "summary": "The contemporary debate over machine consciousness begins from a concealed assumption: that the object called \"AI\" already constitutes the kind of entity to which consciousness could belong. This paper challenges that assumption by separating phenomenal consciousness, introspective report, and human projective introspection, then arguing that generative systems can return linguistic traces of human interiority in first-person form without thereby identifying a phenomenal bearer. We call the resulting inference the AI Consciousness Fallacy. We then introduce Causal Liability Theory (CLT). CLT-I proposes liability closure as a criterion for individuating a candidate bearer: a physically continuing process becomes the non-delegable inheritor of constraints generated by its own endogenous discriminations. CLT-II advances the stronger conjecture that liability closure is necessary and sufficient for minimal phenomenal subjecthood. An open-weight causal audit operationalizes CLT-I across multiple model families. Forced discriminations produced persistent downstream divergence; activation patching showed strong causal mediation; live and copied adaptive states were behaviorally identical under matched randomness; and detached reconstruction preserved computational state across process replacement while, by protocol, breaking constitutive continuity and non-delegable inheritance. These results show that CLT-I distinctions are experimentally tractable and can dissociate causal bearer structure from first-person performance. The framework therefore separates consciousness attribution, causal bearer individuation, and the independent metaphysical question of consciousness constitution.",
+        "url": "http://arxiv.org/abs/2609.06715v1"
+      },
+      {
         "title": "Lost in Reordering: Structural Sensitivity of Multilingual LLMs under Semantics-Preserving Perturbations",
         "published_date": "2026-09-03",
         "authors": [
@@ -148,16 +152,6 @@
         ],
         "summary": "Language models encounter typos, corrupted text, altered words, and disrupted token order, yet robustness is usually evaluated only through output behavior. We study how six naturalistic and synthetic input perturbations propagate through decoder-only language models at three levels: output behavior, hidden-state geometry, and attention-head function. We evaluate behavioral effects across four GPT-2 and two Qwen2.5 checkpoints by analyzing layerwise geometry using centered kernel alignment and intrinsic dimension, and examine attention-head responses in GPT-2. Perturbation types produce distinguishable metric profiles that are not fully captured by output measures and are only partly consistent across the tested checkpoints. Copying scores are especially associated with activation-patching recovery under token substitution and shuffling. Gradient-guided HotFlip perturbations also cause stronger behavioral and representational disruption than rate-matched random token substitutions in GPT-2; their behavioral effects are consistent across all six tested checkpoints. Our results show that robustness claims based on a single behavioral or representational metric can be misleading, and motivate multi-level evaluation of how perturbations alter language-model computation.",
         "url": "http://arxiv.org/abs/2609.03322v1"
-      },
-      {
-        "title": "Beyond Scores: Understanding LLM-as-a-Judge Mechanisms in Summarization Evaluation",
-        "published_date": "2026-09-01",
-        "authors": [
-          "Himil Vasava",
-          "Ming Jiang"
-        ],
-        "summary": "LLM-based evaluators of natural language generation (NLG) quality are widely deployed as scoring tools and as automated training signals, yet the internal procedure by which they assign a rating remains poorly understood. We investigate this procedure mechanistically through an eight-attack perturbation taxonomy across the Readability and Adequacy dimensions of NLG quality, a generation pipeline that produces paired clean and corrupt summaries with controlled error intensity and explicit token-level modification maps, and a four-experiment battery of causal tracing, logit-lens vocabulary projection, and attention-head knockout applied to Themis (Llama-3-8B) and Prometheus (Mistral-7B). Both evaluators implement a structured, coherent evaluation pipeline operating in two stages: below layer 15, attention performs local error comparison and routes the result to the final input position; above it, the MLP cascade integrates the signal and writes the rating, with the decision crystallizing in the residual stream at a sharp late layer (L = 26 on Themis, L = 25 on Prometheus). Furthermore, a base-model control at the same scale (Llama-3-8B) reproduces the routing architecture and crystallization but not the stage separation, isolating the two mechanisms that fine-tuning specifically installs, suppression of below-L15 MLP contribution at the last position and a two-layer advance of the crystallization depth, indicating that fine-tuning sculpts an existing substrate rather than building the pipeline from scratch. We release the source code and data at https://github.com/himil-v/judge-mech",
-        "url": "http://arxiv.org/abs/2609.01604v1"
       }
     ]
   }
