@@ -1,84 +1,10 @@
 {
   "metadata": {
-    "timestamp": "2026-09-11T12:43:52.076734"
+    "timestamp": "2026-09-12T12:05:36.880829"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [
-      {
-        "title": "Train Overcomplete, Deploy Compact: Scaling Recovery Capacity for Structured LLM Pruning",
-        "published_date": "2026-09-07",
-        "authors": [
-          "Seungmin Oh",
-          "Donggeon Lee",
-          "Jongbin Ryu"
-        ],
-        "summary": "Large language models achieve strong performance across diverse tasks, but deployment remains costly because of memory, latency, and energy demands. Structured pruning reduces these costs by removing architectural components, yet its recovery stage is often limited by a mismatch between the recovery module's representational capacity and the complexity of the removed knowledge. We call this bottleneck the capacity-knowledge asymmetry and propose OverRep, an Overcomplete Reparameterization framework for structured LLM pruning. Following the principle of \"train overcomplete, deploy compact\", OverRep temporarily overparameterizes the recovery module during training to absorb complex knowledge distilled from the original model. After recovery, the overcomplete re-parameterization is algebraically merged into a mathematically equivalent compact module, preserving the pruned model's inference-time architecture and computational cost. OverRep further introduces an annealed activation that enables nonlinear training dynamics while converging to a linear regime for exact algebraic merging. Across three backbone families, OverRep improves retained reasoning performance over strong recovery baselines by up to 5.5 and 8.4 points at 25% and 50% pruning, respectively, while keeping memory usage and TFLOPs comparable to existing recovery methods. Our code is available at https://github.com/mmai-laboratory/OverRep.",
-        "url": "http://arxiv.org/abs/2609.06974v1"
-      },
-      {
-        "title": "Hidden in Plain Sight: The Overlooked Significance of Canonical Elements for Extreme LLM Sparsity",
-        "published_date": "2026-09-06",
-        "authors": [
-          "Hyeondo Jang",
-          "Kwanhee Lee",
-          "Dongyeop Lee",
-          "Namhoon Lee"
-        ],
-        "summary": "Large language models (LLMs) are often considered fragile under aggressive sparsification, and maintaining reliable performance typically requires sticking to moderate sparsity levels. However, recent studies suggest that LLMs are more resilient to high sparsity than previously thought, reframing the problem as a design challenge rather than a fundamental limitation. In this work, we challenge the perceived limits of unstructured post-training LLM pruning by revisiting elementary pruning strategies that have remained relatively underexplored at this scale. Through a progressive sparsification framework with second-order saliency and continued training coordinated with sparsity progression, we show that pretrained LLMs can retain strong performance far beyond commonly studied sparsity regimes. Across LLaMA-2 and Qwen-3 model families, our approach improves perplexity and downstream accuracy up to 99\\% sparsity, surpassing both the current state-of-the-art and representative baselines. Precisely, on LLaMA-2-7B, our approach achieves WikiText-2 perplexities of 13.48 and 19.67 at 95\\% and 99\\% sparsity, respectively, while delivering 3.23$\\times$ decoding speedup and 6.21$\\times$ memory savings at 95\\% sparsity. Taken together, our results show that LLMs can be pushed into extreme sparsity while retaining strong performance, providing a foundation for further improving sparse models in this regime.",
-        "url": "http://arxiv.org/abs/2609.06557v1"
-      },
-      {
-        "title": "When Compression Scores Cannot Decide: Information Boundaries for Group-Robust LLM Pruning",
-        "published_date": "2026-08-03",
-        "authors": [
-          "Andrew Zhang"
-        ],
-        "summary": "A stable compression score can still select the worse model. In our dense study, a split-half reliable path-quadratic score predicted a 16.1\\% gain, while the selected endpoints were 6.0--7.7% worse than two controls. We ask what a compression statistic can justify when deployment cares about the worst supplied group. We treat each statistic as an information interface. Its observation leaves a fiber of compatible endpoint-risk tables, and only orders fixed across that fiber are identified. Cone and fiber identities quantify the remaining uncertainty, while matched observations reverse endpoint order for pooled moments, group-local moments, and reference-path curvature. Sequential composition adds one state variable: the slack from each group risk to the current maximum. This vector determines every unrestricted one-step response, and a margin condition keeps the active group fixed along paths with bounded relative drift. The experiments follow the same ladder. Across three dense LLMs, an early-preserving allocation reduces worst-group perplexity inflation by 12.6--20.9%; target-matched complete-menu selection improves over its references by 2.7--8.0%. Across all 16 routed layers of OLMoE, pooled endpoint refresh lowers held-out worst-group teacher KL by 15.8% over the best static score. A compute-matched hard-max trajectory ends 32.7% worse than pooled, and neither adaptive trajectory improves excess NLL. Local evidence can narrow a menu. Complete endpoints rank that menu, while multistep claims also require control of the evolving active face and future candidates.",
-        "url": "http://arxiv.org/abs/2608.02940v2"
-      }
-    ],
-    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
-      {
-        "title": "Beneath the Surface of Chains-of-Thought: A Mechanistic Interpretation of Reasoning Operations in LLMs",
-        "published_date": "2026-09-04",
-        "authors": [
-          "Seogyeong Jeong",
-          "Jaehui Hwang",
-          "Dongyoon Han",
-          "Geonmo Gu",
-          "Alice Oh",
-          "Taekyung Kim"
-        ],
-        "summary": "Reasoning in large language models unfolds through diverse functional operations, such as problem formulation, goal decomposition, and deduction. Although these operations are explicitly distinguished in text, little is known about how they are geometrically organized in representation spaces. To this end, we investigate whether distinct reasoning operations exhibit corresponding geometric structure in hidden representations. We find that operations are separable in held-out representations, with separability peaking in middle layers, and verify that this structure is not explained by lexical or positional confounds. Across layers, token-wise operation-alignment becomes more distributed over spans, while identical surface tokens are represented differently depending on the operation of its surrounding chunk. Attention-masking interventions further show that operation-aligned representations at chunk onset depend on preceding reasoning context. Consequently, our work demonstrates that language models maintain representational correspondence between linguistic reasoning expressions and their internal geometric structures. Code and project materials are available at https://github.com/naver-ai/beneath-cot.",
-        "url": "http://arxiv.org/abs/2609.04753v1"
-      },
-      {
-        "title": "A Circuit for Plural Reference: How LLMs Represent and Retrieve Singular and Plural Entities",
-        "published_date": "2026-09-03",
-        "authors": [
-          "Anh Danh",
-          "Rick Nouwen",
-          "Massimo Poesio"
-        ],
-        "summary": "Coreference resolution is an important task in contextual reasoning. In this paper, we investigate the mechanism for representing and retrieving singular and plural entities for plural reference. We use a combination of mechanistic interpretability and attention pattern analysis to study the process in which LLMs predict a pronoun to refer back to previously mentioned entities. Using a range of causal intervention techniques, we find a set of attention heads that are responsible for (1) representing coreference information in the input, (2) identifying entities that form a plural reference, (3) transferring the information to the component that is responsible for selecting the antecedents and predicting the pronoun. We also find that LLMs align with humans in preference for plural pronoun. Specifically, entities in a plural construction are more likely to be referred to as a plural entity if they are ontologically similar and are linked by the conjunction \"and\".",
-        "url": "http://arxiv.org/abs/2609.03687v1"
-      },
-      {
-        "title": "Lost in Reordering: Structural Sensitivity of Multilingual LLMs under Semantics-Preserving Perturbations",
-        "published_date": "2026-09-03",
-        "authors": [
-          "Karthika Nhayakkat",
-          "Rajat Verma",
-          "Maharaj Brahma",
-          "Vetcha Gnana Mahesh",
-          "Maunendra Sankar Desarkar",
-          "Ganesh Ramakrishnan",
-          "Rohit Saluja"
-        ],
-        "summary": "Large Language Models (LLMs) demonstrate strong multilingual reasoning performance, yet their robustness to semantics-preserving structural variation remains underexplored, particularly for relatively free word-order languages. We investigate the structural sensitivity of multilingual LLMs using two linguistically grounded perturbation settings in Hindi and Malayalam: constrained constituent reordering and active-passive voice transformation. We introduce a benchmark dataset IndicReStruct, with two variants, GSM8K-Reordered and GSM8K-Voice, constructed from GSM8K while preserving semantic meaning. Across six state-of-the-art LLMs and multiple prompting strategies, we observe consistent and significant degradation in mathematical reasoning performance under structurally perturbed inputs. To further understand these failures, we perform qualitative error analysis and mechanistic interpretability experiments using residual-stream activation patching. Our analyses show that reasoning failures frequently arise from disruptions in entity-quantity alignment and that intermediate transformer layers contribute most strongly toward reasoning restoration. Overall, our findings suggest that current multilingual LLMs remain highly sensitive to surface syntactic realization and lack robust compositional invariance under structurally different but semantically equivalent inputs.",
-        "url": "http://arxiv.org/abs/2609.03511v1"
-      }
-    ],
+    "\"transformer pruning\" OR \"LLM pruning\"": [],
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
       {
         "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
@@ -116,40 +42,6 @@
         "url": "http://arxiv.org/abs/2402.02801v2"
       }
     ],
-    "\"activation patching\" OR \"causal tracing\"": [
-      {
-        "title": "Contrastive Projection: Reading Transformer Internals by Differencing Logit Lenses",
-        "published_date": "2026-09-09",
-        "authors": [
-          "Olli Tuomi"
-        ],
-        "summary": "Reading a transformer's internal states in token space is easy to do and hard to trust: a logit lens on a single hidden state is dominated, at intermediate layers, by the generic tokens the model would predict for almost any input. We read the difference instead. Subtracting two closely matched prompts' hidden states and projecting through the unembedding cancels the shared component and surfaces what separates them, an operation equivalent to reading a RepE/ActAdd steering vector through a logit lens. Built into a training-free tracer that reads at every position, sub-layer, and head and averages over designed baselines, it traces a compound- noun MLP->attention chain in Phi-2, confirmed there by activation patching, with the same distinction recovered across three architectures by readout and probe rather than by patching; it reads what retrieval surfaces for real versus fictional entities, and reads metaphor as a set of domain-to-domain mappings rather than a single figurativity feature. A cross-seed control marks the boundary: across five networks differing only in initialization, the same distinction surfaces as almost entirely different tokens (top-10 overlap 0.08). What a computation looks like in token space is network-specific; the distinction it draws is not",
-        "url": "http://arxiv.org/abs/2609.09902v1"
-      },
-      {
-        "title": "We Built a Mirror and Mistook It for a Mind: Causal Liability and the Fallacy of AI Consciousness",
-        "published_date": "2026-09-06",
-        "authors": [
-          "Afshin Khadangi"
-        ],
-        "summary": "The contemporary debate over machine consciousness begins from a concealed assumption: that the object called \"AI\" already constitutes the kind of entity to which consciousness could belong. This paper challenges that assumption by separating phenomenal consciousness, introspective report, and human projective introspection, then arguing that generative systems can return linguistic traces of human interiority in first-person form without thereby identifying a phenomenal bearer. We call the resulting inference the AI Consciousness Fallacy. We then introduce Causal Liability Theory (CLT). CLT-I proposes liability closure as a criterion for individuating a candidate bearer: a physically continuing process becomes the non-delegable inheritor of constraints generated by its own endogenous discriminations. CLT-II advances the stronger conjecture that liability closure is necessary and sufficient for minimal phenomenal subjecthood. An open-weight causal audit operationalizes CLT-I across multiple model families. Forced discriminations produced persistent downstream divergence; activation patching showed strong causal mediation; live and copied adaptive states were behaviorally identical under matched randomness; and detached reconstruction preserved computational state across process replacement while, by protocol, breaking constitutive continuity and non-delegable inheritance. These results show that CLT-I distinctions are experimentally tractable and can dissociate causal bearer structure from first-person performance. The framework therefore separates consciousness attribution, causal bearer individuation, and the independent metaphysical question of consciousness constitution.",
-        "url": "http://arxiv.org/abs/2609.06715v1"
-      },
-      {
-        "title": "Lost in Reordering: Structural Sensitivity of Multilingual LLMs under Semantics-Preserving Perturbations",
-        "published_date": "2026-09-03",
-        "authors": [
-          "Karthika Nhayakkat",
-          "Rajat Verma",
-          "Maharaj Brahma",
-          "Vetcha Gnana Mahesh",
-          "Maunendra Sankar Desarkar",
-          "Ganesh Ramakrishnan",
-          "Rohit Saluja"
-        ],
-        "summary": "Large Language Models (LLMs) demonstrate strong multilingual reasoning performance, yet their robustness to semantics-preserving structural variation remains underexplored, particularly for relatively free word-order languages. We investigate the structural sensitivity of multilingual LLMs using two linguistically grounded perturbation settings in Hindi and Malayalam: constrained constituent reordering and active-passive voice transformation. We introduce a benchmark dataset IndicReStruct, with two variants, GSM8K-Reordered and GSM8K-Voice, constructed from GSM8K while preserving semantic meaning. Across six state-of-the-art LLMs and multiple prompting strategies, we observe consistent and significant degradation in mathematical reasoning performance under structurally perturbed inputs. To further understand these failures, we perform qualitative error analysis and mechanistic interpretability experiments using residual-stream activation patching. Our analyses show that reasoning failures frequently arise from disruptions in entity-quantity alignment and that intermediate transformer layers contribute most strongly toward reasoning restoration. Overall, our findings suggest that current multilingual LLMs remain highly sensitive to surface syntactic realization and lack robust compositional invariance under structurally different but semantically equivalent inputs.",
-        "url": "http://arxiv.org/abs/2609.03511v1"
-      }
-    ]
+    "\"activation patching\" OR \"causal tracing\"": []
   }
 }
