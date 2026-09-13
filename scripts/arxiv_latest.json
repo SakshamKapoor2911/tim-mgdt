@@ -1,47 +1,11 @@
 {
   "metadata": {
-    "timestamp": "2026-09-12T12:05:36.880829"
+    "timestamp": "2026-09-13T13:14:28.569340"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
-    "\"lottery ticket hypothesis\" AND \"language models\"": [
-      {
-        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
-        "published_date": "2026-08-05",
-        "authors": [
-          "Sajib Hossain",
-          "Md Kamrus Samad",
-          "Anan Ghosh",
-          "Labib Imam Chowdhury",
-          "Nabeel Mohammed"
-        ],
-        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
-        "url": "http://arxiv.org/abs/2608.05104v1"
-      },
-      {
-        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
-        "published_date": "2025-07-23",
-        "authors": [
-          "Andrii Balashov"
-        ],
-        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
-        "url": "http://arxiv.org/abs/2507.17107v2"
-      },
-      {
-        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
-        "published_date": "2024-02-05",
-        "authors": [
-          "Fei Yuan",
-          "Chang Ma",
-          "Shuai Yuan",
-          "Qiushi Sun",
-          "Lei Li"
-        ],
-        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
-        "url": "http://arxiv.org/abs/2402.02801v2"
-      }
-    ],
+    "\"lottery ticket hypothesis\" AND \"language models\"": [],
     "\"activation patching\" OR \"causal tracing\"": []
   }
 }
