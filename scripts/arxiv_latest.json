@@ -1,11 +1,146 @@
 {
   "metadata": {
-    "timestamp": "2026-09-15T13:21:14.007842"
+    "timestamp": "2026-09-16T13:18:34.709016"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [],
-    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
-    "\"lottery ticket hypothesis\" AND \"language models\"": [],
-    "\"activation patching\" OR \"causal tracing\"": []
+    "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "Train Overcomplete, Deploy Compact: Scaling Recovery Capacity for Structured LLM Pruning",
+        "published_date": "2026-09-07",
+        "authors": [
+          "Seungmin Oh",
+          "Donggeon Lee",
+          "Jongbin Ryu"
+        ],
+        "summary": "Large language models achieve strong performance across diverse tasks, but deployment remains costly because of memory, latency, and energy demands. Structured pruning reduces these costs by removing architectural components, yet its recovery stage is often limited by a mismatch between the recovery module's representational capacity and the complexity of the removed knowledge. We call this bottleneck the capacity-knowledge asymmetry and propose OverRep, an Overcomplete Reparameterization framework for structured LLM pruning. Following the principle of \"train overcomplete, deploy compact\", OverRep temporarily overparameterizes the recovery module during training to absorb complex knowledge distilled from the original model. After recovery, the overcomplete re-parameterization is algebraically merged into a mathematically equivalent compact module, preserving the pruned model's inference-time architecture and computational cost. OverRep further introduces an annealed activation that enables nonlinear training dynamics while converging to a linear regime for exact algebraic merging. Across three backbone families, OverRep improves retained reasoning performance over strong recovery baselines by up to 5.5 and 8.4 points at 25% and 50% pruning, respectively, while keeping memory usage and TFLOPs comparable to existing recovery methods. Our code is available at https://github.com/mmai-laboratory/OverRep.",
+        "url": "http://arxiv.org/abs/2609.06974v1"
+      },
+      {
+        "title": "Hidden in Plain Sight: The Overlooked Significance of Canonical Elements for Extreme LLM Sparsity",
+        "published_date": "2026-09-06",
+        "authors": [
+          "Hyeondo Jang",
+          "Kwanhee Lee",
+          "Dongyeop Lee",
+          "Namhoon Lee"
+        ],
+        "summary": "Large language models (LLMs) are often considered fragile under aggressive sparsification, and maintaining reliable performance typically requires sticking to moderate sparsity levels. However, recent studies suggest that LLMs are more resilient to high sparsity than previously thought, reframing the problem as a design challenge rather than a fundamental limitation. In this work, we challenge the perceived limits of unstructured post-training LLM pruning by revisiting elementary pruning strategies that have remained relatively underexplored at this scale. Through a progressive sparsification framework with second-order saliency and continued training coordinated with sparsity progression, we show that pretrained LLMs can retain strong performance far beyond commonly studied sparsity regimes. Across LLaMA-2 and Qwen-3 model families, our approach improves perplexity and downstream accuracy up to 99\\% sparsity, surpassing both the current state-of-the-art and representative baselines. Precisely, on LLaMA-2-7B, our approach achieves WikiText-2 perplexities of 13.48 and 19.67 at 95\\% and 99\\% sparsity, respectively, while delivering 3.23$\\times$ decoding speedup and 6.21$\\times$ memory savings at 95\\% sparsity. Taken together, our results show that LLMs can be pushed into extreme sparsity while retaining strong performance, providing a foundation for further improving sparse models in this regime.",
+        "url": "http://arxiv.org/abs/2609.06557v1"
+      },
+      {
+        "title": "When Compression Scores Cannot Decide: Information Boundaries for Group-Robust LLM Pruning",
+        "published_date": "2026-08-03",
+        "authors": [
+          "Andrew Zhang"
+        ],
+        "summary": "A stable compression score can still select the worse model. In our dense study, a split-half reliable path-quadratic score predicted a 16.1\\% gain, while the selected endpoints were 6.0--7.7% worse than two controls. We ask what a compression statistic can justify when deployment cares about the worst supplied group. We treat each statistic as an information interface. Its observation leaves a fiber of compatible endpoint-risk tables, and only orders fixed across that fiber are identified. Cone and fiber identities quantify the remaining uncertainty, while matched observations reverse endpoint order for pooled moments, group-local moments, and reference-path curvature. Sequential composition adds one state variable: the slack from each group risk to the current maximum. This vector determines every unrestricted one-step response, and a margin condition keeps the active group fixed along paths with bounded relative drift. The experiments follow the same ladder. Across three dense LLMs, an early-preserving allocation reduces worst-group perplexity inflation by 12.6--20.9%; target-matched complete-menu selection improves over its references by 2.7--8.0%. Across all 16 routed layers of OLMoE, pooled endpoint refresh lowers held-out worst-group teacher KL by 15.8% over the best static score. A compute-matched hard-max trajectory ends 32.7% worse than pooled, and neither adaptive trajectory improves excess NLL. Local evidence can narrow a menu. Complete endpoints rank that menu, while multistep claims also require control of the evolving active face and future candidates.",
+        "url": "http://arxiv.org/abs/2608.02940v2"
+      }
+    ],
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
+      {
+        "title": "Artificial entrepreneurial cognition: Locating and causally steering an opportunity recognition dial inside large language models (LLMs)",
+        "published_date": "2026-09-14",
+        "authors": [
+          "Christian Fisch",
+          "Angela Altmeier",
+          "Martin Obschonka",
+          "Michal Kosinski",
+          "Pin Ni"
+        ],
+        "summary": "Entrepreneurial cognition is a foundation of entrepreneurship research. Yet the growing involvement of large language models (LLMs) in entrepreneurial work extends the cognition question beyond human actors to systems whose internal representations remain largely unexplored. We introduce artificial entrepreneurial cognition, the functional organisation of entrepreneurship-relevant representations and computations inside artificial intelligence (AI) systems. We bring mechanistic interpretability into entrepreneurship research through representation engineering. Focusing on opportunity recognition (OR), we construct 636 matched OR-present and OR-absent scenario pairs and recover an OR direction in Llama 3.1 8B-Instruct. Rather than infer the construct from outputs, we intervene directly on this direction, steering the model up and down along what we call the opportunity recognition dial, and its opportunity judgments shift with it. To our knowledge, this is the first causal intervention on an internal representation of an entrepreneurship construct inside an LLM. Held-out tests, lexical and topical controls, behavioural ablation, and geometric comparisons show that the direction is recoverable, consequential, and distinct from the opportunity evaluation and exploitation directions, although steering it also shifts judgments about these neighbouring stages. Recovery, signed steering, and geometric separation hold across four additional LLMs spanning different scales and families. These results give the contested distinction between opportunity recognition and evaluation a concrete representational form inside AI systems. More broadly, they establish internal representations as a new object of entrepreneurship inquiry and show how entrepreneurship theory can guide their identification, causal manipulation, and interpretation.",
+        "url": "http://arxiv.org/abs/2609.15277v1"
+      },
+      {
+        "title": "What Does an LLM Learn from Reinforcement Learning? A Mechanistic Interpretability Perspective with Fixed-SAE Track",
+        "published_date": "2026-09-14",
+        "authors": [
+          "Lingheng Du",
+          "Yiming Tang",
+          "Xufeng Duan",
+          "Dianbo Liu"
+        ],
+        "summary": "Reinforcement learning (RL) is widely utilized in large language model training to improve targeted capabilities, yet how RL reshapes a model remains poorly understood. Prior attempts to explain how RL works largely offer behavioral perspectives, leaving open what RL gives a model at the representation level: can RL create genuinely novel features, and which existing features does it enhance or suppress? Recent developments in mechanistic interpretability suggest sparse autoencoders (SAEs) as a promising lens to decompose internal activations into human-interpretable features; however, they cannot be directly applied to tracking change across training. In this work, we introduce Fixed-SAE Track, a framework that trains one shared SAE per considered layer on activations pooled across the base model and all RL checkpoints, holding every feature direction fixed so that representation shifts are rigorously defined through the activations of interpretable SAE latents, including the detection of emerging novel features. Validated across multiple datasets and RL algorithms, we find that RL-induced drift is small, gradual, concept specific, and concentrated in late layers, mainly enhancing the sampling rates of a small set of ladder tokens, formatting scaffolding such as step breaks and answer delimiters, rather than reshaping problem content. Steering these features into the base model recovers around 80% of RL's performance gain, suggesting that RL primarily elicits capabilities the model already possesses, much as steering does. We further design a synthetic benchmark with features known by construction to test whether RL can instill genuinely novel features. We believe Fixed-SAE Track provides a principled approach to tracking representation shifts and offers representational evidence for understanding how reinforcement learning changes the inner representation of LLMs.",
+        "url": "http://arxiv.org/abs/2609.15064v1"
+      },
+      {
+        "title": "Domain-Specific Jargon in Large Language Models: A Comparative Analysis between General-Purpose and Specialist Models",
+        "published_date": "2026-09-11",
+        "authors": [
+          "Darin Keng",
+          "Zhewei Sun"
+        ],
+        "summary": "Large Language Models (LLMs) have shown remarkable proficiency on general-purpose tasks, yet their performance often degrades in highly-specialized technical domains. Moreover, little is known about how parametric knowledge of domain-specific terms is encoded within these models. We address this gap by contributing two novel medical jargon evaluation benchmarks and evaluate a general-purpose Llama-3.1 model against a variant fine-tuned on medical-domain data. Surprisingly, the general-purpose model outperforms the medically fine-tuned model on both tasks. Using mechanistic interpretability tools, we find systematic patterns of miscalibration for the medically fine-tuned model. Instead of reorganizing parametric knowledge, the fine-tuned model places greater emphasis on a small subset of model components associated with jargon-favoring predictions. We find that applying component reweighting strategies against the benchmark tasks successfully suppresses these components and closes the gap with the general-purpose baseline. We also observe that some jargon-sensitive components transfer knowledge to the same tasks involving materials science jargon, suggesting they encode a partially domain-agnostic notion of specialized terminology. Our results provide a case study in which a medically fine-tuned checkpoint does not improve jargon comprehension over its general-purpose counterpart, highlighting that domain adaptation should not be assumed to yield better performance on specialized terminology.",
+        "url": "http://arxiv.org/abs/2609.13556v1"
+      }
+    ],
+    "\"lottery ticket hypothesis\" AND \"language models\"": [
+      {
+        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
+        "published_date": "2026-08-05",
+        "authors": [
+          "Sajib Hossain",
+          "Md Kamrus Samad",
+          "Anan Ghosh",
+          "Labib Imam Chowdhury",
+          "Nabeel Mohammed"
+        ],
+        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
+        "url": "http://arxiv.org/abs/2608.05104v1"
+      },
+      {
+        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
+        "published_date": "2025-07-23",
+        "authors": [
+          "Andrii Balashov"
+        ],
+        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
+        "url": "http://arxiv.org/abs/2507.17107v2"
+      },
+      {
+        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
+        "published_date": "2024-02-05",
+        "authors": [
+          "Fei Yuan",
+          "Chang Ma",
+          "Shuai Yuan",
+          "Qiushi Sun",
+          "Lei Li"
+        ],
+        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
+        "url": "http://arxiv.org/abs/2402.02801v2"
+      }
+    ],
+    "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "Inside VLM Chart Reading: Tracing Value Reading from Vertical Bar Charts Across Space and Depth",
+        "published_date": "2026-09-12",
+        "authors": [
+          "Tianhao Niu",
+          "Qingfu Zhu",
+          "Wanxiang Che"
+        ],
+        "summary": "Vision--language models (VLMs) can answer chart questions accurately, but output accuracy does not show how they combine the evidence needed to recover an exact value. We study vertical-bar value reading with controlled counterfactual activation patching in Qwen2.5VL-7B-Instruct and InternVL3.5-8B. The study connects three analyses: (1) The single-factor results show that the changed bar-top region restores much more answer preference than the unchanged bar body, despite containing fewer visual tokens. Legend- and series-related states also lose local recoverability earlier than bar-geometry and axis-scale states. (2) In the handoff analysis, restoration shifts from visual legend regions in early layers to prompt-series positions in middle layers. Resetting the prompt-series state selectively reduces legend-source rescue, supporting its role as a partial mediator. (3) In the factorial analysis, both models can use geometry and scale states from separate donors to favor the combined target. InternVL performs similarly when the states come from separate donors or one image, while Qwen shows lower restoration for separate donors which suggests higher context sensitivity. Together, these results provide preliminary causal evidence for localizing the internal computations that support exact bar-value reading.",
+        "url": "http://arxiv.org/abs/2609.13745v1"
+      },
+      {
+        "title": "Contrastive Projection: Reading Transformer Internals by Differencing Logit Lenses",
+        "published_date": "2026-09-09",
+        "authors": [
+          "Olli Tuomi"
+        ],
+        "summary": "Reading a transformer's internal states in token space is easy to do and hard to trust: a logit lens on a single hidden state is dominated, at intermediate layers, by the generic tokens the model would predict for almost any input. We read the difference instead. Subtracting two closely matched prompts' hidden states and projecting through the unembedding cancels the shared component and surfaces what separates them, an operation equivalent to reading a RepE/ActAdd steering vector through a logit lens. Built into a training-free tracer that reads at every position, sub-layer, and head and averages over designed baselines, it traces a compound- noun MLP->attention chain in Phi-2, confirmed there by activation patching, with the same distinction recovered across three architectures by readout and probe rather than by patching; it reads what retrieval surfaces for real versus fictional entities, and reads metaphor as a set of domain-to-domain mappings rather than a single figurativity feature. A cross-seed control marks the boundary: across five networks differing only in initialization, the same distinction surfaces as almost entirely different tokens (top-10 overlap 0.08). What a computation looks like in token space is network-specific; the distinction it draws is not",
+        "url": "http://arxiv.org/abs/2609.09902v1"
+      },
+      {
+        "title": "We Built a Mirror and Mistook It for a Mind: Causal Liability and the Fallacy of AI Consciousness",
+        "published_date": "2026-09-06",
+        "authors": [
+          "Afshin Khadangi"
+        ],
+        "summary": "The contemporary debate over machine consciousness begins from a concealed assumption: that the object called \"AI\" already constitutes the kind of entity to which consciousness could belong. This paper challenges that assumption by separating phenomenal consciousness, introspective report, and human projective introspection, then arguing that generative systems can return linguistic traces of human interiority in first-person form without thereby identifying a phenomenal bearer. We call the resulting inference the AI Consciousness Fallacy. We then introduce Causal Liability Theory (CLT). CLT-I proposes liability closure as a criterion for individuating a candidate bearer: a physically continuing process becomes the non-delegable inheritor of constraints generated by its own endogenous discriminations. CLT-II advances the stronger conjecture that liability closure is necessary and sufficient for minimal phenomenal subjecthood. An open-weight causal audit operationalizes CLT-I across multiple model families. Forced discriminations produced persistent downstream divergence; activation patching showed strong causal mediation; live and copied adaptive states were behaviorally identical under matched randomness; and detached reconstruction preserved computational state across process replacement while, by protocol, breaking constitutive continuity and non-delegable inheritance. These results show that CLT-I distinctions are experimentally tractable and can dissociate causal bearer structure from first-person performance. The framework therefore separates consciousness attribution, causal bearer individuation, and the independent metaphysical question of consciousness constitution.",
+        "url": "http://arxiv.org/abs/2609.06715v1"
+      }
+    ]
   }
 }
