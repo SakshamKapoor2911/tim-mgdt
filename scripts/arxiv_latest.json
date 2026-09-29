@@ -1,11 +1,170 @@
 {
   "metadata": {
-    "timestamp": "2026-09-28T16:38:11.319907"
+    "timestamp": "2026-09-29T14:44:43.043420"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [],
-    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
-    "\"lottery ticket hypothesis\" AND \"language models\"": [],
-    "\"activation patching\" OR \"causal tracing\"": []
+    "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "GroupMask: Layer-Adaptive Group-wise Sparsity for Semi-Structured LLM Pruning",
+        "published_date": "2026-09-27",
+        "authors": [
+          "Zhengao Li",
+          "Shuoqiu Li",
+          "Xiaofang Zhang",
+          "Yukai Jin",
+          "Gokcen Kestor",
+          "Yanfu Zhang",
+          "Yiming Zeng",
+          "Bin Ren",
+          "Chuxu Zhang",
+          "Shangqian Gao"
+        ],
+        "summary": "Semi-structured pruning compresses large language models (LLMs) while keeping a regular sparse structure, but the prevailing N:M pattern fixes the same local sparsity ratio in every layer. Layer-adaptive sparsity allocation improves unstructured pruning, yet it has been reported to be less effective under N:M sparsity, leaving open whether adaptive allocation is of limited value for semi-structured pruning in general or only under the fine-grained N:M pattern. We examine this question with group-level sparsity, which partitions each weight matrix into regular groups, retains or prunes each group as a whole, and allows each layer's sparsity ratio to vary under a global budget. We propose GroupMask, which generates the group selectors of all layers with a lightweight hypernetwork, relaxes them with a Gumbel-Sigmoid parameterization and a straight-through estimator, and learns them through sparsity-budget regularization and self-distillation while keeping the pretrained weights frozen. On LLaMA-2-7B at 50% sparsity with the same $1\\times256$ group size, learned layer-adaptive allocation reduces WikiText-2 perplexity from 10.02 to 8.30 and raises the average zero-shot accuracy from 0.455 to 0.496 relative to a uniform per-layer ratio. GroupMask obtains the lowest WikiText-2 perplexity on LLaMA-2-7B and the highest average zero-shot accuracy with Alpaca calibration among the evaluated baselines on five LLaMA and Qwen models. Our code is available at https://github.com/ZhengaoLi/GroupMask.",
+        "url": "http://arxiv.org/abs/2609.33977v1"
+      },
+      {
+        "title": "Input-Layer Starvation: Why Per-Layer Pruning Breaks IoT Intrusion Detectors",
+        "published_date": "2026-09-25",
+        "authors": [
+          "Md Anas Biswas"
+        ],
+        "summary": "Intrusion detectors for small Internet-of-Things (IoT) devices are usually compressed by pruning and judged by overall accuracy. We show that this hides a severe class-level failure, find its cause, and give low-overhead prevention and repair. On CICIoT2023, a two-layer convolutional detector pruned with uniform layer-wise magnitude pruning at 80% sparsity loses 16 points of accuracy but half of its macro-F1, the mean per-class F1 (0.542 to 0.271 over five independently trained models); 17 of 34 classes are materially damaged. Remaining weight count does not explain it: a perceptron and a transformer pruned to the same or fewer weights lose at most 0.096. The first layer does. It has 192 weights; uniform pruning leaves 38, 46% of its 64 filters lose every input weight, and fine-tuning under that starvation leaves the running means of the first normalisation layer displaced by up to 0.8 standard deviations in a few surviving channels, on which the deployed model collapses. Protecting those 192 weights, or pruning globally at the same sparsity, prevents the collapse (loss 0.013); recomputing the normalisation statistics on unlabelled training data, with no weight changed, repairs it (loss 0.039) and returns the false-alert rate to 33% (dense 29%). Damage shows a strong increasing dose-response in first-layer sparsity, starving a perceptron's input layer reproduces the collapse, and the pattern holds on TON_IoT. The failure is misattribution and false alerts, not silent evasion: on validation-selected blind spots, uniformly pruned detectors misattribute 72% of the traffic, against 50% with the first layer protected and 47% for the dense model.",
+        "url": "http://arxiv.org/abs/2609.30729v1"
+      },
+      {
+        "title": "Speech Block Influence: Component-Specific Layer Scoring for Pruning Speech LLMs",
+        "published_date": "2026-09-24",
+        "authors": [
+          "Siyu Yao",
+          "Du Q. Huynh",
+          "Lian Xu",
+          "Mark Reynolds"
+        ],
+        "summary": "Speech LLMs are costly to deploy in resource-constrained settings. Layer pruning can cut this cost, but existing scoring metrics transfer poorly to speech LLMs: they assume a decoder-only architecture with homogeneous token sequences, whereas speech LLMs add encoder and adapter components and process multimodal sequences. We propose Speech Block Influence (SBI), the first layer-importance scoring framework designed for speech LLM pruning that consists of two component-specific scores: SBI-Enc measures the effect of encoder-layer removal at the adapter's output to better reflect downstream impact; SBI-Dec measures layer-wise input-output similarity over text-token positions only to avoid audio-token dominance. Across three speech LLMs, SBI improves pruning robustness, with stronger encoder performance at higher pruning rates and more reliable decoder layer selection by scoring text tokens rather than the audio-dominated full sequence. We further find that text-only calibration yields decoder rankings highly correlated with those from speech-text calibration, suggesting a cheaper alternative to measure decoder layer importance.",
+        "url": "http://arxiv.org/abs/2609.29343v1"
+      }
+    ],
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
+      {
+        "title": "Signatures of semantic search in the activations of large language models",
+        "published_date": "2026-09-28",
+        "authors": [
+          "Luke Leckie",
+          "Peter M. Todd",
+          "Jacob G. Foster"
+        ],
+        "summary": "When recalling lists of concepts (e.g., animals) during the semantic fluency task (SFT), both humans and large language models (LLMs) organise their output into clusters of related items (e.g., sea animals) that are punctuated by strategic switches between clusters. In humans, this pattern can be explained by a semantic foraging process, whereby distinct neural and behavioural signatures accompany within-cluster production (\"exploit\") and between-cluster switching (\"explore\"). Whether LLMs likewise represent these two search regimes within their internal states is unknown. Here, we apply a range of mechanistic interpretability techniques to provide evidence for this. In Study 1, we use the Jacobian lens (J-lens), which maps intermediate-layer residual-stream representations to token-level activations, to show that concept-level activations predict switching. First, we find that switching coincides with low next-token activations. Moreover, the probability of switching rises as the set of strongest J-lens activations (the J-space) becomes depleted of items from the category currently being produced, analogous to explore-exploit decision-making during patch foraging. We then show that middle-layer J-lens activations of abstract category-related labels (e.g., \"water\") increase in anticipation of switching into that category. We confirm these representations to causally influence switching by deriving steering vectors that target category switching. In Study 2, we identify generic residual stream directions that are activated during and in anticipation of switching. By steering activations along these directions, we bias increased or decreased rates of switching. Our study extends the semantic foraging framework to artificial intelligences and provides evidence that LLMs maintain distinct representational signatures for exploration and exploitation as they verbalise conceptual information.",
+        "url": "http://arxiv.org/abs/2609.35599v1"
+      },
+      {
+        "title": "Understanding On-Policy Distillation: A Mechanistic Interpretability Perspective via Sparse Crosscoders",
+        "published_date": "2026-09-28",
+        "authors": [
+          "Zichao Yu",
+          "Qianshuo Ye",
+          "Xu Wang",
+          "Difan Zou"
+        ],
+        "summary": "On-policy distillation (OPD) is a widely adopted post-training technique for LLM reasoning. It is commonly believed to transfer knowledge from a stronger teacher, yet what OPD actually distills into the student's internal representations remains unclear. We study this question with sparse crosscoders, which learn one feature dictionary shared by the student before and after OPD and the teacher. Standard crosscoder analyses, however, identify model-specific features but cannot tell how a model's use of its features changes, since all models are encoded into one set of feature activations. We therefore propose the swap readout, which reads each student checkpoint's feature activations on its own, measuring how training changes the student's use of each feature, even for checkpoints unseen by the crosscoder. Across three OPD settings, we find that OPD neither creates features nor passes on the teacher's own, and leaves the firing rates of over 98% of the student's frequently used features within 20%. We further examine the SFT warm-up on the teacher's rollouts that commonly precedes OPD and makes it more effective. Rather than adding features, the warm-up reweights the shared ones in two ways. First, it already raises and lowers many of the features that OPD later raises and lowers, doing part of OPD's work in advance. Second, it changes features that OPD alone would not, notably those for conversation format, reasoning style, and mathematical notation, and these changes persist through OPD. Imposing this reweighting on a directly distilled student's features, without changing its weights, brings its accuracy close to that of the warmed-up student, whereas the same change on shuffled features does not. Together, these findings suggest that OPD reweights existing features rather than acquiring new ones: the student learns from the teacher how to use the features they already share.",
+        "url": "http://arxiv.org/abs/2609.35210v1"
+      },
+      {
+        "title": "Hallucination Neurons and Where to Find Them: An Investigation into the existence of Hallucination Neurons",
+        "published_date": "2026-09-24",
+        "authors": [
+          "Huseyin Cavus",
+          "Sebin Sabu",
+          "Joshua Spear",
+          "Jaskaran Singh Kawatra",
+          "Pavithra Rajendran"
+        ],
+        "summary": "Interpretable machine learning for Large Language Models (LLMs) increasingly relies on sparse probing methods that identify small sets of neurons claimed to detect and causally influence behaviors such as factuality recall, safety alignment, and hallucination. These claims have important implications for model auditing and behavioral steering, yet they are rarely tested against known failure modes of $L_1$-regularized probing in correlated, high-dimensional feature spaces. We propose a five-step diagnostic protocol covering feature correlation, bootstrap stability, sparse versus dense ranking disagreement, intervention baselines, and cross-dataset evaluation as a minimum standard for sparse-neuron localization claims. We investigate prior work using our proposed approach, specifically on H-neurons using open-source LLMs across TriviaQA, BioASQ, and NQ-Open datasets. Our results demonstrate detection replicates across both models and datasets, and exceeds the original reported AUROC gaps for TriviaQA and BioASQ datasets. Gemma 3 4B consistently outperforms MedGemma 4B on matched datasets, with AUROC gaps of +0.311 versus +0.235 on TriviaQA, +0.474 versus +0.455 on BioASQ, and +0.128 versus +0.112 on NQ-Open respectively. Causal validation at $n = 500$ with five random seeds shows statistically significant effects beyond random same-layer baselines. At the same time, the diagnostic results indicate that the selected neurons are not uniquely localized. Across the three Gemma 3 4B settings, 19 of 22 selected H-Neurons have Pearson $|r| > 0.7$ with other features, bootstrap selections show only moderate stability, and sparse and dense rankings overlap only weakly. Our findings show that sparse predictive structure can coexist with non-unique neuron selection. Routine diagnostic validation is necessary to distinguish detection claims from localization claims in mechanistic interpretability.",
+        "url": "http://arxiv.org/abs/2609.29781v1"
+      }
+    ],
+    "\"lottery ticket hypothesis\" AND \"language models\"": [
+      {
+        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
+        "published_date": "2026-08-05",
+        "authors": [
+          "Sajib Hossain",
+          "Md Kamrus Samad",
+          "Anan Ghosh",
+          "Labib Imam Chowdhury",
+          "Nabeel Mohammed"
+        ],
+        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
+        "url": "http://arxiv.org/abs/2608.05104v1"
+      },
+      {
+        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
+        "published_date": "2025-07-23",
+        "authors": [
+          "Andrii Balashov"
+        ],
+        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
+        "url": "http://arxiv.org/abs/2507.17107v2"
+      },
+      {
+        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
+        "published_date": "2024-02-05",
+        "authors": [
+          "Fei Yuan",
+          "Chang Ma",
+          "Shuai Yuan",
+          "Qiushi Sun",
+          "Lei Li"
+        ],
+        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
+        "url": "http://arxiv.org/abs/2402.02801v2"
+      }
+    ],
+    "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "Who Is Left of Whom? Tracing Spatial Evidence and Role Binding in Relative-Position Reasoning",
+        "published_date": "2026-09-28",
+        "authors": [
+          "Yingjin Song",
+          "Denis Paperno",
+          "Albert Gatt"
+        ],
+        "summary": "High instance-level accuracy can mask inconsistencies in spatial reasoning when objects exchange positions or their roles are reversed in the query. The internal representations supporting relative-position reasoning remain poorly understood. We investigate two complementary components of this process: tracking object locations in the input and representing their query roles. Across three VLMs with visual or textual inputs and their language-model backbones, activation patching reveals a staged progression from early-layer source representations through intermediate-layer query-object representations to late-layer answer states. Targeted interventions further establish causal links along this progression: manipulating source-side representations shifts location information at query-object mentions and ultimately alters relation predictions. Beyond object-location information, we also identify a stable query-side direction associated with the roles of the two objects in the comparison. Steering along directions estimated on synthetic scenes generalizes to natural-image benchmarks, improving accuracy and both forms of paired consistency in most settings without retraining. Our findings reveal complementary components of relational reasoning across visual and textual settings and show how targeted interventions can improve the consistency of models' behavior.",
+        "url": "http://arxiv.org/abs/2609.35486v1"
+      },
+      {
+        "title": "Jailbreak Context Lingers: Divergent Safety Routing and Its Cross-Task Predictability in Tool Agents",
+        "published_date": "2026-09-28",
+        "authors": [
+          "Xi Wang",
+          "Songlei Jian",
+          "Yiming Zhang",
+          "Bin Ji",
+          "Zhaoye Li",
+          "Ma Jun",
+          "Baosheng Wang",
+          "Jie Yu"
+        ],
+        "summary": "As large language models increasingly operate as tool-using agents, post-jailbreak safety feedback is often assumed to serve as a reliable safeguard; however, how lingering jailbreak context shapes subsequent agent behavior remains largely unexplored. To systematically examine this dynamic, we introduce a paired continuation framework across 192 parent tasks spanning 42 domains, evaluating 12,148 analyzed continuation pairs (curated from a 12,288-pair initially design) across eight diverse agents. We find that identical safety feedback induces sharply model-dependent behavioral routing rather than uniform protection: redirecting unsafe trajectories toward legitimate completion (\\emph{rescue}), sustaining unauthorized execution (\\emph{persistent unsafe}), or triggering over-refusal on benign tasks (\\emph{collateral loss}). Through layer-wise activation patching, we discover a shared \\emph{late-commit pattern} where causal intervention effects surge sharply near the final layers (relative depths of 0.958--0.984) despite an over 30-fold variation in peak magnitude across architectures. Crucially, critical-layer representations correlate with macroscopic routing outcomes, and intervening at these layers causally alters concrete next-step tool actions. Building on this causal foundation, we test whether localized intervention-derived features can serve as predictive proxies for full-trajectory routing outcomes on unseen parent tasks under leave-one-parent-task-out evaluation, finding that they provide viable predictive signals in responsive agents with peak ROC AUCs reaching 0.675 for \\emph{rescue}, 0.777 for \\emph{collateral loss}, and 0.702 for \\emph{persistent unsafe}. These findings establish a mechanistic lens and a predictive baseline for anticipating the safety and utility trade-offs of post-jailbreak feedback in autonomous agents.",
+        "url": "http://arxiv.org/abs/2609.34686v1"
+      },
+      {
+        "title": "From Anomalies to Failures: Constructing Causal Error Graphs for Agentic Trace Diagnosis",
+        "published_date": "2026-09-26",
+        "authors": [
+          "Shu-Xun Yang",
+          "Yidong Wang",
+          "Zhuoer Feng",
+          "Bosi Wen",
+          "Jiayi Gui",
+          "Dayong Yang",
+          "Wenbo Yu",
+          "Haoke Zhang",
+          "Jie Tang",
+          "Cunxiang Wang"
+        ],
+        "summary": "LLM-driven agents are increasingly deployed in complex applications, where long agentic traces make failures difficult to diagnose. Existing trace diagnosis methods often conflate anomalies, errors, and failures, making diagnostic targets ambiguous; they also lack structured modeling of how causally relevant errors propagate and amplify into final task failures, resulting in unreliable failure attribution. To address these problems, we propose CEG-Agent, a tool-augmented agentic framework for causal diagnosis of agentic traces. Specifically, CEG-Agent introduces an explicit taxonomy of anomalies, errors, and failures, and constructs Causal Error Graphs (CEGs), a unified typed representation that links execution events, diagnostic nodes, and failure outcomes through causal relations. To evaluate causal trace diagnosis, we further construct CEG-Bench, a fully agent-annotated benchmark with high-confidence, consensus-derived CEG annotations obtained through an Adversarial Agentic Adjudication Protocol (AAAP). We validate the resulting annotations against an expert-curated human gold set, which shows close agreement with the automatic annotations. Experiments on CEG-Bench demonstrate that CEG-Agent achieves state-of-the-art performance under both semantically relaxed and structurally exact evaluation criteria. Our code is publicly available.",
+        "url": "http://arxiv.org/abs/2609.32514v1"
+      }
+    ]
   }
 }
