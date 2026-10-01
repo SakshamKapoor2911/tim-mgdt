@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-09-30T14:47:14.136704"
+    "timestamp": "2026-10-01T15:17:19.255579"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -126,6 +126,27 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Shared Weights, Selected Computations: How Looped Transformers Route What Each Loop Does",
+        "published_date": "2026-09-30",
+        "authors": [
+          "Jiaju Wu",
+          "Yi Hu",
+          "Muhan Zhang"
+        ],
+        "summary": "Looped Transformers repeatedly apply the same set of Transformer layers, giving them a recurrent architecture for latent computation. Their strong performance on iterative reasoning and length-generalization tasks suggests an appealing explanation: recurrence may provide an inductive bias that lets the model reuse a learned algorithm across loops. However, weight sharing alone does not imply that every loop performs the same operation. This raises a basic question: is each loop actually repeating the same computation, and if not, what routes the shared parameters to different operations?   We study this question using graph walks as a test case. In the model's native trajectories, decoded predictions can advance by different numbers of graph steps or remain at a reached target, showing that recurrent progress need not follow a fixed one-loop-one-step pattern. We then show that a frozen loop can be steered toward different transitions by modifying its entering hidden state: a learned linear layer $J$ selects the desired transition without changing the shared Transformer layers.   To test how this steering works, we use activation patching and find that attention patterns can recover its effects and switch the selected transition. Across five matched pairs of graph models, changing intermediate supervision during backbone training changes which transitions $J$ can induce. This suggests that $J$ selects computations learned by the backbone rather than creating new algorithms. Together, these results show that the hidden state can control shared computation, with attention routing as a causal pathway.",
+        "url": "http://arxiv.org/abs/2609.39892v1"
+      },
+      {
+        "title": "Right Answer, Wrong Mechanism: Detecting Pernicious Divergence in Causal Interventions",
+        "published_date": "2026-09-30",
+        "authors": [
+          "Beiming Liu",
+          "Minjie Chen"
+        ],
+        "summary": "Causal interventions such as activation patching and distributed alignment search (DAS) are the main tool for making mechanistic claims about neural networks. Recent work showed that these interventions routinely push representations off the model's natural distribution, and that such divergence is sometimes harmless and sometimes pernicious: it can recruit pathways the model never uses on natural inputs, so that an intervention produces the expected answer through the wrong mechanism. No method currently tells the two cases apart. We make this question testable by planting hidden pathways inside pretrained language models; the pathways are silent on every benchmark prompt by construction, so which interventions depend on them is known exactly. Across 72 configurations and 100,800 interventions on GPT-2 small, we find three things. (i) Nearest-neighbour and local-PCA distances at the intervention site, as used in prior work, score below chance (AUROC 0.35-0.47) at picking out interventions that give the right answer through a planted pathway. (ii) Hidden-Pathway Contribution (HPC), a label-free test that clamps downstream units to the regime of natural runs with the same output and measures how much of the decision disappears, flags pathway-dominated interventions with AUROC >= 0.99 when the pathway shows up as unit-level out-of-regime activity, but fails when every unit stays within its natural range, which we identify as the open problem. (iii) Optimised interventions actively seek hidden pathways: on a gender task, DAS routes 90-95% of its successes through planted pathways for three of four families, and a downstream on-manifold penalty cuts this share to under 5% at a cost of 6-11 points of success rate. In unmodified GPT-2, successful interventions show almost no unit-level out-of-regime reliance.",
+        "url": "http://arxiv.org/abs/2609.39243v1"
+      },
+      {
         "title": "Where Do LLMs Decide to Break the Rules? Mechanistic Localization of Prompt Injection Compliance",
         "published_date": "2026-09-29",
         "authors": [
@@ -137,27 +158,6 @@
         ],
         "summary": "When a prompt injection attack succeeds, a Large Language Model (LLM) abandons its assigned system role to comply with an adversarial instruction. While prior work has extensively quantified how often this occurs, we ask a more fundamental question: where inside the network does the model actually decide to break the rules? Using layer-by-layer causal activation patching across five models (4B to 32B parameters), we find a clear dissociation: attack information is linearly decodable from the first layer, yet causal leverage over the model's behavior is negligible until a late-layer bottleneck in the final third of the network. Patching this bottleneck reverses compliance in 77--92\\% of cases. We show that the compliance mechanism occupies a compact linear subspace (rank-8 in 4B and 14B models, scaling to rank-64 at 32B) and is architecturally stable across varying model families. Finally, we validate our mechanistic account by showing that this causal peak layer is also the representationally optimal site for detecting attacks, outperforming early-layer classifiers that degrade under surface-level obfuscation such as leetspeak substitution. This alignment between causal leverage and detection performance provides converging evidence that the late-layer bottleneck captures decision-relevant computation rather than merely reflecting an artifact of the intervention.",
         "url": "http://arxiv.org/abs/2609.37737v1"
-      },
-      {
-        "title": "RolloutFaith: Auditing Persistent Internal Interventions in Visual World Model",
-        "published_date": "2026-09-29",
-        "authors": [
-          "Junchi Yao",
-          "Ziyi Wang",
-          "Youling Huang",
-          "Lijie Hu"
-        ],
-        "summary": "Interpretability methods such as probes, activation patches and learned editors are designed to reveal or modify a model's current computation. World models pose a harder requirement: because their predictions become inputs to later predictions, a useful internal correction must survive after editing stops. We therefore propose RolloutFaith, a framework that measures semantic improvement both in the prediction produced at intervention time and over later autonomous predictions under fixed events, actions, noise, and information budgets. We evaluate ten fitted editors on three world models across Crafter, Cartpole, and CoinRun. We also use Reference Activation Patching, which replaces a model activation with the paired activation computed from the real observation, to measure the correction available at the chosen interface. This reference intervention improves later predictions in all nine model and task combinations and outperforms the best fitted editor in eight, yet its sustained gain decreases with horizon in five of nine combinations. Current fitted editors recover only limited and inconsistent long term effects. By restoring individual state components to their untouched values, we find that persistent effects travel through the newest generated frame in DIAMOND, recurrent memory in DreamerV3, and both in STORM. These findings suggest that training should reward future consequences. To test this hypothesis, we propose Delayed LoReFT, which optimizes the same low rank intervention through four frozen future transitions and improves sustained intervention effects to some extent.",
-        "url": "http://arxiv.org/abs/2609.36843v1"
-      },
-      {
-        "title": "In-Context Learning Amplifies a Latent Symbolic Circuit",
-        "published_date": "2026-09-28",
-        "authors": [
-          "Melissa Wessel"
-        ],
-        "summary": "Large language models can learn abstract rules from just a few in-context examples, but how their internal mechanisms activate as examples accumulate is not well understood. We trace a three-stage symbolic reasoning circuit (abstraction, induction, retrieval) across shot counts in three model families and find it is detectable and functional well before the model achieves high accuracy. Per-head causal contribution grows up to 8x from 1- to 10-shot, and cross-shot activation patching raises accuracy from 1% to 56% at 0-shot and 17% to 88% at 1-shot. Function vectors scaled and injected at 0-shot rescue accuracy up to 86%, largely substituting for the induction stage but depending critically on an intact downstream retrieval stage. The infrastructure for abstract rule-following is present in the weights before any demonstrations; in-context examples, function vectors, and related interventions appear to supply input to the same latent circuit.",
-        "url": "http://arxiv.org/abs/2609.36265v1"
       }
     ]
   }
