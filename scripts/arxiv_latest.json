@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-04T13:51:04.676832"
+    "timestamp": "2026-10-05T17:00:04.036316"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -48,6 +48,19 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Clinical Concept Centers in LLMs",
+        "published_date": "2026-10-02",
+        "authors": [
+          "Aishik Nagar",
+          "Abhishek Vaidyanathan",
+          "Arun-Kumar Kaliya-Perumal",
+          "Elijah Tzen Hsuen Boey",
+          "Stefan Winkler"
+        ],
+        "summary": "Large language models are increasingly used in clinical settings. However, research into the reliability and performance of these models has focused almost entirely on the language substrate, scoring what the model says. Mechanistic interpretability has found that the latent space carries a higher fidelity of representation than the text: internal representations not only encode substantially more than the output verbalizes, but the stated reasoning also systematically omits features that causally drive the answer. An evaluation of model behavior in terms of mechanistic interpretability has not been explored in clinical decision support. In this work, we extend behavioral evaluation into the latent space and ask whether clinical concepts exist as locatable, causally used representations inside open-weight LLMs. We find dedicated clinical concept centers in the latent space of all eleven open models we test. These concept centers are interpretable, firing only on their aligned clinical narratives, and meaningfully and causally drive model behavior in both constrained and open-ended settings. They are not just analytical representations, but circuits that can be utilized in clinical practice, and we explore their use from the perspective of both evaluation and performance. From the evaluation standpoint, models stay internally coherent and keep using the relevant concept centers even under adversarial role-based priming, while aligned priming improves downstream clinical performance. From a performance perspective, we simulate realistic deployment settings and find that steering models along these centers leads to meaningful downstream improvements. Finally, we conduct a blinded clinician validation and find the activation and usage of these concept centers predicts clinicians preferences.",
+        "url": "http://arxiv.org/abs/2610.02829v1"
+      },
+      {
         "title": "Beyond Linear Concepts: Discovering and Aligning Non-Linear Concept Manifolds in Large Language Models",
         "published_date": "2026-10-01",
         "authors": [
@@ -74,17 +87,6 @@
         ],
         "summary": "Large language models (LLMs) exhibit strong general capabilities that mechanistic interpretability has attributed to sparse computational circuits. However, existing circuit studies emphasize preserving functionality or explaining safety, leaving the mechanisms underlying failures across a broader range of tasks largely unexplored. Extending circuit analysis from abilities to errors, we explore the perspective that such failures may likewise arise from erroneous internal computations and that targeted tuning of the corresponding parameters can correct such errors while largely preserving other capabilities. Motivated by this insight, we introduce RESCUE (Reasoning-Error Sparse-Circuit Uncovering and Editing), a framework that localizes error-associated circuits and surgically repairs them for performance enhancement. General tasks typically involve multi-step reasoning and long-form generation, where early deviations can cause prefixes to drift from supervised references, leading SFT-based mask optimization to overlook circuits involved in generation-time errors. RESCUE therefore refines these masks through reinforcement learning with multiple masked-model rollouts, improving their relevance to observed task failures. Finally, RESCUE introduces a pruning technique and precisely fine-tunes error circuits to correct task failures, thereby translating error localization into a sparse and targeted model update. We validate RESCUE on heterogeneous repair sets across two domains: (1) mathematical reasoning, identifying a math error circuit of 1.40% density whose repair raises accuracy from 6.0% to 75.5%; and (2) medical QA, where a similarly compact 1.44% circuit improves repair-set accuracy from 0% to 81%. Our code is available at: https://github.com/chuanpupig/RESCUE.",
         "url": "http://arxiv.org/abs/2609.36813v1"
-      },
-      {
-        "title": "Signatures of semantic search in the activations of large language models",
-        "published_date": "2026-09-28",
-        "authors": [
-          "Luke Leckie",
-          "Peter M. Todd",
-          "Jacob G. Foster"
-        ],
-        "summary": "When recalling lists of concepts (e.g., animals) during the semantic fluency task (SFT), both humans and large language models (LLMs) organise their output into clusters of related items (e.g., sea animals) that are punctuated by strategic switches between clusters. In humans, this pattern can be explained by a semantic foraging process, whereby distinct neural and behavioural signatures accompany within-cluster production (\"exploit\") and between-cluster switching (\"explore\"). Whether LLMs likewise represent these two search regimes within their internal states is unknown. Here, we apply a range of mechanistic interpretability techniques to provide evidence for this. In Study 1, we use the Jacobian lens (J-lens), which maps intermediate-layer residual-stream representations to token-level activations, to show that concept-level activations predict switching. First, we find that switching coincides with low next-token activations. Moreover, the probability of switching rises as the set of strongest J-lens activations (the J-space) becomes depleted of items from the category currently being produced, analogous to explore-exploit decision-making during patch foraging. We then show that middle-layer J-lens activations of abstract category-related labels (e.g., \"water\") increase in anticipation of switching into that category. We confirm these representations to causally influence switching by deriving steering vectors that target category switching. In Study 2, we identify generic residual stream directions that are activated during and in anticipation of switching. By steering activations along these directions, we bias increased or decreased rates of switching. Our study extends the semantic foraging framework to artificial intelligences and provides evidence that LLMs maintain distinct representational signatures for exploration and exploitation as they verbalise conceptual information.",
-        "url": "http://arxiv.org/abs/2609.35599v2"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -126,6 +128,20 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "From Patching to Pruning Visual Computation in Vision Language Models",
+        "published_date": "2026-10-02",
+        "authors": [
+          "Rahul Chowdhury",
+          "Timothy A Rupprecht",
+          "Xuan Shen",
+          "Shaoyi Huang",
+          "Pu Zhao",
+          "Yanzhi Wang"
+        ],
+        "summary": "Vision language models (VLMs) incur substantial inference cost because every visual token is processed by the attention and MLP projections of every decoder layer, even when token-specific visual computation is unnecessary at many depths. We introduce Patch-to-Prune (P2P), inspired by Mechanistic Interpretability, a training-free framework that converts activation patching from a diagnostic tool into an inference-time computation bypass. P2P performs validation-guided forward and backward layer sweeps to identify decoder regions whose visual-token projection outputs can be replaced by fixed neutral proxy activation vectors within a user-specified accuracy tolerance. Unlike conventional token-pruning methods, P2P preserves the sequence length, token order, positional information, attention mask, and residual pathways, thereby pruning computation without removing tokens or modifying the pretrained model weights. We evaluate P2P on four VLMs from the Qwen2.5-VL and LLaVA families across seven multi-modal benchmarks using mutually disjoint calibration, validation, and test partitions. P2P at a 3% tolerance retains around 94% of dense accuracy while reducing FLOPs by 55%. Beyond these efficiency gains, our layer-wise analysis suggests that visual processing in VLMs is non-uniformly distributed across decoder depth: early and late layers often require little token-specific visual computation, whereas intermediate layers appear to perform most task-relevant visual integration, enabling later reasoning to rely largely on visual information already embedded in shared residual and textual representations. This makes P2P both an efficient inference framework and a causal lens into visual information processing in VLMs.",
+        "url": "http://arxiv.org/abs/2610.03389v1"
+      },
+      {
         "title": "Shared Weights, Selected Computations: How Looped Transformers Route What Each Loop Does",
         "published_date": "2026-09-30",
         "authors": [
@@ -145,19 +161,6 @@
         ],
         "summary": "Causal interventions such as activation patching and distributed alignment search (DAS) are the main tool for making mechanistic claims about neural networks. Recent work showed that these interventions routinely push representations off the model's natural distribution, and that such divergence is sometimes harmless and sometimes pernicious: it can recruit pathways the model never uses on natural inputs, so that an intervention produces the expected answer through the wrong mechanism. No method currently tells the two cases apart. We make this question testable by planting hidden pathways inside pretrained language models; the pathways are silent on every benchmark prompt by construction, so which interventions depend on them is known exactly. Across 72 configurations and 100,800 interventions on GPT-2 small, we find three things. (i) Nearest-neighbour and local-PCA distances at the intervention site, as used in prior work, score below chance (AUROC 0.35-0.47) at picking out interventions that give the right answer through a planted pathway. (ii) Hidden-Pathway Contribution (HPC), a label-free test that clamps downstream units to the regime of natural runs with the same output and measures how much of the decision disappears, flags pathway-dominated interventions with AUROC >= 0.99 when the pathway shows up as unit-level out-of-regime activity, but fails when every unit stays within its natural range, which we identify as the open problem. (iii) Optimised interventions actively seek hidden pathways: on a gender task, DAS routes 90-95% of its successes through planted pathways for three of four families, and a downstream on-manifold penalty cuts this share to under 5% at a cost of 6-11 points of success rate. In unmodified GPT-2, successful interventions show almost no unit-level out-of-regime reliance.",
         "url": "http://arxiv.org/abs/2609.39243v1"
-      },
-      {
-        "title": "Where Do LLMs Decide to Break the Rules? Mechanistic Localization of Prompt Injection Compliance",
-        "published_date": "2026-09-29",
-        "authors": [
-          "Rui Wen",
-          "Jiayang Liu",
-          "Zeyu Yang",
-          "Jun Sakuma",
-          "Lu Sun"
-        ],
-        "summary": "When a prompt injection attack succeeds, a Large Language Model (LLM) abandons its assigned system role to comply with an adversarial instruction. While prior work has extensively quantified how often this occurs, we ask a more fundamental question: where inside the network does the model actually decide to break the rules? Using layer-by-layer causal activation patching across five models (4B to 32B parameters), we find a clear dissociation: attack information is linearly decodable from the first layer, yet causal leverage over the model's behavior is negligible until a late-layer bottleneck in the final third of the network. Patching this bottleneck reverses compliance in 77--92\\% of cases. We show that the compliance mechanism occupies a compact linear subspace (rank-8 in 4B and 14B models, scaling to rank-64 at 32B) and is architecturally stable across varying model families. Finally, we validate our mechanistic account by showing that this causal peak layer is also the representationally optimal site for detecting attacks, outperforming early-layer classifiers that degrade under surface-level obfuscation such as leetspeak substitution. This alignment between causal leverage and detection performance provides converging evidence that the late-layer bottleneck captures decision-relevant computation rather than merely reflecting an artifact of the intervention.",
-        "url": "http://arxiv.org/abs/2609.37737v1"
       }
     ]
   }
