@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-06T14:56:11.977074"
+    "timestamp": "2026-10-07T15:23:32.511302"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -123,6 +123,18 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "From Local Evidence to Safety Verdicts: Causal Tracing in Vision-Language Models",
+        "published_date": "2026-10-05",
+        "authors": [
+          "Faezeh Dehghan Tarzjani",
+          "Mevan Wijewardena",
+          "Alexander Romanus",
+          "Sampad Mohanty"
+        ],
+        "summary": "A vision-language model may need to combine an image with a prompt to recognize a safety risk that neither reveals alone. Where does this joint safety judgment become accessible inside the model? We introduce SSU-Bench, a dataset of matched safe and unsafe image-text combinations constructed using single-item prompt edits or image edits with annotated intended regions. Using three vision-language models, we transfer internal states between paired inputs and measure the resulting change in the safety verdict. Across models and both types of counterfactual, interventions at the changed input positions are effective in earlier decoder layers, while interventions at the final input token become effective later. Directions estimated from other examples produce similar late-layer effects. A linear readout of the final-token state also predicts the model's own verdict, including incorrect judgments, and cross-model comparisons reveal similarities in the patterns of counterfactual change. These findings identify a recurring transition in where interventions can influence a joint safety verdict and distinguish a readable model decision from a correct safety judgment.",
+        "url": "http://arxiv.org/abs/2610.07514v1"
+      },
+      {
         "title": "Separators Make Carry Propagation Learnable:The Geometry of Latent Carry in a Multiplication Transformer",
         "published_date": "2026-10-05",
         "authors": [
@@ -144,18 +156,6 @@
         ],
         "summary": "Indirect prompt injection causes LLM agents to follow commands embedded in external data. A probe may distinguish instructions from data without identifying a state edit that changes the next action. We study this gap through counterfactual role probes, component-wise activation patching, and separate interventions on AgentDojo trajectories. Role decoding survives changes in content and format. In controlled Qwen tests, it precedes strong tool-choice effects from patches along an independently estimated role direction. On AgentDojo, directions estimated from hijacked and resisted training trajectories reduce attack success at pre-action and injected-span positions, but have little effect at random positions. In longer Qwen trajectories, single-position edits become less effective at later layers; span-wide and repeated edits reduce attack success on the same evaluation set. Removing the learned channel subspace preserves role decoding, yet effective intervention directions transfer poorly across the tested channels. These findings distinguish a readable role signal from an effective behavioral intervention: depth matters in controlled tool choice, while position and context also matter in attack trajectories.",
         "url": "http://arxiv.org/abs/2610.05295v1"
-      },
-      {
-        "title": "Tracing a Sparse Emotion-Control Circuit in LLM-Based Text-to-Speech",
-        "published_date": "2026-10-04",
-        "authors": [
-          "Hongfei Du",
-          "Jiacheng Shi",
-          "Yanfu Zhang",
-          "Ye Gao"
-        ],
-        "summary": "LLM-based text-to-speech (TTS) models can generate emotionally expressive speech, but how reference emotion is routed through the model and realized in decoded speech remains unclear. We introduce two emotion-sensitive metrics for matched neutral and emotional syntheses---a codec trajectory score and a late residual direction score---and use them to score activation-patching interventions. Under controlled matched-reference conditions, this analysis identifies a sparse source-to-readout component-level circuit: 23--27 attention heads and MLPs per emotion, roughly 5% of the components considered, recover or suppress 74--88% of the late emotion-readout shift on held-out cases. The circuit combines a shared component backbone with emotion-specific components; cross-emotion activation swaps reduce the target readout in 47 of 48 cases. In decoded speech, the same intervention produces consistent changes in pitch, energy, and spectral brightness over 24 matched pairs per emotion. A readout-matched residual-direction baseline produces only 17--27% of the intervention's pitch effect, showing that internal readout movement alone does not explain the decoded acoustic changes. These results trace a compact causal route from reference-derived prefix information to emotion-relevant properties of generated speech.",
-        "url": "http://arxiv.org/abs/2610.05080v1"
       }
     ]
   }
