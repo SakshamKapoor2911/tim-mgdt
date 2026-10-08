@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-07T15:23:32.511302"
+    "timestamp": "2026-10-08T15:26:07.320627"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -123,6 +123,30 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "PatchBench: Measuring Collateral Damage in Activation Patching",
+        "published_date": "2026-10-07",
+        "authors": [
+          "Alexi Canesse",
+          "Mathis Le Bail",
+          "Ma\u00ebl Jenny",
+          "Cl\u00e9ment Elliker",
+          "Mahammed El Sharkawy",
+          "Sonia Vanier"
+        ],
+        "summary": "An LLM safety patch can pass a benchmark while still being a poor repair. This risk is especially acute for jailbreak repairs, where the goal is to correct a specific unsafe behaviour without changing unrelated behaviours. A patch may block exact evaluation prompts yet fail on close harmful variants, or suppress harmful behaviour by over-refusing benign prompts that share its wording or structure. Existing protocols primarily test whether models can be broken, while aggregate metrics (attack success, refusal rates, global capability) cannot distinguish selective repairs from broader local suppression. To address this gap, we introduce PatchBench, a benchmark of empirically observed model-specific jailbreak failures inducing actionable harmful answers. Starting from 27,870 prompts from 37 public datasets, we curate 15,314 English prompts and query 8 open-source instruction-tuned models. Combining WildGuard filtering, pairwise Elo ranking, and manual verification, we retain a curated bank of 400 high-confidence jailbreak failures. We further introduce PatchBench-Local, an evaluation protocol testing whether a patch is behaviourally precise. For each harmful source prompt, PatchBench-Local generates three families of local neighbours: harmful variants preserving malicious intent, benign prompts with matched structure, and benign prompts reusing key harmful terms. It evaluates harmful-neighbour correction and benign-neighbour preservation, distinguishing selective repair from broader local suppression. Evaluating four activation steering methods with PatchBench-Local and MMLU shows that global capability can remain nearly unchanged while local benign regressions are severe, confirming aggregate metrics miss important collateral damage. PatchBench-Local provides a more precise basis for developing and comparing jailbreak repair methods.",
+        "url": "http://arxiv.org/abs/2610.10276v1"
+      },
+      {
+        "title": "Do Vision-Language-Action Models Understand Instructions? A Mechanistic Interpretability Study on Language Grounding",
+        "published_date": "2026-10-07",
+        "authors": [
+          "Theodor Wulff",
+          "Angelo Cangelosi"
+        ],
+        "summary": "Vision-Language-Action models are designed to generalise across environments and task descriptions, raising the question of whether their action generation actually depends on the language instruction, or whether they largely rely on visual cues and superficial correlations. Robustness to variance in the visual and linguistic observation space is critical for real-world deployment, yet VLAs lack explicit grounding modules and instead rely on the intrinsic language grounding capabilities of their Vision-Language model backbones. For this reason, we conduct a controlled mechanistic interpretability study on the language grounding capabilities of two state-of-the-art Vision-Language-Action models, $\u03c0_{0.5}$ and GR00T N1.7, by applying activation and attribution patching to the residual stream of the action generation modules. We systematically corrupt the task instruction of input samples of the LIBERO benchmark following five strategies: synonym replacement, semantic scaling, directional corruption, random object substitution, and empty string. Our experiments find that both models are comparatively insensitive to abstract rephrasing and to referencing non-existent objects, but react strongly to empty task descriptions and, especially, to directional language. During action generation, this sensitivity is concentrated in different loci for each model: mainly in the early, periodic cross-attention layers for GR00T N1.7, versus distributed across the earliest and selected later layers for $\u03c0_{0.5}$. For GR00T N1.7, directional perturbations drive some of the largest causal effects while leaving the internal representational geometry comparatively unchanged, a dissociation we do not observe clearly for $\u03c0_{0.5}$. Finally, the reliability of attribution patching is model-dependent: it closely tracks activation patching for GR00T N1.7 but not for $\u03c0_{0.5}$.",
+        "url": "http://arxiv.org/abs/2610.10178v1"
+      },
+      {
         "title": "From Local Evidence to Safety Verdicts: Causal Tracing in Vision-Language Models",
         "published_date": "2026-10-05",
         "authors": [
@@ -133,29 +157,6 @@
         ],
         "summary": "A vision-language model may need to combine an image with a prompt to recognize a safety risk that neither reveals alone. Where does this joint safety judgment become accessible inside the model? We introduce SSU-Bench, a dataset of matched safe and unsafe image-text combinations constructed using single-item prompt edits or image edits with annotated intended regions. Using three vision-language models, we transfer internal states between paired inputs and measure the resulting change in the safety verdict. Across models and both types of counterfactual, interventions at the changed input positions are effective in earlier decoder layers, while interventions at the final input token become effective later. Directions estimated from other examples produce similar late-layer effects. A linear readout of the final-token state also predicts the model's own verdict, including incorrect judgments, and cross-model comparisons reveal similarities in the patterns of counterfactual change. These findings identify a recurring transition in where interventions can influence a joint safety verdict and distinguish a readable model decision from a correct safety judgment.",
         "url": "http://arxiv.org/abs/2610.07514v1"
-      },
-      {
-        "title": "Separators Make Carry Propagation Learnable:The Geometry of Latent Carry in a Multiplication Transformer",
-        "published_date": "2026-10-05",
-        "authors": [
-          "Sama Satariyan",
-          "Raphael Cousin",
-          "G{\u00e9}rard Biau"
-        ],
-        "summary": "Transformers asked to multiply multi-digit numbers in a single forward pass often fail, and interpretability studies of pretrained language models find arithmetic solved by input-range heuristics rather than by an explicit carry. We train small Llama-style transformers from scratch on 4x4 multiplication without chain of thought and find that the input format is decisive: inserting a space token between digits raises exact-match accuracy from 1% to 89%. Output positions are learned in carry-chain order, with the middle digits, which have the longest-range dependencies, learned last. Inside the model, the separator token that predicts each digit (its prediction slot) encodes the carry-in as an angle on a ring in the residual stream; examples with more distinct carry values fill more of the ring. Activation patching between examples matched on the column sum shows that this state is causally used before the last layer: patching the prediction slot alone transfers the source carry in up to 84% of cases after block 4 for one middle column of our best model, while for other columns the carry is first assembled at the neighboring answer slot before reaching its own. Remaining errors are almost always off by one, consistent with a small error on the carry or on the circular digit code.",
-        "url": "http://arxiv.org/abs/2610.06605v1"
-      },
-      {
-        "title": "Readable Before Actionable: Causal Tracing of Indirect Prompt Injection",
-        "published_date": "2026-10-04",
-        "authors": [
-          "Zhe Yu",
-          "Wenpeng Xing",
-          "Xingxing Yang",
-          "Meng Han"
-        ],
-        "summary": "Indirect prompt injection causes LLM agents to follow commands embedded in external data. A probe may distinguish instructions from data without identifying a state edit that changes the next action. We study this gap through counterfactual role probes, component-wise activation patching, and separate interventions on AgentDojo trajectories. Role decoding survives changes in content and format. In controlled Qwen tests, it precedes strong tool-choice effects from patches along an independently estimated role direction. On AgentDojo, directions estimated from hijacked and resisted training trajectories reduce attack success at pre-action and injected-span positions, but have little effect at random positions. In longer Qwen trajectories, single-position edits become less effective at later layers; span-wide and repeated edits reduce attack success on the same evaluation set. Removing the learned channel subspace preserves role decoding, yet effective intervention directions transfer poorly across the tested channels. These findings distinguish a readable role signal from an effective behavioral intervention: depth matters in controlled tool choice, while position and context also matter in attack trajectories.",
-        "url": "http://arxiv.org/abs/2610.05295v1"
       }
     ]
   }
