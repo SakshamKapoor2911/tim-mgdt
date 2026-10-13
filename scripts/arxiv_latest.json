@@ -1,56 +1,9 @@
 {
   "metadata": {
-    "timestamp": "2026-10-12T17:38:25.205636"
+    "timestamp": "2026-10-13T15:48:40.135853"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [
-      {
-        "title": "SparseDecoding: Decoding-Aware Pruning for Accurate and Efficient LLM Inference",
-        "published_date": "2026-10-08",
-        "authors": [
-          "Qitong Wang",
-          "Xinwei Niu",
-          "Mingluo Su",
-          "Shanwei Zhao",
-          "Shiai Zhu",
-          "Huan Wang"
-        ],
-        "summary": "The memory-bound nature of the decoding stage of large language model (LLM) inference incurs significant latency. Layer-wise training-free network pruning approaches guided by the Hessian have been a prominent solution to this problem, as pruning reduces the number of nonzero parameters read from memory during decoding. Nevertheless, typical methods in this line compute the Hessian using pre-collected natural sequences, whereas the model is fed self-generated tokens during decoding, creating a distribution shift between the two sequences. The Hessian calculated on the natural sequence is different from that calculated on the generated sequence. We observe that this discrepancy causes the activation distribution during generation to deviate from that used for pruning, further hurting the pruned model performance. Moreover, most existing LLM pruning methods that bring actual speedup primarily target the sparse matrix-matrix (SpMM) multiplication, providing limited support for the sparse matrix-vector (SpMV) operations, which dominate decoding. To solve these problems, we introduce SparseDecoding, a principled decoding-aware pruning framework tailored for accurate and efficient LLM decoding. Specifically, at the algorithmic axis, SparseDecoding constructs calibration matrices from layer-wise activations collected during the dense-model autoregressive generation, excluding prefill, thereby aligning the pruning objective with the decoding activations. At the system axis, we develop an optimized N:M sparse matrix-vector kernel with bitmask indexing and fixed-step traversal. Substantial empirical results on representative LLMs (Llama-3.1-8B, Llama-3.3-70B, Qwen3-14B / 32B) demonstrate that our method consistently outperforms standard fixed-text calibration on the long-form generation benchmarks while achieving up to 1.48x end-to-end wall-clock decoding speedup on A100 GPUs.",
-        "url": "http://arxiv.org/abs/2610.12327v1"
-      },
-      {
-        "title": "TReVS: Integrating Textual Relevance and Visual Saliency for Efficient Vision-Language Model Token Pruning",
-        "published_date": "2026-09-29",
-        "authors": [
-          "Jing Wang",
-          "Zhiping Wu",
-          "Dongdong Ren",
-          "Youfang Han",
-          "Wei Zhao",
-          "Wenbin Li"
-        ],
-        "summary": "Vision-Language Models (VLMs) excel at visual understanding and reasoning but often incur substantial inference costs due to the large number of visual tokens. Recent visual token pruning methods increasingly follow a two-stage paradigm: they first remove visually redundant tokens after the vision encoder and then discard tokens irrelevant to the textual query within the Large Language Model (LLM). However, since the first stage typically relies solely on vision-encoder saliency, it may prematurely eliminate query-relevant tokens, depriving the subsequent text-guided stage of critical visual evidence. Our empirical analysis shows that incorporating query guidance into first-stage pruning better preserves task-relevant evidence and consistently improves performance over vision-only saliency-based pruning. We further find that high-variance attention heads are more sensitive to the textual query and yield more discriminative text-to-vision attention signals for second-stage pruning. Motivated by these findings, we propose TReVS, a training-free framework that combines textual relevance with vision-encoder saliency for pre-LLM pruning and leverages high-variance attention heads to remove task-irrelevant tokens at shallow-to-intermediate layers of the LLM. On LLaVA-1.5-7B, TReVS retains 92.8% of the unpruned baseline performance while pruning 94.4% of visual tokens, outperforming prior state-of-the-art methods.",
-        "url": "http://arxiv.org/abs/2609.37581v1"
-      },
-      {
-        "title": "GroupMask: Layer-Adaptive Group-wise Sparsity for Semi-Structured LLM Pruning",
-        "published_date": "2026-09-27",
-        "authors": [
-          "Zhengao Li",
-          "Shuoqiu Li",
-          "Xiaofang Zhang",
-          "Yukai Jin",
-          "Gokcen Kestor",
-          "Yanfu Zhang",
-          "Yiming Zeng",
-          "Bin Ren",
-          "Chuxu Zhang",
-          "Shangqian Gao"
-        ],
-        "summary": "Semi-structured pruning compresses large language models (LLMs) while keeping a regular sparse structure, but the prevailing N:M pattern fixes the same local sparsity ratio in every layer. Layer-adaptive sparsity allocation improves unstructured pruning, yet it has been reported to be less effective under N:M sparsity, leaving open whether adaptive allocation is of limited value for semi-structured pruning in general or only under the fine-grained N:M pattern. We examine this question with group-level sparsity, which partitions each weight matrix into regular groups, retains or prunes each group as a whole, and allows each layer's sparsity ratio to vary under a global budget. We propose GroupMask, which generates the group selectors of all layers with a lightweight hypernetwork, relaxes them with a Gumbel-Sigmoid parameterization and a straight-through estimator, and learns them through sparsity-budget regularization and self-distillation while keeping the pretrained weights frozen. On LLaMA-2-7B at 50% sparsity with the same $1\\times256$ group size, learned layer-adaptive allocation reduces WikiText-2 perplexity from 10.02 to 8.30 and raises the average zero-shot accuracy from 0.455 to 0.496 relative to a uniform per-layer ratio. GroupMask obtains the lowest WikiText-2 perplexity on LLaMA-2-7B and the highest average zero-shot accuracy with Alpaca calibration among the evaluated baselines on five LLaMA and Qwen models. Our code is available at https://github.com/ZhengaoLi/GroupMask.",
-        "url": "http://arxiv.org/abs/2609.33977v1"
-      }
-    ],
+    "\"transformer pruning\" OR \"LLM pruning\"": [],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
         "title": "Don't Judge an LLM Only by Its Activations: Discovering Suppressed Safety Features via Counterfactual Activation Potential",
