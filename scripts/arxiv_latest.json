@@ -1,9 +1,50 @@
 {
   "metadata": {
-    "timestamp": "2026-10-13T15:48:40.135853"
+    "timestamp": "2026-10-14T13:29:55.006604"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [],
+    "\"transformer pruning\" OR \"LLM pruning\"": [
+      {
+        "title": "The Fragility and Dynamics of LLM Pruning-Recovery Steps",
+        "published_date": "2026-10-11",
+        "authors": [
+          "Luis Frentzen Salim",
+          "Komang Rinartha",
+          "Chia-Chun Wu",
+          "Tran Van Nhiem",
+          "Lun-Wei Ku",
+          "Yung-Hui Li"
+        ],
+        "summary": "Structural pruning followed by a recovery stage is the standard recipe for compressing large language models (LLMs), yet the two stages are typically designed and tuned in isolation. In this work, we study how their interaction shapes the compressed model, sweeping ordering, the data that drives each stage, and the alignment of their training objectives. We find that instruction-following is the first capability to collapse under pruning, well before knowledge, reasoning, or core language modeling, and that much of the pruning in-domain loss is likely not knowledge loss but a domain-agnostic failure to respond coherently to the prompt. We find in our setting that in-domain data is the strongest pruning signal, whereas instruction-style data recovers the most. Stage order matters little, but only marginally. We further analyze how the importance ranking drifts before and after pruning. Together these results give practitioners a concrete recipe for composing pruning and recovery.",
+        "url": "http://arxiv.org/abs/2610.15574v1"
+      },
+      {
+        "title": "SARATHI: Decoupled Data-Free Probing and Adaptive Reconstruction for Structured LLM Pruning",
+        "published_date": "2026-10-11",
+        "authors": [
+          "Sankar Behera",
+          "Dhruv Singh",
+          "Satyadev Ahlawat",
+          "Yamuna Prasad"
+        ],
+        "summary": "Structured pruning reduces the inference cost of large language models (LLMs) by permanently removing neurons and weight rows, yielding dense, hardware-agnostic speedup. Existing post-training methods couple neuron selection and weight reconstruction through a shared calibration dataset, introducing domain bias and out-of-memory failures at high sparsity. We propose SARATHI, a framework that decouples these two stages. A data-free \\emph{NMF Residual Subspace Probe} scores neurons using intrinsic weight geometry, without accessing any calibration data, and carries a formal connection to Robust PCA. \\emph{Adaptive OBS} then reconstructs the pruned weights with a localized calibration batch, operating in $\\mathcal{O}(d^2)$ peak memory per layer and eliminating the global memory bottleneck of coupled methods. A \\emph{Bias Shift Compensation} step corrects systematic activation drift in post-LayerNorm architectures that would otherwise cause perplexity collapse at high sparsity. Experiments across six models from two architecture families (gated and non-gated FFN) at 15--40\\% sparsity show that SARATHI achieves competitive perplexity and matches or exceeds existing structured pruning baselines on zero-shot accuracy.",
+        "url": "http://arxiv.org/abs/2610.15514v1"
+      },
+      {
+        "title": "SparseDecoding: Decoding-Aware Pruning for Accurate and Efficient LLM Inference",
+        "published_date": "2026-10-08",
+        "authors": [
+          "Qitong Wang",
+          "Xinwei Niu",
+          "Mingluo Su",
+          "Shanwei Zhao",
+          "Shiai Zhu",
+          "Huan Wang"
+        ],
+        "summary": "The memory-bound nature of the decoding stage of large language model (LLM) inference incurs significant latency. Layer-wise training-free network pruning approaches guided by the Hessian have been a prominent solution to this problem, as pruning reduces the number of nonzero parameters read from memory during decoding. Nevertheless, typical methods in this line compute the Hessian using pre-collected natural sequences, whereas the model is fed self-generated tokens during decoding, creating a distribution shift between the two sequences. The Hessian calculated on the natural sequence is different from that calculated on the generated sequence. We observe that this discrepancy causes the activation distribution during generation to deviate from that used for pruning, further hurting the pruned model performance. Moreover, most existing LLM pruning methods that bring actual speedup primarily target the sparse matrix-matrix (SpMM) multiplication, providing limited support for the sparse matrix-vector (SpMV) operations, which dominate decoding. To solve these problems, we introduce SparseDecoding, a principled decoding-aware pruning framework tailored for accurate and efficient LLM decoding. Specifically, at the algorithmic axis, SparseDecoding constructs calibration matrices from layer-wise activations collected during the dense-model autoregressive generation, excluding prefill, thereby aligning the pruning objective with the decoding activations. At the system axis, we develop an optimized N:M sparse matrix-vector kernel with bitmask indexing and fixed-step traversal. Substantial empirical results on representative LLMs (Llama-3.1-8B, Llama-3.3-70B, Qwen3-14B / 32B) demonstrate that our method consistently outperforms standard fixed-text calibration on the long-form generation benchmarks while achieving up to 1.48x end-to-end wall-clock decoding speedup on A100 GPUs.",
+        "url": "http://arxiv.org/abs/2610.12327v1"
+      }
+    ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
         "title": "Don't Judge an LLM Only by Its Activations: Discovering Suppressed Safety Features via Counterfactual Activation Potential",
