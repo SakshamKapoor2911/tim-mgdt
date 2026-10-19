@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-18T12:31:42.847412"
+    "timestamp": "2026-10-19T15:25:20.347230"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -121,6 +121,27 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Many Biases, One Circuit: Post-Training Tunes a Pretrained Cue-Routing Mechanism",
+        "published_date": "2026-10-16",
+        "authors": [
+          "Prakhar Gupta",
+          "Terry Jingchen Zhang",
+          "Zhijing Jin"
+        ],
+        "summary": "Language models often abandon a correct answer when the prompt contains a cue, a hint toward a wrong option such as \"I think the answer is B.\" Sycophancy and related biases show this failure. They are often studied separately and blamed on alignment. We test this view causally, tracing the attention heads behind these biases through the stages of two post-training pipelines. In multiple-choice tests on most models, four cue types rely largely on the same few heads, a shared circuit already present in pretrained models. Most base models follow cues in plain text. Fine-tuning a base model on about 200 generic assistant examples without cues activates these heads in chat format, so cue-following can be a side effect of assistant tuning. The final reinforcement learning (RL) stage strengthens the effect of cues in almost every comparison. In Tulu-3-8B and OLMo-2-7B, we swap the attention patterns of six middle layers between the RL checkpoint and its predecessor. For suggested-answer cues, this shifts each checkpoint's cue effect most of the way to the other's level. Post-training thus seems to change when and how strongly models use this circuit. Mitigation for these multiple-choice biases could target this circuit.",
+        "url": "http://arxiv.org/abs/2610.22937v1"
+      },
+      {
+        "title": "Adaptive Crack-Tip Localization of Phase-Field Fracture Computations",
+        "published_date": "2026-10-16",
+        "authors": [
+          "Aarosh Dahal",
+          "Aditya Kumar"
+        ],
+        "summary": "Phase-field models of fracture provide a unified framework for simulating crack nucleation and propagation, but their computational cost remains high because the governing equilibrium and phase-field equations are typically iteratively solved over the entire domain at every staggered iteration. We present an extension of the recently developed adaptive mesh refinement and coarsening framework that localizes not only spatial resolution but also repeated solution effort to a small active patch around the crack tip for linear elastic brittle materials. The inactive exterior is eliminated through a Schur complement and condensed onto the patch interface, and its factorization is reused as long as the patch remains fixed. The phase field is frozen in the exterior, introducing only a small approximation in the crack wake. The method is implemented in FEniCSx and evaluated for quasi-static crack propagation, dynamic crack branching, three-dimensional mixed-mode crack growth, and coalescence of multiple cracks in a unit cell. Across these problems, the condensed formulation reproduces the reference solutions with differences in global quantities below 0.5%, while substantially reducing the number of active degrees of freedom. In the quasi-static surfing problem, wall time speedups increase from 6.9 to 22.8 as the domain size is doubled, demonstrating increasing computational advantage for large-scale phase-field fracture simulations.",
+        "url": "http://arxiv.org/abs/2610.22888v1"
+      },
+      {
         "title": "Emotion Is Not External Knowledge: Internal Attention Signals for Affective State Reasoning",
         "published_date": "2026-10-15",
         "authors": [
@@ -132,42 +153,6 @@
         ],
         "summary": "Large Language Models (LLMs) increasingly operate in multi-turn interactions that require maintaining latent conversational states, not only explicit facts. We study affective state as an implicit state inferred from sparse contextual cues that remain relevant after topic shifts, and ask whether LLMs expose internal attention signals for routing such evidence at inference time. Prior attention interventions rely on labeled in-domain head profiles and externally specified target spans, limiting transfer across affective-evidence distributions. We propose Self-targeted Internal Attention Boosting (SIAB), which localizes sparse affective heads via causal localization (in detail activation patching) on synthetic minimal pairs and boosts, at the answer position, the content tokens these heads already attend to; both edited heads and target tokens are derived from the model's own behavior, enabling the same head set to be reused across tasks.We evaluate on ECC and GoEmotions across three LLMs and multiple prompting settings. Across settings, SIAB improves prompt-matched baselines by up to +10.3 macro-F1 on ECC and +5.5 on GoEmotions. Combined with PASTA-style external supervision, it achieves up to +13.84 accuracy points and +12.51 macro-F1 points, while mechanistic analyses trace the gains to sparse, emotion-enriched heads and show that layer proximity affects additivity.",
         "url": "http://arxiv.org/abs/2610.21347v1"
-      },
-      {
-        "title": "Causal Analysis of Robot Foundation Models Enables Efficiency Gains",
-        "published_date": "2026-10-14",
-        "authors": [
-          "Aiden Swann",
-          "Mathilde Papillon",
-          "Mozes Jacobs",
-          "Siddharth Boppana",
-          "Tal Haklay",
-          "Eric Bigelow",
-          "Andrew Lee",
-          "Conor Watts",
-          "Thomas Icard",
-          "Mac Schwager",
-          "Owen Lewis",
-          "Jack Merullo",
-          "Ekdeep Singh Lubana",
-          "Atticus Geiger",
-          "Thomas Fel",
-          "Matthew Kowal"
-        ],
-        "summary": "Vision-language-action (VLA) models are a promising approach to general purpose robot manipulation. While the internal computation of vision-language models, which compose the backbone of VLAs, has been studied extensively, less is known about how their perceptual and semantic representations are transformed into action in VLA models. We study this question mechanistically in three frontier VLA models ($\u03c0_{0.5}$, MolmoAct2, and MolmoBot) by analyzing the causal pathways through which the input image and the instruction shape actions. Across the three models, activation patching shows that causally relevant information influences the action expert (AE) through a narrow band of mid-to-late cross-attention layers, which we term the action-conditioning interface. The content of this information changes with token and layer within the model. Early-to-mid layer representations of the target noun token determine which object is selected, whereas mid-to-late layers carry the spatial information in text tokens that redirects the movement when patched. Where spatial information is stored in prompt tokens various based on the architecture. In MolmoAct2 the model forms task-conditioned representations at the text positions that follow the instruction, whereas $\u03c0_{0.5}$ additionally stores this information at image token positions. We show that these findings can be translated directly into improving model efficiency. We find that restricting MolmoBot's action expert conditioning to only 3 out of 36 layers reduces inference FLOPs by up to $33\\%$ while maintaining comparable task success with the default model across 3,000 evaluation episodes ($46.7\\%$ vs. $46.9\\%$), and the same principle carries over to real-robot deployment of $\u03c0_{0.5}$.",
-        "url": "http://arxiv.org/abs/2610.20750v1"
-      },
-      {
-        "title": "Causal Syntax Circuits in CodeLMs: Budget and Probe Decide What Looks Localised",
-        "published_date": "2026-10-14",
-        "authors": [
-          "Harsh Kumar",
-          "Tanmay Shailesh Joshi",
-          "Rahul Maity",
-          "Anusa Saha"
-        ],
-        "summary": "Code models write Python when the prompt does not say which language to use. We ask a mechanistic question about that habit: is it produced by a small, findable group of components inside the model? We run one pipeline---mean ablation, activation patching, greedy circuit extraction, a random-control significance test, and activation steering---over 55 model-language settings spanning ten open code models (five base and five instruction-tuned), three target languages (Rust, C#, PHP), two prompt suites, and two component budgets. We report five findings. First, the preference is large, grows with model size, and survives instruction tuning: it is larger on every instruction-tuned checkpoint than on its base version, by 12% on average. Second, its measured size is mostly a property of the probe; replacing our aligned prompts with XLCoST parallel functions takes the same measurement on the same models from about 1.6 to about 0.01. Third, whether the preference looks localised depends on how many components the search may keep: with a budget of 12, 1 of 15 settings yields a circuit that beats size-matched random controls after multiple-comparison correction, and with a budget of 40, 6 of 15 do. Fourth, interventions that a smaller-budget study reports as uniformly failing do sometimes succeed: patching makes a Python prompt prefer target syntax in 2 of 45 settings, and steering changes the most likely next token in 9 of 45. Fifth, every circuit whose effect is significant but points away from the target language comes from a setting where circuit extraction failed, which makes such results a diagnostic rather than a phenomenon. The practical lesson is that a claim about whether a behaviour is localised can turn on analysis choices that papers rarely report. We release the full grid so those choices can be varied.",
-        "url": "http://arxiv.org/abs/2610.20683v1"
       }
     ]
   }
