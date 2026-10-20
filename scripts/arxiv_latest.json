@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-19T15:25:20.347230"
+    "timestamp": "2026-10-20T13:27:58.644098"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -121,6 +121,19 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Claim Laundering: When Agent Decision Models Trust Records Over Reality",
+        "published_date": "2026-10-19",
+        "authors": [
+          "Tina Khezresmaeilzadeh",
+          "Seyedarmin Azizi",
+          "Erfan Baghaei Potraghloo",
+          "Mehdi Kamal",
+          "Massoud Pedram"
+        ],
+        "summary": "Agent decision models select actions in a single forward pass from inputs that combine environmental observations with the agent's own record of previous actions. When an action fails silently, these sources can conflict: the record reports success, but the environment shows that the step did not take effect. We ask which source determines the next decision. Across Android screen traces, ALFWorld, and WebShop, we construct paired states that independently vary the observation, the logged action, and an explicit success claim. In all 12 configurations of four decision models and three domains, records have a larger average effect on commitment decisions than observations; after claimed-but-failed steps, the models still stop, advance, or purchase in 53-100% of cases. Yet the relevant evidence is often represented internally: linear probes on intermediate hidden states distinguish successful from failed steps on held-out apps, tasks, and goals (AUROC 0.77-1.00), and activation patching reveals increasing influence from records in later layers. We use this signal in EVIGATE, an intermediate-layer veto that requires no additional forward pass and adds 0.04-2.0% serving latency. Under injected silent failures, EVIGATE improves task success by 18.7 points in live ALFWorld agents, 5.0 in WebShop, and 5.1 in a phone simulator, and in WebShop and the simulator it also outperforms random vetoes at the same rate. Its effectiveness depends on representative calibration states: gates calibrated on offline counterfactual states do not transfer reliably to live agent trajectories.",
+        "url": "http://arxiv.org/abs/2610.25947v1"
+      },
+      {
         "title": "Many Biases, One Circuit: Post-Training Tunes a Pretrained Cue-Routing Mechanism",
         "published_date": "2026-10-16",
         "authors": [
@@ -140,19 +153,6 @@
         ],
         "summary": "Phase-field models of fracture provide a unified framework for simulating crack nucleation and propagation, but their computational cost remains high because the governing equilibrium and phase-field equations are typically iteratively solved over the entire domain at every staggered iteration. We present an extension of the recently developed adaptive mesh refinement and coarsening framework that localizes not only spatial resolution but also repeated solution effort to a small active patch around the crack tip for linear elastic brittle materials. The inactive exterior is eliminated through a Schur complement and condensed onto the patch interface, and its factorization is reused as long as the patch remains fixed. The phase field is frozen in the exterior, introducing only a small approximation in the crack wake. The method is implemented in FEniCSx and evaluated for quasi-static crack propagation, dynamic crack branching, three-dimensional mixed-mode crack growth, and coalescence of multiple cracks in a unit cell. Across these problems, the condensed formulation reproduces the reference solutions with differences in global quantities below 0.5%, while substantially reducing the number of active degrees of freedom. In the quasi-static surfing problem, wall time speedups increase from 6.9 to 22.8 as the domain size is doubled, demonstrating increasing computational advantage for large-scale phase-field fracture simulations.",
         "url": "http://arxiv.org/abs/2610.22888v1"
-      },
-      {
-        "title": "Emotion Is Not External Knowledge: Internal Attention Signals for Affective State Reasoning",
-        "published_date": "2026-10-15",
-        "authors": [
-          "Wenqiu Tang",
-          "Zhen Wan",
-          "Yihui Wang",
-          "Takahiro Komamizu",
-          "Ichiro Ide"
-        ],
-        "summary": "Large Language Models (LLMs) increasingly operate in multi-turn interactions that require maintaining latent conversational states, not only explicit facts. We study affective state as an implicit state inferred from sparse contextual cues that remain relevant after topic shifts, and ask whether LLMs expose internal attention signals for routing such evidence at inference time. Prior attention interventions rely on labeled in-domain head profiles and externally specified target spans, limiting transfer across affective-evidence distributions. We propose Self-targeted Internal Attention Boosting (SIAB), which localizes sparse affective heads via causal localization (in detail activation patching) on synthetic minimal pairs and boosts, at the answer position, the content tokens these heads already attend to; both edited heads and target tokens are derived from the model's own behavior, enabling the same head set to be reused across tasks.We evaluate on ECC and GoEmotions across three LLMs and multiple prompting settings. Across settings, SIAB improves prompt-matched baselines by up to +10.3 macro-F1 on ECC and +5.5 on GoEmotions. Combined with PASTA-style external supervision, it achieves up to +13.84 accuracy points and +12.51 macro-F1 points, while mechanistic analyses trace the gains to sparse, emotion-enriched heads and show that layer proximity affects additivity.",
-        "url": "http://arxiv.org/abs/2610.21347v1"
       }
     ]
   }
