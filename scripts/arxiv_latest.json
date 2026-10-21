@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-20T13:27:58.644098"
+    "timestamp": "2026-10-21T13:37:01.660885"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -47,6 +47,28 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Are Linguistic and Arithmetic Circuits Dissociated in LLMs?",
+        "published_date": "2026-10-20",
+        "authors": [
+          "Riku Kisako",
+          "Tatsuki Kuribayashi",
+          "Ryohei Sasano"
+        ],
+        "summary": "Large language models (LLMs) exhibit both knowledge of language, rendered by, for example, grammatical judgment ability, and abilities to perform tasks through language, such as math-word problem solving. Motivated by neurolinguistic studies of their neural dissociation in human brains, in this study, we investigate the overlap of their circuits in large language models (LLMs). Specifically, we examine the overlap and causal effects between the circuits extracted for linguistic and arithmetic tasks, using controlled materials and circuit discovery methods from the mechanistic interpretability field. Our experiments with five LLMs show that circuit similarity is mostly explained by task domains (linguistic vs. arithmetic), rather than by their input and output vocabularies or by the syntactic similarities between natural-language sentences and arithmetic expressions. This finding suggests that LLMs may process linguistic and arithmetic information using largely separate neural circuits, highlighting an ability-based modular organization of circuits within these models.",
+        "url": "http://arxiv.org/abs/2610.27790v1"
+      },
+      {
+        "title": "Shaped SAEs: Expanding the Toolkit for Mechanistic Interpretability",
+        "published_date": "2026-10-19",
+        "authors": [
+          "Oveys Delafrooz Noroozi",
+          "Bhagyashree Puranik",
+          "Upamanyu Madhow"
+        ],
+        "summary": "Sparse autoencoders (SAEs) seek to decompose the dense activations of large language models (LLMs) into sparse, potentially interpretable features using a learned overcomplete dictionary. In this work, we ask whether it is possible to enhance the semantic selectivity of the learned dictionary atoms by linearly \\emph{shaping} the dense activations prior to learning an SAE. We explore rank-reducing transformations based on the recently introduced J-space corresponding to the averaged Jacobian from the current layer to the LLM output, projecting activations onto the ``live'' subspace spanned by eigenmodes of the Jacobian with larger singular values (which we expect to be more semantically relevant). We also introduce a new approach for training SAEs in which (a)~an affine shaping transformation is learned along with the dictionary atoms, (b)~the atom selection mechanism is based on the TopK projections along the one-dimensional subspace spanned by the atoms, and (c)~reconstruction is carried out using the same atoms. We call this approach a Matched Filter SAE (MF-SAE) based on analogies with communication theory. The promise of shaping is demonstrated via evaluations against dense activations and state-of-the-art SAEs on benchmarks including SAEBench and SAE Probes.",
+        "url": "http://arxiv.org/abs/2610.27375v1"
+      },
+      {
         "title": "Translation Circuit Discovery and Targeted Optimization for Low-Resource Multilingual Translation",
         "published_date": "2026-10-15",
         "authors": [
@@ -57,29 +79,6 @@
         ],
         "summary": "Recent multilingual large language models achieve strong translation performance, yet the internal mechanisms responsible for low-resource multilingual translation remain insufficiently understood. In this paper, we study translation circuits in multilingual decoder-only LLMs for Hindi-to-Urdu and Hindi-to-Sindhi (Devanagari). We propose TITAN, a mechanistic framework that combines causal intervention, sparse feature decomposition, and targeted preference optimization to identify and optimize crucial translation components in the transformer. Unlike conventional full-parameter fine-tuning, TITAN restricts optimization to sparse, causally important circuits, enabling scalable and parameter-efficient adaptation while updating fewer than 5% of model parameters. Experimental results show that TITAN achieves BLEU improvements of 33.75% on Hindi-to-Urdu and 45.86% on Hindi-to-Sindhi over the strongest multilingual baselines. Human expert evaluation further confirms substantial gains in adequacy and fluency across both language pairs. Additional analyses reveal that multilingual translation is implemented through sparse, structured circuits operating over a shared semantic subspace rather than through an English-centric pivot representation. Overall, our findings demonstrate that mechanistic circuit discovery can directly improve low-resource multilingual translation while providing interpretable insights into multilingual transformer behavior.",
         "url": "http://arxiv.org/abs/2610.21456v1"
-      },
-      {
-        "title": "Don't Judge an LLM Only by Its Activations: Discovering Suppressed Safety Features via Counterfactual Activation Potential",
-        "published_date": "2026-10-04",
-        "authors": [
-          "Swadesh Swain",
-          "Sanghamitra Dutta"
-        ],
-        "summary": "Mechanistic interpretability has emerged as the primary means to understand safety behavior of LLMs. However, existing tools primarily focus on the activating neurons or features of a model. The role of the remaining large set of inactive components is invisible to such methods. This work demonstrates that the inactive set contains safety-critical features that are causally relevant for refusal of harmful prompts. Suppressing such features could turn refusals into compliance, while passing undetected by prevalent interpretability tools. We introduce the Counterfactual Activation Potential (CAP), a metric that quantifies a suppressed feature's latent activation tendency as the product of its encoder alignment (how strongly the input drives it), suppression strength (how strongly active features inhibit it), and safety criticality (how much refusal depends on it). To find suppressed safety features at scale, we propose CAP-guided Safety Feature Discovery (CSFD), a two-stage filtering algorithm that identifies candidate safety features from hundreds of thousands of transcoder features without exhaustive ablation. A significant fraction of trials turn compliant with harmful prompts when a candidate feature is ablated. Under natural jailbreaks, the suppression acting on the highest-CAP features rises 2-4x, and their activation correspondingly falls by up to 80%. Amplifying a feature's suppressors pushes its activation down and raises harmful compliance with prompts related to the suppressed feature, with no such effect for random features. Our experiments span five Gemma, Qwen, and Llama models across various parameter sizes. Our findings indicate that jailbreaks could operate in part by suppressing safety-critical features rather than solely activating harmful ones, and that suppressed features are a necessary complement to activation-focused interpretability of safety behavior.",
-        "url": "http://arxiv.org/abs/2610.05541v1"
-      },
-      {
-        "title": "Reactivating Alignment: Defending LLMs from Jailbreaks via Intention-Aware Input-Output Matching",
-        "published_date": "2026-10-03",
-        "authors": [
-          "Luoyu Chen",
-          "Weiqi Wang",
-          "Chenhan Zhang",
-          "Zhiyi Tian",
-          "Shui Yu"
-        ],
-        "summary": "Large language models (LLMs) remain vulnerable to jailbreak attacks that conceal harmful intent within complex adversarial prompts. Existing defenses primarily rely on input perturbation or harmful-output suppression, but they rarely model where malicious intent resides, resulting in brittle protection and excessive over-refusal.   We propose SENTINEL, a plug-and-play, generation-time jailbreak defense that reframes mitigation as an intent extraction problem. Our key insight is that instruction-tuned LLMs exhibit strong input--output semantic consistency: regardless of jailbreak complexity, generated outputs tend to align with the attacker's true intent. SENTINEL exploits this property by matching semantically aligned input--output regions to extract intention-revealing subsequences, scores these subsequences using refusal-direction projections to estimate harmfulness, and halts generation when necessary. Experiments on HarmBench across multiple LLMs show that SENTINEL reduces jailbreak success rates to close to 5\\% while maintaining low over-refusal. We further demonstrate robustness to adaptive attacks and provide a mechanistic interpretation: SENTINEL re-distributes jailbreak features from alignment blind spots to aligned regions.",
-        "url": "http://arxiv.org/abs/2610.04470v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -121,38 +120,42 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
-        "title": "Claim Laundering: When Agent Decision Models Trust Records Over Reality",
+        "title": "DISTRACT: Degradation-Indexed Study of Textual Reference Across Competing Targets",
+        "published_date": "2026-10-20",
+        "authors": [
+          "Dan Zlotnikov",
+          "Ohad Ben-Shahar"
+        ],
+        "summary": "Vision-language trackers (VLTs) accept descriptions intended to assist tracking, but accepting text does not establish that its content changes tracking decisions, particularly as visual evidence deteriorates. We introduce DISTRACT, a matched-intervention benchmark that holds video, target, and distractor fixed while crossing four text priors with four image degradations along a controlled severity axis. We evaluate five VLTs on four datasets using behavioral contrasts, layerwise representation probes, and activation patching. Molmo2 and JointNLT exhibit directed text use. Some effects contract under degradation, whereas others show no significant endpoint change after multiplicity correction. UVLTrack, MMTrack, and DUTrack respond only weakly to changes in text semantics, with no directed behavioral effect surviving FDR correction in the tested settings. Model-internal analyses reveal that at decision-near states, correct-versus-conflicting text is decodable in Molmo2 and JointNLT but not in the other three systems. In the responsive models, decodability peaks at late states where replacement produces little behavioral change, whereas replacing selected earlier states redirects conflict-associated trajectories toward the target. Because matched-correct donors do not significantly outperform unrelated donors, these interventions identify earlier intervention-sensitive states without establishing target-specific semantic rescue. DISTRACT thus exposes when and where text affects tracking under degraded visual evidence.",
+        "url": "http://arxiv.org/abs/2610.28419v1"
+      },
+      {
+        "title": "Convergent Performance, Divergent Mechanisms in LoRA-Adapted Vision Foundation Models for Brain MRI",
+        "published_date": "2026-10-20",
+        "authors": [
+          "Cecilia Diana-Albelda",
+          "Fiona Kekwick",
+          "Raghav Mehta",
+          "Aleksandra Kulbaka",
+          "Paul M. Matthews",
+          "Jesus Bescos",
+          "\u00c1lvaro Garc\u00eda-Mart\u00edn",
+          "Wenjia Bai",
+          "Bernhard Kainz"
+        ],
+        "summary": "Adapting Vision Foundation Models (VFMs) to medical imaging via LoRA has become standard practice, yet model selection is guided almost entirely by downstream task metrics, treating backbones with similar performance as interchangeable. We investigate whether equal performance implies equal internal representational shift. We analyse four ViT-B/16 backbones, DINOv3, SigLIP2, MerMED-FM, and BiomedCLIP, pre-trained with different objectives (self-distillation vs. contrastive vision-language) and on different data domains (natural vs. medical images). We adapt each to brain tumour segmentation and evaluate on six datasets covering both segmentation and Alzheimer's disease classification. Using attention divergence, weight-change analysis, and activation patching, we find that the four models converge to similar segmentation performance (mean Dice 78-81%) through markedly different internal dynamics, yet diverge in cross-task transfer: segmentation adaptation improves Alzheimer's disease classification for DINOv3 but degrades it for the other three backbones. We reveal a dissociation between modification magnitude and causal importance: the most heavily modified layers are not the causally relevant ones, with early-to-mid layers identified as sufficient for segmentation recovery. Restricting LoRA to these layers matches or approaches full-layer segmentation while reducing classification degradation in the three affected backbones, providing a mechanistically grounded strategy that is more parameter-efficient and more robust than standard full-layer adaptation.",
+        "url": "http://arxiv.org/abs/2610.28255v1"
+      },
+      {
+        "title": "Correcting Attribution Patching with a Few Exact Measurements",
         "published_date": "2026-10-19",
         "authors": [
-          "Tina Khezresmaeilzadeh",
-          "Seyedarmin Azizi",
-          "Erfan Baghaei Potraghloo",
-          "Mehdi Kamal",
-          "Massoud Pedram"
+          "Luyang Zhang",
+          "Minxing Zheng",
+          "Jialu Wang"
         ],
-        "summary": "Agent decision models select actions in a single forward pass from inputs that combine environmental observations with the agent's own record of previous actions. When an action fails silently, these sources can conflict: the record reports success, but the environment shows that the step did not take effect. We ask which source determines the next decision. Across Android screen traces, ALFWorld, and WebShop, we construct paired states that independently vary the observation, the logged action, and an explicit success claim. In all 12 configurations of four decision models and three domains, records have a larger average effect on commitment decisions than observations; after claimed-but-failed steps, the models still stop, advance, or purchase in 53-100% of cases. Yet the relevant evidence is often represented internally: linear probes on intermediate hidden states distinguish successful from failed steps on held-out apps, tasks, and goals (AUROC 0.77-1.00), and activation patching reveals increasing influence from records in later layers. We use this signal in EVIGATE, an intermediate-layer veto that requires no additional forward pass and adds 0.04-2.0% serving latency. Under injected silent failures, EVIGATE improves task success by 18.7 points in live ALFWorld agents, 5.0 in WebShop, and 5.1 in a phone simulator, and in WebShop and the simulator it also outperforms random vetoes at the same rate. Its effectiveness depends on representative calibration states: gates calibrated on offline counterfactual states do not transfer reliably to live agent trajectories.",
-        "url": "http://arxiv.org/abs/2610.25947v1"
-      },
-      {
-        "title": "Many Biases, One Circuit: Post-Training Tunes a Pretrained Cue-Routing Mechanism",
-        "published_date": "2026-10-16",
-        "authors": [
-          "Prakhar Gupta",
-          "Terry Jingchen Zhang",
-          "Zhijing Jin"
-        ],
-        "summary": "Language models often abandon a correct answer when the prompt contains a cue, a hint toward a wrong option such as \"I think the answer is B.\" Sycophancy and related biases show this failure. They are often studied separately and blamed on alignment. We test this view causally, tracing the attention heads behind these biases through the stages of two post-training pipelines. In multiple-choice tests on most models, four cue types rely largely on the same few heads, a shared circuit already present in pretrained models. Most base models follow cues in plain text. Fine-tuning a base model on about 200 generic assistant examples without cues activates these heads in chat format, so cue-following can be a side effect of assistant tuning. The final reinforcement learning (RL) stage strengthens the effect of cues in almost every comparison. In Tulu-3-8B and OLMo-2-7B, we swap the attention patterns of six middle layers between the RL checkpoint and its predecessor. For suggested-answer cues, this shifts each checkpoint's cue effect most of the way to the other's level. Post-training thus seems to change when and how strongly models use this circuit. Mitigation for these multiple-choice biases could target this circuit.",
-        "url": "http://arxiv.org/abs/2610.22937v1"
-      },
-      {
-        "title": "Adaptive Crack-Tip Localization of Phase-Field Fracture Computations",
-        "published_date": "2026-10-16",
-        "authors": [
-          "Aarosh Dahal",
-          "Aditya Kumar"
-        ],
-        "summary": "Phase-field models of fracture provide a unified framework for simulating crack nucleation and propagation, but their computational cost remains high because the governing equilibrium and phase-field equations are typically iteratively solved over the entire domain at every staggered iteration. We present an extension of the recently developed adaptive mesh refinement and coarsening framework that localizes not only spatial resolution but also repeated solution effort to a small active patch around the crack tip for linear elastic brittle materials. The inactive exterior is eliminated through a Schur complement and condensed onto the patch interface, and its factorization is reused as long as the patch remains fixed. The phase field is frozen in the exterior, introducing only a small approximation in the crack wake. The method is implemented in FEniCSx and evaluated for quasi-static crack propagation, dynamic crack branching, three-dimensional mixed-mode crack growth, and coalescence of multiple cracks in a unit cell. Across these problems, the condensed formulation reproduces the reference solutions with differences in global quantities below 0.5%, while substantially reducing the number of active degrees of freedom. In the quasi-static surfing problem, wall time speedups increase from 6.9 to 22.8 as the domain size is doubled, demonstrating increasing computational advantage for large-scale phase-field fracture simulations.",
-        "url": "http://arxiv.org/abs/2610.22888v1"
+        "summary": "Mechanistic interpretability asks which language model components matter for a behavior, and activation patching answers by changing one component's activation and measuring its effect, at a cost growing with components and prompts. Attribution patching estimates these effects from one gradient pass, but its estimates can be far off, and verifying each one restores the cost. Can the structure of these errors reduce this cost? We propose Guided-AP, which uses a few exact measurements to reveal attribution patching's errors and correct unmeasured estimates. On a single prompt, many components' errors share one sign, so a small exact sample yields one correction for the rest. Over many prompts of one task, components are misestimated similarly, so a few measured prompts show what to verify and how to correct each component's average effect. Our analysis shows that choosing what to verify needs error size, while correction also needs sign. On a single prompt, the correction lowers error by up to 26% across three behaviors at the compute of verifying the largest estimates and also on larger models. Over many prompts, learned corrections cut the error of average effects on factual completion by 75% to 79%, repaying their cost in long analyses.",
+        "url": "http://arxiv.org/abs/2610.27393v1"
       }
     ]
   }
