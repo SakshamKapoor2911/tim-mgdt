@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-10-21T13:37:01.660885"
+    "timestamp": "2026-10-22T13:39:10.562479"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -47,6 +47,22 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Language Impairment as a Lens onto Large Language Models",
+        "published_date": "2026-10-20",
+        "authors": [
+          "Muxuan He",
+          "Wang Bill Zhu",
+          "Yue Chen",
+          "Elsi Kaiser",
+          "Weizhi Du",
+          "Yao Du",
+          "Samuel Nastase",
+          "Yanjun Gao"
+        ],
+        "summary": "Although large language models (LLMs) encode language in highly distributed spaces, they remain vulnerable to focal disruptions---a phenomenon strikingly similar to how localized brain damage causes clinical aphasia in humans. To investigate this theoretical tension, we ask whether LLMs possess a functional structure analogous to the human language system, by introducing a novel mechanistic interpretability framework inspired by aphasia. Through two complementary approaches, classifier-guided lesioning and continuous activation steering, we systematically induce aphasia-like breakdowns in LLMs. We find that language functions can be successfully isolated to discrete structural circuits and continuous representational vectors, yet these functions remain densely entangled with significant circuit overlap and vector similarities across distinct aphasic profiles. Furthermore, while steering generalizes robustly across downstream tasks, structural lesioning remains asymmetrically constrained. By bridging neuropsychology and mechanistic interpretability, we demonstrate that LLMs, functionally analogous to biological brains, rely on a densely entangled architecture that can be systematically mapped through clinically-informed interventions.",
+        "url": "http://arxiv.org/abs/2610.28992v1"
+      },
+      {
         "title": "Are Linguistic and Arithmetic Circuits Dissociated in LLMs?",
         "published_date": "2026-10-20",
         "authors": [
@@ -67,18 +83,6 @@
         ],
         "summary": "Sparse autoencoders (SAEs) seek to decompose the dense activations of large language models (LLMs) into sparse, potentially interpretable features using a learned overcomplete dictionary. In this work, we ask whether it is possible to enhance the semantic selectivity of the learned dictionary atoms by linearly \\emph{shaping} the dense activations prior to learning an SAE. We explore rank-reducing transformations based on the recently introduced J-space corresponding to the averaged Jacobian from the current layer to the LLM output, projecting activations onto the ``live'' subspace spanned by eigenmodes of the Jacobian with larger singular values (which we expect to be more semantically relevant). We also introduce a new approach for training SAEs in which (a)~an affine shaping transformation is learned along with the dictionary atoms, (b)~the atom selection mechanism is based on the TopK projections along the one-dimensional subspace spanned by the atoms, and (c)~reconstruction is carried out using the same atoms. We call this approach a Matched Filter SAE (MF-SAE) based on analogies with communication theory. The promise of shaping is demonstrated via evaluations against dense activations and state-of-the-art SAEs on benchmarks including SAEBench and SAE Probes.",
         "url": "http://arxiv.org/abs/2610.27375v1"
-      },
-      {
-        "title": "Translation Circuit Discovery and Targeted Optimization for Low-Resource Multilingual Translation",
-        "published_date": "2026-10-15",
-        "authors": [
-          "Atai Waris Khan",
-          "Abdullah Mazhar",
-          "Raghu Kumar",
-          "Md Shad Akhtar"
-        ],
-        "summary": "Recent multilingual large language models achieve strong translation performance, yet the internal mechanisms responsible for low-resource multilingual translation remain insufficiently understood. In this paper, we study translation circuits in multilingual decoder-only LLMs for Hindi-to-Urdu and Hindi-to-Sindhi (Devanagari). We propose TITAN, a mechanistic framework that combines causal intervention, sparse feature decomposition, and targeted preference optimization to identify and optimize crucial translation components in the transformer. Unlike conventional full-parameter fine-tuning, TITAN restricts optimization to sparse, causally important circuits, enabling scalable and parameter-efficient adaptation while updating fewer than 5% of model parameters. Experimental results show that TITAN achieves BLEU improvements of 33.75% on Hindi-to-Urdu and 45.86% on Hindi-to-Sindhi over the strongest multilingual baselines. Human expert evaluation further confirms substantial gains in adequacy and fluency across both language pairs. Additional analyses reveal that multilingual translation is implemented through sparse, structured circuits operating over a shared semantic subspace rather than through an English-centric pivot representation. Overall, our findings demonstrate that mechanistic circuit discovery can directly improve low-resource multilingual translation while providing interpretable insights into multilingual transformer behavior.",
-        "url": "http://arxiv.org/abs/2610.21456v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -120,6 +124,18 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Behavior Beyond Text: Evaluating Refusal Transfer Failure in LLM Agents",
+        "published_date": "2026-10-20",
+        "authors": [
+          "Ekagra Gupta",
+          "Raj Saha",
+          "Aniekan-Abasi Inyang",
+          "Adam Al Gharib"
+        ],
+        "summary": "While large language models are increasingly deployed as tool-calling agents, their safety evaluations still focus primarily on their ability to refuse harmful requests in text. We investigate whether the refusal behavior in text transfers to tool use. We construct a benchmark of 2,304 prompts across four domains, consisting of matched triplets that present the same harmful or benign request in text-only, standard tool-enabled, and adversarially framed tool-enabled settings. We then assess tool-call safety using 20 predefined forbidden actions. Testing five models of varying sizes and families, we find that requests refused in text frequently result in unsafe tool calls. Under standard tool-enabled prompting, this divergence occurs for 10-52 percent of harmful requests refused in chat. To mechanistically investigate this gap, we identify a refusal-associated direction in the residual stream of each of the five models. We find that in tool-enabled contexts, the activations along this direction decrease in four of five models. Furthermore, lower activation predicts unsafe tool calls across all five models (AUC 0.76-0.86). However, restoring the signal to the respective text-only value through activation patching only prevents a subset of unsafe calls, primarily by suppressing tool use rather than by producing safer calls. Steering along the refusal direction nearly eliminates unsafe calls only at strengths that also suppress benign tool use or degrade the output quality. Our findings indicate that the identified refusal direction contributes to whether a model acts, but only partially explains the refusal divergence. Therefore, evaluating the safety of tool-calling agents requires directly examining their actions along with their textual responses.",
+        "url": "http://arxiv.org/abs/2610.28982v1"
+      },
+      {
         "title": "DISTRACT: Degradation-Indexed Study of Textual Reference Across Competing Targets",
         "published_date": "2026-10-20",
         "authors": [
@@ -145,17 +161,6 @@
         ],
         "summary": "Adapting Vision Foundation Models (VFMs) to medical imaging via LoRA has become standard practice, yet model selection is guided almost entirely by downstream task metrics, treating backbones with similar performance as interchangeable. We investigate whether equal performance implies equal internal representational shift. We analyse four ViT-B/16 backbones, DINOv3, SigLIP2, MerMED-FM, and BiomedCLIP, pre-trained with different objectives (self-distillation vs. contrastive vision-language) and on different data domains (natural vs. medical images). We adapt each to brain tumour segmentation and evaluate on six datasets covering both segmentation and Alzheimer's disease classification. Using attention divergence, weight-change analysis, and activation patching, we find that the four models converge to similar segmentation performance (mean Dice 78-81%) through markedly different internal dynamics, yet diverge in cross-task transfer: segmentation adaptation improves Alzheimer's disease classification for DINOv3 but degrades it for the other three backbones. We reveal a dissociation between modification magnitude and causal importance: the most heavily modified layers are not the causally relevant ones, with early-to-mid layers identified as sufficient for segmentation recovery. Restricting LoRA to these layers matches or approaches full-layer segmentation while reducing classification degradation in the three affected backbones, providing a mechanistically grounded strategy that is more parameter-efficient and more robust than standard full-layer adaptation.",
         "url": "http://arxiv.org/abs/2610.28255v1"
-      },
-      {
-        "title": "Correcting Attribution Patching with a Few Exact Measurements",
-        "published_date": "2026-10-19",
-        "authors": [
-          "Luyang Zhang",
-          "Minxing Zheng",
-          "Jialu Wang"
-        ],
-        "summary": "Mechanistic interpretability asks which language model components matter for a behavior, and activation patching answers by changing one component's activation and measuring its effect, at a cost growing with components and prompts. Attribution patching estimates these effects from one gradient pass, but its estimates can be far off, and verifying each one restores the cost. Can the structure of these errors reduce this cost? We propose Guided-AP, which uses a few exact measurements to reveal attribution patching's errors and correct unmeasured estimates. On a single prompt, many components' errors share one sign, so a small exact sample yields one correction for the rest. Over many prompts of one task, components are misestimated similarly, so a few measured prompts show what to verify and how to correct each component's average effect. Our analysis shows that choosing what to verify needs error size, while correction also needs sign. On a single prompt, the correction lowers error by up to 26% across three behaviors at the compute of verifying the largest estimates and also on larger models. Over many prompts, learned corrections cut the error of average effects on factual completion by 75% to 79%, repaying their cost in long analyses.",
-        "url": "http://arxiv.org/abs/2610.27393v1"
       }
     ]
   }
