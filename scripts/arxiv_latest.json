@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-01T14:52:46.214565"
+    "timestamp": "2026-11-02T18:04:04.029336"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -117,6 +117,18 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "From Representation to Readout: Mechanistic Analysis of Membership Signals in Language Models",
+        "published_date": "2026-10-30",
+        "authors": [
+          "Wenxi Dai",
+          "Jingyu Hu",
+          "Yanting Yang",
+          "Mengnan Du"
+        ],
+        "summary": "Membership inference aims to determine whether a particular example was included in a model's training data. Such membership signals are often broadly described as memorization, while the underlying mechanisms can involve both how information is represented internally and how it is accessed by the model to produce behaviors. We therefore present a mechanistic study of membership signals in large language models (LLMs). We introduce Decodable Information Score, Used Information Score, and Readout Accessibility Gap (DUG), a set of complementary measures that separately quantify membership information decodable from internal representations and the extent to which it is exposed through the model's readout. Across supervised fine-tuning (SFT) and reinforcement learning (RL)-based membership inference methods, membership-specific effects appear in both the amount of decodable information and readout under SFT, while under RL-based membership inference methods they appear primarily in readout. Activation patching further localizes this membership-specific effect to intermediate layers. To examine whether these findings extend to a more general RL setting, we further study reinforcement learning with verifiable rewards (RLVR) contamination, where the training reward is independent of the reference solution. In this setting, we find that behavioral changes can emerge without a corresponding increase in likelihood-based membership inference signals.",
+        "url": "http://arxiv.org/abs/2610.41445v1"
+      },
+      {
         "title": "What Survives Distillation? A Mechanistic Interpretability Study of GPT-2 and DistilGPT-2",
         "published_date": "2026-10-27",
         "authors": [
@@ -135,15 +147,6 @@
         ],
         "summary": "Pruned language models are judged almost entirely by accuracy and perplexity, which assumes that preserved output behaviour implies preserved internal computation. We test this assumption with a factorial pruning study on GPT-2, crossing two importance criteria (magnitude, random), two component types (attention heads, MLP neurons) and three sparsity levels (3%, 50%, 70%). Using the fully characterised indirect object identification (IOI) circuit as ground truth, we measure circuit integrity with activation patching, path patching and direct logit attribution. We find two qualitatively distinct failure modes. Magnitude head pruning >= zeroes the circuit: output-facing heads are removed, and the model falls to near-chance. Magnitude neuron pruning at 30% inverts it: all 26 circuit heads remain intact, but Name Mover contributions flip sign, and the model systematically prefers the wrong name (17.7% accuracy). Perplexity ranks it as less damaged than random head pruning (74.6 vs 140.1). A replication of the Greater-Than circuit shows that the critical component type depends on the circuit's architecture. These results show that output metrics and structural checks can both miss mechanistic damage, motivating circuit-level causal analysis as a complementary evaluation of compressed language models.",
         "url": "http://arxiv.org/abs/2610.37126v1"
-      },
-      {
-        "title": "Language Models Keep Abandoned Analyses: Residue and Adaptation after Garden-Path Sentences",
-        "published_date": "2026-10-27",
-        "authors": [
-          "Xiang Ding"
-        ],
-        "summary": "Reading \"While the man hunted the deer ran into the woods\" requires giving up the analysis in which \"the deer\" is the object of \"hunted\". People who have just read such a sentence still produce more transitive structures, so the abandoned analysis primes later language. We ask whether language models keep using an analysis they have abandoned, and what in the model carries it. In 24 open models from 124M to 70B parameters, a garden-path sentence leaves two traces in the context. A residue of the abandoned analysis raises later object attachment, by about three quarters of the effect of a sentence in which the noun phrase really is an object, and it appears in sampled text, on held-out and human-normed items and for a second type of garden path. An adaptation toward the resolved structure scales with the sentence's disambiguation error and acts mainly on comprehension-like measures. Activation patching separates the two. Later text reads the residue from the role information in the noun phrase's states, which were computed under the object analysis before the disambiguation, and replacing these states removes almost all of the residue in the 32B and 70B models. The adaptation is read from the states that processed the disambiguation. Overridden statements show the same persistence (a corrected value keeps pulling later predictions in 8 of 9 models), and in most models the pull is carried by the positions after the statement. Finally, the human paradigm transfers only with controls for punctuation, because the models also write garden-path sentences themselves, which reverses the paradigm's raw statistic.",
-        "url": "http://arxiv.org/abs/2610.36797v1"
       }
     ]
   }
