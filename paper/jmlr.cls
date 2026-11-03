@@ -104,8 +104,8 @@
 \newcommand*{\jmlrpmlr}{%
   \jmlrproceedings{PMLR}{Proceedings of Machine Learning Research}%
 }
- \DeclareOptionX{mlmain}{\jmlrproceedings{PMLR}{Under Review - Proceedings Track}\newcommand*{\test}{Proceedings Track}}
- \DeclareOptionX{mlabstract}{\jmlrproceedings{PMLR}{Under Review - Extended Abstract Track}\newcommand*{\test}{Extended Abstract Track}}
+ \DeclareOptionX{mlmain}{\jmlrproceedings{PMLR}{Proceedings of Machine Learning Research}}
+ \DeclareOptionX{mlabstract}{\jmlrproceedings{PMLR}{Extended Abstract Track}}
 \DeclareOptionX{nowcp}{\jmlrnowcp}
 \DeclareOptionX{wcp}{\jmlrwcp}
 \DeclareOptionX{pmlr}{\jmlrpmlr}
@@ -120,6 +120,7 @@
 \DeclareOptionX*{\PassOptionsToClass{\CurrentOption}{article}}
 \ExecuteOptions{letterpaper}
 \ProcessOptionsX
+\providecommand*{\test}{}
 \if@twoside
  \PassOptionsToClass{twoside}{article}
 \fi
@@ -472,15 +473,17 @@ Keywords:} \ignorespaces}%
   {\textsc{http://www.kernel-machines.org}})}
 \newcommand*{\editorname}{Editor}
 \newcommand*{\editorsname}{Editors}
-\let\@edname\editorname
-\def\@editor{}
+\newcommand*{\@neurrepseditors}{Louisa Cornelis, Francisco Acosta,
+  Fatih Din\c{c}, Alison Pouplin, David Klindt, Nina Miolane}
+\let\@edname\editorsname
+\def\@editor{\@neurrepseditors}
 \def\editor#1{%
-  \global\let\@edname\editorname
-  \gdef\@editor{#1}%
+  \global\let\@edname\editorsname
+  \gdef\@editor{\@neurrepseditors}%
 }
 \def\editors#1{%
   \global\let\@edname\editorsname
-  \gdef\@editor{#1}%
+  \gdef\@editor{\@neurrepseditors}%
 }
 \def\firstpageno#1{\setcounter{page}{#1}}
 \@ifundefined{startpage}{}{\firstpageno{\startpage}}
