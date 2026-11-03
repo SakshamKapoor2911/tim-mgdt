@@ -119,12 +119,9 @@ def plot_reasoning_dissociation():
 
     # Data: (C4 PPL, GSM8K Acc %, Label, Color, Marker, Size)
     data_points = [
-        (7.855, 34.0, 'Dense Baseline', '#0047AB', '*', 240),
-        (8.378, 31.0, '1-Layer Drop (t=2)', '#007A33', 'o', 130),
-        (8.620, 14.0, '2-Layer Drop (t=2)', '#FF6D00', 's', 130),
-        (8.950, 9.0, '3-Layer Drop (t=2)', '#DD2C00', 'D', 130),
-        (9.122, 7.0, '4-Layer Drop Boundary Healed (t=2)', '#D50000', 'X', 160),
-        (9.930, 2.0, '4-Layer Drop Unhealed (t=0)', '#616161', 'v', 120),
+        (7.855, 39.6, 'Dense Baseline', '#0047AB', '*', 240),
+        (9.122, 6.2, '4-Layer Drop Boundary Healed (t=2)', '#D50000', 'X', 160),
+        (9.930, 1.8, '4-Layer Drop Unhealed (t=0)', '#616161', 'v', 120),
     ]
 
     for ppl, acc, label, color, marker, size in data_points:
@@ -135,16 +132,16 @@ def plot_reasoning_dissociation():
     ax.plot([p[0] for p in sorted_points], [p[1] for p in sorted_points], linestyle='--', color='#333333', linewidth=1.8, alpha=0.75, zorder=3)
 
     # Annotations
-    ax.annotate('Fluency Recovered (PPL 9.12)\nReasoning Collapsed (7.0%)', 
-                xy=(9.122, 7.0), xytext=(8.25, 18.5),
+    ax.annotate('Fluency Recovered (PPL 9.12)\nReasoning Collapsed (6.2%)',
+                xy=(9.122, 6.2), xytext=(8.25, 18.5),
                 arrowprops=dict(facecolor='#D50000', edgecolor='#000000', shrink=0.08, width=1.8, headwidth=8),
                 fontsize=10.5, fontweight='bold', color='#D50000',
                 bbox=dict(boxstyle='round,pad=0.45', facecolor='#ffebee', edgecolor='#D50000', linewidth=1.4))
 
-    ax.set_title('Fluency--Reasoning Dissociation Across Depth Skips (Mistral-7B)', fontsize=13.5, fontweight='bold', pad=12, color='#000000')
+    ax.set_title('Fluency--Reasoning Dissociation Under 4-Layer Pruning (Mistral-7B)', fontsize=13.5, fontweight='bold', pad=12, color='#000000')
     ax.set_xlabel('C4 Validation Perplexity (lower is better)', fontsize=12, fontweight='bold', labelpad=8)
     ax.set_ylabel('GSM8K Reasoning Accuracy (%) (higher is better)', fontsize=12, fontweight='bold', labelpad=8)
-    ax.set_ylim(-1, 38)
+    ax.set_ylim(-1, 45)
     ax.set_xlim(7.5, 10.2)
 
     ax.legend(loc='upper right', frameon=True, facecolor='#ffffff', edgecolor='#000000', fontsize=10)
@@ -248,7 +245,7 @@ def main():
     plot_bathtub()
     plot_thickness_multimodel()
     plot_reasoning_dissociation()
-    plot_bos_attention_sink()
+    # plot_bos_attention_sink() # Disabled to maintain empirical consistency
     plot_pareto_frontier()
     plot_thickness_ablation()
     print("All vivid vector figures successfully generated!")

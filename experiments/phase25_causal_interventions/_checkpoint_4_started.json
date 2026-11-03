@@ -1,0 +1,16 @@
+{
+  "status": "started",
+  "args": {
+    "model_name": "mistralai/Mistral-7B-v0.1",
+    "output_dir": "/home/skapoor/tim-mgdt/experiments/phase25_causal_interventions",
+    "num_seeds": 3,
+    "seed_base": 0,
+    "num_eval_samples": 500,
+    "locations": [
+      "early",
+      "middle",
+      "late"
+    ],
+    "output_suffix": ""
+  }
+}

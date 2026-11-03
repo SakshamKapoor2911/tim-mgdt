@@ -11,6 +11,11 @@ project:
   overleaf_package: "paper/blackboxnlp2026_overleaf.zip"
   review_log: "main_BlackboxNLP2026_review.txt"
   readme: "README.md"
+  git_branches:
+    baseline_branch: "blackboxnlp-2026-baseline"
+    baseline_commit: "2401589"
+    default_branch: "master"
+    active_improvements_branch: "feature/subspace-suturing-improvements"
 
 key_entry_points:
   reproduction_runner: "code/phases/phase15_layer_drop/2_heal_dropped_layers.py"

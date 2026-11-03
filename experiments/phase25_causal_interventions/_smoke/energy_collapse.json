@@ -1,0 +1,62 @@
+{
+  "mistralai/Mistral-7B-v0.1": {
+    "concatenated": {
+      "energy_collapse_percent": 4.566514652912912,
+      "theta_deg": 0.5352230417458277,
+      "raw_projection": 0.9999563694000244,
+      "synced_projection": 0.9999563694000244
+    },
+    "per_passage": {
+      "mean_energy_collapse_percent": 4.566514652912912,
+      "ci_energy_collapse_percent": 0.0,
+      "mean_theta_deg": 0.5352230417458277,
+      "ci_theta_deg": 0.0,
+      "raw_values_energy_collapse": [
+        4.566514652912912
+      ],
+      "raw_values_theta": [
+        0.5352230417458277
+      ]
+    }
+  },
+  "meta-llama/Meta-Llama-3-8B": {
+    "concatenated": {
+      "energy_collapse_percent": 0.8816435804403056,
+      "theta_deg": 0.7047112924755639,
+      "raw_projection": 0.99992436170578,
+      "synced_projection": 0.99992436170578
+    },
+    "per_passage": {
+      "mean_energy_collapse_percent": 0.8816435804403056,
+      "ci_energy_collapse_percent": 0.0,
+      "mean_theta_deg": 0.7047112924755639,
+      "ci_theta_deg": 0.0,
+      "raw_values_energy_collapse": [
+        0.8816435804403056
+      ],
+      "raw_values_theta": [
+        0.7047112924755639
+      ]
+    }
+  },
+  "google/gemma-2-2b": {
+    "concatenated": {
+      "energy_collapse_percent": 41.493011585843234,
+      "theta_deg": 51.435717583210824,
+      "raw_projection": 0.6233922839164734,
+      "synced_projection": 0.6233922839164734
+    },
+    "per_passage": {
+      "mean_energy_collapse_percent": 41.493011585843234,
+      "ci_energy_collapse_percent": 0.0,
+      "mean_theta_deg": 51.435717583210824,
+      "ci_theta_deg": 0.0,
+      "raw_values_energy_collapse": [
+        41.493011585843234
+      ],
+      "raw_values_theta": [
+        51.435717583210824
+      ]
+    }
+  }
+}

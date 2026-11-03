@@ -1,0 +1,30 @@
+{
+  "experiment": "P4_multi_location_seed_sweep",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "num_seeds": 3,
+  "seed_base": 0,
+  "num_eval_samples": 100,
+  "locations": {
+    "middle": {
+      "location": "Middle (11-14)",
+      "drop_indices": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "seeds": {
+        "0": 2.0,
+        "1": 1.0,
+        "2": 3.0
+      },
+      "mean": 2.0,
+      "total_correct": 6,
+      "total_evaluated": 300,
+      "clopper_pearson_ci_95": [
+        0.737416200172641,
+        4.30210826735169
+      ]
+    }
+  }
+}

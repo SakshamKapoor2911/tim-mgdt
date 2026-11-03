@@ -90,3 +90,13 @@ results/
 experiments/**/*_pruned_*/
 experiments/phase20_mask_guided/*_mask_guided_width_*/
 experiments/**/samples_*.jsonl
+
+# Private internal strategy & planning
+docs/FUTURE_EXPANSION_ICLR2027.md
+NEURIPS2026_NEURREPS_SUBMISSION_STRATEGY.md
+Plan.md
+desktop.ini
+
+# Ignore built paper zip archives
+paper/*.zip
+paper/kapoor2026fluency.bib

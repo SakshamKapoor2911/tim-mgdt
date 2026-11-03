@@ -1,0 +1,45 @@
+{
+  "experiment": "1B_causal_sufficiency",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "rotation_layer": 15,
+  "dense_baseline": 30.0,
+  "acc_random_rotated_control": 0.0,
+  "acc_rotated_sufficiency": 0.0,
+  "vec_dense_baseline": [
+    1,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "vec_random_rotated_control": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "vec_rotated_sufficiency": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "num_eval_samples": 10
+}

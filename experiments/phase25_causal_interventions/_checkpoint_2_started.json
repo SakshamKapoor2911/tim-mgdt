@@ -1,0 +1,25 @@
+{
+  "status": "started",
+  "args": {
+    "model_name": "mistralai/Mistral-7B-v0.1",
+    "output_dir": "experiments/phase25_causal_interventions",
+    "incision_start": 11,
+    "skip_depth": 4,
+    "post_incision_layer": 15,
+    "num_calibration": 50,
+    "num_eval_samples": 100,
+    "wrong_layers": [
+      0,
+      5,
+      25
+    ],
+    "wrong_pc_indices": [
+      2,
+      5,
+      10
+    ],
+    "skip_2a": false,
+    "skip_2b": false,
+    "skip_2c": false
+  }
+}

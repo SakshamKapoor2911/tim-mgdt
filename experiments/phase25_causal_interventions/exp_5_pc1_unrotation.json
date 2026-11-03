@@ -1,0 +1,27 @@
+{
+  "experiment": "P5_PC1_unrotation",
+  "model": "mistralai/Mistral-7B-v0.1",
+  "drop_indices": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "num_eval_samples": 500,
+  "num_calibration_prompts": 50,
+  "baseline_dense": 39.6,
+  "baseline_pruned": 1.7999999999999998,
+  "pc1_alignment_projection": -0.9999643564224243,
+  "pc1_projection_synced": 0.9999643564224243,
+  "pc1_theta_degrees": 0.48375956408961207,
+  "pc1_theta_acute": 0.48375956408961207,
+  "pc1_theta_obtuse": 179.5162404359104,
+  "pc1_unrotation_gsm8k": 1.6,
+  "full_procrustes_gsm8k": 1.7999999999999998,
+  "random_rotation_seeds": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "random_rotation_mean": 0.0
+}

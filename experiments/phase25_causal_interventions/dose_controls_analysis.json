@@ -1,0 +1,196 @@
+{
+  "dense_acc": 39.6,
+  "seeds": [
+    "0",
+    "1",
+    "2"
+  ],
+  "5.0": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 39.6,
+        "b_dense_only": 1,
+        "c_dose_only": 1,
+        "n_discordant": 2,
+        "p_exact": 1.0
+      },
+      {
+        "seed": "1",
+        "status": "missing"
+      },
+      {
+        "seed": "2",
+        "status": "missing"
+      }
+    ]
+  },
+  "15.0": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 39.800000000000004,
+        "b_dense_only": 1,
+        "c_dose_only": 2,
+        "n_discordant": 3,
+        "p_exact": 1.0
+      },
+      {
+        "seed": "1",
+        "status": "missing"
+      },
+      {
+        "seed": "2",
+        "status": "missing"
+      }
+    ]
+  },
+  "28.71": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 40.0,
+        "b_dense_only": 1,
+        "c_dose_only": 3,
+        "n_discordant": 4,
+        "p_exact": 0.625
+      },
+      {
+        "seed": "1",
+        "acc": 40.0,
+        "b_dense_only": 1,
+        "c_dose_only": 3,
+        "n_discordant": 4,
+        "p_exact": 0.625
+      },
+      {
+        "seed": "2",
+        "acc": 40.6,
+        "b_dense_only": 2,
+        "c_dose_only": 7,
+        "n_discordant": 9,
+        "p_exact": 0.1796875
+      }
+    ],
+    "mean_acc": 40.2,
+    "half_range": 0.3,
+    "seed_accs": [
+      40.0,
+      40.0,
+      40.6
+    ],
+    "min_per_seed_p": 0.1797,
+    "fisher": {
+      "chi2": 5.3131,
+      "p": 0.5043
+    },
+    "stouffer": {
+      "z": 1.339,
+      "p": 0.1806
+    }
+  },
+  "34.02": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 39.800000000000004,
+        "b_dense_only": 1,
+        "c_dose_only": 2,
+        "n_discordant": 3,
+        "p_exact": 1.0
+      },
+      {
+        "seed": "1",
+        "acc": 40.6,
+        "b_dense_only": 1,
+        "c_dose_only": 6,
+        "n_discordant": 7,
+        "p_exact": 0.125
+      },
+      {
+        "seed": "2",
+        "acc": 40.400000000000006,
+        "b_dense_only": 2,
+        "c_dose_only": 6,
+        "n_discordant": 8,
+        "p_exact": 0.2890625
+      }
+    ],
+    "mean_acc": 40.27,
+    "half_range": 0.4,
+    "seed_accs": [
+      39.800000000000004,
+      40.6,
+      40.400000000000006
+    ],
+    "min_per_seed_p": 0.125,
+    "fisher": {
+      "chi2": 6.6411,
+      "p": 0.3553
+    },
+    "stouffer": {
+      "z": 1.4978,
+      "p": 0.1342
+    }
+  },
+  "45.0": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 40.400000000000006,
+        "b_dense_only": 2,
+        "c_dose_only": 6,
+        "n_discordant": 8,
+        "p_exact": 0.2890625
+      },
+      {
+        "seed": "1",
+        "status": "missing"
+      },
+      {
+        "seed": "2",
+        "status": "missing"
+      }
+    ]
+  },
+  "60.0": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 40.6,
+        "b_dense_only": 2,
+        "c_dose_only": 7,
+        "n_discordant": 9,
+        "p_exact": 0.1796875
+      },
+      {
+        "seed": "1",
+        "status": "missing"
+      },
+      {
+        "seed": "2",
+        "status": "missing"
+      }
+    ]
+  },
+  "90.0": {
+    "per_seed": [
+      {
+        "seed": "0",
+        "acc": 39.800000000000004,
+        "b_dense_only": 4,
+        "c_dose_only": 5,
+        "n_discordant": 9,
+        "p_exact": 1.0
+      },
+      {
+        "seed": "1",
+        "status": "missing"
+      },
+      {
+        "seed": "2",
+        "status": "missing"
+      }
+    ]
+  }
+}

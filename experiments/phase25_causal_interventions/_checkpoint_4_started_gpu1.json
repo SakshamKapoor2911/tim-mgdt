@@ -1,0 +1,14 @@
+{
+  "status": "started",
+  "args": {
+    "model_name": "mistralai/Mistral-7B-v0.1",
+    "output_dir": "experiments/phase25_causal_interventions",
+    "num_seeds": 3,
+    "seed_base": 0,
+    "num_eval_samples": 100,
+    "locations": [
+      "middle"
+    ],
+    "output_suffix": "_gpu1"
+  }
+}
