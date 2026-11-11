@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-10T16:17:53.656408"
+    "timestamp": "2026-11-11T15:58:50.875523"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -142,7 +142,7 @@
           "Bryan Kian Hsiang Low"
         ],
         "summary": "Multimodal Large Language Models (MLLMs) inherit strong textual reasoning capabilities from their language backbones and text pretraining, but often fail to apply the same level of competency to visual inputs. We show that this degradation cannot be attributed to only perception failures, by evaluating models on semantically-equivalent text and rendered-text image inputs: models can accurately read text in the images and recover near-text performance when provided their own transcriptions, but just cannot reason well on the images directly. We characterize this discrepancy as a modality reasoning-access gap, where models fail to route perceived visual content into existing reasoning machinery accessible with text. To bridge this, we propose TIGER (Text-to-Image Gap-targeted training for Enhanced Reasoning), which first mines synthetic modality counterfactuals where a model succeeds on a text problem but fails when provided the corresponding rendered image, and post-trains the model on the image input via Group Relative Policy Optimization (GRPO), along with SFT and DPO variants. Importantly, although trained exclusively on synthetic rendered-text images with no multimodal annotations, TIGER results in model performance improvements across diverse real-world visual benchmarks including geometric diagrams (MathVerse), multi-disciplinary sciences (EMMA, MMMU), complex charts (ChartQAPro), and embodied spatial reasoning (RoboSpatial-Home). TIGER also complements existing state-of-the-art RLVR visual reasoning methods, yielding further performance gains. Analysis involving reasoning-subspace activation and activation patching provide support indicating that TIGER helps to align visual-to-reasoning pathways toward text reasoning states. Our implementation is available at https://github.com/minhngh/Tiger.",
-        "url": "http://arxiv.org/abs/2611.10552v1"
+        "url": "http://arxiv.org/abs/2611.10552v2"
       },
       {
         "title": "Localizing and Editing the Goal Representation of a Vision-Language-Action Model",
