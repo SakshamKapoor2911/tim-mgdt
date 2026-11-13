@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-12T16:42:18.625221"
+    "timestamp": "2026-11-13T16:00:32.419415"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -46,6 +46,21 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Where Is Uncertainty Observed? A Mechanistic Understanding of Uncertainty Quantification in LLMs",
+        "published_date": "2026-11-11",
+        "authors": [
+          "Xiaoyu Liang",
+          "Virginia Ceccatelli",
+          "Aliai Eusebi",
+          "Tobias Braun",
+          "Nils Loose",
+          "Carlo Malagnino",
+          "Lorenzo Cavallaro"
+        ],
+        "summary": "Knowing when a large language model's (LLM's) response can be trusted is critical for its safe use. Uncertainty quantification (UQ) can help LLMs recognize if their responses may be unreliable. Existing taxonomies organize UQ methods by uncertainty source or estimation mechanism. They leave unresolved the question of where uncertainty is observed in the model's computation. The answer matters because the observation point determines whether an estimator has access to enough information to recover a given target, and how well it can recover it. Drawing on mechanistic interpretability, we define four mechanistic observation lenses: the structural lens observes component updates, the representational lens observes hidden states, the distributional lens observes token probabilities, and the semantical lens observes distributions over meanings. We relate these lenses through the residual stream and order them by the information they carry, which gives a principle for selecting UQ methods for different targets. We survey existing methods through the four lenses. Furthermore, we distinguish evaluation targets, criteria, and metrics to clarify different UQ evaluation protocols. Finally, we identify open problems and research directions to connect uncertainty estimation to the internal computation and downstream use of LLMs.",
+        "url": "http://arxiv.org/abs/2611.15735v1"
+      },
+      {
         "title": "A Geometric Invariant of Attention Predicts Head Specialization from Weights Alone",
         "published_date": "2026-11-09",
         "authors": [
@@ -67,18 +82,6 @@
         ],
         "summary": "Reasoning in large language models can be disrupted by simple input perturbations (e.g. adding irrelevant distractors), suggesting reliance on spurious correlations. Identifying and suppressing the spurious features involved in long chain-of-thought reasoning remains challenging. We introduce Spurious-feature WEight EdiTing (SWEET), a training-free method that combines counterfactual interventions with mechanistic interpretability to identify and suppress spurious-features. SWEET extracts token- and sequence-level behavioral directions from activation contrasts between original problems and their counterfactual variants - capturing local and global patterns of spurious reasoning. It then localizes the responsible MLP neurons and attention heads and suppresses their contributions along these directions through weight edits. Using only 20 original-counterfactual pairs for direction extraction, SWEET improves accuracy by an average of 11.8 percentage points on perturbed inputs and 2 points on original inputs across five open-weight reasoning models and five reasoning benchmarks. It also reduces the relative gap between original and perturbed accuracies from 17.6% to 2.5%. Analyses identify two recurring forms of spurious reasoning, i.e. over-integrating irrelevant conditions and overthinking, and provide mechanistic evidence that SWEET improves reasoning robustness by suppressing both behavioral directions.",
         "url": "http://arxiv.org/abs/2611.10974v1"
-      },
-      {
-        "title": "Represented but Not Used: Value-Policy Dissociation in LLM Agents",
-        "published_date": "2026-11-07",
-        "authors": [
-          "Yuzhang Luo",
-          "Mohamed Aghzal",
-          "Liangming Pan",
-          "Ziyu Yao"
-        ],
-        "summary": "Large language model (LLM) agents need to choose actions whose consequences unfold over multiple future steps, yet poor decisions do not reveal whether the model failed to represent those consequences or failed to use them. Mechanistic interpretability has studied internal representations of environment state and plans, but sequential decision making also requires evaluating how candidate actions change future outcomes. Reinforcement learning formalizes this as action value. We study this computation in Qwen2.5-7B-Instruct, Qwen2.5-32B-Instruct, and GPT-OSS-20B across a partially observed Grid environment and WebShop, a simulated web shopping environment. We find that the relative values of candidate actions are linearly decodable from intermediate hidden states, including at states where the policy prefers a worse action. We call this gap between value representation and policy choice value-policy dissociation. To investigate how represented value relates to action selection, we compare direct interventions along the value readout direction with Natural Value Transport (NVT), a transformation learned from hidden state changes that naturally result from differences in action value. While readout-direction interventions have limited and inconsistent effects, NVT more consistently influences action preferences, particularly at later layers. We also test a closed-loop controller that uses the value readout as a sensor and NVT as an actuator, observing improvements in task outcomes. These results suggest that LLM agents can represent useful prospective value without reliably translating it into policy choice.",
-        "url": "http://arxiv.org/abs/2611.10457v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
