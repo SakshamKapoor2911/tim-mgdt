@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-15T15:30:43.370854"
+    "timestamp": "2026-11-16T18:12:13.651541"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -46,6 +46,18 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "Can Mechanistic Interpretability Help Explain LLM Agent Failures? A Case Study on Web Element Hallucination",
+        "published_date": "2026-11-13",
+        "authors": [
+          "Mohamed Aghzal",
+          "Mor Geva",
+          "Gregory J. Stein",
+          "Ziyu Yao"
+        ],
+        "summary": "Mechanistic Interpretability (MI) has made significant progress in explaining the internal computations of Large Language Models (LLMs); however, these advances have yet to demonstrate comparable success in explaining the decision-making processes of LLM-based agents. This paper examines the challenges MI tools face when applied to realistic agentic failures. We focus on one such failure: web agents hallucinating actions that are not available on a website. We apply a series of mechanistic analyzes to Qwen2.5-7B-Instruct as it interacts with live websites. We find that a linear probe trained on the last prompt token can predict hallucinations before generation begins (0.80 AUC) and steering along a probe direction corrects 85\\% of hallucinations, but disrupts 7\\% of valid actions. However, these results only provide a partial explanation of why the agent hallucinates. The probe direction is sensitive to prompt formatting, losing much of its steering effect after a minor change to how actions are represented. Additionally, circuit identification can be difficult as the computation is distributed across multiple components and positions, and the information the agent relies on varies across examples. We discuss how these observations challenge the assumptions underlying standard MI methods for circuit discovery and feature identification, and outline future directions for making these methods better suited to explain failures in LLM-based agents.",
+        "url": "http://arxiv.org/abs/2611.18514v1"
+      },
+      {
         "title": "Where Is Uncertainty Observed? A Mechanistic Understanding of Uncertainty Quantification in LLMs",
         "published_date": "2026-11-11",
         "authors": [
@@ -68,20 +80,6 @@
         ],
         "summary": "Transformers are built with continuous symmetries in the attention mechanism. We derive $\u03c1$, a scalar invariant that measures each head's capacity to couple to rotary positional encodings. This framework allows us to analyze heads without forward passes, opening a new research direction into data-independent analysis of modern LLMs. Empirically, we find that $\u03c1$ predicts induction heads, the most-studied circuit type in mechanistic interpretability, with Spearman correlation between $-0.55$ and $-0.74$ across four bias-free RoPE models spanning $135$M to $7$B parameters. As a preliminary proof of concept, we use $\u03c1$ to apply YaRN to only the top-50% positional heads, which degrades perplexity less than uniform application. Code is available at https://github.com/MPedraBento/rho-invariant.",
         "url": "http://arxiv.org/abs/2611.12206v1"
-      },
-      {
-        "title": "SWEET: Mitigating Spurious Feature Reliance in LLM Reasoning via Weight Editing",
-        "published_date": "2026-11-07",
-        "authors": [
-          "Zhizhang Fu",
-          "Lucas Zhao",
-          "Michalis Korakakis",
-          "Mengru Ding",
-          "Lukasz Szpruch",
-          "Yue Zhang"
-        ],
-        "summary": "Reasoning in large language models can be disrupted by simple input perturbations (e.g. adding irrelevant distractors), suggesting reliance on spurious correlations. Identifying and suppressing the spurious features involved in long chain-of-thought reasoning remains challenging. We introduce Spurious-feature WEight EdiTing (SWEET), a training-free method that combines counterfactual interventions with mechanistic interpretability to identify and suppress spurious-features. SWEET extracts token- and sequence-level behavioral directions from activation contrasts between original problems and their counterfactual variants - capturing local and global patterns of spurious reasoning. It then localizes the responsible MLP neurons and attention heads and suppresses their contributions along these directions through weight edits. Using only 20 original-counterfactual pairs for direction extraction, SWEET improves accuracy by an average of 11.8 percentage points on perturbed inputs and 2 points on original inputs across five open-weight reasoning models and five reasoning benchmarks. It also reduces the relative gap between original and perturbed accuracies from 17.6% to 2.5%. Analyses identify two recurring forms of spurious reasoning, i.e. over-integrating irrelevant conditions and overthinking, and provide mechanistic evidence that SWEET improves reasoning robustness by suppressing both behavioral directions.",
-        "url": "http://arxiv.org/abs/2611.10974v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
