@@ -1,127 +1,24 @@
 {
   "metadata": {
-    "timestamp": "2026-11-17T17:29:54.324180"
+    "timestamp": "2026-11-18T17:06:24.516005"
   },
   "results": {
-    "\"transformer pruning\" OR \"LLM pruning\"": [
-      {
-        "title": "AutoCompress: Automated Hardware-Guided Model Compression",
-        "published_date": "2026-11-05",
-        "authors": [
-          "Sheldon Liang",
-          "Ali Taghibakhshi",
-          "Saurav Muralidharan",
-          "Sharath Turuvekere Sreenivas",
-          "Ashwath Aithal",
-          "Pavlo Molchanov",
-          "Nima Tajbakhsh"
-        ],
-        "summary": "LLM pruning must preserve quality while meeting hardware- and workload-specific constraints on latency, throughput, and memory. Existing pruning workflows often target parameter counts, requiring practitioners to manually select model sizes that meet latency, throughput, and GPU memory limits. However, parameter count alone does not predict these metrics, which depend on the model architecture, workload, hardware, and serving engine. We introduce AutoCompress, a hardware-guided compression framework that directly incorporates such constraints into differentiable architecture search. AutoCompress jointly optimizes global and per-layer structure to produce heterogeneous architectures, guided by serving-engine cost models validated against end-to-end latency, throughput, and memory measurements. We evaluate AutoCompress on long-context local coding, batched datacenter serving, and latency-sensitive in-game interaction. Compared to the state-of-the-art Minitron pruning framework, AutoCompress improves average accuracy across eight benchmarks by 6.57, 2.35, and 0.57 percentage points on RTX 5070, RTX 5080, and H100, respectively. AutoCompress also compresses Nemotron 3.5 Super from 120B to 74B parameters for single-B200 BF16 serving at 128K context, retaining 95% of its mean benchmark score.",
-        "url": "http://arxiv.org/abs/2611.08290v1"
-      },
-      {
-        "title": "Rethinking LLM Pruning via Test-Time Scaling",
-        "published_date": "2026-10-31",
-        "authors": [
-          "Mingyang Song",
-          "Mao Zheng"
-        ],
-        "summary": "Structured pruning reduces the size of large language models, often at the cost of lower accuracy. Whether this decline reflects diminished reasoning capacity or greater difficulty in sampling correct solutions is less clear. We examine this question across expert, FFN and layer pruning on four mathematical and coding benchmarks, comparing original and pruned models through pass@k at matched sampling budgets. Even after substantial pruning, some models match or exceed the original model's reasoning coverage despite lower pass@1, and solve problems left unsolved in the original samples. Retaining broad coverage, however, does not mean that correct solutions remain easy to obtain. Under severe pruning, diverse generated chain-of-thought (CoT) traces can coexist with increased repetition and less reliable generation. As correct answers become harder to sample, the additional attempts can sharply increase total token use even when individual responses become shorter. This separation between coverage and sampling efficiency also clarifies expert-selection gains, as methods with markedly different pass@1 can solve the same problems at large budgets yet require different numbers of attempts to reach a common coverage target. Pruning should therefore be assessed by both the range of problems a model can still solve and the sampling cost of obtaining correct solutions.",
-        "url": "http://arxiv.org/abs/2611.01133v1"
-      },
-      {
-        "title": "The Fragility and Dynamics of LLM Pruning-Recovery Steps",
-        "published_date": "2026-10-11",
-        "authors": [
-          "Luis Frentzen Salim",
-          "Komang Rinartha",
-          "Chia-Chun Wu",
-          "Tran Van Nhiem",
-          "Lun-Wei Ku",
-          "Yung-Hui Li"
-        ],
-        "summary": "Structural pruning followed by a recovery stage is the standard recipe for compressing large language models (LLMs), yet the two stages are typically designed and tuned in isolation. In this work, we study how their interaction shapes the compressed model, sweeping ordering, the data that drives each stage, and the alignment of their training objectives. We find that instruction-following is the first capability to collapse under pruning, well before knowledge, reasoning, or core language modeling, and that much of the pruning in-domain loss is likely not knowledge loss but a domain-agnostic failure to respond coherently to the prompt. We find in our setting that in-domain data is the strongest pruning signal, whereas instruction-style data recovers the most. Stage order matters little, but only marginally. We further analyze how the importance ranking drifts before and after pruning. Together these results give practitioners a concrete recipe for composing pruning and recovery.",
-        "url": "http://arxiv.org/abs/2610.15574v1"
-      }
-    ],
-    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
-      {
-        "title": "Abstention Direction in Large Language Models: Mechanistic Interpretability of Abstention Across Query Ambiguity, Knowledge Limits, and Safety Alignment",
-        "published_date": "2026-11-16",
-        "authors": [
-          "Koki Itai",
-          "Jun Hirako",
-          "Hiroaki Yamagiwa"
-        ],
-        "summary": "Abstention, the withholding of a response by a large language model (LLM) under uncertainty or safety risks, is essential for trustworthy models. The causes of abstention fall into three perspectives: ambiguity in the Query (Q), limits of Model Knowledge (MK), and misalignment with Human Values (HV). However, prior analyses of internal representations have focused on HV, using a refusal direction computed from harmful and harmless queries. No study has analyzed the three perspectives jointly. We therefore extend the refusal direction framework to all three perspectives. Specifically, for each perspective, we construct counterfactual pairs that share a template and differ only in the abstention-inducing factor, and compute an abstention direction by normalizing the difference in mean activations between the two polarities. Activation steering experiments show that intervening in middle layers increases or decreases abstention across all three perspectives. Moreover, steering yields cross-perspective effects, indicating that the abstention directions share a common directional component.",
-        "url": "http://arxiv.org/abs/2611.20441v1"
-      },
-      {
-        "title": "Can Mechanistic Interpretability Help Explain LLM Agent Failures? A Case Study on Web Element Hallucination",
-        "published_date": "2026-11-13",
-        "authors": [
-          "Mohamed Aghzal",
-          "Mor Geva",
-          "Gregory J. Stein",
-          "Ziyu Yao"
-        ],
-        "summary": "Mechanistic Interpretability (MI) has made significant progress in explaining the internal computations of Large Language Models (LLMs); however, these advances have yet to demonstrate comparable success in explaining the decision-making processes of LLM-based agents. This paper examines the challenges MI tools face when applied to realistic agentic failures. We focus on one such failure: web agents hallucinating actions that are not available on a website. We apply a series of mechanistic analyzes to Qwen2.5-7B-Instruct as it interacts with live websites. We find that a linear probe trained on the last prompt token can predict hallucinations before generation begins (0.80 AUC) and steering along a probe direction corrects 85\\% of hallucinations, but disrupts 7\\% of valid actions. However, these results only provide a partial explanation of why the agent hallucinates. The probe direction is sensitive to prompt formatting, losing much of its steering effect after a minor change to how actions are represented. Additionally, circuit identification can be difficult as the computation is distributed across multiple components and positions, and the information the agent relies on varies across examples. We discuss how these observations challenge the assumptions underlying standard MI methods for circuit discovery and feature identification, and outline future directions for making these methods better suited to explain failures in LLM-based agents.",
-        "url": "http://arxiv.org/abs/2611.18514v1"
-      },
-      {
-        "title": "Where Is Uncertainty Observed? A Mechanistic Understanding of Uncertainty Quantification in LLMs",
-        "published_date": "2026-11-11",
-        "authors": [
-          "Xiaoyu Liang",
-          "Virginia Ceccatelli",
-          "Aliai Eusebi",
-          "Tobias Braun",
-          "Nils Loose",
-          "Carlo Malagnino",
-          "Lorenzo Cavallaro"
-        ],
-        "summary": "Knowing when a large language model's (LLM's) response can be trusted is critical for its safe use. Uncertainty quantification (UQ) can help LLMs recognize if their responses may be unreliable. Existing taxonomies organize UQ methods by uncertainty source or estimation mechanism. They leave unresolved the question of where uncertainty is observed in the model's computation. The answer matters because the observation point determines whether an estimator has access to enough information to recover a given target, and how well it can recover it. Drawing on mechanistic interpretability, we define four mechanistic observation lenses: the structural lens observes component updates, the representational lens observes hidden states, the distributional lens observes token probabilities, and the semantical lens observes distributions over meanings. We relate these lenses through the residual stream and order them by the information they carry, which gives a principle for selecting UQ methods for different targets. We survey existing methods through the four lenses. Furthermore, we distinguish evaluation targets, criteria, and metrics to clarify different UQ evaluation protocols. Finally, we identify open problems and research directions to connect uncertainty estimation to the internal computation and downstream use of LLMs.",
-        "url": "http://arxiv.org/abs/2611.15735v1"
-      }
-    ],
-    "\"lottery ticket hypothesis\" AND \"language models\"": [
-      {
-        "title": "BnBERT-iPET: Sparse Few-Shot Language Modeling for Bengali via Lottery Ticket Pruning",
-        "published_date": "2026-08-05",
-        "authors": [
-          "Sajib Hossain",
-          "Md Kamrus Samad",
-          "Anan Ghosh",
-          "Labib Imam Chowdhury",
-          "Nabeel Mohammed"
-        ],
-        "summary": "Deep neural networks have shown impressive success in NLP tasks owing to their complex structure and huge number of edges. Achieving state-of-the-art performance in natural language processing with a large pre-trained model such as BERT is expensive and time-consuming, carries a large carbon footprint, and is difficult to realize on machines with minimal computational capability. This creates a barrier to training complex models for resource-constrained languages such as Bengali. However, in a complex neural model, not all edges are equally impactful, and the contributions of some of them can be neglected. Pruning promises to reduce the memory footprint of regular networks, shorten the training time of ever-growing networks, and increase inference efficiency without sacrificing comparable performance. In this work, we introduce BnBERT-iPET, a sparse few-shot language modeling approach for Bengali, and experimentally show that a lightweight few-shot-learned language model retaining only 10% of the edges of an initial model such as BERT can perform neck and neck with much larger models on challenging tasks for a resource-constrained language such as Bengali. By learning from few shots through iterative pattern exploiting training and achieving 90% sparsity with the Lottery Ticket Hypothesis pruning technique, our pruned BnBERT-iPET model proves to be a tough competitor to state-of-the-art language models such as Bangla Electra, Indic-BERT, and XLM-RoBERTa on downstream tasks over standard benchmark datasets of the Bengali language.",
-        "url": "http://arxiv.org/abs/2608.05104v1"
-      },
-      {
-        "title": "Reinforcement Learning Fine-Tunes a Sparse Subnetwork in Large Language Models",
-        "published_date": "2025-07-23",
-        "authors": [
-          "Andrii Balashov"
-        ],
-        "summary": "Reinforcement learning (RL) is a key post-pretraining step for aligning large language models (LLMs) with complex tasks and human preferences. While it is often assumed that RL fine-tuning requires updating most of a model's parameters, we challenge this assumption with a surprising finding: RL fine-tuning consistently modifies only a small subnetwork (typically 5-30% of weights), leaving most parameters unchanged. We call this phenomenon RL-induced parameter update sparsity. It arises naturally, without any sparsity constraints or parameter-efficient tuning, and appears across multiple RL algorithms (e.g., PPO, DPO, SimPO, PRIME) and model families (e.g., OpenAI, Meta, and open-source LLMs). Moreover, the subnetworks updated by RL show substantial overlap across different seeds, datasets, and algorithms-far exceeding chance-suggesting a partially transferable structure in the pretrained model. We show that fine-tuning only this sparse subnetwork recovers full model performance and yields parameters nearly identical to the fully fine-tuned model. Our analysis suggests this sparsity emerges because RL operates near the model's original distribution, requiring only targeted changes. KL penalties, gradient clipping, and on-policy dynamics have limited effect on the sparsity pattern. These findings shed new light on how RL adapts models: not by shifting all weights, but by focusing training on a small, consistently updated subnetwork. This insight enables more efficient RL methods and reframes sparsity through the lens of the lottery ticket hypothesis.",
-        "url": "http://arxiv.org/abs/2507.17107v2"
-      },
-      {
-        "title": "KS-Lottery: Finding Certified Lottery Tickets for Multilingual Language Models",
-        "published_date": "2024-02-05",
-        "authors": [
-          "Fei Yuan",
-          "Chang Ma",
-          "Shuai Yuan",
-          "Qiushi Sun",
-          "Lei Li"
-        ],
-        "summary": "The lottery ticket hypothesis posits the existence of ``winning tickets'' within a randomly initialized neural network. Do winning tickets exist for LLMs in fine-tuning scenarios? How can we find such winning tickets? In this paper, we propose KS-Lottery, a method to identify a small subset of LLM parameters highly effective in multilingual fine-tuning. Our key idea is to use Kolmogorov-Smirnov Test to analyze the distribution shift of parameters before and after fine-tuning. We further theoretically prove that KS-Lottery can find the certified winning tickets in the embedding layer, fine-tuning on the found parameters is guaranteed to perform as well as full fine-tuning. Comparing KS-Lottery with other parameter-efficient tuning algorithms on translation tasks, the experimental results show that KS-Lottery finds a much smaller set of parameters for fine-tuning while achieving the comparable performance as full fine-tuning LLM. Surprisingly, we find that fine-tuning 18 tokens' embedding of LLaMA suffices to reach the fine-tuning translation performance~\\footnote{https://github.com/CONE-MT/KS-Lottery.}.",
-        "url": "http://arxiv.org/abs/2402.02801v2"
-      }
-    ],
+    "\"transformer pruning\" OR \"LLM pruning\"": [],
+    "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [],
+    "\"lottery ticket hypothesis\" AND \"language models\"": [],
     "\"activation patching\" OR \"causal tracing\"": [
+      {
+        "title": "From Constraints to Causality: Petri net Encodings for Explaining Binary Neural Network Inference",
+        "published_date": "2026-11-17",
+        "authors": [
+          "Alex Chan",
+          "Mohamed Tarraf",
+          "Alex Yakovlev",
+          "Rishad Shafik"
+        ],
+        "summary": "Binary Neural Networks (BNNs) are attractive for resource-constrained hardware and on-device components in autonomous systems. However, their discrete, non-linear behaviour makes them difficult to analyse and trust in safety-relevant settings. Existing approaches based on SAT and Satisfiability Modulo Theories can verify a BNN's input-output properties, but treat it as a monolithic constraint system, which reveal only whether a property holds and not how the computation reaches its result. In this paper, we present an early work that provides a complementary, discrete-event view. We give a compositional translation from the inference semantics of a fixed, trained BNN to a 1-safe Petri net (PN), where each computation step is an explicit transition, so that a firing sequence is a causal trace of the BNN's decision. On a worked example, we establish faithfulness via exhaustive input-output equivalence against a reference implementation, and show how contrasting firing sequences localises where a single-feature change alters the prediction. Finally, we outline two directions this opens: a correctness-of-translation theorem, and a causal-trace analysis of where two trained BNNs diverge in their decisions, a structural question that constraint-based verifiers cannot express.",
+        "url": "http://arxiv.org/abs/2611.22396v1"
+      },
       {
         "title": "Equal Dose, Different Coverage:Tracing Rate and Duration in Image Editing",
         "published_date": "2026-11-15",
@@ -140,15 +37,6 @@
         ],
         "summary": "Vision-based monitoring on construction sites fails at night, at dawn and dusk, in tunnels and under floodlights, when conventional RGB cameras under- or over-expose. Event cameras record per-pixel brightness changes with microsecond latency and over 120 dB of dynamic range, but their benefit for site-relevant object detection has not been quantified on real data. We compare three recent event-based detectors (SMamba, SATE and EvRT-DETR) with an RGB detector trained on the same data, using the pixel-aligned PEOD dataset. On low-light frames (70% of the test set) the best event detector reaches 27.2 AP against 21.3 AP for RGB, and a training-free late fusion of both sensors is the best option in every lighting condition (33.3 AP). An object-level analysis of 53,091 objects shows that brightness has little effect on event detectors, whereas fast motion matters: above 20 pixels per frame RGB finds 11-19% of medium-size objects and EvRT-DETR 39-60%. Activation patching locates the damage caused by losing events at the 1/16-resolution features, with small objects depending on the finest scale, and shows that event detectors fail when few signal events meet added noise. A model-agnostic pruning study keeps about 95% of accuracy with 60% of the input but halves small-object recall. On rendered construction sites, used zero-shot, dimming the floodlights drops RGB to near zero while the event detector keeps most of its AP50. We close with camera-placement guidance for construction sites.",
         "url": "http://arxiv.org/abs/2611.19746v1"
-      },
-      {
-        "title": "Before the Word: Name Information in Description-Derived States of Small Language Models, With and Without Naming Failure",
-        "published_date": "2026-11-14",
-        "authors": [
-          "Fernando Cardenas Piepereit"
-        ],
-        "summary": "The tip-of-the-tongue (TOT) state, knowing an object but not its name, motivates this study as an analogy only. We ask whether small language models form a name-predictive state from a name-free description, and whether it differs when naming fails but description selection succeeds. In an internally pre-registered study (a frozen document, no external registry) of Qwen2-0.5B, SmolLM2-1.7B and Phi-3-mini with 200 items, we combine a similarity read-out, a Patchscopes-style read-out and activation patching with matched controls. H1 (name information in the state) was supported in all nine model-by-description-type combinations; the agreement rule was met by the similarity measure together with patching, while Patchscopes stayed near chance. Post-hoc robustness checks after internal review (logit lens, single-position patch, manipulation check) temper this reading: name information in middle layers is clearest under the multi-position patch and the similarity measure, and weak under single-position patching at 50% depth. H2' (description-paraphrase consistency of name-free states not lower in failure items) is mixed: the SmolLM2 deficit test is significant under the pre-registered specification but not robust; Phi-3 non-inferiority holds across margins and a word-overlap covariate, although its bootstrap interval includes zero; Qwen2-0.5B is inconclusive. A capacity explanation remains untested. We report vehicle-level signals only, not meaning.",
-        "url": "http://arxiv.org/abs/2611.19609v1"
       }
     ]
   }
