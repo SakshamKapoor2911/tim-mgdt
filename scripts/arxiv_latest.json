@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-23T19:59:34.551036"
+    "timestamp": "2026-11-24T19:26:16.866866"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -46,6 +46,15 @@
     ],
     "(\"mechanistic interpretability\" OR \"circuit discovery\") AND \"LLM\"": [
       {
+        "title": "From Observation to Explanation: Mechanistic Interpretability of LLM-Generated Code for Principled Repair",
+        "published_date": "2026-11-19",
+        "authors": [
+          "Musfiqur Rahman"
+        ],
+        "summary": "Large language models (LLMs) have transformed software development, yet our understanding of how they generate code remains critically underdeveloped. We address this gap by triangulating evidence across three layers. Longitudinally, autonomous agent-attributed code is statistically indistinguishable from human code under a semantic modification definition (HR = 1.019, p = 0.490), yet attracts disproportionately corrective modifications in production (49.1% vs 37.9% human baseline). This finding demands a causal explanation. Empirically, existing benchmarks overestimate LLM capabilities: models that achieve 84 to 89% correctness on synthetic tasks attain only 24 to 35% on real-world class-level code. Behaviourally, detection systems reveal puzzling asymmetries: GPT-3.5 is far more detectable than modern models (AUC-ROC = 0.96, a 27-point gap), even though modern models produce mutually similar code structures; yet no single feature reliably distinguishes AI-generated from human code at the class level, and the leading commercial detector achieves only 15 to 64% recall. Together, these findings raise a question that empirical studies cannot answer: why do LLMs generate code with these properties? This thesis proposes mechanistic interpretability, a causal token-level circuit tracing, as the bridge between empirical observation and principled correction. By identifying the transformer circuits responsible for detectable stylistic signatures, hallucination patterns, and systematic defects, we aim to drive an agentic repair framework that intervenes at the causal source of defects rather than patching surface symptoms.",
+        "url": "http://arxiv.org/abs/2611.28153v1"
+      },
+      {
         "title": "Separating Interpretability and Reconstruction in Sparse Autoencoders",
         "published_date": "2026-11-18",
         "authors": [
@@ -54,7 +63,7 @@
           "Mahdi S. Hosseini"
         ],
         "summary": "Sparse Autoencoders (SAEs) are effective tools for mechanistic interpretability by decomposing neural representations into sparse and interpretable features. However, a single sparse representation in traditional SAEs is responsible for both reconstruction fidelity and interpretability, which are not guaranteed to align. To separate these objectives, we propose DualSAE, a modular framework that augments standard SAEs with a plug-in Residual Branch. A standard SAE serves as the Sparse Branch, learning a sparse code that contains the dominant semantics of the input. The added Residual Branch models the non-semantic information omitted by the Sparse Branch. We ensure that the contributions of the two branches towards the overall reconstruction have minimal overlap through a decorrelation loss. We also adopt a two-stage training strategy that first stabilizes sparse representation learning before coupling with the Residual Branch. Across diverse encoder-SAE configurations on two vision datasets and two language corpora, DualSAE achieves mean relative improvements of approximately 29% in reconstruction fidelity and 34% in interpretability (measured by monosemanticity score). Moreover, with more interpretable representations, DualSAE yields consistent performance gains in the downstream applications of topic modeling, hypothesis generation, and LLM steering. Qualitative analysis further suggests that the Sparse Branch indeed preserves dominant semantic content, whereas the Residual Branch captures non-semantic information to improve reconstruction fidelity.",
-        "url": "http://arxiv.org/abs/2611.25165v1"
+        "url": "http://arxiv.org/abs/2611.25165v2"
       },
       {
         "title": "Tracking Representations in LLM Reasoning Traces for Iterated Games",
@@ -66,17 +75,6 @@
         ],
         "summary": "Large language model (LLM) agents achieve state-of-the-art performance across domains through chain-of-thought (CoT) reasoning. Despite their ubiquitous use, little is understood about the relationship between the externalized trace and the model's actual computation. We address this by investigating how LLM agents make decisions in iterative games with incomplete information. Using a series of mechanistic interpretability techniques, we find that the model forms and iteratively revises an internal representation of the game throughout the CoT. Once the model prematurely commits to an incorrect belief, it rarely recovers. This failure is manifested in both the literal trace and the layer activations. Ultimately, as multi-agent systems are more prevalent, our work opens the door to a more focused diagnosis of their strategic reasoning errors. For illustrative purposes, we offer an interactive visualizer of our methodology on selected sample traces at https://interp-self.github.io/gametrace/",
         "url": "http://arxiv.org/abs/2611.23403v1"
-      },
-      {
-        "title": "Abstention Direction in Large Language Models: Mechanistic Interpretability of Abstention Across Query Ambiguity, Knowledge Limits, and Safety Alignment",
-        "published_date": "2026-11-16",
-        "authors": [
-          "Koki Itai",
-          "Jun Hirako",
-          "Hiroaki Yamagiwa"
-        ],
-        "summary": "Abstention, the withholding of a response by a large language model (LLM) under uncertainty or safety risks, is essential for trustworthy models. The causes of abstention fall into three perspectives: ambiguity in the Query (Q), limits of Model Knowledge (MK), and misalignment with Human Values (HV). However, prior analyses of internal representations have focused on HV, using a refusal direction computed from harmful and harmless queries. No study has analyzed the three perspectives jointly. We therefore extend the refusal direction framework to all three perspectives. Specifically, for each perspective, we construct counterfactual pairs that share a template and differ only in the abstention-inducing factor, and compute an abstention direction by normalizing the difference in mean activations between the two polarities. Activation steering experiments show that intervening in middle layers increases or decreases abstention across all three perspectives. Moreover, steering yields cross-perspective effects, indicating that the abstention directions share a common directional component.",
-        "url": "http://arxiv.org/abs/2611.20441v1"
       }
     ],
     "\"lottery ticket hypothesis\" AND \"language models\"": [
@@ -118,6 +116,32 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Can Latent Reasoning Drive LLM Outputs Without a Trace?",
+        "published_date": "2026-11-23",
+        "authors": [
+          "Tomer Ashuach",
+          "Zorik Gekhman",
+          "Avi Caciularu",
+          "Ori Ram",
+          "Jonathan Herzig"
+        ],
+        "summary": "LLMs typically solve complex tasks with chain-of-thought (CoT) reasoning, which is also the main tool for monitoring them for misaligned behavior. However, standard transformers can also solve tasks with complete latent reasoning (CLR), carrying out the whole task internally and outputting only the final answer. Theory bounds the depth of CLR, the number of sequential steps it can carry out, and recent work measured it to be shallow. In this work, we ask whether CLR is deep enough for a model to pursue a hidden objective that requires reasoning. Such a model would generate a CoT that appears to solve the given task, while a latent multi-step computation decides its answer based on the hidden objective. First, we show that a simple auxiliary loss allows models to solve a multi-step task latently at least 5x deeper than previously reported. Then, in two common tasks, decision-making and code generation, we train a model to pursue such a hidden objective, which decides a loan or plants a vulnerability. The model's CoT justifies the output with no trace of the hidden objective, and a strong LLM monitor does not flag it. Finally, using activation patching, we find that the latent computation is completed before the model generates its CoT, which takes no part in it. Altogether, we show that a hidden objective that requires reasoning can go unseen by a monitor that reads only the output.",
+        "url": "http://arxiv.org/abs/2611.31015v1"
+      },
+      {
+        "title": "PatchLens: Adapting Mechanistic Interpretability Techniques for Non-Expert Audiences",
+        "published_date": "2026-11-21",
+        "authors": [
+          "Gwenyth Lincroft",
+          "Yik Su Chan",
+          "Adam Belfki",
+          "Emma Bortz",
+          "Jonathan Bell"
+        ],
+        "summary": "A chat interface presents a reply as finished text, concealing a model that predicts at every position and reruns. Mechanistic interpretability can show how a large language model produces text, but its tools are built for researchers. We present PatchLens, a browser interface that runs logit lens and activation patching on remotely served research-scale models. Each layer's state appears as the tokens it comes closest to, laid out by layer and input position; an intervention is a drag from one cell onto another. The tokens a learner reads are the tokens they manipulate. In a between-subjects study with 61 non-experts, the comparison against Transformer Explainer was inconclusive on post-test knowledge. PatchLens participants wrote their own prompts (21 of 32 against 1 of 29), reported lower mental demand, and located their difficulty in the interface rather than the material. We read the null as evidence about what such an instrument measures.",
+        "url": "http://arxiv.org/abs/2611.28487v1"
+      },
+      {
         "title": "From Constraints to Causality: Petri net Encodings for Explaining Binary Neural Network Inference",
         "published_date": "2026-11-17",
         "authors": [
@@ -128,25 +152,6 @@
         ],
         "summary": "Binary Neural Networks (BNNs) are attractive for resource-constrained hardware and on-device components in autonomous systems. However, their discrete, non-linear behaviour makes them difficult to analyse and trust in safety-relevant settings. Existing approaches based on SAT and Satisfiability Modulo Theories can verify a BNN's input-output properties, but treat it as a monolithic constraint system, which reveal only whether a property holds and not how the computation reaches its result. In this paper, we present an early work that provides a complementary, discrete-event view. We give a compositional translation from the inference semantics of a fixed, trained BNN to a 1-safe Petri net (PN), where each computation step is an explicit transition, so that a firing sequence is a causal trace of the BNN's decision. On a worked example, we establish faithfulness via exhaustive input-output equivalence against a reference implementation, and show how contrasting firing sequences localises where a single-feature change alters the prediction. Finally, we outline two directions this opens: a correctness-of-translation theorem, and a causal-trace analysis of where two trained BNNs diverge in their decisions, a structural question that constraint-based verifiers cannot express.",
         "url": "http://arxiv.org/abs/2611.22396v1"
-      },
-      {
-        "title": "Equal Dose, Different Coverage:Tracing Rate and Duration in Image Editing",
-        "published_date": "2026-11-15",
-        "authors": [
-          "Yi Liu"
-        ],
-        "summary": "Benchmarks for scientific image editing test whether a model draws the outcome of a described process, leaving open which representations carry its errors and whether correcting them yields the right quantity. We study this question with an airbrush of fixed deposition profile, under which exchanging rate and duration preserves the dose and should preserve the endpoint, yet changes the edited coverage. Matched-norm activation patches across text positions and denoising stages show that, in distilled FLUX with Chinese prompts, representations at unchanged text positions (context) carry this discrepancy: early context transfers 3.51 of the 3.98 percentage-point (pp) signed route difference, against 0.09 pp for equal-norm updates at the two changed digits. Early image latents transmit native (unpatched) route differences across two FLUX configurations and OmniGen, while text-position effects depend on configuration. The trace predicts an intervention: share early context between routes while each retains its own digits. On independent English layouts, this reduces the distilled-FLUX absolute route gap from 1.13 to 0.60 pp, outperforms early digit sharing, and improves agreement more than in base FLUX under directly paired tests. Calibrated evaluation, which prescribes an area for each dose, separates this gain from accuracy: sharing the full prompt encoding produces identical route images with target errors of 8-16 pp, and stating the target percentage directly retains a compressed area response. Localization predicts a consistency gain on new layouts, and calibration measures the quantity error that agreement leaves unresolved.",
-        "url": "http://arxiv.org/abs/2611.19955v1"
-      },
-      {
-        "title": "Event-based object detection under adverse lighting and motion: lessons for construction sites",
-        "published_date": "2026-11-15",
-        "authors": [
-          "Zhuoran Feng",
-          "Xiaoshan Zhou"
-        ],
-        "summary": "Vision-based monitoring on construction sites fails at night, at dawn and dusk, in tunnels and under floodlights, when conventional RGB cameras under- or over-expose. Event cameras record per-pixel brightness changes with microsecond latency and over 120 dB of dynamic range, but their benefit for site-relevant object detection has not been quantified on real data. We compare three recent event-based detectors (SMamba, SATE and EvRT-DETR) with an RGB detector trained on the same data, using the pixel-aligned PEOD dataset. On low-light frames (70% of the test set) the best event detector reaches 27.2 AP against 21.3 AP for RGB, and a training-free late fusion of both sensors is the best option in every lighting condition (33.3 AP). An object-level analysis of 53,091 objects shows that brightness has little effect on event detectors, whereas fast motion matters: above 20 pixels per frame RGB finds 11-19% of medium-size objects and EvRT-DETR 39-60%. Activation patching locates the damage caused by losing events at the 1/16-resolution features, with small objects depending on the finest scale, and shows that event detectors fail when few signal events meet added noise. A model-agnostic pruning study keeps about 95% of accuracy with 60% of the input but halves small-object recall. On rendered construction sites, used zero-shot, dimming the floodlights drops RGB to near zero while the event detector keeps most of its AP50. We close with camera-placement guidance for construction sites.",
-        "url": "http://arxiv.org/abs/2611.19746v1"
       }
     ]
   }
