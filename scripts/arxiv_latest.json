@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-11-24T19:26:16.866866"
+    "timestamp": "2026-11-25T18:33:07.564554"
   },
   "results": {
     "\"transformer pruning\" OR \"LLM pruning\"": [
@@ -116,6 +116,16 @@
     ],
     "\"activation patching\" OR \"causal tracing\"": [
       {
+        "title": "Tokenization and Architecture Jointly Allocate Component Roles in Time Series Transformers",
+        "published_date": "2026-11-24",
+        "authors": [
+          "Mingyu Kim",
+          "Doguk Kim"
+        ],
+        "summary": "Time series transformers have achieved strong forecasting performance, yet it remains unclear which of their components, attention or the feed-forward network (FFN), constructs temporal features, and how tokenization such as patching changes this. We propose a temporal probing framework that uses 15 token-level diagnostic tasks to measure feature construction as the gain in linear decodability of temporal properties from one sub-layer to the next (a matched MLP probe already saturates at the embedding). It targets models whose probed representations are read by a linear forecasting head. Applied to 5 supervised models trained on 8 long-term forecasting benchmarks, it finds that the constructing component is not fixed but allocated by the interaction of tokenization and architecture. Under patch tokenization (PatchTST), the FFN's gain exceeds attention's in probing on all 8 datasets, and its 8-dataset mean is 3.2x attention's. Without attention, the FFN alone reaches nearly the same total gain, both when attention is removed from a trained model and when PatchTST is trained without it, and the retrained model forecasts within a few percent of the full model. In probing, attention dominates under variate tokenization (iTransformer); in CATS, cross-attention is the only input path. In a controlled manipulation of PatchTST, single-scalar tokens (P=1) nearly eliminate the FFN's construction, while one more point per token (P=2) restores it. Our forecasting-side interventions (activation patching, knockout, and training without attention) establish component-level reliance and sufficiency. These results offer a representational reading of prior findings on the gains from patching, the competitiveness of self-attention-free models (TSMixer, PatchMLP), and the distinct role of cross-attention in CATS.",
+        "url": "http://arxiv.org/abs/2611.31730v1"
+      },
+      {
         "title": "Can Latent Reasoning Drive LLM Outputs Without a Trace?",
         "published_date": "2026-11-23",
         "authors": [
@@ -140,18 +150,6 @@
         ],
         "summary": "A chat interface presents a reply as finished text, concealing a model that predicts at every position and reruns. Mechanistic interpretability can show how a large language model produces text, but its tools are built for researchers. We present PatchLens, a browser interface that runs logit lens and activation patching on remotely served research-scale models. Each layer's state appears as the tokens it comes closest to, laid out by layer and input position; an intervention is a drag from one cell onto another. The tokens a learner reads are the tokens they manipulate. In a between-subjects study with 61 non-experts, the comparison against Transformer Explainer was inconclusive on post-test knowledge. PatchLens participants wrote their own prompts (21 of 32 against 1 of 29), reported lower mental demand, and located their difficulty in the interface rather than the material. We read the null as evidence about what such an instrument measures.",
         "url": "http://arxiv.org/abs/2611.28487v1"
-      },
-      {
-        "title": "From Constraints to Causality: Petri net Encodings for Explaining Binary Neural Network Inference",
-        "published_date": "2026-11-17",
-        "authors": [
-          "Alex Chan",
-          "Mohamed Tarraf",
-          "Alex Yakovlev",
-          "Rishad Shafik"
-        ],
-        "summary": "Binary Neural Networks (BNNs) are attractive for resource-constrained hardware and on-device components in autonomous systems. However, their discrete, non-linear behaviour makes them difficult to analyse and trust in safety-relevant settings. Existing approaches based on SAT and Satisfiability Modulo Theories can verify a BNN's input-output properties, but treat it as a monolithic constraint system, which reveal only whether a property holds and not how the computation reaches its result. In this paper, we present an early work that provides a complementary, discrete-event view. We give a compositional translation from the inference semantics of a fixed, trained BNN to a 1-safe Petri net (PN), where each computation step is an explicit transition, so that a firing sequence is a causal trace of the BNN's decision. On a worked example, we establish faithfulness via exhaustive input-output equivalence against a reference implementation, and show how contrasting firing sequences localises where a single-feature change alters the prediction. Finally, we outline two directions this opens: a correctness-of-translation theorem, and a causal-trace analysis of where two trained BNNs diverge in their decisions, a structural question that constraint-based verifiers cannot express.",
-        "url": "http://arxiv.org/abs/2611.22396v1"
       }
     ]
   }
